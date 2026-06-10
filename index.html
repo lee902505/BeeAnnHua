@@ -536,7 +536,7 @@ const DB = {
         "wpn_27": { n: "歐西斯短劍", type: "wpn", dmgS: 4, dmgL: 4, hit: 0, spd: 1.0, req: "all", safe: 6, p: 10, gachaWeight: 100 },
         "wpn_shortsword": { n: "短劍", type: "wpn", dmgS: 6, dmgL: 8, hit: 0, spd: 1.0, req: "all", safe: 6, p: 140, gachaWeight: 100 },
         "wpn_28": { n: "三叉戟", type: "wpn", dmgS: 5, dmgL: 4, hit: 0, spd: 1.2, req: "knight,elf", safe: 6, p: 35, gachaWeight: 100 },
-        "wpn_siruge": { n: "瑟魯基之劍", type: "wpn", dmgS: 30, dmgL: 30, hit: 20, spd: 0.3, req: "knight", safe: 9, p: 41196, gachaWeight: 1000 },
+        "wpn_siruge": { n: "瑟魯基之劍", type: "wpn", dmgS: 30, dmgL: 30, hit: 30, spd: 0.3, req: "knight", safe: 9, p: 41196, gachaWeight: 1000 },
         "wpn_29": { n: "尤米弓", type: "wpn", isBow: true, ranged: true, dmgS: 3, dmgL: 3, hit: 0, dmgBonus: 3, spd: 1.0, req: "elf", safe: 6, p: 32680, gachaWeight: 10 },
         "wpn_shortbow": { n: "短弓", type: "wpn", isBow: true, ranged: true, dmgS: 2, dmgL: 2, hit: 0, dmgBonus: -1, spd: 1.0, req: "all", safe: 6, p: 10, gachaWeight: 100 },
         "wpn_30": { n: "米索莉箭", type: "wpn", isArrow: true, dmgS: 10, dmgL: 9, hit: 0, p: 1, unBonus: true, gachaWeight: 0 },
@@ -557,8 +557,8 @@ const DB = {
         "wpn_oakwand": { n: "橡木魔法杖", type: "wpn", dmgS: 3, dmgL: 4, hit: 0, spd: 1.0, req: "all", safe: 6, p: 330, gachaWeight: 100, extraMpPerEn: 1 },
         "wpn_38": { n: "美基魔法杖", type: "wpn", dmgS: 4, dmgL: 5, hit: 0, spd: 1.0, req: "mage", safe: 6, p: 3500, gachaWeight: 100, extraMpPerEn: 1 },
         "wpn_witchwand": { n: "巫術魔法杖", type: "wpn", dmgS: 2, dmgL: 3, hit: 0, mdmg: 1, spd: 1.0, req: "mage", safe: 6, p: 12600, gachaWeight: 50, extraMpPerEn: 1 },
-        "wpn_strwand": { n: "力量魔法杖", type: "wpn", dmgS: 30, dmgL: 30, hit: 30, dmgBonus: 30, mdmg: 30, str: 30, spd: 0.3, req: "mage", safe: 6, p: 71500, eff: "mp_drain", meleeHitPerEn: 1, gachaWeight: 1000 },
-        "wpn_manawand": { n: "瑪那魔杖", type: "wpn", dmgS: 30, dmgL: 30, hit: 30, spd: 0.3, req: "mage", safe: 9, p: 18000, eff: "mp_drain", gachaWeight: 1000 },
+        "wpn_strwand": { n: "力量魔法杖", type: "wpn", dmgS: 30, dmgL: 30, hit: 30, dmgBonus: 30, mdmg: 30, str: 30, spd: 0.3, req: "mage", safe: 9, p: 71500, eff: "mp_drain", meleeHitPerEn: 1, gachaWeight: 1000 },
+        "wpn_manawand": { n: "瑪那魔杖", type: "wpn", dmgS: 3, dmgL: 3, hit: -1, spd: 1.0, req: "mage", safe: 6, p: 18000, eff: "mp_drain", gachaWeight: 10 },
         "wpn_crystalwand": { n: "水晶魔杖", type: "wpn", dmgS: 1, dmgL: 1, hit: 0, spd: 1.0, req: "mage", safe: 6, p: 36000, mpR: 10, mpROverSafe: 2, gachaWeight: 20 },
         "wpn_39": { n: "潘的角", type: "wpn", dmgS: 3, dmgL: 4, hit: 0, spd: 1.2, req: "all", safe: 6, p: 10, gachaWeight: 100 },
         "wpn_40": { n: "覆上米索莉的角", type: "wpn", dmgS: 4, dmgL: 4, hit: 0, spd: 1.2, req: "all", safe: 6, p: 178, unBonus: true, gachaWeight: 100 },
@@ -634,8 +634,8 @@ const DB = {
         "arm_86": { n: "侏儒斗篷", type: "arm", slot: "cloak", ac: 0, req: "all", safe: 4, p: 18, gachaWeight: 100 },
         "arm_87": { n: "保護者斗篷", type: "arm", slot: "cloak", ac: 3, req: "all", safe: 4, p: 8500, gachaWeight: 50 },
         "arm_88": { n: "隱身斗篷", type: "arm", slot: "cloak", ac: 1, d: "穿戴時等同維持隱身術：非BOSS敵人在滿血時不會主動攻擊，受創後才會反擊（卸下即失效）。", req: "all", safe: 4, p: 100000, gachaWeight: 1 },
-        "clk_mr": { n: "抗魔法斗篷", type: "arm", slot: "cloak", ac: 1, mr: 20, mrPerEn: 2, req: "all", safe: 9, p: 3300, str: 10, dex: 10, int: 10, con: 10, wis: 10, hpR: 10, mpR: 10, gachaWeight: 1000 },
-        "arm_89": { n: "瑪那斗篷", type: "arm", slot: "cloak", ac: 2, req: "mage", safe: 9, p: 7200, str: 10, dex: 10, int: 10, con: 10, wis: 10, hpR: 10, mpR: 10, gachaWeight: 1000 },
+        "clk_mr": { n: "抗魔法斗篷", type: "arm", slot: "cloak", ac: 1, mr: 10, mrPerEn: 2, req: "all", safe: 4, p: 3300, gachaWeight: 100 },
+        "arm_89": { n: "瑪那斗篷", type: "arm", slot: "cloak", ac: 2, req: "all", safe: 9, p: 7200, str: 10, dex: 10, int: 10, con: 10, wis: 10, hpR: 10, mpR: 10, gachaWeight: 1000 },
         "bot_short": { n: "短統靴", type: "arm", slot: "boots", ac: 1, req: "all", safe: 4, p: 299, gachaWeight: 100 },
         "arm_90": { n: "長靴", type: "arm", slot: "boots", ac: 2, req: "all", safe: 4, p: 3260, gachaWeight: 100 },
         "arm_91": { n: "皮涼鞋", type: "arm", slot: "boots", ac: 0, req: "all", safe: 4, p: 20, gachaWeight: 100 },
@@ -663,24 +663,24 @@ const DB = {
         "arm_107": { n: "伊娃之盾", type: "arm", slot: "shield", ac: 3, req: "all", safe: 4, p: 5200, mhp: 20, eff: "haste", gachaWeight: 1, block: 40 },
         "arm_108": { n: "塔盾", type: "arm", slot: "shield", ac: 3, req: "knight", safe: 4, p: 9800, gachaWeight: 50, block: 70 },
         "arm_109": { n: "木盾", type: "arm", slot: "shield", ac: 1, req: "all", safe: 4, p: 16, gachaWeight: 100, block: 30 },
-        "arm_110": { n: "銀騎士之盾", type: "arm", slot: "shield", ac: 2, mr: 4, req: "knight", safe: 9, p: 2600, str: 10, dex: 10, int: 10, con: 10, wis: 10, hpR: 10, mpR: 10, gachaWeight: 1000, block: 70 },
+        "arm_110": { n: "銀騎士之盾", type: "arm", slot: "shield", ac: 2, mr: 4, req: "knight", safe: 4, p: 2600, gachaWeight: 20, block: 70 },
         "arm_111": { n: "皮盾牌", type: "arm", slot: "shield", ac: 1, req: "all", safe: 4, p: 32, gachaWeight: 100, block: 20 },
         "arm_112": { n: "銀釘皮盾", type: "arm", slot: "shield", ac: 2, req: "all", safe: 4, p: 255, gachaWeight: 100, block: 30 },
         "shd_bone": { n: "骷髏盾牌", type: "arm", slot: "shield", ac: 3, req: "all", safe: 0, p: 255, gachaWeight: 100, block: 30 },
 		"shd_redknight": { n: "紅騎士盾牌", type: "arm", slot: "shield", ac: 2, req: "knight", safe: 6, p: 9800, immStone: true, magicDrNonEle: 20, d: "受到無屬性魔法傷害時減少20%。免疫石化。", gachaWeight: 20, block: 50 },
         "arm_113": { n: "鋼鐵盾牌", type: "arm", slot: "shield", ac: 3, req: "knight", safe: 4, p: 16500, gachaWeight: 20, block: 60 },
         "arm_114": { n: "受詛咒的魔法書", type: "arm", slot: "shield", ac: 1, req: "mage", p: 1, gachaWeight: 0, block: 10 },
-        "arm_115": { n: "魔法能量之書", type: "arm", slot: "shield", ac: 2, req: "mage", safe: 9, p: 9800, str: 10, dex: 10, int: 10, con: 10, wis: 10, hpR: 10, mpR: 10, gachaWeight: 1000, block: 10 },
+        "arm_115": { n: "魔法能量之書", type: "arm", slot: "shield", ac: 2, req: "mage", safe: 9, p: 9800, str: 10, dex: 10, int: 10, con: 10, wis: 10, hpR: 10, mpR: 10, gachaWeight: 1000 },
         "acc_116": { n: "傳送控制戒指", type: "acc", slot: "ring", ac: 0, req: "all", safe: 9, p: 50000, str: 10, dex: 10, int: 10, con: 10, wis: 10, hpR: 10, mpR: 10, gachaWeight: 1000 },
         "acc_117": { n: "變形控制戒指", type: "acc", slot: "ring", ac: 0, req: "all", safe: 9, p: 50000, str: 10, dex: 10, int: 10, con: 10, wis: 10, hpR: 10, mpR: 10, gachaWeight: 1000 },
-        "rng_mr": { n: "抗魔戒指", type: "acc", slot: "ring", ac: 0, mr: 25, req: "all", safe: 9, p: 10000 str: 10, dex: 10, int: 10, con: 10, wis: 10, hpR: 10, mpR: 10, gachaWeight: 1000 },
+        "rng_mr": { n: "抗魔戒指", type: "acc", slot: "ring", ac: 0, mr: 20, req: "all", safe: 9, p: 10000, str: 10, dex: 10, int: 10, con: 10, wis: 10, hpR: 10, mpR: 10, gachaWeight: 1000 },
         "acc_118": { n: "守護戒指", type: "acc", slot: "ring", ac: 1, req: "all", safe: 0, p: 10000, gachaWeight: 1 },
         "acc_119": { n: "長者戒指", type: "acc", slot: "ring", ac: 0, req: "all", safe: 0, p: 10000, mmp: 10, mpR: 1, gachaWeight: 1 },
         "amu_str": { n: "力量項鍊", type: "acc", slot: "amulet", ac: 0, req: "all", safe: 9, p: 25000, str: 10, dex: 10, int: 10, con: 10, wis: 10, hpR: 10, mpR: 10, gachaWeight: 1000 },
         "acc_120": { n: "敏捷項鍊", type: "acc", slot: "amulet", ac: 0, req: "all", safe: 9, p: 25000, str: 10, dex: 10, int: 10, con: 10, wis: 10, hpR: 10, mpR: 10, gachaWeight: 1000 },
         "acc_121": { n: "體質項鍊", type: "acc", slot: "amulet", ac: 0, req: "all", safe: 9, p: 25000, str: 10, dex: 10, int: 10, con: 10, wis: 10, hpR: 10, mpR: 10, gachaWeight: 1000 },
         "amu_int": { n: "智力項鍊", type: "acc", slot: "amulet", ac: 0, req: "all", safe: 9, p: 25000, str: 10, dex: 10, int: 10, con: 10, wis: 10, hpR: 10, mpR: 10, gachaWeight: 1000 },
-        "acc_122": { n: "精神項鍊", type: "acc", slot: "amulet", ac: 0, req: "all", safe: 9, p: 25000, str: 10, dex: 10, int: 10, con: 10, wis: 10, hpR: 10, mpR: 10, gachaWeight: 1000 },
+        "acc_122": { n: "精神項鍊", type: "acc", slot: "amulet", ac: 0, req: "all", safe: 9, p: 25000, str: 10, dex: 10, int: 10, con: 10, wis: 10, hpR: 10, mpR: 10, gachaWeight: 10001 },
         "acc_123": { n: "妖魔戰士項鍊", type: "acc", slot: "amulet", ac: 0, req: "all", safe: 0, p: 5000, mhp: 20, gachaWeight: 20 },
         "acc_124": { n: "守護項鍊", type: "acc", slot: "amulet", ac: 1, req: "all", safe: 0, p: 15000, gachaWeight: 1 },
         "acc_125": { n: "長老項鍊", type: "acc", slot: "amulet", ac: 0, req: "all", safe: 0, p: 20000, mmp: 30, mpR: 1, gachaWeight: 1 },
@@ -959,7 +959,7 @@ const DB = {
         "set_4": { n: "骷髏套裝", items: ["hlm_bone", "shd_bone", "amr_bone"], ac: 2, hp: 10 },
         "set_5": { n: "鋼鐵套裝", items: ["arm_100", "hlm_steel", "arm_113", "arm_94", "arm_79"], ac: 3 },
         "set_6": { n: "法師套裝", items: ["hlm_mage", "amr_magerobe"], mp: 50 },
-        "set_7": { n: "死亡騎士套裝", items: ["glv_dk", "amr_dk", "bot_dk", "hlm_dk"], ac: 10 },
+        "set_7": { n: "死亡騎士套裝", items: ["glv_dk", "amr_dk", "bot_dk", "hlm_dk"], ac: 4 },
         "set_8": { n: "克特套裝", items: ["arm_101", "amr_kurt", "arm_97", "hlm_kurt"], ac: 4 },
         "set_9": { n: "抗魔套裝", items: ["rng_mr", "acc_126", "blt_mr"], mr: 5 },
         "set_10": { n: "守護套裝", items: ["acc_118", "acc_124", "acc_138"], ac: 1 }
@@ -7599,7 +7599,7 @@ function startGame() {
     // =====================================
     // 配發共通起始道具
     // =====================================
-    gainItem('new_item_239', 10000000, true, true); // 潘朵拉抽獎卷 x 10000000
+    gainItem('new_item_239', 1000000, true, true); // 潘朵拉抽獎卷 x 1000000
 
     // 依據不同職業配發專屬起始道具
     if (player.cls === 'elf') {
