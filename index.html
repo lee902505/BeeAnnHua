@@ -902,15 +902,15 @@ const DB = {
         "bk_resurrection": { type: "skillbk", n: "魔法書(返生術)", p: 54000, sk: "sk_resurrection", gachaWeight: 1 },
         "bk_seal": { type: "skillbk", n: "魔法書(魔法封印)", p: 54000, sk: "sk_seal", gachaWeight: 40 },
 
-        "bk_holy_barrier": { type: "skillbk", n: "魔法書(聖結界)", p: 120000, sk: "sk_holy_barrier", gachaWeight: 1 },
+        "bk_holy_barrier": { type: "skillbk", n: "魔法書(聖結界)", p: 120000, sk: "sk_holy_barrier", gachaWeight: 10 },
         "bk_sleep_mist": { type: "skillbk", n: "魔法書(沉睡之霧)", p: 120000, sk: "sk_sleep_mist", gachaWeight: 30 },
         "bk_thunder_storm": { type: "skillbk", n: "魔法書(雷霆風暴)", p: 120000, sk: "sk_thunder_storm", gachaWeight: 10 },
-        "bk_fire_storm": { type: "skillbk", n: "魔法書(火風暴)", p: 120000, sk: "sk_fire_storm", gachaWeight: 1 },
+        "bk_fire_storm": { type: "skillbk", n: "魔法書(火風暴)", p: 120000, sk: "sk_fire_storm", gachaWeight: 10 },
         "bk_blaze": { type: "skillbk", n: "魔法書(烈炎術)", p: 6400, sk: "sk_blaze", gachaWeight: 0 },
 
-        "bk_meteor": { type: "skillbk", n: "魔法書(流星雨)", p: 250000, sk: "sk_meteor", gachaWeight: 1 },
-        "bk_soul_up": { type: "skillbk", n: "魔法書(靈魂昇華)", p: 250000, sk: "sk_soul_up", gachaWeight: 1 },
-        "bk_disintegrate": { type: "skillbk", n: "魔法書(究極光裂術)", p: 250000, sk: "sk_disintegrate", gachaWeight: 1 },
+        "bk_meteor": { type: "skillbk", n: "魔法書(流星雨)", p: 250000, sk: "sk_meteor", gachaWeight: 10 },
+        "bk_soul_up": { type: "skillbk", n: "魔法書(靈魂昇華)", p: 250000, sk: "sk_soul_up", gachaWeight: 10 },
+        "bk_disintegrate": { type: "skillbk", n: "魔法書(究極光裂術)", p: 250000, sk: "sk_disintegrate", gachaWeight: 10 },
 
         // ===== 騎士技術書 =====
         "bk_solid_shield": { type: "skillbk", n: "技術書(堅固防護)", p: 30000, sk: "sk_solid_shield", gachaWeight: 10 },
@@ -1332,12 +1332,12 @@ const DB = {
         "sk_holy_barrier": { n: "聖結界", type: "buff", tier: 9, reqM: 36, mp: 30, dur: 32, msg: "一道神聖的防禦屏障保護著你。" },
         "sk_sleep_mist": { n: "沉睡之霧", type: "atk", tier: 9, reqM: 36, mp: 40, dmgType: "magic", target: "all", status: { kind: "sleep", pbase: 100, dur: 8 } },
         "sk_thunder_storm": { n: "雷霆風暴", type: "atk", tier: 9, reqM: 36, mp: 48, dmgType: "magic", ele: "wind", target: "all", multiDmg: [[1, 9], [1, 9], [1, 9], [1, 9], [1, 9]] },
-        "sk_fire_storm": { n: "火風暴", type: "atk", tier: 9, reqM: 36, mp: 48, dmgType: "magic", ele: "fire", target: "all", multiDmg: [[3, 9], [3, 9]] },
+        "sk_fire_storm": { n: "火風暴", type: "atk", tier: 9, reqM: 36, mp: 20, dmgType: "magic", ele: "fire", target: "all", multiDmg: [[3, 9], [3, 9]] },
 
         // 十階魔法 (Lv 40)
-        "sk_meteor": { n: "流星雨", type: "atk", tier: 10, reqM: 40, mp: 60, dmgType: "magic", ele: "fire", target: "all", multiDmg: [[1, 10], [1, 10], [1, 10], [1, 10], [1, 10], [1, 10]] },
+        "sk_meteor": { n: "流星雨", type: "atk", tier: 10, reqM: 40, mp: 20, dmgType: "magic", ele: "fire", target: "all", multiDmg: [[1, 10], [1, 10], [1, 10], [1, 10], [1, 10], [1, 10]] },
         "sk_soul_up": { n: "靈魂昇華", type: "buff", tier: 10, reqM: 40, mp: 20, dur: 1200, msg: "你覺得身體充滿了活力。" },
-        "sk_disintegrate": { n: "究極光裂術", type: "atk", tier: 10, reqM: 40, mp: 70, dmgType: "magic", ele: "none", dmgDice: [1, 120] },
+        "sk_disintegrate": { n: "究極光裂術", type: "atk", tier: 10, reqM: 20, mp: 70, dmgType: "magic", ele: "none", dmgDice: [1, 120] },
 
         // ================= 【騎士技術】 =================
         "sk_solid_shield": { n: "堅固防護", type: "buff", tier: 2, reqK: 40, hpCost: 30, mp: 5, dur: 180, reqShield: true, d: { er: 15 } },
