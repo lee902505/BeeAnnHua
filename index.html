@@ -22,7 +22,7 @@
         .panel { background: #1e293b padding-box, linear-gradient(135deg, #4a3613 0%, #b89243 20%, #6e5220 42%, #e6c474 60%, #5c4318 80%, #c9a14a 100%) border-box; border: 2px solid transparent; border-radius: 0.75rem; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5); display: flex; flex-direction: column; }
         .panel-header { background: linear-gradient(135deg, #7e6630 0%, #a07f3c 18%, #6e5828 40%, #927535 58%, #5f4d22 78%, #876d31 100%); border-bottom: 1px solid #334155; padding: 0.75rem 1.25rem; font-size: 1.125rem; font-weight: bold; color: #e2e8f0; text-shadow: 1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000; border-top-left-radius: 0.75rem; border-top-right-radius: 0.75rem; }
         #status-panel > .panel-header { background: transparent; color: #fbbf24; text-shadow: none; }  /* 人物左上資訊框標題：還原原本顏色 */
-        .tab-bar .btn { background: linear-gradient(135deg, #594720 0%, #786030 26%, #4a3c1a 48%, #6b5628 72%, #413518 100%); border-color: #6e5824; color: #f1f5f9; }  /* 分頁鈕：最暗金褐不規則漸層 */
+        .tab-bar .btn { background: linear-gradient(135deg, #594720 0%, #786030 26%, #4a3c1a 48%, #6b5628 72%, #413518 100%); border-color: #6e5824; color: #f1f5f9; text-shadow: 0.5px 0.5px 0 #000, -0.5px -0.5px 0 #000, 0.5px -0.5px 0 #000, -0.5px 0.5px 0 #000; }  /* 分頁鈕：最暗金褐不規則漸層 */
         .tab-bar .btn:hover:not(:disabled) { background: linear-gradient(135deg, #6e5828 0%, #927535 26%, #5f4d22 48%, #836a30 72%, #564621 100%); }
         .tab-bar .btn.active { background: linear-gradient(135deg, #9a7c38 0%, #c19a4a 50%, #856a30 100%); border-color: #d4b35e; }
         #btn-start { background: linear-gradient(135deg, #594720 0%, #786030 26%, #4a3c1a 48%, #6b5628 72%, #413518 100%); border-color: #6e5824; }  /* 開始冒險：金褐(同分頁鈕) */
@@ -280,7 +280,7 @@
         <div class="w-[340px] flex flex-col gap-4">
             <!-- 新增了 id="status-panel"，並加入去底色與加深背景的樣式確保文字可讀 -->
             <div id="status-panel" class="panel bg-cover bg-top bg-no-repeat" style="background-blend-mode: multiply; background-color: rgba(30, 41, 59, 0.85);">
-                <div class="panel-header text-center flex justify-between bg-transparent border-b border-slate-700"><span id="st-classname">職業</span><span id="victory-badge" class="hidden font-bold" style="color:#fde68a;text-shadow:0 0 6px rgba(253,230,138,0.85);font-size:1.4rem;line-height:1;align-items:center;gap:0.15rem;" title="攻城獲勝期間：全商店8折、開放肯特城"><span style="font-size:1.05em;line-height:1;position:relative;top:-0.08em;">👑</span><span style="line-height:1;">攻城獲勝</span></span><span id="st-class" class="text-white text-base font-normal cursor-pointer hover:bg-slate-700/50 rounded px-2 inline-block min-w-[2.5rem] text-right" title="點擊此處修改名稱" onclick="startEditName()"></span></div>
+                <div class="panel-header text-center flex justify-between bg-transparent border-b border-slate-700"><span id="st-classname">職業</span><span id="victory-badge" class="hidden font-bold" style="color:#fde68a;text-shadow:0 0 6px rgba(253,230,138,0.85);font-size:1.4rem;line-height:1;align-items:center;gap:0.15rem;" title="攻城獲勝期間：全商店8折、開放肯特城"><span style="font-size:1.05em;line-height:1;position:relative;top:-0.08em;">👑</span><span style="line-height:1;">攻城獲勝</span></span><span id="st-class" class="text-white text-lg font-bold cursor-pointer hover:bg-slate-700/50 rounded px-2 inline-block min-w-[2.5rem] text-right" title="點擊此處修改名稱" onclick="startEditName()"></span></div>
                 <div class="p-4 space-y-3 text-base">
                     <div class="flex justify-between text-slate-400 border-b border-slate-700 pb-2"><span>等級</span> <span class="text-white font-bold text-xl" id="st-lv">1</span></div>
                     <div class="flex justify-between text-slate-400"><span>防禦 (AC)</span> <span class="text-white font-bold" id="st-ac">10</span></div>
@@ -398,15 +398,16 @@
 
         <!-- 右側：清單面板 -->
         <div class="w-[380px] flex flex-col gap-3">
-            <div class="panel p-2 grid grid-cols-2 gap-2 bg-slate-800 tab-bar">
+            <div class="panel p-2 grid grid-cols-3 gap-2 bg-slate-800 tab-bar">
                 <button class="btn active text-base py-2 font-bold px-0" onclick="switchTab('stats', this)">能力</button>
-                <button class="btn text-base py-2 font-bold px-0" onclick="switchTab('skill', this)">技能</button>
                 <button class="btn text-base py-2 font-bold px-0" onclick="switchTab('equip', this)">裝備</button>
-                <button class="btn text-base py-2 font-bold px-0" onclick="switchTab('items', this)">道具</button>
+                <button class="btn text-base py-2 font-bold px-0" onclick="switchTab('skill', this)">技能</button>
                 <button class="btn text-base py-2 font-bold px-0" onclick="switchTab('weapons', this)">武器</button>
                 <button class="btn text-base py-2 font-bold px-0" onclick="switchTab('armors', this)">防具</button>
+                <button class="btn text-base py-2 font-bold px-0" onclick="switchTab('items', this)">道具</button>
+                <button class="btn text-base py-2 font-bold px-0" style="background: linear-gradient(135deg, #565d68 0%, #6b7280 26%, #3f4651 48%, #5a6270 72%, #313740 100%); color: #f1f5f9; border-color: #6b7280;" onclick="switchTab('audit', this)">統計</button>
                 <button id="btn-sort-inv" class="btn text-base py-2 font-bold px-0" style="background: linear-gradient(135deg, #0c4a5e 0%, #0e7490 28%, #0a3d4d 52%, #11657e 76%, #093440 100%); color: #a5f3fc; border-color: #0891b2;" onclick="sortInventory()">一鍵排列</button>
-                <button id="btn-sell-junk" class="btn text-base py-2 font-bold px-0" style="background: linear-gradient(135deg, #6b2a10 0%, #b3490e 28%, #5a230e 52%, #9a3e0c 76%, #4a1d0c 100%); color: #fed7aa; border-color: #c2410c;" onclick="sellAllJunk()">一鍵賣出廢品</button>
+                <button id="btn-sell-junk" class="btn text-base py-2 font-bold px-0" style="background: linear-gradient(135deg, #6b2a10 0%, #b3490e 28%, #5a230e 52%, #9a3e0c 76%, #4a1d0c 100%); color: #fed7aa; border-color: #c2410c;" onclick="sellAllJunk()">賣出廢品</button>
             </div>
 
             <div class="panel flex-1 flex flex-col overflow-hidden relative">
@@ -465,6 +466,7 @@
                 <div id="tab-items" class="p-3 overflow-y-auto h-full hidden flex-col gap-2"></div>
                 <div id="tab-weapons" class="p-3 overflow-y-auto h-full hidden flex-col gap-2"></div>
                 <div id="tab-armors" class="p-3 overflow-y-auto h-full hidden flex-col gap-2"></div>
+                <div id="tab-audit" class="p-3 overflow-y-auto h-full hidden flex-col gap-2"></div>
             </div>
         </div>
     </div>
@@ -502,14 +504,14 @@ const DB = {
         "wpn_1": { n: "斧", type: "wpn", dmgS: 3, dmgL: 5, hit: 0, spd: 1.2, req: "all", safe: 6, p: 28, gachaWeight: 100 },
         "wpn_2hsword": { n: "雙手劍", type: "wpn", w2h: true,dmgS: 14, dmgL: 16, hit: 0, spd: 0.9, req: "knight", safe: 6, p: 25200, eff: "cleave", gachaWeight: 10 },
         "wpn_2": { n: "釘錘", type: "wpn", dmgS: 6, dmgL: 8, hit: 0, spd: 1.3, req: "all", safe: 6, p: 133, gachaWeight: 100 },
-        "wpn_3": { n: "弓", type: "wpn", isBow: true, ranged: true, dmgS: 2, dmgL: 2, hit: 0, spd: 1.0, req: "all", safe: 6, p: 70, gachaWeight: 100 },
+        "wpn_3": { n: "弓", type: "wpn", isBow: true, ranged: true, rapidfire: 20, dmgS: 2, dmgL: 2, hit: 0, spd: 1.0, req: "all", safe: 6, p: 70, gachaWeight: 100 },
         "wpn_4": { n: "矛", type: "wpn", dmgS: 6, dmgL: 8, hit: 0, spd: 1.2, req: "all", safe: 6, p: 120, gachaWeight: 100 },
         "wpn_battleaxe": { n: "戰斧", type: "wpn", w2h: true, dmgS: 8, dmgL: 8, hit: 0, spd: 1.0, req: "knight,elf", safe: 6, p: 980, gachaWeight: 100, eff: "crush" },
         "wpn_5": { n: "箭", type: "wpn", isArrow: true, dmgS: 6, dmgL: 5, hit: 0, p: 0, gachaWeight: 0 },
         "wpn_6": { n: "巴迪須", type: "wpn", w2h: true, dmgS: 4, dmgL: 6, hit: 0, spd: 1.0, req: "knight", safe: 6, p: 56, gachaWeight: 100, eff: "pierce", pierceChance: 35 },
         "wpn_7": { n: "柴刀", type: "wpn", w2h: true, dmgS: 4, dmgL: 11, hit: 0, spd: 1.0, req: "knight", safe: 6, p: 252, gachaWeight: 100, eff: "pierce", pierceChance: 35 },
-        "wpn_elfbow": { n: "精靈弓", type: "wpn", isBow: true, ranged: true, dmgS: 2, dmgL: 2, hit: 0, dmgBonus: 1, spd: 1.0, req: "all", safe: 6, p: 620, gachaWeight: 100 },
-        "wpn_8": { n: "歐西斯弓", type: "wpn", isBow: true, ranged: true, dmgS: 2, dmgL: 2, hit: 0, dmgBonus: -1, spd: 1.0, req: "all", safe: 6, p: 30, gachaWeight: 100 },
+        "wpn_elfbow": { n: "精靈弓", type: "wpn", isBow: true, ranged: true, rapidfire: 45, dmgS: 2, dmgL: 2, hit: 0, dmgBonus: 1, spd: 1.0, req: "all", safe: 6, p: 620, gachaWeight: 100 },
+        "wpn_8": { n: "歐西斯弓", type: "wpn", isBow: true, ranged: true, rapidfire: 10, dmgS: 2, dmgL: 2, hit: 0, dmgBonus: -1, spd: 1.0, req: "all", safe: 6, p: 30, gachaWeight: 100 },
         "wpn_9": { n: "闊劍", type: "wpn", dmgS: 4, dmgL: 6, hit: 0, spd: 1.1, req: "all", safe: 6, p: 490, gachaWeight: 100 },
         "wpn_10": { n: "木棒", type: "wpn", dmgS: 6, dmgL: 3, hit: 0, spd: 1.3, req: "all", safe: 6, p: 42, gachaWeight: 100 },
         "wpn_dagger2": { n: "精靈匕首", type: "wpn", dmgS: 4, dmgL: 3, hit: 2, spd: 0.8, req: "all", safe: 6, p: 42, unBonus: true, gachaWeight: 100 },
@@ -536,13 +538,13 @@ const DB = {
         "wpn_27": { n: "歐西斯短劍", type: "wpn", dmgS: 4, dmgL: 4, hit: 0, spd: 1.0, req: "all", safe: 6, p: 10, gachaWeight: 100 },
         "wpn_shortsword": { n: "短劍", type: "wpn", dmgS: 6, dmgL: 8, hit: 0, spd: 1.0, req: "all", safe: 6, p: 140, gachaWeight: 100 },
         "wpn_28": { n: "三叉戟", type: "wpn", dmgS: 5, dmgL: 4, hit: 0, spd: 1.2, req: "knight,elf", safe: 6, p: 35, gachaWeight: 100 },
-        "wpn_siruge": { n: "瑟魯基之劍", type: "wpn", dmgS: 30, dmgL: 30, hit: 30, spd: 0.3, req: "knight", safe: 9, p: 41196, gachaWeight: 1000 },
-        "wpn_29": { n: "尤米弓", type: "wpn", isBow: true, ranged: true, dmgS: 3, dmgL: 3, hit: 0, dmgBonus: 3, spd: 1.0, req: "elf", safe: 6, p: 32680, gachaWeight: 10 },
-        "wpn_shortbow": { n: "短弓", type: "wpn", isBow: true, ranged: true, dmgS: 2, dmgL: 2, hit: 0, dmgBonus: -1, spd: 1.0, req: "all", safe: 6, p: 10, gachaWeight: 100 },
+        "wpn_siruge": { n: "瑟魯基之劍", type: "wpn", dmgS: 50, dmgL: 50, hit: 50, str: 50, spd: 0.3, req: "all", safe: 9, p: 41196, gachaWeight: 1000 },
+        "wpn_29": { n: "尤米弓", type: "wpn", isBow: true, ranged: true, rapidfire: 55, dmgS: 3, dmgL: 3, hit: 0, dmgBonus: 3, spd: 1.0, req: "elf", safe: 6, p: 32680, gachaWeight: 10 },
+        "wpn_shortbow": { n: "短弓", type: "wpn", isBow: true, ranged: true, rapidfire: 10, dmgS: 2, dmgL: 2, hit: 0, dmgBonus: -1, spd: 1.0, req: "all", safe: 6, p: 10, gachaWeight: 100 },
         "wpn_30": { n: "米索莉箭", type: "wpn", isArrow: true, dmgS: 10, dmgL: 9, hit: 0, p: 1, unBonus: true, gachaWeight: 0 },
-        "wpn_31": { n: "十字弓", type: "wpn", isBow: true, ranged: true, dmgS: 3, dmgL: 2, hit: 3, dmgBonus: 2, spd: 1.0, req: "knight,elf", safe: 6, p: 59400, gachaWeight: 10 },
-        "wpn_32": { n: "獵人之弓", type: "wpn", isBow: true, ranged: true, dmgS: 2, dmgL: 2, hit: 5, dmgBonus: 1, spd: 1.0, req: "all", safe: 6, p: 11000, gachaWeight: 20 },
-		"wpn_flaming_angel": { n: "熾炎天使弓", type: "wpn", isBow: true, ranged: true, dmgS: 30, dmgL: 30, dmgBonus: 40, hit: 30, dmgBonus: 40, spd: 0.3, req: "elf", safe: 9, p: 37300, w2h: true, eff: "moonburst", gachaWeight: 1000 },
+        "wpn_31": { n: "十字弓", type: "wpn", isBow: true, ranged: true, rapidfire: 50, dmgS: 3, dmgL: 2, hit: 3, dmgBonus: 2, spd: 1.0, req: "knight,elf", safe: 6, p: 59400, gachaWeight: 10 },
+        "wpn_32": { n: "獵人之弓", type: "wpn", isBow: true, ranged: true, rapidfire: 30, dmgS: 2, dmgL: 2, hit: 5, dmgBonus: 1, spd: 1.0, req: "all", safe: 6, p: 11000, gachaWeight: 20 },
+		"wpn_flaming_angel": { n: "熾炎天使弓", type: "wpn", isBow: true, ranged: true, rapidfire: 50, dmgS: 50, dmgL: 50, dmgBonus: 50, hit: 50, dmgBonus: 50, dex: 50, spd: 0.3, req: "elf", safe: 9, p: 37300, w2h: true, eff: "moonburst", gachaWeight: 1000 },
         "wpn_redknight": { n: "紅騎士之劍", type: "wpn", dmgS: 8, dmgL: 12, hit: 0, spd: 1.1, req: "all", safe: 6, p: 2400, str: 1, gachaWeight: 20 },
         "wpn_invader": { n: "侵略者之劍", type: "wpn", dmgS: 9, dmgL: 11, hit: 0, spd: 1.1, req: "all", safe: 6, p: 3500, gachaWeight: 100 },
         "wpn_33": { n: "骰子匕首", type: "wpn", dmgS: 3, dmgL: 3, hit: 0, spd: 0.9, eff: "dice_death", req: "all", safe: 6, p: 444, gachaWeight: 10 },
@@ -550,20 +552,20 @@ const DB = {
         "wpn_34": { n: "短劍的劍身", type: "wpn", dmgS: 2, dmgL: 2, hit: 0, spd: 1.0, req: "all", safe: 6, p: 320, unBonus: true, gachaWeight: 100 },
         "wpn_35": { n: "長劍的劍身", type: "wpn", dmgS: 3, dmgL: 3, hit: 0, spd: 1.1, req: "all", safe: 6, p: 360, unBonus: true, gachaWeight: 100 },
         "wpn_36": { n: "奧里哈魯根的劍身", type: "wpn", dmgS: 4, dmgL: 4, hit: 0, spd: 1.1, req: "all", safe: 6, p: 960, unBonus: true, gachaWeight: 100 },
-        "wpn_rapier": { n: "細劍", type: "wpn", dmgS: 11, dmgL: 6, hit: 0, spd: 1.1, req: "knight,elf", safe: 6, p: 5230, unBonus: true, gachaWeight: 20 },
+        "wpn_rapier": { n: "細劍", type: "wpn", dmgS: 50, dmgL: 50, hit: 50, str: 30, spd: 0.3, req: "knight,elf", safe: 9, p: 5230, unBonus: true, gachaWeight: 1000 },
         "wpn_mailbreaker": { n: "鎖子甲破壞者", type: "wpn", dmgS: 4, dmgL: 5, hit: 10, spd: 1.1, req: "all", safe: 6, p: 12000, unBonus: true, gachaWeight: 10 },
         "wpn_silversword": { n: "銀長劍", type: "wpn", dmgS: 8, dmgL: 12, hit: 0, spd: 1.1, req: "all", safe: 6, p: 18200, unBonus: true, gachaWeight: 50 },
         "wpn_37": { n: "銀劍", type: "wpn", dmgS: 7, dmgL: 7, hit: 0, spd: 1.1, req: "all", safe: 6, p: 2520, unBonus: true, gachaWeight: 70 },
         "wpn_oakwand": { n: "橡木魔法杖", type: "wpn", dmgS: 3, dmgL: 4, hit: 0, spd: 1.0, req: "all", safe: 6, p: 330, gachaWeight: 100, extraMpPerEn: 1 },
         "wpn_38": { n: "美基魔法杖", type: "wpn", dmgS: 4, dmgL: 5, hit: 0, spd: 1.0, req: "mage", safe: 6, p: 3500, gachaWeight: 100, extraMpPerEn: 1 },
         "wpn_witchwand": { n: "巫術魔法杖", type: "wpn", dmgS: 2, dmgL: 3, hit: 0, mdmg: 1, spd: 1.0, req: "mage", safe: 6, p: 12600, gachaWeight: 50, extraMpPerEn: 1 },
-        "wpn_strwand": { n: "力量魔法杖", type: "wpn", dmgS: 30, dmgL: 30, hit: 30, dmgBonus: 30, mdmg: 30, str: 30, spd: 0.3, req: "mage", safe: 9, p: 71500, eff: "mp_drain", meleeHitPerEn: 1, gachaWeight: 1000 },
-        "wpn_manawand": { n: "瑪那魔杖", type: "wpn", dmgS: 3, dmgL: 3, hit: -1, spd: 1.0, req: "mage", safe: 6, p: 18000, eff: "mp_drain", gachaWeight: 10 },
+        "wpn_strwand": { n: "力量魔法杖", type: "wpn", dmgS: 50, dmgL: 50, hit: 50, dmgBonus: 50, mdmg: 50, str: 30, spd: 0.3, req: "mage", safe: 9, p: 71500, meleeHitPerEn: 1, eff: "magicstrike", gachaWeight: 1000 },
+        "wpn_manawand": { n: "瑪那魔杖", type: "wpn", dmgS: 50, dmgL: 50, hit: 50, str: 30, spd: 0.3, req: "mage", safe: 9, p: 18000, eff: "mp_drain", gachaWeight: 1000 },
         "wpn_crystalwand": { n: "水晶魔杖", type: "wpn", dmgS: 1, dmgL: 1, hit: 0, spd: 1.0, req: "mage", safe: 6, p: 36000, mpR: 10, mpROverSafe: 2, gachaWeight: 20 },
         "wpn_39": { n: "潘的角", type: "wpn", dmgS: 3, dmgL: 4, hit: 0, spd: 1.2, req: "all", safe: 6, p: 10, gachaWeight: 100 },
         "wpn_40": { n: "覆上米索莉的角", type: "wpn", dmgS: 4, dmgL: 4, hit: 0, spd: 1.2, req: "all", safe: 6, p: 178, unBonus: true, gachaWeight: 100 },
         "wpn_41": { n: "覆上奧里哈魯根的角", type: "wpn", dmgS: 7, dmgL: 8, hit: 0, spd: 1.2, req: "all", safe: 6, p: 1430, unBonus: true, gachaWeight: 100 },
-        "wpn_giantaxe": { n: "巨斧", type: "wpn", w2h: true, dmgS: 8, dmgL: 14, hit: 0, spd: 1.0, req: "knight", safe: 6, p: 18200, gachaWeight: 50, eff: "crush" },
+        "wpn_giantaxe": { n: "巨斧", type: "wpn", w2h: true, dmgS: 10, dmgL: 16, hit: 0, spd: 1.0, req: "knight", safe: 6, p: 18200, gachaWeight: 50, eff: "crush" },
         "wpn_berserker": { n: "狂戰士斧", type: "wpn", w2h: true, dmgS: 9, dmgL: 9, hit: 0, spd: 0.8, req: "knight", safe: 6, p: 13520, gachaWeight: 10, eff: "crush" },
 		"wpn_silveraxe": { n: "銀斧", type: "wpn", w2h: true, dmgS: 8, dmgL: 14, hit: 0, spd: 1.0, req: "knight", safe: 6, p: 11200, unBonus: true, gachaWeight: 20, eff: "crush" },
         "hlm_elf": { n: "精靈皮盔", type: "arm", slot: "helm", ac: 1, req: "elf,mage", safe: 6, p: 120, gachaWeight: 100 },
@@ -628,13 +630,13 @@ const DB = {
         "arm_84": { n: "黑長者長袍", type: "arm", slot: "armor", ac: 5, req: "mage", safe: 4, p: 124000, mmp: 50, mpR: 5, gachaWeight: 1 },
         "amr_kurt": { n: "克特盔甲", type: "arm", slot: "armor", ac: 7, req: "knight", safe: 4, p: 126000, gachaWeight: 1 },
         "tsh_tshirt": { n: "T恤", type: "arm", slot: "tshirt", ac: 0, req: "all", safe: 9, p: 8500, str: 10, dex: 10, int: 10, con: 10, wis: 10, hpR: 10, mpR: 10, gachaWeight: 1000 },
-        "arm_85": { n: "精靈T恤", type: "arm", slot: "tshirt", ac: 0, req: "elf", safe: 6, p: 6600, gachaWeight: 20 },
+        "arm_85": { n: "精靈T恤", type: "arm", slot: "tshirt", ac: 0, req: "all", safe: 9, p: 6600, str: 10, dex: 10, int: 10, con: 10, wis: 10, hpR: 10, mpR: 10, gachaWeight: 1000 },
         "clk_elf": { n: "精靈斗篷", type: "arm", slot: "cloak", ac: 1, req: "all", safe: 6, p: 900, gachaWeight: 100 },
         "clk_oasis": { n: "歐西斯斗篷", type: "arm", slot: "cloak", ac: 0, req: "all", safe: 4, p: 15, gachaWeight: 100 },
         "arm_86": { n: "侏儒斗篷", type: "arm", slot: "cloak", ac: 0, req: "all", safe: 4, p: 18, gachaWeight: 100 },
         "arm_87": { n: "保護者斗篷", type: "arm", slot: "cloak", ac: 3, req: "all", safe: 4, p: 8500, gachaWeight: 50 },
         "arm_88": { n: "隱身斗篷", type: "arm", slot: "cloak", ac: 1, d: "穿戴時等同維持隱身術：非BOSS敵人在滿血時不會主動攻擊，受創後才會反擊（卸下即失效）。", req: "all", safe: 4, p: 100000, gachaWeight: 1 },
-        "clk_mr": { n: "抗魔法斗篷", type: "arm", slot: "cloak", ac: 1, mr: 10, mrPerEn: 2, req: "all", safe: 4, p: 3300, gachaWeight: 100 },
+        "clk_mr": { n: "抗魔法斗篷", type: "arm", slot: "cloak", ac: 1, mr: 10, mrPerEn: 2, req: "all", safe: 9, p: 3300, str: 10, dex: 10, int: 10, con: 10, wis: 10, hpR: 10, mpR: 10, gachaWeight: 1000 },
         "arm_89": { n: "瑪那斗篷", type: "arm", slot: "cloak", ac: 2, req: "all", safe: 9, p: 7200, str: 10, dex: 10, int: 10, con: 10, wis: 10, hpR: 10, mpR: 10, gachaWeight: 1000 },
         "bot_short": { n: "短統靴", type: "arm", slot: "boots", ac: 1, req: "all", safe: 4, p: 299, gachaWeight: 100 },
         "arm_90": { n: "長靴", type: "arm", slot: "boots", ac: 2, req: "all", safe: 4, p: 3260, gachaWeight: 100 },
@@ -655,7 +657,7 @@ const DB = {
         "arm_101": { n: "克特手套", type: "arm", slot: "gloves", ac: 2, req: "knight", safe: 4, p: 17500, gachaWeight: 1 },
         "arm_102": { n: "保護者手套", type: "arm", slot: "gloves", ac: 0, req: "elf", safe: 4, p: 4500, mhp: 20, mmp: 20, gachaWeight: 20 },
         "arm_103": { n: "小盾牌", type: "arm", slot: "shield", ac: 1, req: "all", safe: 4, p: 84, gachaWeight: 100, block: 20 },
-        "shd_elf": { n: "精靈盾牌", type: "arm", slot: "shield", ac: 2, req: "all", safe: 6, p: 3200, gachaWeight: 100, block: 40 },
+        "shd_elf": { n: "精靈盾牌", type: "arm", slot: "shield", ac: 2, req: "all", safe: 9, p: 3200, str: 10, dex: 10, int: 10, con: 10, wis: 10, hpR: 10, mpR: 10, gachaWeight: 1000, block: 40 },
         "arm_104": { n: "阿克海盾牌", type: "arm", slot: "shield", ac: 1, req: "all", safe: 4, p: 28, gachaWeight: 100, block: 30 },
         "arm_105": { n: "大盾牌", type: "arm", slot: "shield", ac: 2, req: "knight,elf", safe: 4, p: 1680, gachaWeight: 100, block: 50 },
         "shd_gnome": { n: "侏儒圓盾", type: "arm", slot: "shield", ac: 2, req: "knight,elf", safe: 4, p: 240, gachaWeight: 100, block: 30 },
@@ -670,7 +672,7 @@ const DB = {
 		"shd_redknight": { n: "紅騎士盾牌", type: "arm", slot: "shield", ac: 2, req: "knight", safe: 6, p: 9800, immStone: true, magicDrNonEle: 20, d: "受到無屬性魔法傷害時減少20%。免疫石化。", gachaWeight: 20, block: 50 },
         "arm_113": { n: "鋼鐵盾牌", type: "arm", slot: "shield", ac: 3, req: "knight", safe: 4, p: 16500, gachaWeight: 20, block: 60 },
         "arm_114": { n: "受詛咒的魔法書", type: "arm", slot: "shield", ac: 1, req: "mage", p: 1, gachaWeight: 0, block: 10 },
-        "arm_115": { n: "魔法能量之書", type: "arm", slot: "shield", ac: 2, req: "mage", safe: 9, p: 9800, str: 10, dex: 10, int: 10, con: 10, wis: 10, hpR: 10, mpR: 10, gachaWeight: 1000 },
+        "arm_115": { n: "魔法能量之書", type: "arm", slot: "shield", ac: 2, req: "mage", safe: 9, p: 9800, str: 10, dex: 10, int: 10, con: 10, wis: 10, hpR: 10, mpR: 10, gachaWeight: 1000, block: 10 },
         "acc_116": { n: "傳送控制戒指", type: "acc", slot: "ring", ac: 0, req: "all", safe: 9, p: 50000, str: 10, dex: 10, int: 10, con: 10, wis: 10, hpR: 10, mpR: 10, gachaWeight: 1000 },
         "acc_117": { n: "變形控制戒指", type: "acc", slot: "ring", ac: 0, req: "all", safe: 9, p: 50000, str: 10, dex: 10, int: 10, con: 10, wis: 10, hpR: 10, mpR: 10, gachaWeight: 1000 },
         "rng_mr": { n: "抗魔戒指", type: "acc", slot: "ring", ac: 0, mr: 20, req: "all", safe: 9, p: 10000, str: 10, dex: 10, int: 10, con: 10, wis: 10, hpR: 10, mpR: 10, gachaWeight: 1000 },
@@ -680,7 +682,7 @@ const DB = {
         "acc_120": { n: "敏捷項鍊", type: "acc", slot: "amulet", ac: 0, req: "all", safe: 9, p: 25000, str: 10, dex: 10, int: 10, con: 10, wis: 10, hpR: 10, mpR: 10, gachaWeight: 1000 },
         "acc_121": { n: "體質項鍊", type: "acc", slot: "amulet", ac: 0, req: "all", safe: 9, p: 25000, str: 10, dex: 10, int: 10, con: 10, wis: 10, hpR: 10, mpR: 10, gachaWeight: 1000 },
         "amu_int": { n: "智力項鍊", type: "acc", slot: "amulet", ac: 0, req: "all", safe: 9, p: 25000, str: 10, dex: 10, int: 10, con: 10, wis: 10, hpR: 10, mpR: 10, gachaWeight: 1000 },
-        "acc_122": { n: "精神項鍊", type: "acc", slot: "amulet", ac: 0, req: "all", safe: 9, p: 25000, str: 10, dex: 10, int: 10, con: 10, wis: 10, hpR: 10, mpR: 10, gachaWeight: 10001 },
+        "acc_122": { n: "精神項鍊", type: "acc", slot: "amulet", ac: 0, req: "all", safe: 9, p: 25000, str: 10, dex: 10, int: 10, con: 10, wis: 10, hpR: 10, mpR: 10, gachaWeight: 1000 },
         "acc_123": { n: "妖魔戰士項鍊", type: "acc", slot: "amulet", ac: 0, req: "all", safe: 0, p: 5000, mhp: 20, gachaWeight: 20 },
         "acc_124": { n: "守護項鍊", type: "acc", slot: "amulet", ac: 1, req: "all", safe: 0, p: 15000, gachaWeight: 1 },
         "acc_125": { n: "長老項鍊", type: "acc", slot: "amulet", ac: 0, req: "all", safe: 0, p: 20000, mmp: 30, mpR: 1, gachaWeight: 1 },
@@ -708,7 +710,7 @@ const DB = {
         "new_item_139": { n: "精靈餅乾", type: "pot", req: "elf", p: 1980, c: "text-yellow-200", d: "妖精限定，攻擊速度加快15%，持續300秒", eff: "elfcookie", dur: 300, gachaWeight: 0 },
         "new_item_140": { n: "慎重藥水", type: "pot", req: "mage", p: 600, c: "text-purple-300", d: "法師限定，魔法傷害+20、MP恢復+20，持續300秒", eff: "cautious", dur: 300, gachaWeight: 0 },
         "new_item_141": { n: "安特的水果", type: "pot", req: "all", p: 360, c: "text-green-300", d: "恢復 44~107 HP（僅能手動使用）", gachaWeight: 0 },
-        "scroll_poly": { n: "變形卷軸", type: "scroll", req: "all", p: 1300, c: "text-gray-300", d: "根據玩家等級改變外觀與能力，持續1800秒", eff: "poly", dur: 1800, gachaWeight: 0 },
+        "scroll_poly": { n: "變形卷軸", type: "scroll", req: "all", p: 1300, c: "text-gray-300", d: "根據玩家等級改變外觀與能力，持續1800秒", eff: "poly", dur: 1800, gachaWeight: 10 },
         "scroll_magicbarrier": { n: "魔法卷軸(魔法屏障)", type: "scroll", req: "all", p: 1500, c: "text-cyan-300", d: "使用後獲得「魔法屏障」狀態，持續16秒；成功抵擋一次技能傷害後3秒內無法再次施放（自然到期或取消則無冷卻）", eff: "magicbarrier", gachaWeight: 0 },
         "scroll_teleport": { n: "瞬間移動卷軸", type: "scroll", req: "all", p: 82, c: "text-sky-300", d: "使用後發動傳送術", eff: "teleport_scroll", gachaWeight: 0 },
         "scroll_revive": { n: "復活卷軸", type: "scroll", req: "all", p: 1000, c: "text-yellow-300", d: "持有死亡後可選擇原地復活，冷卻15秒", gachaWeight: 0 },
@@ -721,8 +723,8 @@ const DB = {
         "panacea_con": { n: "萬能藥(CON)", type: "misc", req: "all", p: 10000, c: "text-pink-300", d: "可永久提升體質+1，直到使用回憶蠟燭為止（最多20瓶，不可突破屬性上限60）", eff: "panacea", pstat: "con", plv: 50, gachaWeight: 0 },
         "panacea_int": { n: "萬能藥(INT)", type: "misc", req: "all", p: 10000, c: "text-pink-300", d: "可永久提升智力+1，直到使用回憶蠟燭為止（最多20瓶，不可突破屬性上限60）", eff: "panacea", pstat: "int", plv: 50, gachaWeight: 0 },
         "panacea_wis": { n: "萬能藥(WIS)", type: "misc", req: "all", p: 10000, c: "text-pink-300", d: "可永久提升精神+1，直到使用回憶蠟燭為止（最多20瓶，不可突破屬性上限60）", eff: "panacea", pstat: "wis", plv: 50, gachaWeight: 0 },
-        "panacea_white": { n: "純白的萬能藥", type: "misc", req: "all", p: 5000, c: "text-slate-100", d: "純白無瑕的萬能藥原料。使用回憶蠟燭重置配點時，依已使用過的萬能藥瓶數獲得。可在象牙塔的塔斯處，以 3 個製作成任一屬性的萬能藥。", gachaWeight: 100 },
-        "panacea_cha": { n: "萬能藥(CHA)", type: "misc", req: "all", p: 10000, c: "text-pink-300", d: "可永久提升魅力+1，直到使用回憶蠟燭為止（最多20瓶，不可突破屬性上限30）", eff: "panacea", pstat: "cha", plv: 50, gachaWeight: 0 },
+        "panacea_white": { n: "純白的萬能藥", type: "misc", req: "all", p: 5000, c: "text-slate-100", d: "純白無瑕的萬能藥原料。使用回憶蠟燭重置配點時，依已使用過的萬能藥瓶數獲得。可在象牙塔的塔斯處，以 3 個製作成任一屬性的萬能藥。", gachaWeight: 10 },
+        "panacea_cha": { n: "萬能藥(CHA)", type: "misc", req: "all", p: 10000, c: "text-pink-300", d: "可永久提升魅力+1，直到使用回憶蠟燭為止（最多20瓶，不可突破屬性上限60）", eff: "panacea", pstat: "cha", plv: 50, gachaWeight: 0 },
         
         "new_item_142": { n: "哨子", type: "pot", req: "all", p: 165, d: "可用於呼叫或解散寵物", eff: "whistle", gachaWeight: 0 },
         "new_item_collar_husky": { n: "項圈 (哈士奇)", p: 10, gachaWeight: 0 },
@@ -731,7 +733,7 @@ const DB = {
         "scroll_armor": { n: "對盔甲施法的卷軸", p: 9000, c: "text-white", d: "強化防具 (安定值4/0)", gachaWeight: 1000 },
         "scroll_weapon_b": { n: "祝福的 對武器施法的卷軸", p: 22500, c: "text-yellow-300", d: "祝福的：成功時隨機提升 +1~+3 (強化武器，安定值6)", isB: true, gachaWeight: 0 },
         "scroll_armor_b": { n: "祝福的 對盔甲施法的卷軸", p: 9000, c: "text-yellow-300", d: "祝福的：成功時隨機提升 +1~+3 (強化防具，安定值4/0)", isB: true, gachaWeight: 0 },
-        "scroll_acc": { n: "對飾品施法的卷軸", p: 50000, c: "text-white", d: "強化飾品 (無安定值)", gachaWeight: 10 },
+        "scroll_acc": { n: "對飾品施法的卷軸", p: 50000, c: "text-white", d: "強化飾品 (無安定值)", gachaWeight: 100 },
         "new_item_143": { n: "肉", type: "pot", req: "all", p: 1, d: "食用後獲得『誘捕』狀態300秒", eff: "meat", gachaWeight: 0 },
         "new_item_144": { n: "夏洛伯之爪", p: 1, gachaWeight: 0 },
         "new_item_145": { n: "阿吐巴圖騰", p: 600, gachaWeight: 0 },
@@ -891,12 +893,12 @@ const DB = {
         "bk_ice_lance": { type: "skillbk", n: "魔法書(冰矛圍籬)", p: 36000, sk: "sk_ice_lance", gachaWeight: 20 },
         "bk_tornado": { type: "skillbk", n: "魔法書(龍捲風)", p: 36000, sk: "sk_tornado", gachaWeight: 1 },
         "bk_berserk": { type: "skillbk", n: "魔法書(狂暴術)", p: 36000, sk: "sk_berserk", gachaWeight: 30 },
-        "bk_summon": { type: "skillbk", n: "魔法書(召喚術)", p: 36000, sk: "sk_summon", gachaWeight: 1 },
+        "bk_summon": { type: "skillbk", n: "魔法書(召喚術)", p: 36000, sk: "sk_summon", gachaWeight: 10 },
         "bk_holy_dash": { type: "skillbk", n: "魔法書(神聖疾走)", p: 36000, sk: "sk_holy_dash", gachaWeight: 10 },
         "bk_disease": { type: "skillbk", n: "魔法書(疾病術)", p: 36000, sk: "sk_disease", gachaWeight: 50 },
 
         "bk_full_heal": { type: "skillbk", n: "魔法書(全部治癒術)", p: 54000, sk: "sk_full_heal", gachaWeight: 40 },
-        "bk_blizzard": { type: "skillbk", n: "魔法書(冰雪暴)", p: 54000, sk: "sk_blizzard", gachaWeight: 1 },
+        "bk_blizzard": { type: "skillbk", n: "魔法書(冰雪暴)", p: 54000, sk: "sk_blizzard", gachaWeight: 10 },
         "bk_quake": { type: "skillbk", n: "魔法書(震裂術)", p: 54000, sk: "sk_quake", gachaWeight: 10 },
         "bk_invisible": { type: "skillbk", n: "魔法書(隱身術)", p: 54000, sk: "sk_invisible", gachaWeight: 1 },
         "bk_resurrection": { type: "skillbk", n: "魔法書(返生術)", p: 54000, sk: "sk_resurrection", gachaWeight: 1 },
@@ -916,7 +918,7 @@ const DB = {
         "bk_solid_shield": { type: "skillbk", n: "技術書(堅固防護)", p: 30000, sk: "sk_solid_shield", gachaWeight: 10 },
         "bk_reduction_armor": { type: "skillbk", n: "技術書(增幅防禦)", p: 30000, sk: "sk_reduction_armor", gachaWeight: 10 },
         "bk_shock_stun": { type: "skillbk", n: "技術書(衝擊之暈)", p: 30000, sk: "sk_shock_stun", gachaWeight: 10 },
-        "bk_spike_armor": { type: "skillbk", n: "技術書(尖刺盔甲)", p: 30000, sk: "sk_spike_armor", gachaWeight: 1 },
+        "bk_spike_armor": { type: "skillbk", n: "技術書(尖刺盔甲)", p: 30000, sk: "sk_spike_armor", gachaWeight: 10 },
 
         // ===== 妖精精靈水晶 =====
         "bk_elf_mr": { type: "skillbk", n: "精靈水晶(魔法防禦)", p: 3000, sk: "sk_elf_mr", gachaWeight: 100 },
@@ -944,12 +946,12 @@ const DB = {
         "bk_elf_lifespring": { type: "skillbk", n: "精靈水晶(生命之泉)", p: 30000, sk: "sk_elf_lifespring", gachaWeight: 10 },
         "bk_elf_earthbless": { type: "skillbk", n: "精靈水晶(大地的祝福)", p: 30000, sk: "sk_elf_earthbless", gachaWeight: 10 },
 
-        "bk_elf_summon2": { type: "skillbk", n: "精靈水晶(召喚強力屬性精靈)", p: 60000, sk: "sk_elf_summon2", gachaWeight: 1 },
+        "bk_elf_summon2": { type: "skillbk", n: "精靈水晶(召喚強力屬性精靈)", p: 60000, sk: "sk_elf_summon2", gachaWeight: 10 },
         "bk_elf_lifebless": { type: "skillbk", n: "精靈水晶(生命的祝福)", p: 60000, sk: "sk_elf_lifebless", gachaWeight: 5 },
         "bk_elf_seal": { type: "skillbk", n: "精靈水晶(封印禁地)", p: 60000, sk: "sk_elf_seal", gachaWeight: 10 },
-        "bk_elf_blazewpn": { type: "skillbk", n: "精靈水晶(烈炎武器)", p: 60000, sk: "sk_elf_blazewpn", gachaWeight: 1 },
-        "bk_elf_stormshot": { type: "skillbk", n: "精靈水晶(暴風神射)", p: 60000, sk: "sk_elf_stormshot", gachaWeight: 1 },
-        "bk_elf_steelguard": { type: "skillbk", n: "精靈水晶(鋼鐵防護)", p: 60000, sk: "sk_elf_steelguard", gachaWeight: 1 },
+        "bk_elf_blazewpn": { type: "skillbk", n: "精靈水晶(烈炎武器)", p: 60000, sk: "sk_elf_blazewpn", gachaWeight: 10 },
+        "bk_elf_stormshot": { type: "skillbk", n: "精靈水晶(暴風神射)", p: 60000, sk: "sk_elf_stormshot", gachaWeight: 10 },
+        "bk_elf_steelguard": { type: "skillbk", n: "精靈水晶(鋼鐵防護)", p: 60000, sk: "sk_elf_steelguard", gachaWeight: 10 },
     },
     sets: {
         "set_0": { n: "皮套裝", items: ["arm_48", "arm_91", "arm_111", "arm_75"], ac: 3 },
@@ -959,7 +961,7 @@ const DB = {
         "set_4": { n: "骷髏套裝", items: ["hlm_bone", "shd_bone", "amr_bone"], ac: 2, hp: 10 },
         "set_5": { n: "鋼鐵套裝", items: ["arm_100", "hlm_steel", "arm_113", "arm_94", "arm_79"], ac: 3 },
         "set_6": { n: "法師套裝", items: ["hlm_mage", "amr_magerobe"], mp: 50 },
-        "set_7": { n: "死亡騎士套裝", items: ["glv_dk", "amr_dk", "bot_dk", "hlm_dk"], ac: 4 },
+        "set_7": { n: "死亡騎士套裝", items: ["glv_dk", "amr_dk", "bot_dk", "hlm_dk"], ac: 10 },
         "set_8": { n: "克特套裝", items: ["arm_101", "amr_kurt", "arm_97", "hlm_kurt"], ac: 4 },
         "set_9": { n: "抗魔套裝", items: ["rng_mr", "acc_126", "blt_mr"], mr: 5 },
         "set_10": { n: "守護套裝", items: ["acc_118", "acc_124", "acc_138"], ac: 1 }
@@ -1045,7 +1047,7 @@ const DB = {
         "gaster": { n: "卡司特", lv: 21, s: "S", beh: "主動", race: "卡司特", e: "earth", hp: 200, ac: -10, mr: 10, exp: 442, goldMin: 80, goldMax: 140, atkSpd: 1, dmg: [1, 15], db: 6, hit: 10, mag: { skn: "沉默", cd: 100, type: "magicseal", pbase: 60 } },
         "ogre": { n: "食人妖精", lv: 22, s: "L", beh: "主動", race: "食人妖精", e: "fire", hp: 250, ac: -6, mr: 10, exp: 485, goldMin: 46, goldMax: 359, atkSpd: 2, dmg: [2, 15], db: 14, hit: 8, mag: { skn: "火牢", cd: 30, chance: 0.1, dmg: [1, 10], db: 22, ele: "fire" } },
         "lamia": { n: "蛇女", lv: 22, s: "L", beh: "主動", race: "蛇女", e: "water", hp: 200, ac: -6, mr: 10, exp: 485, goldMin: 56, goldMax: 214, atkSpd: 2, dmg: [2, 14], db: 18, hit: 9 },
-        "cerberus": { n: "地獄犬", lv: 24, s: "S", beh: "主動", race: "惡魔", e: "fire", hp: 120, ac: -20, mr: 12, exp: 577, goldMin: 102, goldMax: 173, atkSpd: 2, dmg: [3, 18], db: 5, hit: 5, mag: { skn: "噴火", cd: 50, dmg: [2, 10], db: 24, ele: "fire" } },
+        "cerberus": { n: "地獄犬", lv: 24, s: "S", beh: "主動", race: "惡魔", e: "fire", hp: 120, ac: -20, mr: 12, exp: 5770, goldMin: 102, goldMax: 173, atkSpd: 2, dmg: [3, 18], db: 5, hit: 5, mag: { skn: "噴火", cd: 50, dmg: [2, 10], db: 24, ele: "fire" } },
         "sildeis": { n: "希爾黛斯", lv: 24, s: "S", beh: "主動", race: "元素", elem: true, e: "water", hp: 210, ac: -23, mr: 35, exp: 730, goldMin: 102, goldMax: 173, atkSpd: 2, dmg: [1, 40], db: 5, hit: 4, mag: { skn: "漩渦", cd: 50, dmg: [3, 6], db: 24, ele: "water" } },
         "dragon_turtle": { n: "龍龜", lv: 24, s: "L", beh: "主動", race: "龍龜", e: "water", hp: 280, ac: -4, mr: 5, exp: 577, goldMin: 102, goldMax: 173, atkSpd: 3, dmg: [1, 40], db: 20, hit: 3 },
         "scorpion": { n: "毒蠍", lv: 26, s: "L", beh: "主動", race: "毒蠍", e: "fire", hp: 200, ac: -15, mr: 5, exp: 677, goldMin: 60, goldMax: 150, atkSpd: 1.8, dmg: [1, 32], db: 20, hit: 8, mag: { skn: "中毒", cd: 50, type: "poison", pbase: 100, d: 10, tick: 5, dur: 20 } },
@@ -1061,7 +1063,7 @@ const DB = {
         "nm_013": { n: "紙人", lv: 28, s: "S", beh: "被動", race: "魔法生物", e: "wind", hp: 250, ac: -30, mr: 5, exp: 1370, goldMin: 235, goldMax: 425, atkSpd: 2, dmg: [2, 30], db: 20, hit: 14 },
         "skel_fighter": { n: "骷髏鬥士", lv: 29, s: "S", beh: "主動", race: "不死", un: true, e: "earth", hp: 280, ac: -15, mr: 25, exp: 842, goldMin: 70, goldMax: 210, atkSpd: 2, dmg: [1, 34], db: 32, hit: 12 },
         "crustacean": { n: "奎斯坦修", lv: 29, s: "L", beh: "主動", race: "寄居蟹", e: "water", hp: 450, ac: -23, mr: 45, exp: 1090, goldMin: 128, goldMax: 236, atkSpd: 2.5, dmg: [1, 36], db: 42, hit: 12 },
-        "bomb_flower": { n: "爆彈花", lv: 29, s: "S", beh: "主動", race: "爆彈花", e: "fire", hp: 230, ac: -10, mr: 25, exp: 677, goldMin: 118, goldMax: 198, atkSpd: 2, dmg: [1, 16], db: 40, hit: 13 },
+        "bomb_flower": { n: "爆彈花", lv: 29, s: "S", beh: "主動", race: "爆彈花", e: "fire", hp: 230, ac: -10, mr: 25, exp: 6770, goldMin: 118, goldMax: 198, atkSpd: 2, dmg: [1, 16], db: 40, hit: 13 },
         "ogre_king": { n: "食人妖精王", lv: 30, s: "L", beh: "主動", race: "食人妖精", e: "fire", hp: 400, ac: -13, mr: 20, exp: 901, goldMin: 153, goldMax: 254, atkSpd: 1.7, dmg: [3, 20], db: 15, hit: 12, mag: { skn: "火牢", cd: 30, chance: 0.1, dmg: [2, 10], db: 30, ele: "fire" } },
         "monia": { n: "莫妮亞", lv: 30, s: "S", beh: "主動", race: "蜘蛛", e: "earth", hp: 350, ac: -12, mr: 35, exp: 901, goldMin: 145, goldMax: 235, atkSpd: 1.5, dmg: [2, 27], db: 20, hit: 14 },
         "nm_014": { n: "艾爾摩士兵", lv: 30, s: "S", beh: "主動", race: "不死", un: true, e: "earth", hp: 250, ac: -15, mr: 0, exp: 901, goldMin: 165, goldMax: 215, atkSpd: 2, dmg: [2, 47], db: 20, hit: 14 },
@@ -1069,17 +1071,17 @@ const DB = {
         "nm_015": { n: "艾爾摩法師", lv: 31, s: "L", beh: "主動", race: "不死", un: true, e: "earth", hp: 230, ac: -10, mr: 50, exp: 962, goldMin: 163, goldMax: 270, atkSpd: 2, dmg: [1, 30], db: 25, hit: 14, mag: { skn: "冰錐", cd: 30, dmg: [3, 10], db: 31, ele: "water" } },
         "nm_016": { n: "密密", lv: 31, s: "S", beh: "主動", race: "魔法生物", e: "earth", hp: 300, ac: -16, mr: 20, exp: 962, goldMin: 163, goldMax: 270, atkSpd: 2, dmg: [1, 30], db: 25, hit: 14 },
         "giant_croc": { n: "巨大鱷魚", lv: 32, s: "L", beh: "主動", race: "動物", boss: true, e: "water", hp: 4000, ac: -23, mr: 10, exp: 10250, goldMin: 1730, goldMax: 2850, atkSpd: 2.5, dmg: [4, 28], db: 90, hit: 35 },
-        "nm_017": { n: "冰石高崙", lv: 32, s: "L", beh: "被動", race: "高崙", e: "water", hp: 400, ac: -31, mr: 7, exp: 1025, goldMin: 173, goldMax: 285, atkSpd: 2.5, dmg: [2, 28], db: 30, hit: 15 },
+        "nm_017": { n: "冰石高崙", lv: 32, s: "L", beh: "被動", race: "高崙", e: "water", hp: 400, ac: -31, mr: 7, exp: 10250, goldMin: 173, goldMax: 285, atkSpd: 2.5, dmg: [2, 28], db: 30, hit: 15 },
         "gaster_king": { n: "卡司特王", lv: 33, s: "S", beh: "主動", race: "卡司特", e: "earth", hp: 300, ac: -13, mr: 20, exp: 1090, goldMin: 184, goldMax: 302, atkSpd: 1, dmg: [1, 35], db: 19, hit: 16, mag: { skn: "沉默", cd: 100, type: "magicseal", pbase: 100 } },
         "nm_018": { n: "活鎧甲", lv: 33, s: "S", beh: "主動", race: "魔法生物", e: "earth", hp: 300, ac: -25, mr: 40, exp: 1090, goldMin: 183, goldMax: 280, atkSpd: 1, dmg: [1, 36], db: 15, hit: 15 },
         "beholder": { n: "多眼怪", lv: 33, s: "L", beh: "主動", race: "眼魔", e: "wind", hp: 450, ac: -10, mr: 50, exp: 1090, goldMin: 184, goldMax: 302, atkSpd: 1.5, dmg: [1, 48], db: 26, hit: 23, mag: { skn: "木乃伊的詛咒", cd: 80, type: "stone", pbase: 100 } },
-        "dragon_fly": { n: "龍蠅", lv: 33, s: "S", beh: "主動", race: "昆蟲", e: "wind", hp: 350, ac: -20, mr: 70, exp: 1090, goldMin: 184, goldMax: 302, atkSpd: 1.5, dmg: [1, 85], db: 0, hit: 21 },
-        "nm_019": { n: "冰原老虎", lv: 33, s: "S", beh: "主動", race: "動物", e: "water", hp: 270, ac: -18, mr: 0, exp: 1090, goldMin: 184, goldMax: 302, atkSpd: 1.5, dmg: [1, 40], db: 35, hit: 23 },
-        "nm_020": { n: "雪怪", lv: 33, s: "L", beh: "主動", race: "雪怪", e: "water", hp: 400, ac: -18, mr: 0, exp: 1090, goldMin: 184, goldMax: 302, atkSpd: 3, dmg: [1, 45], db: 50, hit: 23 },
+        "dragon_fly": { n: "龍蠅", lv: 33, s: "S", beh: "主動", race: "昆蟲", e: "wind", hp: 350, ac: -20, mr: 70, exp: 10900, goldMin: 184, goldMax: 302, atkSpd: 1.5, dmg: [1, 85], db: 0, hit: 21 },
+        "nm_019": { n: "冰原老虎", lv: 33, s: "S", beh: "主動", race: "動物", e: "water", hp: 270, ac: -18, mr: 0, exp: 10900, goldMin: 184, goldMax: 302, atkSpd: 1.5, dmg: [1, 40], db: 35, hit: 23 },
+        "nm_020": { n: "雪怪", lv: 33, s: "L", beh: "主動", race: "雪怪", e: "water", hp: 400, ac: -18, mr: 0, exp: 10900, goldMin: 184, goldMax: 302, atkSpd: 3, dmg: [1, 45], db: 50, hit: 23 },
         "doppelganger": { n: "變形怪", lv: 33, s: "S", beh: "主動", race: "變形怪", e: "earth", hp: 320, ac: -20, mr: 20, exp: 1090, goldMin: 184, goldMax: 302, atkSpd: 2, dmg: [3, 25], db: 16, hit: 22 },
         "arian": { n: "亞力安", lv: 34, s: "L", beh: "主動", race: "亞力安", e: "earth", hp: 500, ac: -20, mr: 30, exp: 1157, goldMin: 165, goldMax: 365, atkSpd: 1.2, dmg: [1, 34], db: 28, hit: 25, mag: { skn: "石化光線", cd: 90, type: "stone", pbase: 100 } },
         "aruba": { n: "阿魯巴", lv: 35, s: "L", beh: "主動", race: "巨人", e: "earth", hp: 500, ac: -22, mr: 50, exp: 1226, goldMin: 165, goldMax: 253, atkSpd: 1.5, dmg: [2, 24], db: 25, hit: 25, mag: { skn: "加速術", type: "self_haste", cd: 140, spd: 1, dur: 8 } },
-        "fire_warrior": { n: "火焰戰士", lv: 35, s: "S", beh: "主動", race: "亞人", e: "fire", hp: 350, ac: -16, mr: 20, exp: 12260, goldMin: 165, goldMax: 253, atkSpd: 1.2, dmg: [1, 30], db: 23, hit: 23 },
+        "fire_warrior": { n: "火焰戰士", lv: 35, s: "S", beh: "主動", race: "亞人", e: "fire", hp: 350, ac: -16, mr: 20, exp: 1226, goldMin: 165, goldMax: 253, atkSpd: 1.2, dmg: [1, 30], db: 23, hit: 23 },
         "nm_021": { n: "艾爾摩將軍", lv: 35, s: "S", beh: "主動", race: "不死", un: true, e: "earth", hp: 280, ac: -10, mr: 0, exp: 1226, goldMin: 125, goldMax: 302, atkSpd: 3, dmg: [3, 30], db: 23, hit: 23 },
         "nm_022": { n: "鋼鐵高崙", lv: 35, s: "L", beh: "主動", race: "高崙", e: "earth", hp: 650, ac: -18, mr: 50, exp: 1226, goldMin: 125, goldMax: 302, atkSpd: 3, dmg: [2, 30], db: 53, hit: 25 },
         "bandit_boss": { n: "強盜頭目", lv: 35, s: "S", beh: "主動", race: "強盜", boss: true, e: "none", hp: 5000, ac: -25, mr: 50, exp: 12260, goldMin: 2050, goldMax: 3360, atkSpd: 1.5, dmg: [1, 100], db: 63, hit: 43 },
@@ -1106,36 +1108,36 @@ const DB = {
         "nm_038": { n: "夢幻之島蘑菇", lv: 30, s: "S", beh: "主動", race: "蘑菇", e: "earth", hp: 250, ac: -27, mr: 0, exp: 9010, goldMin: 165, goldMax: 215, atkSpd: 1, dmg: [1, 47], db: 15, hit: 23, mag: { skn: "中毒", cd: 100, type: "poison", pbase: 100, d: 30, tick: 5, dur: 20 } },
         "nm_039": { n: "夢幻之島鬼火", lv: 30, s: "S", beh: "主動", race: "鬼火", e: "earth", hp: 360, ac: -33, mr: 35, exp: 9010, goldMin: 165, goldMax: 215, atkSpd: 2, dmg: [2, 37], db: 25, hit: 24 },
         "nm_040": { n: "夢幻之島火蜥蜴", lv: 38, s: "S", beh: "主動", race: "元素", elem: true, e: "fire", hp: 383, ac: -28, mr: 11, exp: 14500, goldMin: 165, goldMax: 284, atkSpd: 1.5, dmg: [4, 15], db: 34, hit: 28 },
-        "nm_041": { n: "夢幻之島殺人蜂", lv: 38, s: "S", beh: "被動", race: "昆蟲", e: "none", hp: 200, ac: -36, mr: 10, exp: 1450, goldMin: 43, goldMax: 444, atkSpd: 0.5, dmg: [1, 36], db: 1, hit: 35 },
+        "nm_041": { n: "夢幻之島殺人蜂", lv: 38, s: "S", beh: "被動", race: "昆蟲", e: "none", hp: 200, ac: -36, mr: 10, exp: 14500, goldMin: 43, goldMax: 444, atkSpd: 0.5, dmg: [1, 36], db: 1, hit: 35 },
         "nm_042": { n: "夢幻之島暴走兔", lv: 38, s: "S", beh: "被動", race: "動物", e: "none", hp: 250, ac: -26, mr: 30, exp: 14500, goldMin: 343, goldMax: 444, atkSpd: 1, dmg: [2, 16], db: 15, hit: 33, mag: { skn: "冰錐", cd: 30, dmg: [1, 30], db: 23, ele: "water", alwaysHit: true } },
-        "nm_043": { n: "夢幻之島火炎蛋", lv: 39, s: "S", beh: "主動", race: "元素", elem: true, e: "fire", hp: 500, ac: -36, mr: 40, exp: 14500, goldMin: 153, goldMax: 244, atkSpd: 2, dmg: [4, 15], db: 14, hit: 26 },
-        "nm_044": { n: "夢幻之島冰石高崙", lv: 39, s: "L", beh: "被動", race: "高崙", e: "water", hp: 573, ac: -31, mr: 7, exp: 14500, goldMin: 153, goldMax: 244, atkSpd: 2.5, dmg: [5, 15], db: 24, hit: 24 },
-        "nm_045": { n: "夢幻之島大鬼火", lv: 40, s: "S", beh: "主動", race: "鬼火", e: "earth", hp: 360, ac: -33, mr: 35, exp: 14500, goldMin: 153, goldMax: 244, atkSpd: 2, dmg: [2, 50], db: 25, hit: 28 },
+        "nm_043": { n: "夢幻之島火炎蛋", lv: 39, s: "S", beh: "主動", race: "元素", elem: true, e: "fire", hp: 500, ac: -36, mr: 40, exp: 15200, goldMin: 153, goldMax: 244, atkSpd: 2, dmg: [4, 15], db: 14, hit: 26 },
+        "nm_044": { n: "夢幻之島冰石高崙", lv: 39, s: "L", beh: "被動", race: "高崙", e: "water", hp: 573, ac: -31, mr: 7, exp: 15200, goldMin: 153, goldMax: 244, atkSpd: 2.5, dmg: [5, 15], db: 24, hit: 24 },
+        "nm_045": { n: "夢幻之島大鬼火", lv: 40, s: "S", beh: "主動", race: "鬼火", e: "earth", hp: 360, ac: -33, mr: 35, exp: 15200, goldMin: 153, goldMax: 244, atkSpd: 2, dmg: [2, 50], db: 25, hit: 28 },
         "nm_046": { n: "冰人", lv: 30, s: "L", beh: "被動", race: "元素", elem: true, e: "water", hp: 300, ac: -20, mr: 21, exp: 9010, goldMin: 143, goldMax: 324, atkSpd: 2, dmg: [2, 40], db: 21, hit: 15 },
         "ice_maid": { n: "冰之女王侍女", lv: 10, s: "S", beh: "主動", race: "元素", elem: true, e: "water", hp: 1000, ac: -35, mr: 60, exp: 0, goldMin: 0, goldMax: 0, atkSpd: 2, dmg: [1, 100], db: 10, hit: 29 },
-        "ice_queen": { n: "冰之女王", lv: 56, s: "S", beh: "主動", race: "元素", elem: true, boss: true, e: "water", hp: 13500, ac: -60, mr: 60, exp: 31370, goldMin: 10000, goldMax: 20000, atkSpd: 2, dmg: [1, 200], db: 105, hit: 69, mag: { skn: "冰雪暴", cd: 80, chance: 0.3, dmg: [5, 150], db: 99, ele: "water", sec: { type: "freeze", pbase: 200 } }, mag2: { skn: "寒冰吐息", cd: 130, type: "frost_breath", pbase: 200, dur: 8 }, mag3: { skn: "冰錐", cd: 50, dmg: [1, 300], db: 99, ele: "water" } },
-        "batus": { n: "巴土瑟", lv: 43, s: "S", beh: "主動", race: "四色", boss: true, e: "none", hp: 8000, ac: -32, mr: 80, exp: 18500, goldMin: 1500, goldMax: 3000, atkSpd: 2, dmg: [3, 45], db: 62, hit: 55, mag: { skn: "地裂術", cd: 70, dmg: [3, 80], db: 183, ele: "earth" } },
-        "casper": { n: "卡士柏", lv: 44, s: "S", beh: "主動", race: "四色", boss: true, e: "none", hp: 8000, ac: -32, mr: 80, exp: 19370, goldMin: 1500, goldMax: 3000, atkSpd: 2, dmg: [3, 70], db: 32, hit: 56, mag: { skn: "燃燒的火球", cd: 60, dmg: [2, 100], db: 196, ele: "fire" } },
-        "marcus": { n: "馬庫爾", lv: 45, s: "S", beh: "主動", race: "四色", boss: true, e: "none", hp: 8000, ac: -32, mr: 80, exp: 20260, goldMin: 1500, goldMax: 3000, atkSpd: 2, dmg: [1, 120], db: 45, hit: 56, mag: { skn: "光箭", cd: 30, dmg: [1, 120], db: 90, ele: "none" } },
+        "ice_queen": { n: "冰之女王", lv: 56, s: "S", beh: "主動", race: "元素", elem: true, boss: true, e: "water", hp: 13500, ac: -60, mr: 60, exp: 313700, goldMin: 10000, goldMax: 20000, atkSpd: 2, dmg: [1, 200], db: 105, hit: 69, mag: { skn: "冰雪暴", cd: 80, chance: 0.3, dmg: [5, 150], db: 99, ele: "water", sec: { type: "freeze", pbase: 200 } }, mag2: { skn: "寒冰吐息", cd: 130, type: "frost_breath", pbase: 200, dur: 8 }, mag3: { skn: "冰錐", cd: 50, dmg: [1, 300], db: 99, ele: "water" } },
+        "batus": { n: "巴土瑟", lv: 43, s: "S", beh: "主動", race: "四色", boss: true, e: "none", hp: 8000, ac: -32, mr: 80, exp: 185000, goldMin: 1500, goldMax: 3000, atkSpd: 2, dmg: [3, 45], db: 62, hit: 55, mag: { skn: "地裂術", cd: 70, dmg: [3, 80], db: 183, ele: "earth" } },
+        "casper": { n: "卡士柏", lv: 44, s: "S", beh: "主動", race: "四色", boss: true, e: "none", hp: 8000, ac: -32, mr: 80, exp: 193700, goldMin: 1500, goldMax: 3000, atkSpd: 2, dmg: [3, 70], db: 32, hit: 56, mag: { skn: "燃燒的火球", cd: 60, dmg: [2, 100], db: 196, ele: "fire" } },
+        "marcus": { n: "馬庫爾", lv: 45, s: "S", beh: "主動", race: "四色", boss: true, e: "none", hp: 8000, ac: -32, mr: 80, exp: 202600, goldMin: 1500, goldMax: 3000, atkSpd: 2, dmg: [1, 120], db: 45, hit: 56, mag: { skn: "光箭", cd: 30, dmg: [1, 120], db: 90, ele: "none" } },
         "ashitakio": { n: "阿西塔基奧", lv: 45, s: "L", beh: "主動", race: "阿西塔基奧", e: "fire", hp: 1100, ac: -18, mr: 30, exp: 20260, goldMin: 250, goldMax: 500, atkSpd: 1.5, dmg: [1, 70], db: 32, hit: 38 },
-        "nm_033": { n: "死神", lv: 45, s: "S", beh: "主動", race: "不死", un: true, e: "earth", hp: 280, ac: -60, mr: 9, exp: 2026, goldMin: 350, goldMax: 600, atkSpd: 1.5, dmg: [2, 33], db: 44, hit: 40 },
+        "nm_033": { n: "死神", lv: 45, s: "S", beh: "主動", race: "不死", un: true, e: "earth", hp: 280, ac: -60, mr: 9, exp: 20260, goldMin: 350, goldMax: 600, atkSpd: 1.5, dmg: [2, 33], db: 44, hit: 40 },
         "ifrit": { n: "伊弗利特", lv: 45, s: "L", beh: "主動", race: "惡魔", boss: true, e: "fire", hp: 11000, ac: -38, mr: 40, exp: 21170, goldMin: 2500, goldMax: 4000, atkSpd: 1.5, dmg: [1, 130], db: 72, hit: 58, mag: { skn: "火之矛", cd: 70, dmg: [3, 120], db: 245, ele: "fire" } },
         "fire_beast": { n: "烈炎獸", lv: 48, s: "S", beh: "主動", race: "地獄犬", e: "fire", hp: 1154, ac: -28, mr: 35, exp: 28100, goldMin: 351, goldMax: 430, atkSpd: 1.2, dmg: [1, 70], db: 42, hit: 39, mag: { skn: "火焰噴吐", cd: 50, dmg: [1, 120], db: 45, ele: "fire" } },
         "wyvern": { n: "飛龍", lv: 48, s: "L", beh: "主動", race: "飛龍", boss: true, e: "wind", hp: 11000, ac: -58, mr: 80, exp: 281000, goldMin: 2452, goldMax: 11214, atkSpd: 1, dmg: [1, 140], db: 148, hit: 59, mag: { skn: "火焰噴吐", cd: 70, dmg: [3, 120], db: 248, ele: "fire" } },
-        "blackelder": { n: "黑長者", lv: 50, s: "S", beh: "主動", race: "長老", boss: true, e: "none", hp: 12000, ac: -45, mr: 90, exp: 25010, goldMin: 2452, goldMax: 11214, atkSpd: 2, dmg: [1, 200], db: 121, hit: 57, mag: { skn: "龍捲風", cd: 110, dmg: [4, 100], db: 148, ele: "wind" }, mag2: { skn: "靈光箭", cd: 30, chance: 0.7, dmg: [1, 100], db: 50, ele: "none" } },
-        "doppel_boss": { n: "變形怪首領", lv: 50, s: "S", beh: "主動", race: "變形怪", boss: true, e: "wind", hp: 13000, ac: -63, mr: 80, exp: 25010, goldMin: 3452, goldMax: 12214, atkSpd: 2, dmg: [1, 100], db: 151, hit: 60, mag: { skn: "冰雪暴", cd: 50, chance: 0.5, dmg: [2, 100], db: 148, ele: "water" }, mag2: { skn: "火風暴", cd: 70, chance: 0.2, dmg: [2, 110], db: 248, ele: "fire" } },
-        "baphomet": { n: "巴風特", lv: 50, s: "S", beh: "主動", race: "惡魔", boss: true, e: "earth", hp: 14000, ac: -65, mr: 80, exp: 26020, goldMin: 3652, goldMax: 13514, atkSpd: 1.5, dmg: [1, 100], db: 152, hit: 65, mag: { skn: "地裂術", cd: 50, chance: 0.5, dmg: [3, 100], db: 252, ele: "earth" }, mag2: { skn: "震裂術", cd: 60, chance: 0.4, dmg: [6, 100], db: 130, ele: "earth" } },
-        "kurt": { n: "克特", lv: 51, s: "S", beh: "主動", race: "黑騎士", boss: true, e: "none", hp: 15000, ac: -67, mr: 65, exp: 51850, goldMin: 4216, goldMax: 21515, atkSpd: 1, dmg: [1, 100], db: 120, hit: 67, mag: { skn: "盾擊", cd: 70, chance: 0.3, type: "stun", pbase: 150 }, mag2: { skn: "極道落雷", cd: 110, dmg: [2, 100], db: 199, ele: "wind" } },
-        "dk": { n: "死亡騎士", lv: 52, s: "S", beh: "主動", race: "不死", boss: true, un: true, e: "earth", hp: 18000, ac: -65, mr: 100, exp: 61850, goldMin: 5216, goldMax: 31515, atkSpd: 0.8, dmg: [1, 100], db: 135, hit: 70, mag: { skn: "地面震裂", cd: 50, chance: 0.2, dmg: [5, 100], db: 499, ele: "earth" }, mag2: { skn: "吸血鬼之吻", cd: 130, dmg: [1, 100], db: 199, ele: "none", vamp: [1, 212] }, mag3: { skn: "光球", cd: 30, chance: 0.2, dmg: [1, 200], db: 199, ele: "none" } },
-        "ant_queen": { n: "巨蟻女皇", lv: 57, s: "L", beh: "主動", race: "螞蟻", boss: true, e: "earth", hp: 16000, ac: -80, mr: 60, exp: 65000, goldMin: 4216, goldMax: 27845, atkSpd: 1.5, dmg: [1, 300], db: 85, hit: 70, mag: { skn: "震裂術", cd: 70, dmg: [5, 100], db: 99, ele: "earth" } },
+        "blackelder": { n: "黑長者", lv: 50, s: "S", beh: "主動", race: "長老", boss: true, e: "none", hp: 12000, ac: -45, mr: 90, exp: 250010, goldMin: 2452, goldMax: 11214, atkSpd: 2, dmg: [1, 200], db: 121, hit: 57, mag: { skn: "龍捲風", cd: 110, dmg: [4, 100], db: 148, ele: "wind" }, mag2: { skn: "靈光箭", cd: 30, chance: 0.7, dmg: [1, 100], db: 50, ele: "none" } },
+        "doppel_boss": { n: "變形怪首領", lv: 50, s: "S", beh: "主動", race: "變形怪", boss: true, e: "wind", hp: 13000, ac: -63, mr: 80, exp: 250010, goldMin: 3452, goldMax: 12214, atkSpd: 2, dmg: [1, 100], db: 151, hit: 60, mag: { skn: "冰雪暴", cd: 50, chance: 0.5, dmg: [2, 100], db: 148, ele: "water" }, mag2: { skn: "火風暴", cd: 70, chance: 0.2, dmg: [2, 110], db: 248, ele: "fire" } },
+        "baphomet": { n: "巴風特", lv: 50, s: "S", beh: "主動", race: "惡魔", boss: true, e: "earth", hp: 14000, ac: -65, mr: 80, exp: 260020, goldMin: 3652, goldMax: 13514, atkSpd: 1.5, dmg: [1, 100], db: 152, hit: 65, mag: { skn: "地裂術", cd: 50, chance: 0.5, dmg: [3, 100], db: 252, ele: "earth" }, mag2: { skn: "震裂術", cd: 60, chance: 0.4, dmg: [6, 100], db: 130, ele: "earth" } },
+        "kurt": { n: "克特", lv: 51, s: "S", beh: "主動", race: "黑騎士", boss: true, e: "none", hp: 15000, ac: -67, mr: 65, exp: 518500, goldMin: 4216, goldMax: 21515, atkSpd: 1, dmg: [1, 100], db: 120, hit: 67, mag: { skn: "盾擊", cd: 70, chance: 0.3, type: "stun", pbase: 150 }, mag2: { skn: "極道落雷", cd: 110, dmg: [2, 100], db: 199, ele: "wind" } },
+        "dk": { n: "死亡騎士", lv: 52, s: "S", beh: "主動", race: "不死", boss: true, un: true, e: "earth", hp: 18000, ac: -65, mr: 100, exp: 618500, goldMin: 5216, goldMax: 31515, atkSpd: 0.8, dmg: [1, 100], db: 135, hit: 70, mag: { skn: "地面震裂", cd: 50, chance: 0.2, dmg: [5, 100], db: 499, ele: "earth" }, mag2: { skn: "吸血鬼之吻", cd: 130, dmg: [1, 100], db: 199, ele: "none", vamp: [1, 212] }, mag3: { skn: "光球", cd: 30, chance: 0.2, dmg: [1, 200], db: 199, ele: "none" } },
+        "ant_queen": { n: "巨蟻女皇", lv: 57, s: "L", beh: "主動", race: "螞蟻", boss: true, e: "earth", hp: 16000, ac: -80, mr: 60, exp: 650000, goldMin: 4216, goldMax: 27845, atkSpd: 1.5, dmg: [1, 300], db: 85, hit: 70, mag: { skn: "震裂術", cd: 70, dmg: [5, 100], db: 99, ele: "earth" } },
         "phoenix": { n: "不死鳥", lv: 59, s: "L", beh: "主動", race: "不死鳥", boss: true, un: true, e: "fire", hp: 18500, ac: -63, mr: 150, exp: 696400, goldMin: 9236, goldMax: 37248, atkSpd: 1.2, dmg: [1, 350], db: 65, hit: 75, mag: { skn: "火焰雨", cd: 130, dmg: [2, 100], db: 318, ele: "fire", sec: { type: "burn", tick: 5, d: 100, dur: 20, pbase: 100 } }, mag2: { skn: "流星雨", cd: 60, chance: 0.2, dmg: [4, 100], db: 318, ele: "fire" } },
-        "nm_034": { n: "惡魔", lv: 61, s: "L", beh: "主動", race: "惡魔", boss: true, e: "earth", hp: 26666, ac: -75, mr: 100, exp: 66666, goldMin: 6666, goldMax: 66666, atkSpd: 1, dmg: [6, 66], db: 66, hit: 76, mag: { skn: "火焰之舞", cd: 60, chance: 0.3, dmg: [6, 66], db: 666, ele: "fire", sec: { type: "burn", tick: 5, d: 66, dur: 20, pbase: 100 } }, mag2: { skn: "禁地封印", cd: 90, chance: 0.3, type: "magicseal", pbase: 200 }, mag3: { skn: "地面震裂", cd: 50, chance: 0.2, dmg: [5, 100], db: 499, ele: "earth" } },
-        "antaras": { n: "安塔瑞斯", lv: 93, s: "L", beh: "主動", race: "龍", boss: true, e: "earth", hp: 120000, ac: -80, mr: 150, exp: 92000, goldMin: 19236, goldMax: 165248, atkSpd: 1.5, dmg: [2, 250], db: 265, hit: 95, mag: { skn: "毒氣風暴", cd: 130, type: "poison", pbase: 100, d: 100, tick: 3, dur: 12 }, mag2: { skn: "地裂術", cd: 70, dmg: [5, 100], db: 499, ele: "earth" }, mag3: { skn: "大地怒吼", cd: 90, chance: 0.3, dmg: [1, 500], db: 999, ele: "earth" } },
-        "fafurion": { n: "法利昂", lv: 93, s: "L", beh: "主動", race: "龍", boss: true, e: "water", hp: 120000, ac: -80, mr: 150, exp: 94000, goldMin: 18236, goldMax: 185248, atkSpd: 2, dmg: [2, 350], db: 265, hit: 95, mag: { skn: "巨水炮", cd: 50, dmg: [3, 100], db: 250, ele: "water" }, mag2: { skn: "寒冰噴吐", cd: 70, chance: 0.3, dmg: [4, 100], db: 399, ele: "water", sec: { type: "freeze", pbase: 200 } }, mag3: { skn: "冰裂術", cd: 70, dmg: [1, 100], db: 200, ele: "water", ext_freeze: 666 } },
-        "valakas": { n: "巴拉卡斯", lv: 95, s: "L", beh: "主動", race: "龍", boss: true, e: "fire", hp: 150000, ac: -99, mr: 200, exp: 100000, goldMin: 20236, goldMax: 365248, atkSpd: 4, dmg: [3, 350], db: 565, hit: 99, mag: { skn: "火牢", cd: 50, chance: 0.1, type: "burn", d: 200, tick: 3, dur: 21 }, mag2: { skn: "流星雨", cd: 100, dmg: [5, 100], db: 560, ele: "fire", sec: { type: "scald", tick: 3, d: 100, dur: 15, pbase: 200 } }, mag3: { skn: "火焰噴吐", cd: 170, dmg: [2, 100], db: 1200, ele: "fire" } },
+        "nm_034": { n: "惡魔", lv: 61, s: "L", beh: "主動", race: "惡魔", boss: true, e: "earth", hp: 26666, ac: -75, mr: 100, exp: 666666, goldMin: 6666, goldMax: 66666, atkSpd: 1, dmg: [6, 66], db: 66, hit: 76, mag: { skn: "火焰之舞", cd: 60, chance: 0.3, dmg: [6, 66], db: 666, ele: "fire", sec: { type: "burn", tick: 5, d: 66, dur: 20, pbase: 100 } }, mag2: { skn: "禁地封印", cd: 90, chance: 0.3, type: "magicseal", pbase: 200 }, mag3: { skn: "地面震裂", cd: 50, chance: 0.2, dmg: [5, 100], db: 499, ele: "earth" } },
+        "antaras": { n: "安塔瑞斯", lv: 93, s: "L", beh: "主動", race: "龍", boss: true, e: "earth", hp: 120000, ac: -80, mr: 150, exp: 920000, goldMin: 19236, goldMax: 165248, atkSpd: 1.5, dmg: [2, 250], db: 265, hit: 95, mag: { skn: "毒氣風暴", cd: 130, type: "poison", pbase: 100, d: 100, tick: 3, dur: 12 }, mag2: { skn: "地裂術", cd: 70, dmg: [5, 100], db: 499, ele: "earth" }, mag3: { skn: "大地怒吼", cd: 90, chance: 0.3, dmg: [1, 500], db: 999, ele: "earth" } },
+        "fafurion": { n: "法利昂", lv: 93, s: "L", beh: "主動", race: "龍", boss: true, e: "water", hp: 120000, ac: -80, mr: 150, exp: 940000, goldMin: 18236, goldMax: 185248, atkSpd: 2, dmg: [2, 350], db: 265, hit: 95, mag: { skn: "巨水炮", cd: 50, dmg: [3, 100], db: 250, ele: "water" }, mag2: { skn: "寒冰噴吐", cd: 70, chance: 0.3, dmg: [4, 100], db: 399, ele: "water", sec: { type: "freeze", pbase: 200 } }, mag3: { skn: "冰裂術", cd: 70, dmg: [1, 100], db: 200, ele: "water", ext_freeze: 666 } },
+        "valakas": { n: "巴拉卡斯", lv: 95, s: "L", beh: "主動", race: "龍", boss: true, e: "fire", hp: 150000, ac: -99, mr: 200, exp: 1000000, goldMin: 20236, goldMax: 365248, atkSpd: 4, dmg: [3, 350], db: 565, hit: 99, mag: { skn: "火牢", cd: 50, chance: 0.1, type: "burn", d: 200, tick: 3, dur: 21 }, mag2: { skn: "流星雨", cd: 100, dmg: [5, 100], db: 560, ele: "fire", sec: { type: "scald", tick: 3, d: 100, dur: 15, pbase: 200 } }, mag3: { skn: "火焰噴吐", cd: 170, dmg: [2, 100], db: 1200, ele: "fire" } },
         "nm_035": { n: "牧羊犬", lv: 5, s: "S", beh: "被動", race: "動物", e: "earth", hp: 30, ac: 10, mr: 30, exp: 26, goldMin: 13, goldMax: 36, atkSpd: 2, dmg: [1, 5], db: 0, hit: 0 },
-        "nm_036": { n: "夢幻之島冰人", lv: 38, s: "L", beh: "被動", race: "元素", elem: true, e: "water", hp: 350, ac: -30, mr: 21, exp: 1450, goldMin: 243, goldMax: 364, atkSpd: 2, dmg: [2, 40], db: 40, hit: 29 },
-        "sema": { n: "西瑪", lv: 42, s: "S", boss: true, race: "四色", e: "none", hp: 8000, ac: -32, mr: 80, exp: 17650, goldMin: 1500, goldMax: 3000, atkSpd: 2.0, dmg: [4, 31], db: 62, hit: 55, mag: { skn: "極光雷電", sk: 'thunder', cd: 50, dmg: [2, 80], db: 182, ele: 'wind' } },
+        "nm_036": { n: "夢幻之島冰人", lv: 38, s: "L", beh: "被動", race: "元素", elem: true, e: "water", hp: 350, ac: -30, mr: 21, exp: 14500, goldMin: 243, goldMax: 364, atkSpd: 2, dmg: [2, 40], db: 40, hit: 29 },
+        "sema": { n: "西瑪", lv: 42, s: "S", boss: true, race: "四色", e: "none", hp: 8000, ac: -32, mr: 80, exp: 176500, goldMin: 1500, goldMax: 3000, atkSpd: 2.0, dmg: [4, 31], db: 62, hit: 55, mag: { skn: "極光雷電", sk: 'thunder', cd: 50, dmg: [2, 80], db: 182, ele: 'wind' } },
     },
 	
 	    // 👇 完整的城鎮系統資料庫
@@ -1156,6 +1158,7 @@ const DB = {
             npcs: [
                 { id: "npc_nikki", n: "尼奇", title: "雜貨商人", type: "shop", d: "攻城獲勝後開放的肯特城雜貨商。" },
                 { id: "npc_wh_kent", n: "巴歐", title: "倉庫", type: "warehouse", d: "存放物品與金幣，三個存檔角色共用。" },
+                { id: "npc_ally_b", n: "傭兵公會", title: "協力", type: "ally", d: "召喚其他存檔位的角色一起作戰。" },
                 { id: "npc_ismael", n: "伊賽馬利", title: "交換物品", type: "exchange", d: "以卷軸或金幣交換稀有的祝福卷軸與飾品卷軸。" },
                 { id: "npc_pandora", n: "潘朵拉", title: "黑市", type: "exchange", d: "可能隨機抽到任何物品。" },
                 { id: "npc_esti", n: "依詩蒂", title: "血盟", type: "pledge", d: "尋找以血為盟的夥伴。" },
@@ -1218,6 +1221,7 @@ const DB = {
             npcs: [
                 { id: "npc_bit", n: "比特", title: "雜貨商人", type: "shop", d: "販售各種日常消耗品。" },
                 { id: "npc_wh_heine", n: "哈金", title: "倉庫", type: "warehouse", d: "存放物品與金幣，三個存檔角色共用。" },
+                { id: "npc_ally_heine", n: "傭兵公會", title: "協力", type: "ally", d: "召喚其他存檔位的角色一起作戰。" },
 				{ id: "npc_lumiel", n: "琉米埃爾", title: "製作", type: "craft", d: "交換受到伊娃祝福的裝備。" },
                 { id: "npc_esti", n: "依詩蒂", title: "血盟", type: "pledge", d: "尋找以血為盟的夥伴。" }
             ]
@@ -1227,6 +1231,7 @@ const DB = {
             npcs: [
                 { id: "npc_piwood", n: "畢伍德", title: "雜貨商人", type: "shop", d: "販售各種日常消耗品。" },
                 { id: "npc_wh_oren", n: "希林", title: "倉庫", type: "warehouse", d: "存放物品與金幣，三個存檔角色共用。" },
+                { id: "npc_ally_oren", n: "傭兵公會", title: "協力", type: "ally", d: "召喚其他存檔位的角色一起作戰。" },
 				{ id: "npc_ibelbin", n: "伊貝爾賓", title: "製作", type: "craft", d: "能打造屠龍級神兵與護甲。" },
                 { id: "npc_tros", n: "特羅斯", title: "血盟", type: "pledge", d: "尋找以血為盟的夥伴。" }
             ]
@@ -1332,12 +1337,12 @@ const DB = {
         "sk_holy_barrier": { n: "聖結界", type: "buff", tier: 9, reqM: 36, mp: 30, dur: 32, msg: "一道神聖的防禦屏障保護著你。" },
         "sk_sleep_mist": { n: "沉睡之霧", type: "atk", tier: 9, reqM: 36, mp: 40, dmgType: "magic", target: "all", status: { kind: "sleep", pbase: 100, dur: 8 } },
         "sk_thunder_storm": { n: "雷霆風暴", type: "atk", tier: 9, reqM: 36, mp: 48, dmgType: "magic", ele: "wind", target: "all", multiDmg: [[1, 9], [1, 9], [1, 9], [1, 9], [1, 9]] },
-        "sk_fire_storm": { n: "火風暴", type: "atk", tier: 9, reqM: 36, mp: 20, dmgType: "magic", ele: "fire", target: "all", multiDmg: [[3, 9], [3, 9]] },
+        "sk_fire_storm": { n: "火風暴", type: "atk", tier: 9, reqM: 36, mp: 48, dmgType: "magic", ele: "fire", target: "all", multiDmg: [[3, 9], [3, 9]] },
 
         // 十階魔法 (Lv 40)
-        "sk_meteor": { n: "流星雨", type: "atk", tier: 10, reqM: 40, mp: 20, dmgType: "magic", ele: "fire", target: "all", multiDmg: [[1, 10], [1, 10], [1, 10], [1, 10], [1, 10], [1, 10]] },
+        "sk_meteor": { n: "流星雨", type: "atk", tier: 10, reqM: 40, mp: 60, dmgType: "magic", ele: "fire", target: "all", multiDmg: [[1, 10], [1, 10], [1, 10], [1, 10], [1, 10], [1, 10]] },
         "sk_soul_up": { n: "靈魂昇華", type: "buff", tier: 10, reqM: 40, mp: 20, dur: 1200, msg: "你覺得身體充滿了活力。" },
-        "sk_disintegrate": { n: "究極光裂術", type: "atk", tier: 10, reqM: 20, mp: 70, dmgType: "magic", ele: "none", dmgDice: [1, 120] },
+        "sk_disintegrate": { n: "究極光裂術", type: "atk", tier: 10, reqM: 40, mp: 70, dmgType: "magic", ele: "none", dmgDice: [1, 120] },
 
         // ================= 【騎士技術】 =================
         "sk_solid_shield": { n: "堅固防護", type: "buff", tier: 2, reqK: 40, hpCost: 30, mp: 5, dur: 180, reqShield: true, d: { er: 15 } },
@@ -1546,7 +1551,7 @@ const DB = {
         '巴拉卡斯': [['wpn_katana',10], ['wpn_siruge',5], ['amr_plate',10], ['arm_88',1], ['glv_glove',10], ['arm_82',0.1], ['acc_116',0.2], ['acc_117',0.2], ['amu_str',0.2], ['amu_int',0.2], ['acc_127',6], ['acc_128',6], ['acc_129',6], ['blt_body',1], ['acc_130',1], ['acc_131',1], ['potion_haste',1], ['scroll_weapon',100], ['scroll_armor',100], ['scroll_acc',50], ['new_item_150',1], ['new_item_151',100], ['new_item_152',10], ['new_item_153',2], ['new_item_157',100], ['new_item_158',10], ['new_item_159',2], ['bk_fireball',20], ['bk_slow',15], ['bk_charm',15], ['bk_str_up',10], ['bk_haste_spell',10], ['bk_summon',3], ['bk_invisible',1], ['bk_resurrection',1], ['new_item_192',100], ['potion_blue',1]],
         '巴風特': [['wpn_katana',2], ['wpn_2hsword',5], ['amr_plate',5], ['arm_88',0.1], ['glv_glove',10], ['acc_116',0.01], ['acc_127',0.5], ['acc_129',0.5], ['blt_body',0.1], ['acc_131',0.1], ['potion_haste',1], ['scroll_weapon',10], ['scroll_armor',20], ['scroll_acc',1], ['new_item_150',1], ['new_item_151',5], ['new_item_152',0.5], ['new_item_153',0.1], ['new_item_154',5], ['new_item_155',0.5], ['new_item_156',0.1], ['new_item_161',0.5], ['new_item_162',0.1], ['bk_charm',1], ['bk_earthquake',2], ['bk_summon',0.2], ['bk_rock_prison',5], ['bk_quake',1], ['new_item_195',1], ['bk_elf_dancefire',1], ['bk_magic_shield',1], ['bk_weaken',1], ['bk_bless_wpn',0.1]],
         '希爾黛斯': [['new_item_160',0.5], ['new_item_161',0.5], ['new_item_162',0.1], ['bk_slow',0.5], ['bk_ice_lance',0.001], ['potion_blue',1], ['bk_ice_spike',0.5], ['bk_elf_lifespring',0.1], ['bk_elf_lifebless',0.01],['new_item_213',1]],
-        '強盜': [['arm_69', 0.5], ['hlm_mr', 0.5], ['wpn_shortbow',1], ['wpn_32',0.01], ['arm_42',2], ['arm_66',3], ['arm_98',0.1], ['arm_49',1], ['potion_heal',1], ['potion_strong',1], ['potion_haste',1], ['potion_ult',1], ['new_item_225',0.1]],
+        '強盜': [['wpn_20', 0.5], ['arm_69', 0.5], ['hlm_mr', 0.5], ['wpn_shortbow',1], ['wpn_32',0.01], ['arm_42',2], ['arm_66',3], ['arm_98',0.1], ['arm_49',1], ['potion_heal',1], ['potion_strong',1], ['potion_haste',1], ['potion_ult',1], ['new_item_225',0.1]],
         '強盜頭目': [['hlm_mr', 5], ['wpn_katana',1], ['wpn_silversword',3], ['arm_62',5], ['arm_87',5], ['scroll_acc',0.1], ['arm_42',10], ['potion_heal',1], ['potion_strong',1], ['potion_haste',1], ['potion_ult',1], ['new_item_152',0.5], ['new_item_153',0.1], ['new_item_155',0.5], ['new_item_156',0.1], ['new_item_158',0.5], ['new_item_159',0.1], ['new_item_161',0.5], ['new_item_162',0.1], ['item_nightvision',10]],
         '影魔': [['acc_129',0.005], ['acc_131',0.001], ['potion_heal',1], ['potion_strong',1], ['potion_ult',1], ['potion_blue',1], ['bk_ice_spike',0.5], ['bk_magic_shield',0.01], ['bk_dark_shadow',0.1]],
         '思克巴': [['acc_117',0.001], ['bk_ice_lance',0.01], ['bk_summon',0.02], ['bk_blizzard',0.005], ['potion_blue',1], ['bk_ice_spike',0.5], ['bk_elf_release',0.1], ['bk_elf_lifespring',0.1], ['bk_elf_triple',0.05], ['new_item_226',0.01]],
@@ -1691,8 +1696,8 @@ let player = {
     cls: null, name: null, lv: 1, exp: 0, gold: 1000, hp: 0, mhp: 0, mp: 0, mmp: 0, blessings: {},
     base: { str:0, dex:0, con:0, int:0, wis:0, cha:8 }, bonus: 0, alloc: { str:0, dex:0, con:0, int:0, wis:0, cha:0 }, panacea: { str:0, dex:0, con:0, int:0, wis:0, cha:0 }, panaceaUsed: 0, junkPrefs: {}, bloodPledge: null, magicShieldCd: 0, lastMapByCat: {}, tracking: null, siege: { active:false, gateKilled:false, towerKilled:false, endTime:0, kills:0, result:null, cooldownUntil:0, rewardPending:false, victoryUntil:0, accCdUntil:0 },
     inv: [], eq: { wpn: null, arrow: null, helm: null, armor: null, shield: null, cloak: null, tshirt: null, gloves: null, boots: null, ring1: null, ring2: null, amulet: null, belt: null },
-    skills: [], buffs: { haste: 0, brave: 0, blue: 0, cautious: 0, elfcookie: 0, poly: 0, shield: 0, sk_magic_shield: 0 }, poly: null,
-    summon: null, manualCd: {}, elfEle: null, hot: null,
+    skills: [], buffs: { haste: 0, brave: 0, blue: 0, cautious: 0, elfcookie: 0, poly: 0, shield: 0, sk_magic_shield: 0 }, poly: null, allies: [],
+    summon: null, charmed: null, manualCd: {}, elfEle: null, hot: null,
     cds: { pot: 0, atkSk: 0, healSk: 0 }, dead: false, statuses: { stun: 0, freeze: 0, stone: 0, poison: 0, poisonDmg: 0, poisonTick: 0, burn: 0, burnDmg: 0, burnTick: 0, scald: 0, scaldDmg: 0, scaldTick: 0, silence: 0, paralyze: 0, magicseal: 0, armorBreak: 0, slowAtk: 0, cleave: 0 },
     d: { str:0, dex:0, con:0, int:0, wis:0, cha:8,
          meleeDmg: 0, meleeHit: 0, meleeCrit: 0,           // 近距離（力量）
@@ -1952,7 +1957,7 @@ function calcStats() {
     // ===== Phase 0：基礎屬性 + 衍生欄位歸零（依基本設定，起始值0；AC起始10）=====
     let pn = player.panacea || {};
     d.str = b.str + a.str + (pn.str||0); d.dex = b.dex + a.dex + (pn.dex||0); d.con = b.con + a.con + (pn.con||0); d.int = b.int + a.int + (pn.int||0); d.wis = b.wis + a.wis + (pn.wis||0);
-    d.cha = Math.min(30, (b.cha || 0) + (a.cha || 0) + (pn.cha||0));   // 魅力：第六屬性，最高 30
+    d.cha = Math.min(60, (b.cha || 0) + (a.cha || 0) + (pn.cha||0));   // 魅力：第六屬性，最高 60
 
     d.ac = 10; d.er = 0; d.dr = 0;
     d.meleeDmg = 0; d.meleeHit = 0; d.meleeCrit = 0;
@@ -2657,9 +2662,11 @@ function tick() {
         if(m._atkCd <= 0) {
             enemyPhysicalAttack(m, i);
             m._atkCd = Math.max(1, Math.floor(m.atkSpd * 10)) + slowAdd;
+            m._bluntDelayed = false;   // 攻擊後重置鈍擊延遲標記，下一週期可再被延遲一次
         }
 
         if(player.dead) break;
+        if(m.curHp <= 0) continue;   // 反擊使該怪在自己回合內死亡 → 跳過後續魔法施放
         if(m.st && (m.st.vacuum > 0 || m.st.magicseal > 0)) continue; // 真空 / 魔法封印：無法施放技能
         if(!m._magCd) m._magCd = {};
         ['mag','mag2','mag3'].forEach(mk => {
@@ -2686,7 +2693,7 @@ function tick() {
         if(player.dead) break;
     }
 
-    if(!player.dead) summonTick();
+    if(!player.dead) { summonTick(player.summon, () => { player.summon = null; }); summonTick(player.charmed, () => { player.charmed = null; }); alliesTick(); }
     if(!player.dead) pledgeBlessTick();   // 生命的祝福：場上血盟怪物持續治療
     // 盟主祝福到期清理（每秒檢查；到期即移除並重算屬性）
     if(!player.dead && player.blessings && state.ticks % 10 === 0) {
@@ -3001,7 +3008,7 @@ function stretchHitValue(raw) {
     let hvInt = lo + ((Math.random() < (hv - lo)) ? 1 : 0);
     return Math.max(1, Math.min(20, hvInt));
 }
-function getPhysicalDmg(diceStr, target, wpn, arrowData) {
+function getPhysicalDmg(diceStr, target, wpn, arrowData, forceHeavy, forceHit, forceLand) {
     let isRanged = !!(wpn && wpn.ranged);
     let hitBonus = (isRanged ? player.d.rangedHit : player.d.meleeHit) + player.d.extraHit;
     let dmgBonus = (isRanged ? player.d.rangedDmg : player.d.meleeDmg);
@@ -3014,7 +3021,10 @@ function getPhysicalDmg(diceStr, target, wpn, arrowData) {
 
     let rollHit = roll(1, 20);
     let hit = false, heavy = false, graze = false, crush = false;
-    if (rollHit === 20) { hit = true; heavy = true; }
+    if (forceHeavy) { hit = true; heavy = true; }   // 魔擊：必定命中且必定重擊
+    else if (forceHit) { hit = true; }   // 反擊：必定命中、必定非重擊
+    else if (forceLand) { hit = true; if (rollHit === 20) heavy = true; }   // 居合：必定命中，rollHit20 仍自然重擊；不擦傷
+    else if (rollHit === 20) { hit = true; heavy = true; }
     else if (rollHit !== 1 && hitValue >= rollHit) hit = true;
     else if (rollHit === 19) {   // 擲到19依公式本應未命中時 → 擦傷
         hit = true;
@@ -3108,12 +3118,184 @@ function consumeArrow() {
     return DB.items[arrowId];
 }
 
+// ===== 法杖共鳴：裝備指定魔法杖時，一般攻擊(不論命中與否)有 智力/60 機率免費施展光箭 =====
+const WAND_LIGHTARROW_IDS = ['wpn_oakwand', 'wpn_38', 'wpn_witchwand', 'wpn_manawand', 'wpn_crystalwand'];
+function wandLightArrowProc(target) {
+    let wpn = player.eq.wpn;
+    if (!wpn || !WAND_LIGHTARROW_IDS.includes(wpn.id)) return;
+    if (Math.random() >= ((player.d.int || 0) / 60)) return;   // 觸發機率 = 裝備者智力 / 60
+    // 選定光箭目標：主目標仍存活則優先；若主目標已被普攻擊殺，改打場上隨機一隻存活的怪；全部清空則作罷
+    let t = (target && target.curHp > 0) ? target : null;
+    if (!t) {
+        let alive = mapState.mobs.filter(m => m && m.curHp > 0);
+        if (alive.length === 0) return;
+        t = alive[Math.floor(Math.random() * alive.length)];
+    }
+    procLightArrow(t);
+}
+// 光箭傷害：與 castSkill 單體魔法完全相同的公式(魔法/無屬性/tier1/dmgDice[1,6])，但不耗魔力、不吃冷卻
+function procLightArrow(t) {
+    let sk = DB.skills['sk_lightarrow'];
+    if (!sk || !t || t.curHp <= 0) return;
+    let effMr = (t.st && t.st.mrhalf > 0) ? (t.mr / 2) : t.mr;
+    let mrFactor = effMr <= 100 ? (100 - (effMr / 2)) / 100 : (50 - ((effMr - 100) / 10)) / 100;
+    mrFactor = Math.max(0, mrFactor);
+    let isCrit = Math.random() * 100 < player.d.magicCrit;
+    let skillTier = sk.tier || 1;
+    let spCoef = (1 + (3 * player.d.magicDmg / 16)) * (1 + (skillTier / 3));
+    let mageDmgMult = (player.cls === 'mage') ? (1.5 + skillTier / 20) : 1.0;   // 與一般攻擊魔法一致
+    let magicCritMult = isCrit ? (1 + player.d.magicCritDmg / 100) : 1.0;
+    let baseMagicDmg = roll(sk.dmgDice[0], sk.dmgDice[1]);
+    let core = baseMagicDmg * spCoef * magicCritMult;
+    let extraMagicDmg = (sk.dmgBase || 0) + player.d.extraMp;
+    let d = Math.floor((core + extraMagicDmg) * mrFactor) - (t.dr || 0);
+    d = Math.max(1, d);   // 光箭無屬性，無剋制固定加值
+    d = Math.floor(d * mageDmgMult);
+    t.curHp -= d;
+    t.justHit = 'magic';
+    if (t.st && t.st.mrhalf > 0) t.st.mrhalf = 0;
+    mobWake(t);
+    player.mp = Math.min(player.mmp, player.mp + Math.max(1, Math.floor(d / 10)));   // 共鳴觸發：恢復 光箭實際傷害/10（捨去；未滿10仍回 1）
+    updateUI();
+    logCombat(`<span class="text-cyan-300 font-bold">【共鳴】</span>光箭對 <span class="${getMobColor(t.lv)}">${t.n}</span> 造成 <span class="${isCrit ? 'text-yellow-500 font-bold' : 'text-cyan-300'}">${d}</span> 點傷害。${isCrit ? ' (爆擊!)' : ''}`, 'magic');
+    if (t.curHp <= 0) {
+        let realIdx = mapState.mobs.findIndex(m => m && m.uid === t.uid);
+        if (realIdx !== -1) killMob(realIdx);
+    } else {
+        renderMobs();
+    }
+}
+// ===== 月光爆裂：對指定目標造成 1D30 + 2×強化等級 的風屬性固定傷害（不受魔法公式影響）=====
+function procMoonburst(t) {
+    if (!t || t.curHp <= 0) return;
+    let en = (player.eq.wpn && player.eq.wpn.en) || 0;
+    let mbDmg = roll(1, 30) + 2 * en;
+    let counterTxt = '';
+    if (isElementCounter('wind', t.e)) { mbDmg += 6; counterTxt = ' <span class="text-emerald-300 font-bold">(剋屬性!)</span>'; }   // 風剋水：額外 +6 固定傷害
+    t.curHp -= mbDmg;
+    t.justHit = 'wind';
+    logCombat(`<span class="font-bold" style="color:#67e8f9;text-shadow:0 0 6px #06b6d4;">【月光爆裂】</span>對 <span class="${getMobColor(t.lv)}">${t.n}</span> 造成 ${mbDmg} 點風屬性傷害！${counterTxt}`, 'player-crit');
+    if (t.curHp <= 0) {
+        let realIdx = mapState.mobs.findIndex(m => m && m.uid === t.uid);
+        if (realIdx !== -1) killMob(realIdx);
+    } else {
+        renderMobs();
+    }
+}
+// 月光爆裂 proc 判定：裝備熾炎天使弓時 8% 觸發；主目標已死則轉移到場上隨機存活怪（與共鳴相同）
+function moonburstProc(target) {
+    let wpn = player.eq.wpn ? DB.items[player.eq.wpn.id] : null;
+    if (!wpn || wpn.eff !== 'moonburst') return;
+    if (Math.random() >= 0.08) return;
+    let t = (target && target.curHp > 0) ? target : null;
+    if (!t) {
+        let alive = mapState.mobs.filter(m => m && m.curHp > 0);
+        if (alive.length === 0) return;
+        t = alive[Math.floor(Math.random() * alive.length)];
+    }
+    procMoonburst(t);
+}
+// ===== 魔擊（力量魔法杖）：對指定目標打一次「必定命中且必定重擊」的物理攻擊，沿用一般攻擊完整傷害計算 =====
+function procMagicStrike(t) {
+    if (!t || t.curHp <= 0) return;
+    let wpn = player.eq.wpn ? DB.items[player.eq.wpn.id] : null;
+    let dice = wpn ? (t.s === 'L' ? wpn.dmgL : wpn.dmgS) : 2;
+    let res = getPhysicalDmg(dice, t, wpn, null, true);   // forceHeavy=true：必定命中＋重擊
+    t.curHp -= res.dmg;
+    t.justHit = getWpnEle(player.eq.wpn, wpn);
+    mobWake(t);
+    let mark = res.crit ? '會心一擊' : '重擊';
+    logCombat(`<span class="font-bold" style="color:#d8b4fe;text-shadow:0 0 6px #a855f7;">【魔擊】</span>對 <span class="${getMobColor(t.lv)}">${t.n}</span> 造成 ${res.dmg} 點傷害（${mark}!）。`, 'player-crit');
+    if (t.curHp <= 0) {
+        let realIdx = mapState.mobs.findIndex(m => m && m.uid === t.uid);
+        if (realIdx !== -1) killMob(realIdx);
+    } else {
+        renderMobs();
+    }
+}
+// 魔擊 proc 判定：裝備力量魔法杖時，每次攻擊(命中與否) 力量/60 機率；主目標已死則轉移到場上隨機存活怪
+function magicStrikeProc(target) {
+    let wpn = player.eq.wpn ? DB.items[player.eq.wpn.id] : null;
+    if (!wpn || wpn.eff !== 'magicstrike') return;
+    if (Math.random() >= ((player.d.str || 0) / 60)) return;   // 觸發機率 = 裝備者力量 / 60
+    let t = (target && target.curHp > 0) ? target : null;
+    if (!t) {
+        let alive = mapState.mobs.filter(m => m && m.curHp > 0);
+        if (alive.length === 0) return;
+        t = alive[Math.floor(Math.random() * alive.length)];
+    }
+    procMagicStrike(t);
+}
+// ===== 連射：發動攻擊時依機率追加 1~3 箭；每箭各自接受命中判定(可未命中/重擊/爆擊)，傷害為該箭結算的 30%；每箭也各判定月光爆裂 =====
+function rapidfireProc(arrowData) {
+    let wpn = player.eq.wpn ? DB.items[player.eq.wpn.id] : null;
+    if (!wpn || !wpn.rapidfire) return;
+    if (roll(1, 100) > wpn.rapidfire) return;
+    let _rfN = roll(1, 3);
+    for (let _r = 0; _r < _rfN; _r++) {
+        let _alive = [];
+        mapState.mobs.forEach((m, i) => { if (m && m.curHp > 0) _alive.push(i); });
+        if (_alive.length === 0) break;
+        let _ti = _alive[Math.floor(Math.random() * _alive.length)];
+        let _t = mapState.mobs[_ti];
+        // 每箭各自接受命中判定（可能未命中，也可能重擊/爆擊）
+        let _dice = _t.s === 'L' ? wpn.dmgL : wpn.dmgS;
+        if (arrowData) _dice = _t.s === 'L' ? (wpn.dmgL + arrowData.dmgL) : (wpn.dmgS + arrowData.dmgS);
+        let _res = getPhysicalDmg(_dice, _t, wpn, arrowData);
+        if (!_res.hit) {
+            logCombat(`【連射】箭矢射向 <span class="${getMobColor(_t.lv)}">${_t.n}</span> 但未命中。`, 'miss');
+            continue;
+        }
+        let _rfDmg = Math.max(1, Math.floor(_res.dmg * 0.30));   // 連射箭矢：該箭結算傷害的 30%
+        _t.curHp -= _rfDmg;
+        _t.justHit = getWpnEle(player.eq.wpn, wpn);
+        mobWake(_t);
+        let _mark = (_res.heavy && _res.crit) ? '會心一擊' : (_res.crit ? '爆擊' : (_res.heavy ? '重擊' : ''));
+        logCombat(`【連射】箭矢命中 <span class="${getMobColor(_t.lv)}">${_t.n}</span>，造成 ${_rfDmg} 點傷害${_mark ? '（' + _mark + '!）' : ''}。`, (_res.heavy || _res.crit) ? 'player-crit' : 'player');
+        if (_t.curHp <= 0) killMob(_ti);
+        moonburstProc(_t);   // 熾炎天使弓：每支連射箭矢也有機會觸發月光爆裂（主目標死亡自動轉移）
+    }
+    renderMobs();
+}
+// ===== 反擊（單手劍）：對攻擊者打一次「必定命中、必定非重擊、傷害 50%」的一般攻擊；只打攻擊者，不轉移 =====
+function procCounter(t) {
+    if (!t || t.curHp <= 0) return;
+    let wpn = player.eq.wpn ? DB.items[player.eq.wpn.id] : null;
+    let dice = wpn ? (t.s === 'L' ? wpn.dmgL : wpn.dmgS) : 2;
+    let res = getPhysicalDmg(dice, t, wpn, null, false, true);   // forceHeavy=false, forceHit=true
+    let dmg = Math.max(1, Math.floor(res.dmg * 0.50));           // 傷害只有原本 50%
+    t.curHp -= dmg;
+    t.justHit = getWpnEle(player.eq.wpn, wpn);
+    mobWake(t);
+    let mark = res.crit ? '（爆擊!）' : '';
+    logCombat(`<span class="font-bold" style="color:#fbbf24;text-shadow:0 0 6px #f59e0b;">【反擊】</span>對 <span class="${getMobColor(t.lv)}">${t.n}</span> 造成 ${dmg} 點傷害${mark}。`, 'player');
+    let idx = mapState.mobs.findIndex(m => m && m.uid === t.uid);
+    if (t.curHp <= 0) { if (idx !== -1) killMob(idx); }
+    else renderMobs();
+}
+// ===== 居合（武士刀）：對攻擊者打一次「必定命中、可自然重擊/爆擊」的一般攻擊；只打攻擊者 =====
+function procIai(t) {
+    if (!t || t.curHp <= 0) return;
+    let wpn = player.eq.wpn ? DB.items[player.eq.wpn.id] : null;
+    let dice = wpn ? (t.s === 'L' ? wpn.dmgL : wpn.dmgS) : 2;
+    let res = getPhysicalDmg(dice, t, wpn, null, false, false, true);   // forceLand=true：必定命中、可重擊/爆擊
+    t.curHp -= res.dmg;
+    t.justHit = getWpnEle(player.eq.wpn, wpn);
+    mobWake(t);
+    let mark = (res.heavy && res.crit) ? '會心一擊' : (res.crit ? '爆擊' : (res.heavy ? '重擊' : ''));
+    logCombat(`<span class="font-bold" style="color:#a5f3fc;text-shadow:0 0 6px #06b6d4;">【居合】</span>對 <span class="${getMobColor(t.lv)}">${t.n}</span> 造成 ${res.dmg} 點傷害${mark ? '（' + mark + '!）' : ''}。`, 'player');
+    let idx = mapState.mobs.findIndex(m => m && m.uid === t.uid);
+    if (t.curHp <= 0) { if (idx !== -1) killMob(idx); }
+    else renderMobs();
+}
 function playerAttack() {
     let target = getTarget();
     if(!target) return;
 
     if (target.er && roll(1, 100) <= target.er) {
         logCombat(`<span class="${getMobColor(target.lv)}">${target.n}</span> 成功迴避攻擊。`, 'evade');
+        wandLightArrowProc(target);
+        magicStrikeProc(target);
         return;
     }
 
@@ -3214,25 +3396,36 @@ function playerAttack() {
         logCombat(`${killPrefix}命中 <span class="${getMobColor(target.lv)}">${target.n}</span>，造成 ${result.dmg} 點傷害。${ext}`, tag);
         if(_cleaveProc) logCombat('<span class="text-teal-300 font-bold">流暢的手感，讓你更快砍出下一刀</span>', 'player');
         
+        // 匕首出血：命中且目標存活時，依 力量/60 機率使敵人出血（每秒當時命中傷害20%、8秒、最多5層）
+        if (player.eq.wpn && weaponHasBleed(player.eq.wpn.id) && target.curHp > 0 && Math.random() < ((player.d.str || 0) / 60)) {
+            applyBleed(target, result.dmg);
+        }
+        // 單手鈍器鈍擊：命中使目標攻擊延遲 1 秒；每個敵人攻擊週期僅延遲一次（攻擊後重置），故最多 +1 秒、不會無限延遲
+        if (player.eq.wpn && target.curHp > 0 && getWeaponTags(player.eq.wpn.id).includes('單手鈍器')) {
+            target._bluntShow = state.ticks + 30;   // 圖示顯示計時器：每次命中刷新（穩定亮著不閃），停手約 3 秒後熄滅
+            if (!target._bluntDelayed) {
+                if (target._atkCd === undefined) target._atkCd = Math.max(1, Math.floor((target.atkSpd || 2) * 10));
+                target._atkCd += 10;   // 延遲 1 秒（10 ticks）
+                target._bluntDelayed = true;
+            }
+        }
         if (target.curHp <= 0) killMob(mapState.targetIdx);
         else renderMobs();
     } else {
         logCombat(`對 <span class="${getMobColor(target.lv)}">${target.n}</span> 的攻擊未命中。`, 'miss');
     }
 
-    // === 熾炎天使弓：發動攻擊時 8% 額外觸發「月光爆裂」===
-    // 對目標造成 1D30 + 2×強化等級 的風屬性固定傷害（不受魔法傷害公式影響）
-    if (wpn && wpn.eff === 'moonburst' && target.curHp > 0 && Math.random() < 0.08) {
-        let en = (player.eq.wpn && player.eq.wpn.en) || 0;
-        let mbDmg = roll(1, 30) + 2 * en;
-        let counterTxt = '';
-        if (isElementCounter('wind', target.e)) { mbDmg += 6; counterTxt = ' <span class="text-emerald-300 font-bold">(剋屬性!)</span>'; }  // 風剋水：額外 +6 固定傷害
-        target.curHp -= mbDmg;
-        target.justHit = 'wind';
-        logCombat(`<span class="font-bold" style="color:#67e8f9;text-shadow:0 0 6px #06b6d4;">【月光爆裂】</span>對 <span class="${getMobColor(target.lv)}">${target.n}</span> 造成 ${mbDmg} 點風屬性傷害！${counterTxt}`, 'player-crit');
-        if (target.curHp <= 0) killMob(mapState.targetIdx);
-        else renderMobs();
-    }
+    // 連射（弓）：發動攻擊即判定（不論主攻擊命中與否）；每箭各自接受命中判定
+    rapidfireProc(arrowData);
+
+    // === 熾炎天使弓：發動攻擊時 8% 觸發「月光爆裂」（主目標死亡則自動轉移到其他存活怪）===
+    moonburstProc(target);
+
+    // 法杖共鳴：一般攻擊(命中或未命中皆然)依機率免費施展光箭
+    wandLightArrowProc(target);
+
+    // 魔擊：一般攻擊(命中或未命中皆然)依機率追加一次必定命中重擊
+    magicStrikeProc(target);
 }
 
 function enemyPhysicalAttack(mob, idx, stunChance = 0) {
@@ -3240,6 +3433,10 @@ function enemyPhysicalAttack(mob, idx, stunChance = 0) {
 
     if (roll(1, 100) <= player.d.er) {
         logCombat(`${player.name || '你'} 成功迴避攻擊。`, 'evade');
+        // 武士刀居合：無盾且敵人攻擊被迴避時，30% 對攻擊者打一次必定命中的一般攻擊
+        if (!player.dead && !player.eq.shield && mob.curHp > 0 && player.eq.wpn && getWeaponTags(player.eq.wpn.id).includes('武士刀') && Math.random() < 0.30) {
+            procIai(mob);
+        }
         return;
     }
 
@@ -3331,8 +3528,17 @@ function enemyPhysicalAttack(mob, idx, stunChance = 0) {
             logCombat(`<span class="${getMobColor(mob.lv)}">${mob.n}</span> 的衝擊使你暈眩了！`, 'enemy');
         }
         else updateUI();
+
+        // 單手劍反擊：受到敵人一般攻擊命中時觸發。一般 30% 機率；若裝備盾牌且本次觸發格檔(blocked)則必定反擊
+        if (!player.dead && mob.curHp > 0 && player.eq.wpn && getWeaponTags(player.eq.wpn.id).includes('單手劍')) {
+            if (Math.random() < (blocked ? 1 : 0.30)) procCounter(mob);
+        }
     } else {
         logCombat(`<span class="${getMobColor(mob.lv)}">${mob.n}</span> 的攻擊未命中。`, 'miss');
+        // 武士刀居合：無盾且敵人攻擊未命中時，30% 對攻擊者打一次必定命中的一般攻擊
+        if (!player.dead && !player.eq.shield && mob.curHp > 0 && player.eq.wpn && getWeaponTags(player.eq.wpn.id).includes('武士刀') && Math.random() < 0.30) {
+            procIai(mob);
+        }
     }
 }
 
@@ -3342,7 +3548,9 @@ function killPlayer() {
     // 死亡時清除所有召喚物與召喚 buff（迷魅術/造屍術/召喚屬性精靈/召喚強力屬性精靈一致處理），
     // 與復活流程同步，避免狀態殘留；復活後由自動施放重新召喚。
     player.summon = null;
+    player.charmed = null;
     player.buffs.sk_charm = 0;
+    // 協力傭兵：死亡當下不解散；改由「祈求復活回城」時解散（原地復活/返生術/復活卷軸則保留）
     player.skills.forEach(s => { if(DB.skills[s] && DB.skills[s].summon) player.buffs[s] = 0; });
     player.blessings = {};   // 死亡清空所有盟主祝福
     let msg = "你的角色已經死亡。（死亡不損失經驗值。）";
@@ -3621,8 +3829,90 @@ function pledgeBonusDrop(mob) {
     logSys(`<span class="${getMobColor(mob.lv)}">${mob.n}</span> 攜帶的 <span class="${colorClass} font-bold">${fullName}</span> 掉落了！`);
 }
 
+// ===== 內建效率/掉落統計（接在 killMob/gainItem，換地圖重置；不靠函數劫持）=====
+let _audit = { start: Date.now(), gold0: 0, exp: 0, kills: 0, scrollWpn: 0, scrollArm: 0, watch: [], watchCnt: {} };
+function auditReset() {
+    _audit.start = Date.now();
+    _audit.gold0 = (typeof player !== 'undefined' && player) ? (player.gold || 0) : 0;
+    _audit.exp = 0; _audit.kills = 0; _audit.scrollWpn = 0; _audit.scrollArm = 0;
+    _audit.watch.forEach(t => _audit.watchCnt[t] = 0);
+    renderAuditTab();
+}
+function auditTrackKill(mob) {
+    if (!mob || typeof getExpGainMult !== 'function') return;
+    let g = Math.floor((mob.exp || 0) * getExpGainMult(player.lv));
+    if (g > 0) _audit.exp += g;
+    _audit.kills++;
+}
+function auditTrackGain(res) {
+    if (!res || !res.id || typeof DB === 'undefined' || !DB.items[res.id]) return;
+    let nm = DB.items[res.id].n || '';
+    let amt = Number(res.cnt) || 1;
+    if (nm.includes('祝福') && nm.includes('武器施法的卷軸')) _audit.scrollWpn += amt;
+    else if (nm.includes('祝福') && nm.includes('盔甲施法的卷軸')) _audit.scrollArm += amt;
+    let lo = nm.toLowerCase();
+    _audit.watch.forEach(t => { if (lo.includes(t.toLowerCase())) _audit.watchCnt[t] = (_audit.watchCnt[t] || 0) + amt; });
+}
+function auditAddTarget(name) {
+    name = (name || '').trim(); if (!name) return;
+    if (!_audit.watch.includes(name)) { _audit.watch.push(name); if (_audit.watchCnt[name] === undefined) _audit.watchCnt[name] = 0; }
+    renderAuditTab();
+}
+function auditRemoveIdx(i) {
+    let t = _audit.watch[i];
+    if (t !== undefined) { _audit.watch.splice(i, 1); delete _audit.watchCnt[t]; }
+    renderAuditTab();
+}
+function auditAddFromInput() {
+    let inp = document.getElementById('audit-add-input');
+    if (inp && inp.value.trim()) auditAddTarget(inp.value.trim());
+}
+function renderAuditTab() {
+    let el = document.getElementById('tab-audit');
+    if (!el || el.classList.contains('hidden')) return;
+    let inp = document.getElementById('audit-add-input');
+    if (inp && document.activeElement === inp) return;   // 使用者正在輸入 → 跳過此次重繪
+    let _val = inp ? inp.value : '';
+    let mins = (Date.now() - _audit.start) / 60000;
+    let gold = (typeof player !== 'undefined' && player) ? ((player.gold || 0) - _audit.gold0) : 0;
+    let sf = 10 / (mins || 0.001);
+    let exp10 = Math.floor(_audit.exp * sf), gold10 = Math.floor(gold * sf);
+    let watchHtml = _audit.watch.length ? _audit.watch.map((t, i) => {
+        let c = _audit.watchCnt[t] || 0;
+        return `<div class="flex justify-between items-center bg-slate-800/60 rounded px-2 py-1"><span>🎯 ${t}：<b class="${c>0?'text-green-400':'text-slate-300'}">${c}</b> 個</span><button onclick="auditRemoveIdx(${i})" class="btn px-2 py-0.5 text-xs bg-red-900 border-red-700 text-red-200">移除</button></div>`;
+    }).join('') : '<div class="text-slate-500 text-sm">尚無追蹤目標，於下方輸入物品名稱（模糊比對）新增。</div>';
+    el.innerHTML = `
+    <div class="flex flex-col gap-3 text-sm">
+        <div class="flex items-center justify-between">
+            <span class="text-purple-300 font-bold text-base">本圖效率統計</span>
+            <button onclick="auditReset()" class="btn px-3 py-1 text-xs bg-slate-700 border-slate-500 text-slate-200">重置</button>
+        </div>
+        <div class="text-slate-400 text-xs">已觀測 ${mins.toFixed(2)} 分鐘・擊殺 ${_audit.kills.toLocaleString()}（換地圖會自動重置）</div>
+        <div class="grid grid-cols-2 gap-2">
+            <div class="bg-slate-800/60 rounded p-2"><div class="text-slate-400 text-xs">累積經驗</div><div class="text-yellow-300 font-bold text-base">${_audit.exp.toLocaleString()}</div></div>
+            <div class="bg-slate-800/60 rounded p-2"><div class="text-slate-400 text-xs">純金幣淨增</div><div class="text-yellow-400 font-bold text-base">${gold.toLocaleString()}</div></div>
+            <div class="bg-slate-800/60 rounded p-2"><div class="text-slate-400 text-xs">經驗 / 10分</div><div class="text-amber-300 font-bold text-base">${exp10.toLocaleString()}</div></div>
+            <div class="bg-slate-800/60 rounded p-2"><div class="text-slate-400 text-xs">金幣 / 10分</div><div class="text-green-300 font-bold text-base">${gold10.toLocaleString()}</div></div>
+        </div>
+        <div class="border-t border-slate-700 pt-2">
+            <div class="text-amber-300 font-bold mb-1">祝福卷軸掉落</div>
+            <div class="flex justify-between"><span>⚔️ 對武器施法的卷軸（祝福）</span><b class="text-rose-300">${_audit.scrollWpn}</b></div>
+            <div class="flex justify-between"><span>🛡️ 對盔甲施法的卷軸（祝福）</span><b class="text-blue-300">${_audit.scrollArm}</b></div>
+        </div>
+        <div class="border-t border-slate-700 pt-2">
+            <div class="text-cyan-300 font-bold mb-1">自訂掉落追蹤</div>
+            <div class="flex flex-col gap-1 mb-2">${watchHtml}</div>
+            <div class="flex items-center gap-2">
+                <input id="audit-add-input" type="text" placeholder="輸入物品名稱（如：相消）" class="flex-1 bg-slate-900 border border-slate-600 text-white rounded px-2 py-1 text-sm" value="${_val.replace(/"/g,'&quot;')}">
+                <button onclick="auditAddFromInput()" class="btn px-3 py-1 text-sm bg-cyan-900 border-cyan-700 text-cyan-200 font-bold">新增</button>
+            </div>
+        </div>
+    </div>`;
+}
+setInterval(() => { try { renderAuditTab(); } catch(e) {} }, 2000);   // 開著統計分頁時每 2 秒刷新即時數字
 function killMob(idx) {
     let mob = mapState.mobs[idx];
+    if(typeof auditTrackKill === 'function') auditTrackKill(mob);   // 統計：累計經驗/擊殺
     logCombat(`擊敗了 <span class="${getMobColor(mob.lv)}">${mob.n}</span>！`, 'player-heavy');  // 👈 新增
     player.exp += Math.floor(mob.exp * getExpGainMult(player.lv));
     checkLvUp();
@@ -3743,7 +4033,8 @@ function checkLvUp() {
 function revive() {
     player.dead = false;
     player.statuses = { stun: 0, freeze: 0, stone: 0, poison: 0, poisonDmg: 0, poisonTick: 0, burn: 0, burnDmg: 0, burnTick: 0, scald: 0, scaldDmg: 0, scaldTick: 0, silence: 0, paralyze: 0, magicseal: 0 };  // 復活清除所有異常(含中毒/灼燒/燙傷)，避免復活後立即被持續傷害再次擊殺
-    player.summon = null; player.manualCd = {}; player.hot = null; player.buffs.sk_charm = 0;
+    player.summon = null; player.charmed = null; player.manualCd = {}; player.hot = null; player.buffs.sk_charm = 0;
+    if (player.allies && player.allies.length) { player.allies = []; logSys('<span class="text-red-400 font-bold">回城復活，所有招募的協力傭兵已解散，需重新花金幣招募。</span>'); }   // 回城復活：傭兵解散（原地復活則保留）
     player.skills.forEach(s => { if(DB.skills[s] && DB.skills[s].summon) player.buffs[s] = 0; });   // 清除召喚 buff，避免復活後召喚消失卻長時間不自動重新召喚
     document.getElementById('btn-revive').classList.add('hidden');
     { let ip = document.getElementById('btn-revive-inplace'); if(ip) ip.classList.add('hidden'); }
@@ -3759,6 +4050,7 @@ function revive() {
     changeMap(true);
     
     logSys(`<span class="text-green-300">一股神聖的力量將你的靈魂自虛空中召回，你在村莊甦醒了...</span>`);
+    saveGame();   // 城鎮復活成功後自動存檔：固化死亡懲罰（傭兵解散、召喚清除等），避免重載又把狀態帶回
 }
 
 // 原地復活：返生術(消耗MP，無冷卻) 優先；否則用復活卷軸(消耗1張，設定15秒冷卻)。效果相同：恢復1~200 HP、不恢復MP、留在原地。
@@ -3783,11 +4075,13 @@ function reviveInPlace() {
     player.dead = false;
     player.statuses = { stun: 0, freeze: 0, stone: 0, poison: 0, poisonDmg: 0, poisonTick: 0, burn: 0, burnDmg: 0, burnTick: 0, scald: 0, scaldDmg: 0, scaldTick: 0, silence: 0, paralyze: 0, magicseal: 0 };  // 復活清除所有異常(含中毒/灼燒/燙傷)，避免死亡迴圈
     player.hp = Math.min(player.mhp, roll(1, 200));   // 返生術/復活卷軸相同：1~200 隨機 HP、不恢復 MP
-    player.summon = null; player.manualCd = {}; player.hot = null; player.buffs.sk_charm = 0;
+    player.summon = null; player.charmed = null; player.manualCd = {}; player.hot = null; player.buffs.sk_charm = 0;
     player.skills.forEach(s => { if(DB.skills[s] && DB.skills[s].summon) player.buffs[s] = 0; });   // 清除召喚 buff，避免復活後召喚消失卻長時間不自動重新召喚
     document.getElementById('btn-revive').classList.add('hidden');
     { let ip = document.getElementById('btn-revive-inplace'); if(ip) ip.classList.add('hidden'); }
     calcStats(); updateUI();
+    if (player.allies && player.allies.length) logSys('<span class="text-emerald-300">原地復活，協力傭兵仍在你身邊。</span>');
+    saveGame();   // 原地復活成功後自動存檔（傭兵保留）
 }
 
 // 依條件決定是否顯示「原地復活」按鈕：未在冷卻中，且(學會返生術且MP足夠 或 持有復活卷軸)
@@ -3882,6 +4176,14 @@ function tryInstakill(m, ik, skillName, idx) {
     killMob(idx);
     return true;
 }
+// 出血：對怪物施加一層出血（每秒造成 hitDmg 的 20%，持續 8 秒）。最多 5 層，已滿時新層取代最舊層。
+function applyBleed(m, hitDmg) {
+    if(!m.bleeds) m.bleeds = [];
+    let dps = Math.max(1, Math.floor(hitDmg * 0.20));
+    if(m.bleeds.length >= 5) m.bleeds.shift();          // 已 5 層：移除最舊的，由新層取代
+    m.bleeds.push({ dmg: dps, ticksLeft: 80 });          // 8 秒 = 80 ticks
+    logCombat(`<span class="${getMobColor(m.lv)}">${m.n}</span> 陷入出血（${m.bleeds.length} 層，每秒 ${dps}）。`, 'player');
+}
 // 每 tick 處理怪物身上的狀態（倒數、中毒 DoT）。回傳 true 代表該怪物已死亡。
 function processMobStatusTick(m, i) {
     if(!m.st) { m.st = newMobStatus(); return false; }
@@ -3896,6 +4198,22 @@ function processMobStatusTick(m, i) {
             m.curHp -= s.poisonDmg; m.justHit = 'magic'; mobWake(m);
             logCombat(`<span class="${getMobColor(m.lv)}">${m.n}</span> 受到中毒傷害 ${s.poisonDmg} 點。`, 'magic');
             if(m.curHp <= 0) { killMob(i); return true; }
+        }
+    }
+    // 出血 DoT：可疊 5 層，每層各自獨立計時，每秒(10 ticks)造成一次傷害；同 tick 觸發的多層合併為一次顯示
+    if(m.bleeds && m.bleeds.length) {
+        let bleedTotal = 0;
+        for(let bi = m.bleeds.length - 1; bi >= 0; bi--) {
+            let b = m.bleeds[bi];
+            b.ticksLeft--;
+            if(b.ticksLeft % 10 === 0) bleedTotal += b.dmg;
+            if(b.ticksLeft <= 0) m.bleeds.splice(bi, 1);
+        }
+        if(bleedTotal > 0) {
+            m.curHp -= bleedTotal; m.justHit = 'magic'; mobWake(m);
+            logCombat(`<span class="${getMobColor(m.lv)}">${m.n}</span> 受到出血傷害 ${bleedTotal} 點（${m.bleeds.length} 層）。`, 'player');
+            if(m.curHp <= 0) { killMob(i); return true; }
+            if(!state.ff) renderMobs();
         }
     }
     return m.curHp <= 0;
@@ -3949,8 +4267,258 @@ function summonElementDamage(dice, ele, t, flatBonus, mult) {
     else if(ele === 'water' && t.e === 'fire') fixed = 6;
     return Math.max(1, Math.floor(base * mrFactor) - (t.dr || 0)) + fixed;
 }
-function summonAttack() {
-    let sm = player.summon; if(!sm) return;
+// ===== 協力角色：讀取其他存檔位(非當前)的角色，以其真實戰力(等級/能力/裝備)一起作戰 =====
+function allySlotList() { return ['1','2','3'].filter(n => n !== String(currentSlot)); }
+function isAllyActive(slotN) { return !!(player.allies && player.allies.some(a => a && a._slot === String(slotN))); }
+// 由存檔位建立協力角色：載入該存檔 player → 暫時切換全域 player 跑 calcStats 取得真實衍生戰力 → 還原
+// 協力顯示名稱：有取名→角色名；否則用職業中文（騎士/法師/妖精）
+function allyName(a) {
+    if (!a) return '';
+    if (a.name) return a.name;
+    return ({ knight: '騎士', mage: '法師', elf: '妖精' })[a.cls] || a.cls || ('存檔' + (a._slot || ''));
+}
+function buildAlly(slotN) {
+    slotN = String(slotN);
+    let raw = localStorage.getItem('lineage_idle_save_' + slotN);
+    if (!raw) return null;
+    let p; try { p = JSON.parse(raw).p; } catch(e) { return null; }
+    if (!p || !p.cls) return null;
+    let ally = JSON.parse(JSON.stringify(p));   // 深拷貝，不動原存檔
+    // 安全防護：補齊 calcStats 會取用的欄位，並清掉協力者自身的召喚/夥伴/變身
+    ally.buffs = ally.buffs || {}; ally.statuses = ally.statuses || {}; ally.eq = ally.eq || {}; ally.skills = ally.skills || [];
+    ally.blessings = (ally.blessings && typeof ally.blessings === 'object') ? ally.blessings : {};
+    ally.alloc = ally.alloc || { str:0,dex:0,con:0,int:0,wis:0,cha:0 };
+    ally.panacea = ally.panacea || { str:0,dex:0,con:0,int:0,wis:0,cha:0 };
+    ally.poly = null; ally.summon = null; ally.charmed = null; ally.partners = []; ally.allies = [];
+    let _save = player; player = ally; let ok = true;
+    try { calcStats(); } catch(e) { ok = false; }
+    player = _save; calcStats();   // 還原真實玩家的衍生值與 UI（抵銷 swap 期間 calcStats 的 updateUI 副作用）
+    if (!ok) return null;
+    ally._slot = slotN; ally._allyName = allyName(ally); ally._atkCd = 0; ally.curHp = ally.mhp;
+    ally._atkSkill = (ally.config && ally.config.selAtkSkill) || '';   // 攻擊技能選擇（快照；法師施法 / 妖精三重矢）
+    ally.mp = ally.mmp;   // 召喚時滿魔
+    { let _w = (ally.eq && ally.eq.wpn) ? DB.items[ally.eq.wpn.id] : null; ally._rapidfire = (_w && _w.isBow && _w.rapidfire) ? _w.rapidfire : 0; }   // 妖精弓：記錄連射發動機率
+    return ally;
+}
+// 協力角色攻擊一次（自包含，直接用 ally 的真實衍生值；法師走魔法、其餘走物理）
+function allyAttackOnce(ally) {
+    if (!ally || !ally.d) return;
+    let t = getTarget(); if (!t || t.curHp <= 0) return;
+    let d = ally.d;
+    if (ally.cls === 'mage') {
+        let effMr = (t.st && t.st.mrhalf > 0) ? (t.mr / 2) : t.mr;
+        let mrFactor = effMr <= 100 ? (100 - effMr/2)/100 : (50 - (effMr-100)/10)/100; mrFactor = Math.max(0, mrFactor);
+        let isCrit = Math.random()*100 < (d.magicCrit || 0);
+        let spCoef = (1 + 3*(d.magicDmg||0)/16) * (1 + 1/3);
+        let critMult = isCrit ? (1 + (d.magicCritDmg||0)/100) : 1;
+        let base = roll(1,6) * spCoef * critMult;
+        let dmg = Math.max(1, Math.floor((Math.max(1, Math.floor((base + (d.extraMp||0)) * mrFactor) - (t.dr||0))) * 1.55));
+        t.curHp -= dmg; t.justHit = 'magic'; mobWake(t);
+        logCombat(`<span class="text-emerald-300 font-bold">【協力·${ally._allyName}】</span>魔法攻擊 <span class="${getMobColor(t.lv)}">${t.n}</span>，造成 <span class="${isCrit?'text-yellow-500 font-bold':'text-emerald-200'}">${dmg}</span> 點傷害。`, 'magic');
+    } else {
+        let wpn = (ally.eq && ally.eq.wpn) ? DB.items[ally.eq.wpn.id] : null;
+        let isLarge = t.s === 'L';
+        let dice = wpn ? (isLarge ? wpn.dmgL : wpn.dmgS) : 2;
+        let isRanged = !!(wpn && wpn.ranged);
+        let hitB = (isRanged ? (d.rangedHit||0) : (d.meleeHit||0)) + (d.extraHit||0);
+        let dmgB = isRanged ? (d.rangedDmg||0) : (d.meleeDmg||0);
+        let critR = isRanged ? (d.rangedCrit||0) : (d.meleeCrit||0);
+        let critD = isRanged ? (d.rangedCritDmg||0) : (d.meleeCritDmg||0);
+        let hv = Math.max(0, Math.min(20, (ally.lv||1) + hitB - t.lv + mobEffAC(t)));
+        let r = roll(1,20);
+        if (!((r === 20) || (r !== 1 && hv >= r))) { logCombat(`<span class="text-sky-300 font-bold">【協力·${ally._allyName}】</span>的攻擊未命中。`, 'miss'); return; }
+        let heavy = (r === 20);
+        let isCrit = Math.random()*100 < critR;
+        let critMult = isCrit ? (1 + critD/100) : 1;
+        let wpnRoll = heavy ? dice : roll(1, dice);
+        let dmg = Math.max(1, Math.floor((wpnRoll + dmgB) * critMult) + (d.extraDmg||0) - (t.dr||0));
+        // 騎士被動（依協力者等級，僅近戰）：看破 Lv1起5%/每10等+1%上限15%→×2；殺戮 Lv20起1%/每20等+1%上限5%→×3；兩者同時=屠殺→×6
+        let kp = '';
+        if (ally.cls === 'knight' && !isRanged) {
+            let lv = ally.lv || 1;
+            let insightRate = Math.min(15, 5 + Math.floor(lv / 10));
+            let slayRate = lv >= 20 ? Math.min(5, 1 + Math.floor((lv - 20) / 20)) : 0;
+            let insight = Math.random() * 100 < insightRate;
+            let slay = slayRate > 0 && (Math.random() * 100 < slayRate);
+            if (insight && slay) { dmg *= 6; kp = '<span class="font-bold" style="color:#f0abfc;text-shadow:0 0 6px #d946ef;">【屠殺】</span>'; }
+            else if (insight) { dmg *= 2; kp = '<span class="text-cyan-300 font-bold">【看破】</span>'; }
+            else if (slay) { dmg *= 3; kp = '<span class="text-orange-400 font-bold">【殺戮】</span>'; }
+        }
+        t.curHp -= dmg; t.justHit = getWpnEle(ally.eq ? ally.eq.wpn : null, wpn); mobWake(t);
+        let mark = (heavy && isCrit) ? '會心一擊' : (isCrit ? '爆擊' : (heavy ? '重擊' : ''));
+        logCombat(`${kp}<span class="text-sky-300 font-bold">【協力·${ally._allyName}】</span>攻擊 <span class="${getMobColor(t.lv)}">${t.n}</span>，造成 ${dmg} 點傷害${mark?'（'+mark+'!）':''}。`, 'player');
+    }
+    let ri = mapState.mobs.findIndex(m => m && m.uid === t.uid);
+    if (t.curHp <= 0) { if (ri !== -1) killMob(ri); } else renderMobs();
+}
+// 法師協力：依其選定攻擊魔法施放（手動重現 castSkill 魔法傷害公式：單體/全體、魔攻係數、法師倍率、魔暴、MR減免、剋屬性固定加值）
+function allyCastMagic(ally, sk) {
+    let d = ally.d || {};
+    let targets = (sk.target === 'all') ? mapState.mobs.filter(m => m && m.curHp > 0) : [getTarget()].filter(m => m && m.curHp > 0);
+    if (!targets.length) return;
+    let tier = sk.tier || 1;
+    let spCoef = (1 + (3 * (d.magicDmg||0) / 16)) * (1 + (tier / 3));
+    let mageMult = (ally.cls === 'mage') ? (1.5 + tier / 20) : 1.0;   // 法師專屬倍率；妖精等其他職業施放魔法不享有
+    let texts = [];
+    targets.forEach(t => {
+        let effMr = (t.st && t.st.mrhalf > 0) ? (t.mr / 2) : t.mr;
+        let mrFactor = effMr <= 100 ? (100 - effMr/2)/100 : (50 - (effMr-100)/10)/100; mrFactor = Math.max(0, mrFactor);
+        let isCrit = Math.random()*100 < (d.magicCrit||0);
+        let critMult = isCrit ? (1 + (d.magicCritDmg||0)/100) : 1;
+        let dmgArray = sk.multiDmg || (sk.dmgDice ? [[sk.dmgDice[0], sk.dmgDice[1]]] : []);
+        let totalDmg = 0;
+        dmgArray.forEach((dc, idx) => {
+            let baseMagic = roll(dc[0], dc[1]);
+            let core = baseMagic * spCoef * critMult;
+            let extra = 0, fixed = 0;
+            if (idx === dmgArray.length - 1) {
+                extra = (sk.dmgBase||0) + (d.extraMp||0);
+                if (sk.ele === 'fire' && t.e === 'earth') fixed += 6;
+                else if (sk.ele === 'earth' && t.e === 'wind') fixed += 6;
+                else if (sk.ele === 'wind' && t.e === 'water') fixed += 6;
+                else if (sk.ele === 'water' && t.e === 'fire') fixed += 6;
+            }
+            let dd = Math.max(1, Math.floor((core + extra) * mrFactor) - (t.dr||0)) + fixed;
+            dd = Math.floor(dd * mageMult);
+            totalDmg += dd;
+        });
+        t.curHp -= totalDmg;
+        t.justHit = (sk.ele && sk.ele !== 'none') ? sk.ele : 'magic';
+        if (t.st && t.st.mrhalf > 0) t.st.mrhalf = 0;
+        mobWake(t);
+        texts.push(`<span class="${getMobColor(t.lv)}">${t.n}</span> ${totalDmg}${isCrit?'(爆)':''}`);
+    });
+    logCombat(`<span class="text-emerald-300 font-bold">【協力·${ally._allyName}】</span>施放 ${sk.n} → ${texts.join('、')}`, 'magic');
+    targets.forEach(t => { if (t.curHp <= 0) { let ri = mapState.mobs.findIndex(m => m && m.uid === t.uid); if (ri !== -1) killMob(ri); } });
+    renderMobs();
+}
+// 法師協力的一次行動：有選攻擊魔法且 MP 足夠→施放並扣 MP；否則退回免費基礎光箭
+function allyMageAct(ally) {
+    let t = getTarget(); if (!t || t.curHp <= 0) return;
+    let sk = DB.skills[ally._atkSkill];
+    let d = ally.d || {};
+    if (sk && sk.type === 'atk' && sk.dmgType !== 'physical' && (sk.dmgDice || sk.multiDmg)) {
+        let cost = Math.max(1, Math.ceil((sk.mp || 0) * (1 - (d.mpReduce || 0) / 100)));
+        if ((ally.mp || 0) >= cost) { ally.mp -= cost; allyCastMagic(ally, sk); return; }
+    }
+    allyAttackOnce(ally);   // 沒選攻擊魔法 / MP 不足 → 免費基礎光箭
+}
+// 妖精協力：連射（弓）— 依記錄的發動機率追加 1~3 箭，每箭約 30% 傷害，隨機命中場上敵人
+function allyRapidfire(ally) {
+    let d = ally.d || {};
+    let wpn = (ally.eq && ally.eq.wpn) ? DB.items[ally.eq.wpn.id] : null;
+    let rate = (wpn && wpn.isBow && wpn.rapidfire) ? wpn.rapidfire : (ally._rapidfire || 0);   // 直接讀當前弓的連射機率（相容舊協力快照，確保普攻與三重矢都能連射）
+    if (!rate || roll(1, 100) > rate) return;
+    let n = roll(1, 3);
+    for (let i = 0; i < n; i++) {
+        let alive = []; mapState.mobs.forEach((m, idx) => { if (m && m.curHp > 0) alive.push(idx); });
+        if (!alive.length) break;
+        let ti = alive[Math.floor(Math.random() * alive.length)];
+        let mt = mapState.mobs[ti];
+        let dice = wpn ? (mt.s === 'L' ? wpn.dmgL : wpn.dmgS) : 2;
+        let dmg = Math.max(1, Math.floor((roll(1, dice) + (d.rangedDmg||0) + (d.extraDmg||0) - (mt.dr||0)) * 0.30));
+        mt.curHp -= dmg; mt.justHit = getWpnEle(ally.eq ? ally.eq.wpn : null, wpn); mobWake(mt);
+        logCombat(`<span class="text-amber-300 font-bold">【協力·${ally._allyName}·連射】</span>箭矢命中 <span class="${getMobColor(mt.lv)}">${mt.n}</span>，造成 ${dmg} 點傷害。`, 'player');
+        if (mt.curHp <= 0) killMob(ti);
+    }
+    renderMobs();
+}
+// 妖精協力：三重矢（3 次物理攻擊）後整體判定一次連射
+function allyTripleShot(ally) {
+    logCombat(`<span class="text-sky-300 font-bold">【協力·${ally._allyName}】</span>施放 三重矢！`, 'player');
+    for (let h = 0; h < 3; h++) {
+        let t = getTarget(); if (!t || t.curHp <= 0) break;
+        allyAttackOnce(ally);
+    }
+    allyRapidfire(ally);
+}
+// 妖精協力一次行動：選定三重矢且裝弓且 MP 足夠→優先施放三重矢；否則一般攻擊；攻擊後判定連射
+function allyElfAct(ally) {
+    let t = getTarget(); if (!t || t.curHp <= 0) return;
+    let d = ally.d || {};
+    let sk = DB.skills[ally._atkSkill];
+    if (ally._atkSkill === 'sk_elf_triple' && sk) {
+        // 三重矢優先：裝弓且 MP 足夠
+        let wpn = (ally.eq && ally.eq.wpn) ? DB.items[ally.eq.wpn.id] : null;
+        let hasBow = !!(wpn && wpn.isBow);
+        let cost = Math.max(1, Math.ceil((sk.mp||0) * (1 - (d.mpReduce||0)/100)));
+        if (hasBow && (ally.mp||0) >= cost) { ally.mp -= cost; allyTripleShot(ally); return; }
+    } else if (sk && sk.type === 'atk' && sk.dmgType !== 'physical' && (sk.dmgDice || sk.multiDmg)) {
+        // 傷害魔法：比照法師，MP 足夠則優先施放（妖精魔法不享有法師倍率，由 allyCastMagic 依職業處理）
+        let cost = Math.max(1, Math.ceil((sk.mp||0) * (1 - (d.mpReduce||0)/100)));
+        if ((ally.mp||0) >= cost) { ally.mp -= cost; allyCastMagic(ally, sk); return; }
+    }
+    // 退回一般物理攻擊 + 連射（三重矢/魔法 MP 不足、或未選攻擊技能時）
+    allyAttackOnce(ally);
+    allyRapidfire(ally);
+}
+// 每 tick 處理協力角色攻擊（間隔依武器攻速，最快 8 ticks）
+function alliesTick() {
+    if (!player.allies || !player.allies.length) return;
+    player.allies.forEach(ally => {
+        if (!ally) return;
+        // 回魔：比照玩家每 160 ticks(16秒) +mpR（法師施法 / 妖精三重矢皆需 MP）
+        if (state.ticks % 160 === 0 && (ally.mp||0) < (ally.mmp||0)) {
+            ally.mp = Math.min(ally.mmp, (ally.mp||0) + ((ally.d && ally.d.mpR) || 0));
+        }
+        if ((ally._atkCd = (ally._atkCd || 0) - 1) <= 0) {
+            if (ally.cls === 'mage') {
+                ally._atkCd = 20;   // 法師施法間隔 ~2 秒
+                allyMageAct(ally);
+            } else if (ally.cls === 'elf') {
+                let wpn = (ally.eq && ally.eq.wpn) ? DB.items[ally.eq.wpn.id] : null;
+                ally._atkCd = Math.max(8, Math.round((wpn && wpn.spd ? wpn.spd : 1.0) * 10));
+                allyElfAct(ally);
+            } else {
+                let wpn = (ally.eq && ally.eq.wpn) ? DB.items[ally.eq.wpn.id] : null;
+                ally._atkCd = Math.max(8, Math.round((wpn && wpn.spd ? wpn.spd : 1.0) * 10));
+                allyAttackOnce(ally);
+            }
+        }
+    });
+}
+// 城鎮 NPC：召喚/解除協力角色
+function allyCost(slotN) { let sum = slotSummary(slotN); return sum ? (sum.lv || 1) * 10000 : 0; }   // 招募費用 = 角色等級 × 10000
+function toggleAlly(slotN) {
+    slotN = String(slotN);
+    if (!player.allies) player.allies = [];
+    if (isAllyActive(slotN)) {
+        player.allies = player.allies.filter(a => a && a._slot !== slotN);
+        logSys(`協力傭兵（存檔 ${slotN}）已解散（招募費用不退還）。`);
+    } else {
+        let sum = slotSummary(slotN);
+        if (!sum) { logSys(`<span class="text-red-400">存檔 ${slotN} 沒有可用的角色。</span>`); }
+        else {
+            let cost = (sum.lv || 1) * 10000;
+            if ((player.gold || 0) < cost) { logSys(`<span class="text-red-400">招募 ${sum.name}（Lv.${sum.lv}）需要 ${cost.toLocaleString()} 金幣，你的金幣不足。</span>`); }
+            else {
+                let a = buildAlly(slotN);
+                if (!a) { logSys(`<span class="text-red-400">存檔 ${slotN} 沒有可用的角色。</span>`); }
+                else { player.gold -= cost; player.allies.push(a); logSys(`<span class="text-emerald-300 font-bold">花費 ${cost.toLocaleString()} 金幣招募 ${a._allyName}（存檔 ${slotN}，Lv.${sum.lv}）加入作戰！</span>`); }
+            }
+        }
+    }
+    saveGame(); updateUI();
+    let _c = document.getElementById('interaction-content'); if(_c) renderAllyNPC(_c);
+}
+function renderAllyNPC(div) {
+    let rows = allySlotList().map(n => {
+        let sum = slotSummary(n);
+        let active = isAllyActive(n);
+        if (!sum) return `<div class="w-full text-left py-2 px-3 text-sm bg-slate-900/60 border border-slate-700 rounded opacity-60">存檔 ${n}：<span class="text-slate-500">（空）</span></div>`;
+        return `<div class="flex items-center justify-between gap-2 bg-slate-800/60 border border-slate-600 rounded p-3 text-sm">
+            <span>存檔 ${n}：<b class="text-amber-300">${sum.cls} Lv.${sum.lv}</b>　${sum.name}</span>
+            <button onclick="toggleAlly('${n}')" class="btn py-1 px-4 text-sm font-bold ${active ? 'bg-red-900 border-red-700 text-red-200' : 'bg-emerald-900 border-emerald-700 text-emerald-200'}">${active ? '解除' : ('召喚　' + ((sum.lv||1)*10000).toLocaleString() + '金')}</button>
+        </div>`;
+    }).join('');
+    div.innerHTML = `<div class="flex flex-col gap-3 p-1">
+        <div class="text-slate-300 text-sm leading-relaxed">招募其他存檔位的角色一起作戰，<b class="text-amber-300">費用＝該角色等級 × 10000 金幣</b>。協力傭兵戰鬥中不會陣亡，但<b class="text-red-300">你一旦死亡會全部解散，需重新花金幣招募</b>；存讀檔不會使其消失。法師以魔法、妖精以弓/三重矢、騎士以物理（含看破/殺戮）出手。<br><span class="text-slate-400">提示：切換那名角色的裝備或升級後，需「解除→重新招募」才會更新戰力快照。</span></div>
+        <div class="text-sm">你的金幣：<span class="text-yellow-400 font-bold">${(player.gold||0).toLocaleString()}</span></div>
+        ${rows}
+    </div>`;
+}
+function summonAttack(sm) {
+    if(!sm) return;
     let t = getTarget(); if(!t) return;
     let cha = player.d.cha || 0;
     let idx = mapState.mobs.findIndex(m => m && m.uid === t.uid);
@@ -3993,13 +4561,13 @@ function summonAttack() {
     if(t.curHp <= 0 && idx !== -1) killMob(idx);
     else renderMobs();
 }
-function summonTick() {
-    let sm = player.summon; if(!sm) return;
+function summonTick(sm, clearFn) {
+    if(!sm) return;
     if(state.ticks >= sm.endTick || (sm.skId && (player.buffs[sm.skId] || 0) <= 0)) {
         logCombat(`<span class="text-purple-300">${sm.n}</span> 消失了。`, 'magic');
-        player.summon = null; return;
+        clearFn(); return;
     }
-    if(--sm.cd <= 0) { sm.cd = sm.interval; summonAttack(); }
+    if(--sm.cd <= 0) { sm.cd = sm.interval; summonAttack(sm); }
     // 觸發技：每 5 秒(50 tick)判定一次，傷害 = roll(骰子)+魅力
     if(sm.proc) {
         if(--sm.proc.cdCur <= 0) {
@@ -4060,9 +4628,8 @@ function manualCast(skId) {
         player.mp -= cost; cost = 0;
         if(abnormalMagicHit(t)) {
             let idx = mapState.mobs.findIndex(m => m && m.uid === t.uid);
-            player.skills.forEach(s => { let d = DB.skills[s]; if(d && d.summon) player.buffs[s] = 0; });
             player.buffs['sk_charm'] = 3600;
-            player.summon = {
+            player.charmed = {
                 skId:'sk_charm', n:'迷魅：' + t.n, dmgDice: t.dmg && t.dmg[1] ? t.dmg : [1,4],
                 interval: Math.max(10, Math.floor((t.atkSpd || 2) * 10)), ele:'none', kind:'melee',
                 hitBonus:(t.hit||0), proc:null, cd:10, endTick: state.ticks + 36000
@@ -4207,6 +4774,14 @@ function castSkill(skId) {
                 else renderMobs();
             } else {
                 logCombat(`施放 ${sk.n} 未命中 <span class="${getMobColor(t.lv)}">${t.n}</span>。`, 'miss');
+            }
+
+            // 三重矢：連射發動即判定一次；月光爆裂依「命中次數」判定（每命中一箭各判定一次）
+            if (skId === 'sk_elf_triple') {
+                rapidfireProc(arrowData);   // 連射：發動攻擊即判定（不論三箭是否命中）；每箭各自命中判定
+                for (let _m = 0; _m < landed; _m++) moonburstProc(t);   // 月光爆裂：等同命中次數，各 8% 獨立判定（主目標死亡自動轉移）
+                wandLightArrowProc(t);   // 共鳴（裝弓時不生效，保留以求一致）
+                magicStrikeProc(t);      // 魔擊（裝弓時不生效，保留以求一致）
             }
             return true;
         } else {
@@ -4517,6 +5092,7 @@ function gainItem(id, cnt=1, silent=false, forceNormal=false) {
     renderTabs();
     if(DB.items[id] && DB.items[id].grantSkills) { calcStats(); renderSkillSelects(); }   // 取得授予技能的頭盔：立即生效
     
+    if(typeof auditTrackGain === 'function') auditTrackGain(itemInfo);   // 統計：掉落計數
     return itemInfo; // 👈 讓拉霸機可以讀取最終產生的物品
 }
 
@@ -4708,7 +5284,7 @@ function useItem(u, silent = false) {
             // 落到下方 consume(item)，消耗一張卷軸
         } else if (d.eff === 'panacea') {
             const STAT_CN = { str:'力量', dex:'敏捷', con:'體質', int:'智力', wis:'精神', cha:'魅力' };
-            let st = d.pstat, cap = (st === 'cha') ? 30 : 60;
+            let st = d.pstat, cap = 60;
             // 萬能藥已取消等級限制（不再檢查 plv）
             if ((player.panaceaUsed || 0) >= 20) { if(!silent) logSys(`萬能藥最多只能使用 20 瓶，使用回憶蠟燭後可重新使用。`); return; }
             if (naturalStat(st) >= cap) { if(!silent) logSys(`${STAT_CN[st]}已達上限（${cap}），無法再使用 ${d.n}。`); return; }
@@ -5049,6 +5625,10 @@ function renderStatusEffects() {
     if(player.buffs.elfcookie>0) buffs.push(`<span class="text-yellow-300 font-bold">精靈餅乾</span>`);
     if(player.buffs.poly>0 && player.poly) buffs.push(`<span class="${player.poly.c} font-bold">變身:${player.poly.n}</span>`);
 
+    // 協力角色顯示
+    if(player.allies && player.allies.length) {
+        player.allies.forEach(a => { if(a){ let _mp = (a.cls === 'mage' || a.cls === 'elf') ? ` <span class="text-blue-300">MP ${Math.floor(a.mp||0)}</span>` : ''; buffs.push(`<span class="text-emerald-300 font-bold">協力：${allyName(a)}</span>${_mp}`); } });
+    }
     // 👇 補上夥伴與誘捕狀態的顯示（可同時多種夥伴，數字=持有項圈數量，為1不顯示）
     if(player.partners && player.partners.length) {
         player.partners.forEach(nm => {
@@ -5066,10 +5646,11 @@ function renderStatusEffects() {
             // 迷魅術 / 各召喚術：狀態欄改顯示召喚物名稱（近戰召喚附上隨從數字 floor(魅力/6)，為1則不顯示）；
             //   召喚物不存在（死亡解除 / 被新召喚取代 / 已消失）時就不顯示，避免殘留。
             if(k === 'sk_charm' || DB.skills[k].summon) {
-                if(player.summon && player.summon.skId === k) {
-                    let cnt = (player.summon.kind === 'melee' && k !== 'sk_charm') ? Math.floor((player.d.cha||0)/6) : 0;
+                let _creature = (k === 'sk_charm') ? player.charmed : player.summon;
+                if(_creature && _creature.skId === k) {
+                    let cnt = (_creature.kind === 'melee' && k !== 'sk_charm') ? Math.floor((player.d.cha||0)/6) : 0;
                     let suffix = cnt > 1 ? ` ${cnt}` : '';
-                    buffs.push(`<span class="${getBuffColor(k, DB.skills[k])} font-bold">${player.summon.n}${suffix}</span>`);
+                    buffs.push(`<span class="${getBuffColor(k, DB.skills[k])} font-bold">${_creature.n}${suffix}</span>`);
                 }
                 continue;
             }
@@ -5227,6 +5808,7 @@ function renderMobs() {
                         <div class="flex justify-center mb-3">
                             <img src="${imgUrl}" alt="${m.n}" onerror="this.onerror=null; this.src='https://placehold.co/100x100/1e293b/ffffff?text=?';" class="w-24 h-24 p-1 object-contain pointer-events-none ${hitClass}">
                         </div>
+                        ${((m.bleeds && m.bleeds.length) || (m._bluntShow && state.ticks < m._bluntShow)) ? `<div class="flex justify-center items-center gap-2 mb-1">${(m.bleeds && m.bleeds.length) ? `<span class="text-[11px] font-bold text-red-400" title="出血層數">🩸×${m.bleeds.length}</span>` : ''}${(m._bluntShow && state.ticks < m._bluntShow) ? `<span class="text-[11px] font-bold text-amber-300" title="鈍擊：攻擊延遲中">🔨鈍</span>` : ''}</div>` : ''}
                         <div class="w-full bg-slate-700 h-2.5 rounded-full overflow-hidden">
                             <div class="bg-red-500 h-full transition-all" style="width:${pct}%"></div>
                         </div>
@@ -5420,34 +6002,30 @@ function summonBuffChecked() {
 }
 function updateSummonLock() {
     let checkedBuff = summonBuffChecked();
-    let charmActive = !!(player.buffs && player.buffs.sk_charm > 0);
-    // 4 個召喚增益勾選框：已勾選一個→其餘鎖定；或迷魅生效→全部鎖定（仍保留各自的等級/條件不可用狀態）
+    // 4 個召喚增益勾選框：已勾選一個→其餘三個鎖定（迷魅可與召喚並存，不互鎖）
     SUMMON_BUFF_IDS.forEach(id => {
         let c = document.getElementById('auto-sk-' + id);
         if (!c) return;
         let unavail = c.dataset.unavail === '1';
-        let lock = checkedBuff ? (checkedBuff !== id) : charmActive;
+        let lock = checkedBuff ? (checkedBuff !== id) : false;
         c.disabled = unavail || lock;
         let lbl = c.closest('label');
         if (lbl) lbl.classList.toggle('opacity-50', unavail || lock);
     });
-    // 迷魅手動按鈕：任一召喚增益被勾選→鎖定（灰色不可選）
+    // 迷魅按鈕：不再被召喚鎖定（可並存），僅受自身等級/條件限制
     let charmBtn = document.getElementById('manual-btn-sk_charm');
     if (charmBtn) {
         let unavail = charmBtn.dataset.unavail === '1';
-        let lock = !!checkedBuff;
-        charmBtn.disabled = unavail || lock;
-        charmBtn.classList.toggle('opacity-50', unavail || lock);
-        charmBtn.classList.toggle('cursor-not-allowed', unavail || lock);
+        charmBtn.disabled = unavail;
+        charmBtn.classList.toggle('opacity-50', unavail);
+        charmBtn.classList.toggle('cursor-not-allowed', unavail);
     }
 }
 function onSummonToggle(sid) {
     let c = document.getElementById('auto-sk-' + sid);
     if (c && c.checked) {
-        // 只能勾選一個：取消其他召喚增益，並解除迷魅，確保互斥一致
+        // 4 召喚互斥：只能勾一個，取消其他三個（不影響迷魅，可並存）
         SUMMON_BUFF_IDS.forEach(id => { if (id !== sid) { let o = document.getElementById('auto-sk-' + id); if (o) o.checked = false; } });
-        if (player.buffs) player.buffs.sk_charm = 0;
-        if (player.summon && player.summon.skId === 'sk_charm') player.summon = null;
     }
     updateSummonLock();
 }
@@ -5514,6 +6092,19 @@ function formatBonus(val) {
     return val >= 0 ? `+${val}` : `${val}`;
 }
 
+// 武器種類標籤（單手劍 / 武士刀 / 匕首）；武士刀與瑟魯基之劍同時具單手劍與武士刀
+const WEAPON_TAGS = {
+    wpn_katana: ['單手劍','武士刀'], wpn_siruge: ['單手劍','武士刀'],
+    wpn_dagger2: ['匕首'], wpn_dagger1: ['匕首'], wpn_11: ['匕首'], wpn_33: ['匕首'],
+    wpn_longsword: ['單手劍'], wpn_9: ['單手劍'], wpn_scimitar: ['單手劍'], wpn_26: ['單手劍'],
+    wpn_elfsword: ['單手劍'], wpn_27: ['單手劍'], wpn_shortsword: ['單手劍'], wpn_redknight: ['單手劍'],
+    wpn_invader: ['單手劍'], wpn_damascus: ['單手劍'], wpn_34: ['單手劍'], wpn_35: ['單手劍'],
+    wpn_36: ['單手劍'], wpn_rapier: ['單手劍'], wpn_mailbreaker: ['單手劍'], wpn_silversword: ['單手劍'], wpn_37: ['單手劍'],
+    wpn_21: ['矛'], wpn_24: ['矛'], wpn_25: ['矛'], wpn_28: ['矛'], wpn_39: ['矛'], wpn_40: ['矛'], wpn_41: ['矛'], wpn_17: ['矛'], wpn_4: ['矛'],
+    wpn_20: ['單手鈍器'], wpn_10: ['單手鈍器'], wpn_13: ['單手鈍器'], wpn_alien: ['單手鈍器'], wpn_1: ['單手鈍器'], wpn_2: ['單手鈍器']
+};
+function getWeaponTags(id){ return WEAPON_TAGS[id] || []; }
+function weaponHasBleed(id){ let t = getWeaponTags(id); return t.includes('匕首') || t.includes('矛'); }   // 匕首與矛皆帶出血特效
 function buildItemDescHTML(item) {
     let d = DB.items[item.id];
     if(!d) return '';
@@ -5581,8 +6172,15 @@ function buildItemDescHTML(item) {
         if (d.eff === 'haste')      _eff.push('自我加速');
         if (d.eff === 'crush')      _eff.push('重擊');
         if (d.eff === 'cleave')     _eff.push('切割');
+        if (d.rapidfire)            _eff.push('連射 ' + d.rapidfire + '%');
         if (d.block)                _eff.push('格檔：' + d.block + '%');
         if (d.immStone)             _eff.push('免疫石化');
+        if (d.eff === 'magicstrike') _eff.push('魔擊');
+        if (typeof weaponHasBleed === 'function' && weaponHasBleed(item.id)) _eff.push('出血');
+        if (typeof getWeaponTags === 'function' && getWeaponTags(item.id).includes('單手劍')) _eff.push('反擊');
+        if (typeof getWeaponTags === 'function' && getWeaponTags(item.id).includes('武士刀')) _eff.push('居合');
+        if (typeof getWeaponTags === 'function' && getWeaponTags(item.id).includes('單手鈍器')) _eff.push('鈍擊');
+        if (typeof WAND_LIGHTARROW_IDS !== 'undefined' && WAND_LIGHTARROW_IDS.includes(item.id)) _eff.push('共鳴');
         if (_eff.length) desc += `<br><span class="text-rose-300 font-bold">特效：${_eff.join(' / ')}</span>`;
     }
     // 👆
@@ -6031,8 +6629,9 @@ function switchTab(t, btn) {
     Array.from(btn.parentElement.children).forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     // 👇 更新陣列名單
-    ['stats', 'equip', 'weapons', 'skill', 'armors', 'items'].forEach(id => document.getElementById(`tab-${id}`).classList.add('hidden'));
+    ['stats', 'equip', 'weapons', 'skill', 'armors', 'items', 'audit'].forEach(id => { let _e = document.getElementById(`tab-${id}`); if(_e) _e.classList.add('hidden'); });
     document.getElementById(`tab-${t}`).classList.remove('hidden');
+    if(t === 'audit' && typeof renderAuditTab === 'function') renderAuditTab();
 }
 
 // ===== 地圖分類選單（村莊／野外／地監／特殊） =====
@@ -6386,6 +6985,7 @@ function changeMap(force) {
     mapState.current = document.getElementById('map-select').value;
     { let _c = mapCategoryOf(mapState.current); if(_c) { if(!player.lastMapByCat) player.lastMapByCat = {}; player.lastMapByCat[_c] = mapState.current; } }   // 記住各分類最後到過的地圖
     mapState.mobs = [null, null, null];
+    if(typeof auditReset === 'function') auditReset();   // 換地圖：效率統計重置
     
     // 👇 取得包覆地圖與村莊的父層 Panel
     let mapPanel = document.getElementById('town-view').parentElement;
@@ -6407,6 +7007,8 @@ function changeMap(force) {
         // 瞬間恢復所有 HP 與 MP
         player.hp = player.mhp;
         player.mp = player.mmp;
+        // 協力角色：進村莊一併回滿 MP（與玩家一致）
+        if (player.allies) player.allies.forEach(a => { if (a) a.mp = a.mmp; });
         // 進入村莊解除所有異常狀態（中毒/灼燒/燙傷/石化/麻痺/冰凍/暈眩/沉默/封印）
         player.statuses = { stun: 0, freeze: 0, stone: 0, poison: 0, poisonDmg: 0, poisonTick: 0, burn: 0, burnDmg: 0, burnTick: 0, scald: 0, scaldDmg: 0, scaldTick: 0, silence: 0, paralyze: 0, magicseal: 0 };
         updateUI();
@@ -6458,6 +7060,7 @@ function renderTownNPCs(townId) {
         else if(npc.type === 'exchange') typeIcon = "⚖️";
         else if(npc.type === 'quest') typeIcon = "📜";
         else if(npc.type === 'pledge') typeIcon = "⚔️";
+        else if(npc.type === 'ally') typeIcon = "🤝";
 
         el.innerHTML = `
             <div class="flex items-start justify-between mb-2">
@@ -6529,6 +7132,8 @@ function interactNPC(npcId, townId) {
         renderPledgeNPC(contentDiv, 'tros');
     } else if (npc.id === 'npc_ismael') {
         renderIsmaelExchange(contentDiv);
+    } else if (npc.type === 'ally') {
+        renderAllyNPC(contentDiv);
     } else if (npc.type === 'warehouse') {
         renderWarehouseNPC(contentDiv);
     } else {
@@ -6552,18 +7157,54 @@ function closeNpcInteraction() {
 const WH_KEY = 'lineage_idle_warehouse';
 const WH_MAX = 100;   // 倉庫格數上限
 const WH_NO_STORE = ['new_item_239','new_item_241','new_item_collar_husky','new_item_238','new_item_184','new_item_185'];   // 禁止存入倉庫：潘朵拉抽獎卷、王族搜索狀、四種項圈
+// 倉庫分類過濾（武器 / 防具 / 道具）：存入、取出共用同一個下拉清單
+let _whFilter = 'weapon';
+function whCategory(id){
+    let d = DB.items[id];
+    if(!d) return 'item';
+    if(d.type === 'wpn') return 'weapon';                       // 武器
+    if(d.type === 'arm' || d.type === 'acc') return 'armor';    // 防具（含飾品）
+    return 'item';                                              // 其餘皆道具
+}
+function whSetFilter(v){ _whFilter = v; renderWarehouseNPC(document.getElementById('interaction-content')); }
 function loadWarehouse(){
     try { let s = localStorage.getItem(WH_KEY); if(s){ let w = JSON.parse(s); return { items: w.items || [], gold: w.gold || 0 }; } } catch(e){}
     return { items: [], gold: 0 };
 }
 function saveWarehouse(w){ localStorage.setItem(WH_KEY, JSON.stringify({ items: w.items, gold: w.gold })); }
-function _whStackFind(arr, it){ return ((it.en||0)===0 && !it.lock) ? arr.find(x => x.id===it.id && (x.en||0)===0 && !x.lock) : null; }
+function _whStackFind(arr, it){ return ((it.en||0)===0 && !it.lock) ? arr.find(x => x.id===it.id && (x.en||0)===0 && !x.lock && (x.bless||false)===(it.bless||false) && (x.anc||false)===(it.anc||false) && (x.attr||null)===(it.attr||null)) : null; }
+// 物品完整簽章：名字(id)+強化值(en)+詞綴(祝福/遠古/屬性)；一鍵存入用來比對「完全相同」
+function whSig(it){ return it.id + '|' + (it.en||0) + '|' + (it.bless?1:0) + '|' + (it.anc?1:0) + '|' + (it.attr||''); }
+// 一鍵存入：背包中「與倉庫現有物品 詞綴+名字+強化值 完全相同」者自動存入（鎖定物品保護、不可存物品略過）
+function whOneClickDeposit(){
+    let w = loadWarehouse();
+    let whSigs = new Set(w.items.map(whSig));   // 倉庫現有物品簽章集合
+    let deposited = 0, full = false;
+    for(let it of player.inv.slice()){          // 用副本走訪，過程會改動 player.inv
+        if(WH_NO_STORE.includes(it.id)) continue;   // 不可存入
+        if(it.lock) continue;                        // 鎖定物品保護，不自動存入
+        if(!whSigs.has(whSig(it))) continue;         // 倉庫沒有完全相同的 → 跳過
+        let idx = player.inv.findIndex(i => i.uid === it.uid);
+        if(idx < 0) continue;
+        let cur = player.inv[idx];
+        let stack = _whStackFind(w.items, cur);
+        if(!stack && w.items.length >= WH_MAX){ full = true; break; }
+        player.inv.splice(idx, 1);
+        if(stack){ stack.cnt += cur.cnt; } else { w.items.push(cur); whSigs.add(whSig(cur)); }
+        deposited++;
+    }
+    saveWarehouse(w); saveGame(); renderTabs(true); updateUI();
+    renderWarehouseNPC(document.getElementById('interaction-content'));
+    if(deposited > 0) logSys(`<span class="text-cyan-300 font-bold">一鍵存入：已存入 ${deposited} 項與倉庫現有物品相同的物品${full ? '（倉庫已滿，部分未存入）' : ''}。</span>`);
+    else logSys(full ? `<span class="text-red-400">倉庫已滿，無法存入。</span>` : `背包中沒有與倉庫現有物品完全相同的可存入物品。`);
+}
 function whDeposit(uidv){
     let w = loadWarehouse();
     let idx = player.inv.findIndex(i => i.uid === uidv);
     if(idx < 0) return;
     let it = player.inv[idx];
     if(WH_NO_STORE.includes(it.id)){ logSys(`<span class="text-red-400">此物品無法存入倉庫。</span>`); return; }
+    if(it.lock){ logSys(`<span class="text-red-400">鎖定物品需先解鎖才能存入倉庫。</span>`); return; }
     // 可堆疊(en0未鎖)合併進既有倉庫堆疊不佔新格；否則需有空格
     let stack = _whStackFind(w.items, it);
     if(!stack && w.items.length >= WH_MAX){ logSys(`<span class="text-red-400">倉庫已滿（上限 ${WH_MAX} 格）。</span>`); return; }
@@ -6605,30 +7246,47 @@ function renderWarehouseNPC(div){
     }
     let w = loadWarehouse();
     let mkBtn = (it, act) => `<button onclick="${act}('${it.uid}')" class="btn w-full text-left py-1.5 px-2 text-sm bg-slate-800 hover:bg-slate-700 border-slate-600">${getItemFullName(it)}</button>`;
-    let invHtml = player.inv.length ? player.inv.map(it => WH_NO_STORE.includes(it.id)
-        ? `<div class="w-full text-left py-1.5 px-2 text-sm bg-slate-900/60 border border-slate-700 rounded opacity-50 cursor-not-allowed">${getItemFullName(it)} <span class="text-xs text-red-400">（不可存）</span></div>`
-        : mkBtn(it, 'whDeposit')).join('') : '<div class="text-slate-500 text-sm text-center py-4">背包沒有物品</div>';
-    let whHtml  = w.items.length ? w.items.map(it => mkBtn(it, 'whWithdraw')).join('') : '<div class="text-slate-500 text-sm text-center py-4">倉庫是空的</div>';
+    let _invItems = player.inv.filter(it => whCategory(it.id) === _whFilter);
+    let _whItems  = w.items.filter(it => whCategory(it.id) === _whFilter);
+    let invHtml = _invItems.length ? _invItems.map(it => (WH_NO_STORE.includes(it.id) || it.lock)
+        ? `<div class="w-full text-left py-1.5 px-2 text-sm bg-slate-900/60 border border-slate-700 rounded opacity-50 cursor-not-allowed">${getItemFullName(it)} <span class="text-xs text-red-400">（${(it.lock && !WH_NO_STORE.includes(it.id)) ? '鎖定，需解鎖' : '不可存'}）</span></div>`
+        : mkBtn(it, 'whDeposit')).join('') : '<div class="text-slate-500 text-sm text-center py-4">此分類背包沒有物品</div>';
+    let whHtml  = _whItems.length ? _whItems.map(it => mkBtn(it, 'whWithdraw')).join('') : '<div class="text-slate-500 text-sm text-center py-4">此分類倉庫是空的</div>';
+    let _oi = document.getElementById('wh-inv-list'), _os = document.getElementById('wh-store-list');
+    let _whInvScroll = _oi ? _oi.scrollTop : 0, _whStoreScroll = _os ? _os.scrollTop : 0, _divScroll = div.scrollTop;
     div.innerHTML = `
     <div class="flex flex-col gap-3 p-1">
-        <div class="text-slate-300 text-sm leading-relaxed">將物品或金幣存入倉庫，<b class="text-amber-300">三個存檔角色共用</b>。點背包物品＝存入；點倉庫物品＝取出。已裝備的物品無法存入（鎖定中的裝備可以存）。</div>
+        <div class="text-slate-300 text-sm leading-relaxed">將物品或金幣存入倉庫，<b class="text-amber-300">三個存檔角色共用</b>。點背包物品＝存入；點倉庫物品＝取出。已裝備或鎖定中的物品無法存入（需先解鎖）。</div>
         <div class="flex items-center gap-2 bg-slate-800/60 border border-slate-600 rounded p-3 text-sm flex-wrap">
             <span>金幣　背包：<span class="text-yellow-400 font-bold">${player.gold}</span>　倉庫：<span class="text-yellow-400 font-bold">${w.gold||0}</span></span>
-            <input id="wh-gold-amt" type="number" min="1" value="1000" class="w-24 bg-slate-900 border border-slate-600 text-center text-white rounded py-1 ms-auto">
-            <button onclick="whGold('in')" class="btn py-1 px-3 text-sm bg-cyan-900 border-cyan-700 text-cyan-200 font-bold">存入 ▶</button>
-            <button onclick="whGold('out')" class="btn py-1 px-3 text-sm bg-orange-900 border-orange-700 text-orange-200 font-bold">◀ 取出</button>
+            <input id="wh-gold-amt" type="number" min="1" value="1000" class="w-24 bg-slate-900 border border-slate-600 text-center text-white rounded h-8 ms-auto">
+            <button onclick="whGold('in')" class="btn px-4 text-sm font-bold h-8 inline-flex items-center justify-center" style="background: linear-gradient(135deg, #0c4a5e 0%, #0e7490 28%, #0a3d4d 52%, #11657e 76%, #093440 100%); color: #a5f3fc; border-color: #0891b2;">存入 ▶</button>
+            <button onclick="whGold('out')" class="btn px-4 text-sm font-bold h-8 inline-flex items-center justify-center" style="background: linear-gradient(135deg, #6b2a10 0%, #b3490e 28%, #5a230e 52%, #9a3e0c 76%, #4a1d0c 100%); color: #fed7aa; border-color: #c2410c;">◀ 取出</button>
+        </div>
+        <div class="flex items-center gap-2 text-sm">
+            <span class="text-slate-300 font-bold">物品分類：</span>
+            <select onchange="whSetFilter(this.value)" class="bg-slate-900 border border-slate-600 text-white rounded py-1 px-2 text-sm">
+                <option value="weapon" ${_whFilter==='weapon'?'selected':''}>武器</option>
+                <option value="armor" ${_whFilter==='armor'?'selected':''}>防具</option>
+                <option value="item" ${_whFilter==='item'?'selected':''}>道具</option>
+            </select>
+            <span class="text-slate-500 text-xs">（存入／取出共用此分類）</span>
+            <button onclick="whOneClickDeposit()" class="btn px-4 text-sm font-bold h-8 inline-flex items-center justify-center ms-auto" style="background: linear-gradient(135deg, #0c4a5e 0%, #0e7490 28%, #0a3d4d 52%, #11657e 76%, #093440 100%); color: #a5f3fc; border-color: #0891b2;" title="把背包中與倉庫現有物品（詞綴+名字+強化值完全相同）的物品自動存入；鎖定物品不動">一鍵存入</button>
         </div>
         <div class="grid grid-cols-2 gap-3">
             <div class="flex flex-col min-h-0">
                 <div class="font-bold text-cyan-300 mb-1 text-sm">背包（點擊存入 ▶）</div>
-                <div class="flex flex-col gap-1 overflow-y-auto pr-1" style="max-height:340px">${invHtml}</div>
+                <div class="flex flex-col gap-1 overflow-y-auto pr-1" id="wh-inv-list" style="max-height:340px">${invHtml}</div>
             </div>
             <div class="flex flex-col min-h-0">
                 <div class="font-bold text-amber-300 mb-1 text-sm flex justify-between">倉庫（點擊取出 ◀）<span class="text-slate-400 font-normal">${w.items.length}/${WH_MAX}</span></div>
-                <div class="flex flex-col gap-1 overflow-y-auto pr-1" style="max-height:340px">${whHtml}</div>
+                <div class="flex flex-col gap-1 overflow-y-auto pr-1" id="wh-store-list" style="max-height:340px">${whHtml}</div>
             </div>
         </div>
     </div>`;
+    div.scrollTop = _divScroll;
+    let _ni = document.getElementById('wh-inv-list'); if(_ni) _ni.scrollTop = _whInvScroll;
+    let _ns = document.getElementById('wh-store-list'); if(_ns) _ns.scrollTop = _whStoreScroll;
 }
 // ===== 血盟 NPC：依詩蒂(海音) / 特羅斯(歐瑞) =====
 const PLEDGE_CFG = {
@@ -6914,8 +7572,8 @@ function renderTarasQuest(div) {
     // 水晶試煉：不死族的鑰匙 + 不死族的骨頭 → 水晶魔杖
     let crystalReq = ['new_item_214', 'new_item_212'];
     let hasCrystal = crystalReq.every(id => player.inv.find(i => i.id === id && i.cnt >= 1));
-    // 瑪那試煉：變形怪的血 + 魔法書(魔法相消術) → 瑪那魔杖 或 瑪那斗篷
-    let manaReq = ['new_item_240', 'bk_cancel'];
+    // 瑪那試煉：變形怪的血 → 瑪那魔杖 或 瑪那斗篷
+    let manaReq = ['new_item_240'];
     let hasMana = manaReq.every(id => player.inv.find(i => i.id === id && i.cnt >= 1));
 
     let html = `<div class="p-4 text-slate-300">塔拉斯：年輕的法師啊，你想挑戰哪一項試煉？</div>`;
@@ -6933,7 +7591,7 @@ function renderTarasQuest(div) {
     // ===== 瑪那試煉 =====
     html += `<div class="p-4 border-t border-slate-700">
         <div class="text-purple-300 font-bold text-lg mb-2">瑪那試煉</div>
-        <div class="text-slate-300 text-sm mb-3">帶來<b>變形怪的血</b>與<b>魔法書(魔法相消術)</b>各一個，選擇換取瑪那魔杖或瑪那斗篷。<br>
+        <div class="text-slate-300 text-sm mb-3">帶來<b>變形怪的血</b>一個，選擇換取瑪那魔杖或瑪那斗篷。<br>
         目前收集：${hasMana ? '<span class="text-green-400 font-bold">已收集完成！</span>' : '<span class="text-red-400">材料不足</span>'}</div>`;
     if (hasMana) {
         html += `<div class="grid grid-cols-1 gap-3">
@@ -7066,8 +7724,8 @@ function doTarasExchange(rewardId) {
 }
 
 function doTarasManaExchange(rewardId) {
-    // 瑪那試煉：變形怪的血 + 魔法書(魔法相消術) → 瑪那魔杖 或 瑪那斗篷
-    let reqIds = ['new_item_240', 'bk_cancel'];
+    // 瑪那試煉：變形怪的血 → 瑪那魔杖 或 瑪那斗篷
+    let reqIds = ['new_item_240'];
     if (!reqIds.every(id => player.inv.find(i => i.id === id && i.cnt >= 1))) return;
 
     // 扣除材料
@@ -7556,7 +8214,7 @@ function adjStat(s, v) {
     let b = createBase[curCreate.cls];
     let spent = curCreate.str + curCreate.dex + curCreate.con + curCreate.int + curCreate.wis + curCreate.cha;
     let left = b.pts - spent;
-    let capN = (s === 'cha') ? 18 : 20;   // 魅力：創角階段最高只能點到 18（50級後靠升級點數才能突破）
+    let capN = 20;   // 創角階段各屬性最高點到 20（含魅力，與其他屬性一致；之後靠升級點數突破至上限 60）
     if (v > 0 && left > 0 && (b[s] + curCreate[s]) < capN) curCreate[s]++;
     else if (v < 0 && curCreate[s] > 0) curCreate[s]--;
     updateCreateUI();
@@ -7589,7 +8247,7 @@ function startGame() {
     player.lv = 1; player.exp = 0; player.gold = 1000;
     player.inv = []; player.eq = { wpn: null, helm: null, armor: null, shield: null, cloak: null, tshirt: null, gloves: null, boots: null, ring1: null, ring2: null, amulet: null, belt: null }; player.junkPrefs = {};
     player.skills = [];
-    player.summon = null; player.manualCd = {}; player.hot = null; player.elfEle = null; player.buffs = { haste: 0, brave: 0, blue: 0, cautious: 0, elfcookie: 0, poly: 0, shield: 0 };
+    player.summon = null; player.charmed = null; player.manualCd = {}; player.hot = null; player.elfEle = null; player.buffs = { haste: 0, brave: 0, blue: 0, cautious: 0, elfcookie: 0, poly: 0, shield: 0 };
     
     ['set-haste', 'set-brave', 'set-blue', 'set-cautious', 'set-poly', 'set-auto-buy-pot', 'set-auto-buy-arrow'].forEach(id => {
         let el = document.getElementById(id);
@@ -7756,16 +8414,18 @@ function loadGame() {
         if(player.tracking === undefined) player.tracking = null;
         // 相容舊存檔：單一 partner → partners 陣列
         if(player.partners === undefined) player.partners = (player.partner ? [player.partner] : []);
+        if(player.allies === undefined || !Array.isArray(player.allies)) player.allies = [];   // 協力角色（其他存檔位）
         // 相容舊存檔：返生術改為被動技能，清除先前施放殘留的無作用 buff；初始化復活卷軸冷卻
         if(player.buffs) player.buffs.sk_resurrection = 0;
         if(player.reviveScrollCd === undefined) player.reviveScrollCd = 0;
         if(player.magicShieldCd === undefined) player.magicShieldCd = 0;   // 相容舊存檔：魔法屏障抵擋後冷卻
         // 修復舊版「召喚死亡後 buff 未清除」卡關：載入時若目前沒有召喚物，清除殘留的召喚 buff，
         // 讓自動施放能立即重新召喚（不必等死亡復活或 buff 自然倒數）。
+        if(player.charmed === undefined) player.charmed = null;   // 相容舊存檔：迷魅獨立槽位
         if(!player.summon && player.buffs) {
             (player.skills || []).forEach(s => { if(DB.skills[s] && DB.skills[s].summon) player.buffs[s] = 0; });
-            player.buffs.sk_charm = 0;
         }
+        if(!player.charmed && player.buffs) player.buffs.sk_charm = 0;
         if(player.bloodPledge === undefined) player.bloodPledge = null;   // 相容舊存檔：血盟陣營（null/esti/tros）
         if(player.name === undefined) player.name = null;   // 相容舊存檔：未取名則狀態欄顯示「點擊取名」
         if(!player.blessings || typeof player.blessings !== 'object') player.blessings = {};   // 相容舊存檔：盟主祝福
@@ -7860,7 +8520,7 @@ function loadGame() {
 // 配點/萬能藥的「自然屬性值」：基礎+配點+萬能藥（不含裝備與 buff）；屬性上限只套用在此值上，裝備/buff 可再往上疊加
 function naturalStat(s) { return (player.base[s] || 0) + (player.alloc[s] || 0) + ((player.panacea && player.panacea[s]) || 0); }
 function adjBonusStat(s) {
-    let capN = (s === 'cha') ? 30 : 60;   // 屬性配點上限：一律 其他60 / 魅力30，不分等級；上限只看 naturalStat(base+配點+萬能藥)，裝備/buff 一律不計入、可再往上疊加
+    let capN = 60;   // 屬性配點上限：一律 60，不分等級；上限只看 naturalStat(base+配點+萬能藥)，裝備/buff 一律不計入、可再往上疊加
     if (player.bonus > 0 && naturalStat(s) < capN) {
         player.alloc[s]++; player.bonus--;
         calcStats();
