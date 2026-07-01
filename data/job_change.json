@@ -1,0 +1,75 @@
+[
+  {
+    "id": "novice_to_swordman",
+    "npcId": "izlude_job_swordman",
+    "fromJob": "novice",
+    "toJob": "swordman",
+    "requiredJobLevel": 10,
+    "requiredBaseLevel": 1,
+    "enabled": true
+  },
+  {
+    "id": "swordman_to_knight",
+    "npcId": "izlude_job_swordman",
+    "fromJob": "swordman",
+    "toJob": "knight",
+    "requiredJobLevel": 50,
+    "requiredBaseLevel": 1,
+    "enabled": true
+  },
+  {
+    "id": "swordman_to_crusader",
+    "npcId": "izlude_job_swordman",
+    "fromJob": "swordman",
+    "toJob": "crusader",
+    "requiredJobLevel": 50,
+    "requiredBaseLevel": 1,
+    "enabled": false,
+    "note": "十字軍架構預留，之後開放。"
+  },
+  {
+    "id": "novice_to_acolyte",
+    "npcId": "prontera_job_acolyte",
+    "fromJob": "novice",
+    "toJob": "acolyte",
+    "requiredJobLevel": 10,
+    "requiredBaseLevel": 1,
+    "enabled": false
+  },
+  {
+    "id": "novice_to_mage",
+    "npcId": "geffen_job_mage",
+    "fromJob": "novice",
+    "toJob": "mage",
+    "requiredJobLevel": 10,
+    "requiredBaseLevel": 1,
+    "enabled": false
+  },
+  {
+    "id": "novice_to_archer",
+    "npcId": "payon_job_archer",
+    "fromJob": "novice",
+    "toJob": "archer",
+    "requiredJobLevel": 10,
+    "requiredBaseLevel": 1,
+    "enabled": false
+  },
+  {
+    "id": "novice_to_merchant",
+    "npcId": "alberta_job_merchant",
+    "fromJob": "novice",
+    "toJob": "merchant",
+    "requiredJobLevel": 10,
+    "requiredBaseLevel": 1,
+    "enabled": false
+  },
+  {
+    "id": "novice_to_thief",
+    "npcId": "morocc_job_thief",
+    "fromJob": "novice",
+    "toJob": "thief",
+    "requiredJobLevel": 10,
+    "requiredBaseLevel": 1,
+    "enabled": false
+  }
+]

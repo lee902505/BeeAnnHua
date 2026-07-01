@@ -1,0 +1,124 @@
+{
+  "2208": {
+    "id": 2208,
+    "officialId": 2208,
+    "name": "紫蝶髮帶",
+    "type": "equipment",
+    "category": "armor",
+    "subCategory": "headgear",
+    "slot": "headTop",
+    "atk": 0,
+    "def": 1,
+    "slots": 0,
+    "cards": [],
+    "requiredLevel": 1,
+    "allowedJobs": [
+      "all"
+    ],
+    "sellPrice": 80,
+    "description": [
+      "用布條做成的蝴蝶髮帶,主要是給女性使用。",
+      "MDEF+3。",
+      "系列 : ^777777頭具^000000  防禦 :  ^7777771^000000",
+      "位置 : ^777777頭上^000000",
+      "裝備 : ^777777全職業^000000"
+    ],
+    "icon": "images/items/2208.webp",
+    "buyPrice": 800,
+    "slotCount": 0,
+    "ClassNum": 17
+  },
+  "2211": {
+    "id": 2211,
+    "officialId": 2211,
+    "name": "方頭巾",
+    "type": "equipment",
+    "category": "armor",
+    "subCategory": "headTop",
+    "buyPrice": 400,
+    "sellPrice": 200,
+    "description": [
+      "為了女性洗臉時, 固定頭髮所使用的頭巾。",
+      "系列 : ^777777頭具^000000  防禦 :  ^7777771^000000",
+      "位置 : ^777777頭上^000000",
+      "裝備 : ^777777全職業^000000"
+    ],
+    "icon": "images/items/2211.webp",
+    "slot": "headTop",
+    "def": 2,
+    "slots": 0,
+    "requiredLevel": 1,
+    "slotCount": 0,
+    "ClassNum": 6
+  },
+  "2220": {
+    "id": 2220,
+    "officialId": 2220,
+    "name": "漁夫帽",
+    "type": "equipment",
+    "category": "armor",
+    "subCategory": "headTop",
+    "buyPrice": 1000,
+    "sellPrice": 500,
+    "description": [
+      "可以遮蔽陽光的寬鬆帽子。",
+      "系列 : ^777777頭具^000000  防禦 :  ^7777772^000000",
+      "位置 : ^777777頭上^000000",
+      "裝備 : ^777777全職業^000000"
+    ],
+    "icon": "images/items/2220.webp",
+    "slot": "headTop",
+    "def": 2,
+    "slots": 0,
+    "requiredLevel": 1,
+    "slotCount": 0,
+    "ClassNum": 16
+  },
+  "2228": {
+    "id": 2228,
+    "officialId": 2228,
+    "name": "金屬頭盔",
+    "type": "equipment",
+    "category": "armor",
+    "subCategory": "headTop",
+    "buyPrice": 44000,
+    "sellPrice": 22000,
+    "description": [
+      "以堅硬的金屬製成的頭盔。",
+      "系列 : ^777777頭具^000000  防禦 :  ^77777713^000000",
+      "位置 : ^777777頭上^000000",
+      "裝備 : ^777777劍士系列^000000"
+    ],
+    "icon": "images/items/2228.webp",
+    "slot": "headTop",
+    "def": 13,
+    "slots": 0,
+    "requiredLevel": 1,
+    "slotCount": 0,
+    "ClassNum": 40
+  },
+  "2230": {
+    "id": 2230,
+    "officialId": 2230,
+    "name": "寶石頭盔",
+    "type": "equipment",
+    "category": "armor",
+    "subCategory": "headTop",
+    "buyPrice": 50000,
+    "sellPrice": 25000,
+    "description": [
+      "鑲有寶石的頭盔。",
+      "MDEF+3。",
+      "系列 : ^777777頭具^000000  防禦 :  ^7777778^000000",
+      "位置 : ^777777頭上^000000",
+      "裝備 : ^777777劍士系列/商人系列/盜賊系列^000000"
+    ],
+    "icon": "images/items/2230.webp",
+    "slot": "headTop",
+    "def": 8,
+    "slots": 0,
+    "requiredLevel": 1,
+    "slotCount": 0,
+    "ClassNum": 0
+  }
+}

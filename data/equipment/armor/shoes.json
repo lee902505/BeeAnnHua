@@ -1,0 +1,46 @@
+{
+  "2401": {
+    "id": 2401,
+    "officialId": 2401,
+    "name": "輕便鞋",
+    "type": "equipment",
+    "category": "armor",
+    "subCategory": "shoes",
+    "buyPrice": 400,
+    "sellPrice": 200,
+    "description": [
+      "很方便著裝的鞋子,不過沒有什麼防禦力。",
+      "系列 : ^777777靴子^000000  防禦 :  ^7777775^000000",
+      "裝備 : ^777777全職業^000000"
+    ],
+    "icon": "images/items/2401.webp",
+    "slot": "shoes",
+    "def": 5,
+    "slots": 0,
+    "requiredLevel": 1,
+    "slotCount": 0,
+    "ClassNum": 0
+  },
+  "2403": {
+    "id": 2403,
+    "officialId": 2403,
+    "name": "長靴",
+    "type": "equipment",
+    "category": "armor",
+    "subCategory": "shoes",
+    "buyPrice": 3500,
+    "sellPrice": 1750,
+    "description": [
+      "保護到腳腕的長靴。",
+      "系列 : ^777777靴子^000000  防禦 :  ^77777710^000000",
+      "裝備 : ^777777初學者以外的全職業^000000"
+    ],
+    "icon": "images/items/2403.webp",
+    "slot": "shoes",
+    "def": 10,
+    "slots": 0,
+    "requiredLevel": 1,
+    "slotCount": 0,
+    "ClassNum": 0
+  }
+}

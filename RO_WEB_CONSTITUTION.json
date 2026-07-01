@@ -1,0 +1,190 @@
+{
+  "name": "RO_WEB_Constitution",
+  "version": "draft-3",
+  "purpose": "RO_WEB 專案開發憲法。任何 AI 或開發者在修改專案前必須先閱讀本檔案。",
+  "must_read_before_any_update": true,
+  "ai_update_protocol": {
+    "required_first_step": "在修改任何檔案前，先讀取 RO_WEB_CONSTITUTION.json。",
+    "required_final_check": "輸出版本前，檢查本次修改是否違反憲法規則。",
+    "if_conflict": "如果使用者要求與憲法衝突，必須先提醒並詢問是否要修正憲法，不可直接違規修改。",
+    "recommended_project_entry_file": "AI_START_HERE.md"
+  },
+  "rules": [
+    {
+      "id": "ITEM-001",
+      "category": "Item",
+      "title": "官方資料來源",
+      "rule": "物品來源以 itemInfo_UTF8.lub 為唯一官方來源，由 RO Studio 轉換。",
+      "priority": "critical",
+      "read_before_coding": true
+    },
+    {
+      "id": "ITEM-002",
+      "category": "Item",
+      "title": "名稱",
+      "rule": "使用 identifiedDisplayName，不使用 unidentifiedDisplayName。",
+      "priority": "critical",
+      "read_before_coding": true
+    },
+    {
+      "id": "ITEM-003",
+      "category": "Item",
+      "title": "介紹",
+      "rule": "使用 identifiedDescriptionName，不使用 unidentifiedDescriptionName。",
+      "priority": "critical",
+      "read_before_coding": true
+    },
+    {
+      "id": "ITEM-004",
+      "category": "Item",
+      "title": "過濾",
+      "rule": "介紹不顯示重量(weight)、未鑑定、放大鏡相關資訊。",
+      "priority": "critical",
+      "read_before_coding": true
+    },
+    {
+      "id": "ITEM-005",
+      "category": "Item",
+      "title": "鑑定系統",
+      "rule": "RO_WEB 不實作放大鏡與未鑑定系統。",
+      "priority": "critical",
+      "read_before_coding": true
+    },
+    {
+      "id": "ITEM-006",
+      "category": "Item",
+      "title": "資料結構",
+      "rule": "改讀 data/items、data/equipment 等細分 JSON，外層 data/items.json 退役。",
+      "priority": "critical",
+      "read_before_coding": true
+    },
+    {
+      "id": "ITEM-007",
+      "category": "Item",
+      "title": "新增物品",
+      "rule": "新增物品必須放入對應細分 JSON，不可新增到退役的 items.json。",
+      "priority": "critical",
+      "read_before_coding": true
+    },
+    {
+      "id": "ITEM-008",
+      "category": "Item",
+      "title": "官方ID",
+      "rule": "所有物品 ID 必須與官方一致，不可自行修改。",
+      "priority": "critical",
+      "read_before_coding": true
+    },
+    {
+      "id": "ITEM-009",
+      "category": "Item",
+      "title": "查詢介面",
+      "rule": "商店、背包、商城、掉落、Tooltip 全部經 getItemById() 取得資料，不直接讀 JSON。",
+      "priority": "critical",
+      "read_before_coding": true
+    },
+    {
+      "id": "UI-001",
+      "category": "UI",
+      "title": "風格",
+      "rule": "所有 UI 維持黑金風格，Tooltip 與 Hover 行為一致。",
+      "priority": "high",
+      "read_before_coding": true
+    },
+    {
+      "id": "SKILL-001",
+      "category": "Skill",
+      "title": "技能樹",
+      "rule": "採 Skill Tree V2，保留 RO 前置技能邏輯，以 CSS/UI 呈現。",
+      "priority": "high",
+      "read_before_coding": true
+    },
+    {
+      "id": "DB-001",
+      "category": "Database",
+      "title": "Build流程",
+      "rule": "RO_WEB 僅使用 Build 後資料，不直接使用完整 rAthena 資料庫。",
+      "priority": "critical",
+      "read_before_coding": true
+    },
+    {
+      "id": "AI-001",
+      "category": "AI Workflow",
+      "title": "每次更新必讀憲法",
+      "priority": "critical",
+      "read_before_coding": true,
+      "rule": "任何版本更新、Bug 修正、資料整理、UI 調整或功能新增前，必須先閱讀 RO_WEB_CONSTITUTION.json。"
+    },
+    {
+      "id": "AI-002",
+      "category": "AI Workflow",
+      "title": "禁止硬寫資料",
+      "priority": "critical",
+      "read_before_coding": true,
+      "rule": "不可在程式中硬寫物品名、技能名、怪物名、NPC 商品名、Tooltip 文字；必須從對應資料庫或 Manager 讀取。"
+    },
+    {
+      "id": "AI-003",
+      "category": "AI Workflow",
+      "title": "輸出前憲法檢查",
+      "priority": "critical",
+      "read_before_coding": true,
+      "rule": "每次輸出 ZIP 前，必須檢查是否新增舊資料來源、重複資料、硬寫名稱、或違反官方 ID / 細分 JSON / Manager 取用規則。"
+    },
+    {
+      "id": "ITEM-010",
+      "category": "Item",
+      "title": "itemInfo_UTF8.lub 欄位讀取規則",
+      "priority": "critical",
+      "read_before_coding": true,
+      "rule": "解析 itemInfo_UTF8.lub 時，只採用 item ID、identifiedDisplayName、identifiedDescriptionName、slotCount、ClassNum，以及必要的裝備分類欄位。不得使用 unidentifiedDisplayName 或 unidentifiedDescriptionName 作為玩家顯示資料。"
+    },
+    {
+      "id": "ITEM-011",
+      "category": "Item",
+      "title": "韓文 ResourceName 不可顯示",
+      "priority": "critical",
+      "read_before_coding": true,
+      "rule": "unidentifiedResourceName 與 identifiedResourceName 通常為韓文資源名，只能作為內部圖檔/資源對照，不得顯示在背包、商店、Tooltip、裝備欄或任何玩家可見 UI。"
+    },
+    {
+      "id": "ITEM-012",
+      "category": "Item",
+      "title": "RO 色碼解析",
+      "priority": "high",
+      "read_before_coding": true,
+      "rule": "identifiedDescriptionName 中的 RO 色碼（例如 ^777777、^000000、^FF0000）不可直接顯示給玩家，也不要直接刪除。應解析為網頁 CSS/HTML 顏色呈現，以保留官方說明美觀。"
+    },
+    {
+      "id": "ITEM-013",
+      "category": "Item",
+      "title": "Tooltip 內容過濾",
+      "priority": "critical",
+      "read_before_coding": true,
+      "rule": "物品 Tooltip 不顯示重量、不顯示未鑑定文字、不顯示放大鏡相關文字；裝備類底部提示使用「點擊可穿上裝備。」消耗品依功能顯示使用提示。"
+    },
+    {
+      "id": "ITEM-014",
+      "category": "Item",
+      "title": "外層 items.json 不再使用",
+      "priority": "critical",
+      "read_before_coding": true,
+      "rule": "data/items.json 為退役資料，不得作為 runtime 來源，也不得新增資料進去。遊戲必須讀取細分資料夾資料，並由 getItemById() 對外提供。"
+    },
+    {
+      "id": "ITEM-015",
+      "category": "Item",
+      "title": "放大鏡商品移除",
+      "priority": "high",
+      "read_before_coding": true,
+      "rule": "RO_WEB 不做鑑定系統，因此 NPC 商店與商城不販售放大鏡，也不需要任何鑑定流程。"
+    },
+    {
+      "id": "CORE-001",
+      "category": "Core",
+      "title": "快取版本號",
+      "rule": "每次修改 CSS、JS、HTML 後，必須同步更新 HTML 資源引用版本號，例如 ?v=0.9.56，避免瀏覽器讀取舊快取造成 UI / CSS / JS 看似沒有更新。",
+      "priority": "critical",
+      "read_before_coding": true
+    }
+  ]
+}

@@ -1,0 +1,34 @@
+{
+  "909": {
+    "id": 909,
+    "officialId": 909,
+    "name": "傑勒比結晶",
+    "type": "etc",
+    "category": "drop_misc",
+    "subCategory": "material",
+    "sellPrice": 3,
+    "description": [
+      "從一部份怪物身上得來的結晶,可向收集商購買。"
+    ],
+    "icon": "images/items/909.webp",
+    "slots": 0,
+    "slotCount": 0,
+    "ClassNum": 0
+  },
+  "914": {
+    "id": 914,
+    "officialId": 914,
+    "name": "毛",
+    "type": "etc",
+    "category": "drop_misc",
+    "subCategory": "material",
+    "sellPrice": 4,
+    "description": [
+      "小型怪身上的毛,可以用來做衣服的原料,可向收集商購買。"
+    ],
+    "icon": "images/items/914.webp",
+    "slots": 0,
+    "slotCount": 0,
+    "ClassNum": 0
+  }
+}

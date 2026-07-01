@@ -1,0 +1,18 @@
+[
+  {
+    "id": "prontera_south",
+    "name": "普隆德拉南門",
+    "displayName": "普隆德拉南門",
+    "recommendedLevel": "1~10",
+    "environment": "青草平原",
+    "background": "images/maps/backgrounds/prontera_south_bg.webp",
+    "thumb": "images/maps/thumbs/prontera_south_small.webp",
+    "monsters": [
+      1002,
+      1063,
+      1007
+    ],
+    "locked": false,
+    "note": "v0.9.4 先只保留南門外作為練功地圖；其他舊測試地圖暫停用。"
+  }
+]

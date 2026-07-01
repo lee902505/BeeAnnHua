@@ -1,0 +1,47 @@
+{
+  "novice": {
+    "id": "novice",
+    "officialId": 0,
+    "name": "初心者",
+    "tier": 0,
+    "parent": null,
+    "baseMaxLevel": 99,
+    "jobMaxLevel": 10,
+    "nextJobs": ["swordman"],
+    "description": "完成冒險者修練後，可選擇第一個正式職業。"
+  },
+  "swordman": {
+    "id": "swordman",
+    "officialId": 1,
+    "name": "劍士",
+    "tier": 1,
+    "parent": "novice",
+    "baseMaxLevel": 99,
+    "jobMaxLevel": 50,
+    "nextJobs": ["knight", "crusader"],
+    "description": "近戰基礎職業，擅長穩定攻擊與高 HP。"
+  },
+  "knight": {
+    "id": "knight",
+    "officialId": 7,
+    "name": "騎士",
+    "tier": 2,
+    "parent": "swordman",
+    "baseMaxLevel": 99,
+    "jobMaxLevel": 50,
+    "nextJobs": [],
+    "description": "劍士的 2-1 轉職，偏向攻擊與高速狩獵。"
+  },
+  "crusader": {
+    "id": "crusader",
+    "officialId": 14,
+    "name": "十字軍",
+    "tier": 2,
+    "parent": "swordman",
+    "baseMaxLevel": 99,
+    "jobMaxLevel": 50,
+    "nextJobs": [],
+    "locked": true,
+    "description": "劍士的 2-2 轉職。v0.4 先預留架構，之後補技能與特色。"
+  }
+}

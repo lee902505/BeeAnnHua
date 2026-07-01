@@ -1,0 +1,358 @@
+{
+  "novice": {
+    "source": "rAthena db/re/job_stats.yml",
+    "bonusStats": [
+      {
+        "level": 2,
+        "luk": 1
+      },
+      {
+        "level": 3,
+        "dex": 1
+      },
+      {
+        "level": 5,
+        "agi": 1
+      },
+      {
+        "level": 6,
+        "vit": 1
+      },
+      {
+        "level": 8,
+        "str": 1
+      },
+      {
+        "level": 9,
+        "int": 1
+      }
+    ]
+  },
+  "swordman": {
+    "source": "rAthena db/re/job_stats.yml",
+    "bonusStats": [
+      {
+        "level": 2,
+        "str": 1
+      },
+      {
+        "level": 6,
+        "vit": 1
+      },
+      {
+        "level": 10,
+        "dex": 1
+      },
+      {
+        "level": 14,
+        "str": 1
+      },
+      {
+        "level": 18,
+        "vit": 1
+      },
+      {
+        "level": 22,
+        "dex": 1
+      },
+      {
+        "level": 26,
+        "luk": 1
+      },
+      {
+        "level": 30,
+        "agi": 1
+      },
+      {
+        "level": 33,
+        "str": 1
+      },
+      {
+        "level": 36,
+        "dex": 1
+      },
+      {
+        "level": 38,
+        "vit": 1
+      },
+      {
+        "level": 40,
+        "str": 1
+      },
+      {
+        "level": 42,
+        "vit": 1
+      },
+      {
+        "level": 44,
+        "luk": 1
+      },
+      {
+        "level": 46,
+        "agi": 1
+      },
+      {
+        "level": 47,
+        "str": 1
+      },
+      {
+        "level": 49,
+        "str": 1
+      },
+      {
+        "level": 50,
+        "str": 1
+      }
+    ]
+  },
+  "knight": {
+    "source": "rAthena db/re/job_stats.yml",
+    "bonusStats": [
+      {
+        "level": 1,
+        "vit": 1
+      },
+      {
+        "level": 3,
+        "vit": 1
+      },
+      {
+        "level": 4,
+        "str": 1
+      },
+      {
+        "level": 5,
+        "luk": 1
+      },
+      {
+        "level": 8,
+        "vit": 1
+      },
+      {
+        "level": 10,
+        "str": 1
+      },
+      {
+        "level": 11,
+        "dex": 1
+      },
+      {
+        "level": 12,
+        "vit": 1
+      },
+      {
+        "level": 13,
+        "agi": 1
+      },
+      {
+        "level": 15,
+        "str": 1
+      },
+      {
+        "level": 17,
+        "vit": 1
+      },
+      {
+        "level": 18,
+        "vit": 1
+      },
+      {
+        "level": 19,
+        "dex": 1
+      },
+      {
+        "level": 20,
+        "luk": 1
+      },
+      {
+        "level": 21,
+        "str": 1
+      },
+      {
+        "level": 23,
+        "vit": 1
+      },
+      {
+        "level": 27,
+        "str": 1
+      },
+      {
+        "level": 28,
+        "luk": 1
+      },
+      {
+        "level": 29,
+        "vit": 1
+      },
+      {
+        "level": 31,
+        "dex": 1
+      },
+      {
+        "level": 33,
+        "str": 1
+      },
+      {
+        "level": 36,
+        "vit": 1
+      },
+      {
+        "level": 37,
+        "luk": 1
+      },
+      {
+        "level": 38,
+        "agi": 1
+      },
+      {
+        "level": 40,
+        "dex": 1
+      },
+      {
+        "level": 43,
+        "vit": 1
+      },
+      {
+        "level": 46,
+        "str": 1
+      },
+      {
+        "level": 47,
+        "str": 1
+      },
+      {
+        "level": 48,
+        "dex": 1
+      },
+      {
+        "level": 49,
+        "dex": 1
+      }
+    ]
+  },
+  "crusader": {
+    "source": "rAthena db/re/job_stats.yml",
+    "bonusStats": [
+      {
+        "level": 1,
+        "luk": 1
+      },
+      {
+        "level": 2,
+        "luk": 1
+      },
+      {
+        "level": 3,
+        "luk": 1
+      },
+      {
+        "level": 4,
+        "luk": 1
+      },
+      {
+        "level": 5,
+        "luk": 1
+      },
+      {
+        "level": 7,
+        "str": 1
+      },
+      {
+        "level": 9,
+        "int": 1
+      },
+      {
+        "level": 11,
+        "str": 1
+      },
+      {
+        "level": 12,
+        "vit": 1
+      },
+      {
+        "level": 14,
+        "dex": 1
+      },
+      {
+        "level": 15,
+        "vit": 1
+      },
+      {
+        "level": 17,
+        "str": 1
+      },
+      {
+        "level": 20,
+        "int": 1
+      },
+      {
+        "level": 21,
+        "int": 1
+      },
+      {
+        "level": 22,
+        "vit": 1
+      },
+      {
+        "level": 23,
+        "str": 1
+      },
+      {
+        "level": 25,
+        "str": 1
+      },
+      {
+        "level": 28,
+        "dex": 1
+      },
+      {
+        "level": 30,
+        "agi": 1
+      },
+      {
+        "level": 32,
+        "str": 1
+      },
+      {
+        "level": 34,
+        "dex": 1
+      },
+      {
+        "level": 35,
+        "int": 1
+      },
+      {
+        "level": 36,
+        "agi": 1
+      },
+      {
+        "level": 38,
+        "int": 1
+      },
+      {
+        "level": 40,
+        "vit": 1
+      },
+      {
+        "level": 41,
+        "vit": 1
+      },
+      {
+        "level": 44,
+        "int": 1
+      },
+      {
+        "level": 46,
+        "vit": 1
+      },
+      {
+        "level": 48,
+        "str": 1
+      },
+      {
+        "level": 50,
+        "vit": 1
+      }
+    ]
+  }
+}

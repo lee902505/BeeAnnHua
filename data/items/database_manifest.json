@@ -1,0 +1,48 @@
+{
+  "version": "0.9.54",
+  "note": "RO_WEB Item Database Migration. This version keeps only current game/shop/drop items; it does not import the full rAthena item DB.",
+  "legacyCompatibility": "data/items.json retired. Runtime item data is loaded from split JSON through ItemManager/getItemById().",
+  "itemPaths": {
+    "consumables": "data/items/consumables.json",
+    "materials_1": "data/items/materials_1.json",
+    "materials_2": "data/items/materials_2.json",
+    "cards_1": "data/items/cards_1.json",
+    "cards_2": "data/items/cards_2.json",
+    "quest": "data/items/quest.json",
+    "stones": "data/items/stones.json",
+    "cash": "data/items/cash.json",
+    "pets": "data/items/pets.json"
+  },
+  "equipmentPaths": {
+    "weapon": "data/equipment/weapon/",
+    "armor": "data/equipment/armor/",
+    "headgear": "data/equipment/headgear/",
+    "costume": "data/equipment/costume/",
+    "shadow": "data/equipment/shadow/"
+  },
+  "splitRules": {
+    "materials": "Use materials_1 first. Create materials_2 when materials_1 becomes hard to read or reaches roughly 800-1000 entries.",
+    "cards": "Use cards_1 first. Create cards_2 when cards_1 becomes hard to read or reaches roughly 800-1000 entries."
+  },
+  "removedFields": [
+    "gender",
+    "identifiedResourceName",
+    "unidentifiedDescriptionName",
+    "unidentifiedDisplayName",
+    "unidentifiedResourceName",
+    "weight"
+  ],
+  "reservedFields": [
+    "requiredJobs",
+    "requiredLevel",
+    "equipSlots",
+    "effects",
+    "slots",
+    "cards",
+    "refine",
+    "grade",
+    "enchants",
+    "handed"
+  ],
+  "officialSource": "itemInfo_UTF8.lub; use identifiedDisplayName and identifiedDescriptionName only."
+}

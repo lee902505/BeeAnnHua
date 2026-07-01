@@ -1,0 +1,81 @@
+{
+  "1250": {
+    "id": 1250,
+    "officialId": 1250,
+    "name": "拳刃",
+    "type": "equipment",
+    "category": "weapon",
+    "subCategory": "katar",
+    "buyPrice": 19500,
+    "sellPrice": 9750,
+    "description": [
+      "方便移動為訴求所製造的拳刃。",
+      "系列 : ^777777拳刃^000000  攻擊 : ^777777125^000000",
+      "武器等級 : ^7777772^000000",
+      "要求等級 : ^77777718^000000",
+      "裝備 : ^777777暗殺者^000000"
+    ],
+    "icon": "images/items/1250.webp",
+    "slot": "weapon",
+    "atk": 125,
+    "matk": 0,
+    "slots": 2,
+    "requiredLevel": 18,
+    "handed": 2,
+    "slotCount": 2,
+    "ClassNum": 16
+  },
+  "1252": {
+    "id": 1252,
+    "officialId": 1252,
+    "name": "卡塔勒拳刃",
+    "type": "equipment",
+    "category": "weapon",
+    "subCategory": "katar",
+    "buyPrice": 41000,
+    "sellPrice": 20500,
+    "description": [
+      "用古代秘術所製作出來的拳刃,刀刃會不斷的晃動,造成敵人混亂的兵器。",
+      "Dex+1。",
+      "系列 : ^777777拳刃^000000  攻擊 : ^777777148^000000",
+      "武器等級 : ^7777773^000000",
+      "要求等級 : ^77777733^000000",
+      "裝備 : ^777777暗殺者^000000"
+    ],
+    "icon": "images/items/1252.webp",
+    "slot": "weapon",
+    "atk": 148,
+    "matk": 0,
+    "slots": 1,
+    "requiredLevel": 33,
+    "handed": 2,
+    "slotCount": 1,
+    "ClassNum": 16
+  },
+  "1254": {
+    "id": 1254,
+    "officialId": 1254,
+    "name": "秘刃 闇嘯",
+    "type": "equipment",
+    "category": "weapon",
+    "subCategory": "katar",
+    "buyPrice": 37200,
+    "sellPrice": 18600,
+    "description": [
+      "有很多的刀刃,攻擊力極度強化的兵器。",
+      "系列 : ^777777拳刃^000000  攻擊 : ^777777165^000000",
+      "武器等級 : ^7777773^000000",
+      "要求等級 : ^77777733^000000",
+      "裝備 : ^777777暗殺者^000000"
+    ],
+    "icon": "images/items/1254.webp",
+    "slot": "weapon",
+    "atk": 165,
+    "matk": 0,
+    "slots": 0,
+    "requiredLevel": 33,
+    "handed": 2,
+    "slotCount": 0,
+    "ClassNum": 16
+  }
+}
