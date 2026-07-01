@@ -1,10 +1,10 @@
-# RO_WEB V0.9.60 UI Scale + Shop Compact Hotfix
+# RO_WEB V0.9.61 UI Scale + Shop Compact Hotfix
 
 ## 更新內容
 
 - 修正瀏覽器左上標題仍顯示 V0.9.55 的問題。
-- 將 `RO_WEB_VERSION` 與啟動訊息更新為 0.9.60。
-- 將 HTML / CSS / JS 快取版本統一更新為 `?v=0.9.60`。
+- 將 `RO_WEB_VERSION` 與啟動訊息更新為 0.9.61。
+- 將 HTML / CSS / JS 快取版本統一更新為 `?v=0.9.61`。
 - `--ui-scale` 總閥控制範圍擴充：角色資訊、中央玩家角色、怪物顯示也納入縮放。
 - 商店視窗下方留白縮短，底部僅保留約 10px 安全距離。
 - 商店商品列表、商品介紹、說明文字仍維持內部 scrollbar，不允許撐大整個視窗。

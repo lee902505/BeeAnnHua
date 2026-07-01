@@ -1,8 +1,9 @@
 {
   "meta": {
-    "version": "0.9.34",
+    "version": "0.9.61",
     "iconFallback": "images/skills/placeholder.webp",
-    "note": "v0.9.34：技能窗黑金樹狀架構第一版；初心者基本技能改為手動配點；劍士一轉前置技能可高亮。"
+    "note": "v0.9.61：Skill Icon Remaster Trial；初心者與劍士一轉技能導入黑金發光試作圖示，保留前置技能高亮規則。",
+    "iconStyle": "RO Remaster Trial: 保留官方辨識度，黑金框、內斂發光；狀態效果由 CSS 控制。"
   },
   "adventurer_training": [
     {
@@ -12,7 +13,8 @@
       "effect": "Max HP +2%",
       "bonuses": {
         "maxHpRate": 2
-      }
+      },
+      "icon": "images/skills/life_training_1.webp"
     },
     {
       "jobLevel": 2,
@@ -21,7 +23,8 @@
       "effect": "Max SP +2%",
       "bonuses": {
         "maxSpRate": 2
-      }
+      },
+      "icon": "images/skills/spirit_training_1.webp"
     },
     {
       "jobLevel": 3,
@@ -30,7 +33,8 @@
       "effect": "ATK +2%",
       "bonuses": {
         "atkRate": 2
-      }
+      },
+      "icon": "images/skills/combat_training_1.webp"
     },
     {
       "jobLevel": 4,
@@ -39,7 +43,8 @@
       "effect": "Base EXP +2%",
       "bonuses": {
         "baseExpRate": 2
-      }
+      },
+      "icon": "images/skills/adventure_knowledge_1.webp"
     },
     {
       "jobLevel": 5,
@@ -48,7 +53,8 @@
       "effect": "Zeny +2%",
       "bonuses": {
         "zenyRate": 2
-      }
+      },
+      "icon": "images/skills/money_management_1.webp"
     },
     {
       "jobLevel": 6,
@@ -57,7 +63,8 @@
       "effect": "掉寶率 +1%",
       "bonuses": {
         "dropRate": 1
-      }
+      },
+      "icon": "images/skills/scavenging_1.webp"
     },
     {
       "jobLevel": 7,
@@ -66,7 +73,8 @@
       "effect": "DEF +2%",
       "bonuses": {
         "defRate": 2
-      }
+      },
+      "icon": "images/skills/defense_training_1.webp"
     },
     {
       "jobLevel": 8,
@@ -75,7 +83,8 @@
       "effect": "最終傷害 +1%",
       "bonuses": {
         "damageRate": 1
-      }
+      },
+      "icon": "images/skills/weapon_familiarity_1.webp"
     },
     {
       "jobLevel": 9,
@@ -85,14 +94,16 @@
       "bonuses": {
         "atkFlat": 1,
         "defFlat": 1
-      }
+      },
+      "icon": "images/skills/adventurer_spirit.webp"
     },
     {
       "jobLevel": 10,
       "id": "training_complete",
       "name": "修練完成",
       "effect": "開啟一轉職業",
-      "bonuses": {}
+      "bonuses": {},
+      "icon": "images/skills/training_complete.webp"
     }
   ],
   "jobs": {

@@ -1,13 +1,48 @@
-# RO_WEB V0.9.60
+# V0.9.64 - Skill Tree Complete + Mobile Layout v3 + UX Fix
+
+- 初心者 / 劍士一轉技能流程整理：技能 Hover、介紹、技能點數與前置判斷維持完整。
+- Skill Path V2：Hover 技能時，紅金路徑會一路回指所有前置技能。
+- 修正技能路徑箭頭方向，不再指向當前技能。
+- Mobile Battle Layout v3：人物、怪物、Top UI、金幣列、Battle Log 與快捷列位置再調整。
+- 修正 draggable-window 在縮放狀態下第一次拖曳會往左上角跳的問題。
+- 商店視窗 padding、scrollbar、高度與底部留白再整理。
+- 快取版本更新為 `?v=0.9.64`。
+
+# V0.9.64 - Classic Remaster Alpha
+
+- 修正技能前置路徑箭頭方向：Hover 目前技能時，紅金箭頭改為指向前置技能。
+- 保留技能前置路徑紅金高亮與前置技能粗框提示。
+- 劍士一轉技能 ICON 進入 Remaster Prototype：先以黑金框、低飽和、清楚剪影方式試作，不列入正式憲法。
+- Mobile Battle Layout V2：人物與怪物在手機窄螢幕往中央收，金幣列與 Battle Log 再微調。
+- 新增 `--battle-offset-x` / `--battle-offset-y` 作為後續手機戰鬥位置微調總閥。
+- 快取版本更新為 `?v=0.9.64`。
+
+
+## V0.9.64 - Skill Path Highlight + Mobile Battle Fix
+- 技能樹 Hover 有前置技能時顯示紅金色路徑線。
+- 前置技能改用粗框 / 白金描邊高亮，避免被技能圖示 Glow 吃掉。
+- 手機版人物與怪物位置往中間收，怪物不再跑出可視範圍。
+- 手機版金幣 / 寶石列位置調整，Battle Log 高度縮小。
+- 快取版本更新為 ?v=0.9.64。
+
+# V0.9.64 - Skill Icon Remaster Trial
+
+- 嘗試導入初心者 / 劍士一轉技能 ICON 黑金發光 Remaster 風格。
+- 補齊初心者修練技能圖示路徑。
+- 保留並強化技能 learned / learnable / locked CSS 狀態效果。
+- 憲法加入技能 ICON 規則：官方辨識度優先、狀態由 CSS 控制、不得破壞前置高亮。
+- 快取版本更新為 `?v=0.9.64`。
+
+# RO_WEB V0.9.64
 
 ## Hotfix
 
 - 修正瀏覽器分頁標題版本仍顯示 V0.9.55。
 - 將角色資訊、中央玩家角色、怪物顯示納入 `--ui-scale` 總閥控制。
 - 縮短共用商店視窗下方留白，底部約保留 10px。
-- 快取版本更新為 `?v=0.9.60`。
+- 快取版本更新為 `?v=0.9.64`。
 
-# RO_WEB V0.9.60
+# RO_WEB V0.9.64
 
 ## 本版定位
 Auto UI Scale / Mobile Playable Mode 補強版。
@@ -18,11 +53,11 @@ Auto UI Scale / Mobile Playable Mode 補強版。
 - 背景戰鬥區與左上角人物資訊不吃縮放；其他 UI 視窗、快捷按鈕、對話/操作列統一縮放。
 - 手機版維持「可玩模式」：不做完整 RWD，但確保主要 UI 可縮放、可點擊、彈窗可滾動。
 - 音效 / sound / audio 架構暫時不預留，避免過早增加系統複雜度。
-- 快取版本更新為 0.9.60。
+- 快取版本更新為 0.9.64。
 
 ---
 
-# RO_WEB V0.9.60
+# RO_WEB V0.9.64
 
 ## 修正
 - 商店視窗改成左右欄版面，避免商品介紹 / 購買數量 / 確認購買區被下方裁切。
@@ -30,7 +65,7 @@ Auto UI Scale / Mobile Playable Mode 補強版。
 - 共用道具商店移除「單眼眼鏡」。
 - 共用道具商店加入「菠色克藥水」（ID 657，價格 4500 Zeny）。
 - 從專案門口 `itemInfo_UTF8.lub` 補入菠色克藥水介紹，並複製 `images/items/657.webp`。
-- 快取版本更新為 0.9.60。
+- 快取版本更新為 0.9.64。
 
 # RO_WEB V0.9.56
 

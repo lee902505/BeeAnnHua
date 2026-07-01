@@ -1,7 +1,7 @@
 //=======================================
 // UI Skeleton v0.1：視窗開關 / 拖曳 / 位置記憶
 //=======================================
-const UI_POS_KEY = "ro_web_ui_positions_v0_9_60";
+const UI_POS_KEY = "ro_web_ui_positions_v0_9_64";
 let topZIndex = 40;
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -78,17 +78,27 @@ function startDrag(event, win) {
   const rootRect = root.getBoundingClientRect();
   const winRect = win.getBoundingClientRect();
 
-  const offsetX = event.clientX - winRect.left;
-  const offsetY = event.clientY - winRect.top;
+  // V0.9.64：修正 CSS zoom / --ui-scale 下第一次拖曳會往左上角跳一下。
+  // getBoundingClientRect() 取得的是縮放後尺寸；style.left/top 使用的是未縮放座標，兩者必須換算。
+  const visualScale = win.offsetWidth ? (winRect.width / win.offsetWidth) : 1;
+  const scale = Number.isFinite(visualScale) && visualScale > 0 ? visualScale : 1;
+  const offsetX = (event.clientX - winRect.left) / scale;
+  const offsetY = (event.clientY - winRect.top) / scale;
+
+  if (event.pointerId !== undefined && win.setPointerCapture) {
+    try { win.setPointerCapture(event.pointerId); } catch (error) {}
+  }
 
   function onMove(moveEvent) {
-    let x = moveEvent.clientX - rootRect.left - offsetX;
-    let y = moveEvent.clientY - rootRect.top - offsetY;
+    let x = (moveEvent.clientX - rootRect.left) / scale - offsetX;
+    let y = (moveEvent.clientY - rootRect.top) / scale - offsetY;
 
     // 至少保留一小段標題區在畫面內，避免面板被拖到找不回來。
     const keepVisible = 48;
-    x = Math.max(-(win.offsetWidth - keepVisible), Math.min(x, root.clientWidth - keepVisible));
-    y = Math.max(0, Math.min(y, root.clientHeight - keepVisible));
+    const maxX = (root.clientWidth / scale) - keepVisible;
+    const maxY = (root.clientHeight / scale) - keepVisible;
+    x = Math.max(-(win.offsetWidth - keepVisible), Math.min(x, maxX));
+    y = Math.max(0, Math.min(y, maxY));
 
     const px = Math.round(x);
     const py = Math.round(y);
@@ -100,7 +110,10 @@ function startDrag(event, win) {
     }
   }
 
-  function onUp() {
+  function onUp(upEvent) {
+    if (upEvent?.pointerId !== undefined && win.releasePointerCapture) {
+      try { win.releasePointerCapture(upEvent.pointerId); } catch (error) {}
+    }
     document.removeEventListener("pointermove", onMove);
     document.removeEventListener("pointerup", onUp);
     document.removeEventListener("pointercancel", onUp);

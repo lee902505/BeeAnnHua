@@ -7,3 +7,16 @@
 - 新訊息提示按鈕。
 
 RO_WEB Alpha V0.9.52
+
+
+## V0.9.64 Classic Remaster Alpha
+- 技能前置紅金箭頭改指向前置技能。
+- 劍士一轉技能 ICON Remaster Prototype。
+- Mobile Battle Layout V2 微調人物、怪物、金幣列與 Battle Log。
+
+## V0.9.64
+Skill Icon Remaster Trial：初心者與劍士一轉技能 ICON 試作版。
+
+
+## V0.9.64
+- Skill Tree Complete + Mobile Battle Layout v3 + UI Drag Bug Fix.

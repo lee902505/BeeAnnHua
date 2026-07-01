@@ -774,23 +774,119 @@ function initNoviceSkillRowDelegation() {
   }, true);
 }
 
+function removeSkillPathOverlay() {
+  const overlay = document.querySelector("#skill-panel .skill-path-overlay");
+  if (overlay) overlay.remove();
+}
+
 function clearSkillRequirementHighlights() {
   document.querySelectorAll("#skill-panel .skill-grid-slot").forEach(slot => {
-    slot.classList.remove("skill-focus", "skill-prereq-ok", "skill-prereq-needed");
+    slot.classList.remove("skill-focus", "skill-prereq-ok", "skill-prereq-needed", "skill-path-node");
+  });
+  removeSkillPathOverlay();
+}
+
+function drawSkillPrereqPath(fromSlot, toSlot, ok) {
+  const panel = document.getElementById("skill-panel");
+  if (!panel || !fromSlot || !toSlot) return;
+
+  let svg = panel.querySelector(".skill-path-overlay");
+  if (!svg) {
+    svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    svg.classList.add("skill-path-overlay");
+    svg.setAttribute("aria-hidden", "true");
+    const defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
+    const grad = document.createElementNS("http://www.w3.org/2000/svg", "linearGradient");
+    grad.setAttribute("id", "skillPathRedGold");
+    grad.setAttribute("gradientUnits", "userSpaceOnUse");
+    grad.setAttribute("x1", "0");
+    grad.setAttribute("y1", "0");
+    grad.setAttribute("x2", "1");
+    grad.setAttribute("y2", "0");
+    const stop1 = document.createElementNS("http://www.w3.org/2000/svg", "stop");
+    stop1.setAttribute("offset", "0%");
+    stop1.setAttribute("stop-color", "#ffd86a");
+    const stop2 = document.createElementNS("http://www.w3.org/2000/svg", "stop");
+    stop2.setAttribute("offset", "100%");
+    stop2.setAttribute("stop-color", "#ff4a2f");
+    grad.appendChild(stop1);
+    grad.appendChild(stop2);
+    defs.appendChild(grad);
+    svg.appendChild(defs);
+    panel.prepend(svg);
+  }
+
+  const panelRect = panel.getBoundingClientRect();
+  const fromRect = fromSlot.getBoundingClientRect();
+  const toRect = toSlot.getBoundingClientRect();
+
+  const x1 = fromRect.left - panelRect.left + panel.scrollLeft + fromRect.width / 2;
+  const y1 = fromRect.top - panelRect.top + panel.scrollTop + fromRect.height / 2;
+  const x2 = toRect.left - panelRect.left + panel.scrollLeft + toRect.width / 2;
+  const y2 = toRect.top - panelRect.top + panel.scrollTop + toRect.height / 2;
+  const midX = (x1 + x2) / 2;
+
+  svg.setAttribute("width", Math.max(panel.scrollWidth, panel.clientWidth));
+  svg.setAttribute("height", Math.max(panel.scrollHeight, panel.clientHeight));
+  svg.setAttribute("viewBox", `0 0 ${Math.max(panel.scrollWidth, panel.clientWidth)} ${Math.max(panel.scrollHeight, panel.clientHeight)}`);
+
+  const grad = svg.querySelector("#skillPathRedGold");
+  if (grad) {
+    grad.setAttribute("x1", String(x1));
+    grad.setAttribute("y1", String(y1));
+    grad.setAttribute("x2", String(x2));
+    grad.setAttribute("y2", String(y2));
+  }
+
+  const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+  path.setAttribute("d", `M ${x1} ${y1} C ${midX} ${y1}, ${midX} ${y2}, ${x2} ${y2}`);
+  path.setAttribute("class", ok ? "skill-path-line ok" : "skill-path-line needed");
+  svg.appendChild(path);
+
+  const arrow = document.createElementNS("http://www.w3.org/2000/svg", "path");
+  // V0.9.64：Hover 當前技能時，紅線一路回指到「所有前置技能」。
+  // fromSlot = 目前節點，toSlot = 前置節點；箭頭頭端固定放在前置技能端。
+  const angle = Math.atan2(y2 - y1, x2 - x1);
+  const size = 9;
+  const ax1 = x2 - Math.cos(angle - Math.PI / 6) * size;
+  const ay1 = y2 - Math.sin(angle - Math.PI / 6) * size;
+  const ax2 = x2 - Math.cos(angle + Math.PI / 6) * size;
+  const ay2 = y2 - Math.sin(angle + Math.PI / 6) * size;
+  arrow.setAttribute("d", `M ${ax1} ${ay1} L ${x2} ${y2} L ${ax2} ${ay2}`);
+  arrow.setAttribute("class", ok ? "skill-path-arrow ok" : "skill-path-arrow needed");
+  svg.appendChild(arrow);
+}
+
+function getSkillSlotById(skillId) {
+  if (!skillId) return null;
+  const safeId = (window.CSS && CSS.escape) ? CSS.escape(String(skillId)) : String(skillId).replace(/"/g, '\\"');
+  return document.querySelector(`#skill-panel .skill-grid-slot[data-skill-id="${safeId}"]`);
+}
+
+function highlightSkillRequirementChain(skill, fromSlot, visited = new Set()) {
+  if (!skill || !fromSlot || visited.has(skill.id)) return;
+  visited.add(skill.id);
+
+  (skill.requires || []).forEach(req => {
+    const reqSkill = getSkillDataById(req.id);
+    const reqSlot = getSkillSlotById(req.id);
+    if (!reqSlot) return;
+
+    const ok = getPreviewSkillLevel(req.id) >= Number(req.level || 0);
+    reqSlot.classList.add(ok ? "skill-prereq-ok" : "skill-prereq-needed", "skill-path-node");
+    drawSkillPrereqPath(fromSlot, reqSlot, ok);
+
+    // 連鎖顯示：Hover 最後技能時，會一路回亮它的所有上游前置技能。
+    if (reqSkill) highlightSkillRequirementChain(reqSkill, reqSlot, visited);
   });
 }
 
 function highlightSkillRequirements(skill) {
   clearSkillRequirementHighlights();
   if (!skill) return;
-  const current = document.querySelector(`#skill-panel .skill-grid-slot[data-skill-id="${skill.id}"]`);
-  if (current) current.classList.add("skill-focus");
-  (skill.requires || []).forEach(req => {
-    const slot = document.querySelector(`#skill-panel .skill-grid-slot[data-skill-id="${req.id}"]`);
-    if (!slot) return;
-    const ok = getPreviewSkillLevel(req.id) >= Number(req.level || 0);
-    slot.classList.add(ok ? "skill-prereq-ok" : "skill-prereq-needed");
-  });
+  const current = getSkillSlotById(skill.id);
+  if (current) current.classList.add("skill-focus", "skill-path-node");
+  highlightSkillRequirementChain(skill, current);
 }
 
 function makeSkillDragPayload(skill) {
