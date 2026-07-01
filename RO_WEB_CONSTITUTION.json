@@ -182,9 +182,14 @@
       "id": "CORE-001",
       "category": "Core",
       "title": "快取版本號",
-      "rule": "每次修改 CSS、JS、HTML 後，必須同步更新 HTML 資源引用版本號，例如 ?v=0.9.56，避免瀏覽器讀取舊快取造成 UI / CSS / JS 看似沒有更新。",
+      "rule": "每次修改 CSS、JS、HTML 後，必須同步更新 HTML 資源引用版本號，例如 ?v=0.9.60，避免瀏覽器讀取舊快取造成 UI / CSS / JS 看似沒有更新。",
       "priority": "critical",
       "read_before_coding": true
+    },
+    {
+      "id": "ui_auto_scale_0959",
+      "title": "Auto UI Scale / Mobile Playable Mode",
+      "rule": "RO_WEB 以 1280x720 PC 畫布為主規格；背景戰鬥區與左上角人物資訊不吃 UI 縮放。其他 UI 視窗、彈窗、快捷按鈕、操作列必須遵守 --ui-scale 總縮放閥門，並可依解析度用 media query 自動切換。手機版採可玩模式，不做完整 RWD，但必須能縮放、能點擊、彈窗可滾動且不阻斷核心流程。音效 / sound / audio 架構暫時不預留。"
     }
   ]
 }

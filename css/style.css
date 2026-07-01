@@ -10200,3 +10200,221 @@ button#equipment-close-btn.window-close {
     max-height: 155px;
   }
 }
+
+
+/* =======================================
+   RO_WEB V0.9.59：Shop Window Layout Fix
+   - 商店改為左右欄，避免購買/介紹區被下方快捷列裁切
+   - 視窗本體與明細區強制可滾動，覆蓋舊版 window-body overflow:hidden
+   - 預留 720px 遊戲高度安全邊界
+======================================= */
+#shop-window {
+  width: 720px !important;
+  max-width: calc(100vw - 24px) !important;
+  min-height: 0 !important;
+  max-height: calc(100vh - 24px) !important;
+}
+#shop-window .shop-window-body {
+  height: min(584px, calc(100vh - 82px)) !important;
+  max-height: min(584px, calc(100vh - 82px)) !important;
+  overflow-y: auto !important;
+  padding: 10px 12px 12px 12px !important;
+}
+#shop-window .shop-panel {
+  height: 100% !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+#shop-window .shop-layout {
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+  display: grid !important;
+  grid-template-columns: minmax(250px, 1fr) minmax(280px, .95fr) !important;
+  gap: 12px !important;
+}
+#shop-window .shop-list {
+  max-height: none !important;
+  height: 100% !important;
+  min-height: 0 !important;
+  overflow-y: auto !important;
+  padding-right: 8px !important;
+}
+#shop-window .shop-detail-panel {
+  height: 100% !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  overflow-y: auto !important;
+  padding-right: 10px !important;
+}
+#shop-window .shop-detail-card {
+  min-height: 100% !important;
+}
+#shop-window .shop-detail-desc {
+  max-height: 210px !important;
+  overflow-y: auto !important;
+}
+@media (max-width: 980px), (max-height: 650px) {
+  #shop-window {
+    width: min(720px, calc(100vw - 16px)) !important;
+  }
+  #shop-window .shop-window-body {
+    height: calc(100vh - 74px) !important;
+    max-height: calc(100vh - 74px) !important;
+  }
+  #shop-window .shop-layout {
+    grid-template-columns: 1fr !important;
+  }
+  #shop-window .shop-list {
+    height: 230px !important;
+    max-height: 230px !important;
+  }
+  #shop-window .shop-detail-panel {
+    min-height: 300px !important;
+  }
+}
+
+
+/* =======================================
+   RO_WEB V0.9.59：Auto UI Scale
+   - 以 1280x720 PC 畫布為主規格
+   - 背景戰鬥區與左上角人物資訊不縮放
+   - 其他 UI 視窗 / 快捷按鈕 / 對話與操作列統一吃 --ui-scale
+   - 手機版採 Mobile Playable Mode：可玩、可點、彈窗不爆版，不做完整 RWD
+======================================= */
+:root {
+  --ui-scale: 1;
+}
+
+#top-bar,
+#quick-buttons,
+#player-info,
+#player-sprite,
+#monster-sprite,
+.game-window,
+.chat-panel,
+.quick-slot-bar,
+.dev-buttons,
+#auto-battle-area {
+  zoom: var(--ui-scale);
+}
+
+.game-window {
+  max-height: min(620px, calc(100vh - 28px)) !important;
+}
+
+.game-window .window-body {
+  max-height: calc(100vh - 82px) !important;
+  overflow-y: auto;
+}
+
+@media (max-width: 1600px), (max-height: 900px) {
+  :root { --ui-scale: .9; }
+}
+
+@media (max-width: 1366px), (max-height: 768px) {
+  :root { --ui-scale: .82; }
+}
+
+@media (max-width: 1024px), (max-height: 720px) {
+  :root { --ui-scale: .74; }
+}
+
+@media (max-width: 900px) {
+  :root { --ui-scale: .64; }
+}
+
+@media (max-width: 700px) {
+  :root { --ui-scale: .58; }
+}
+
+@media (orientation: portrait) and (max-width: 900px) {
+  :root { --ui-scale: .54; }
+}
+
+/* 商店視窗在 Auto UI Scale 下仍固定內部滾動，不允許內容撐大整體視窗 */
+#shop-window {
+  max-height: calc(100vh - 24px) !important;
+}
+
+#shop-window .shop-window-body {
+  overflow-y: auto !important;
+}
+
+#shop-window .shop-list,
+#shop-window .shop-detail-panel,
+#shop-window .shop-detail-desc {
+  overflow-y: auto !important;
+}
+
+
+/* =======================================
+   RO_WEB V0.9.60：UI Scale Scope + Shop Compact Height
+   - 版本號修正為 0.9.60
+   - 角色資訊 / 中央人物 / 怪物顯示納入 --ui-scale 總閥
+   - 商店下方留白縮短，底部約保留 10px 安全距離
+======================================= */
+#player-info,
+#player-sprite,
+#monster-sprite {
+  zoom: var(--ui-scale);
+}
+
+#shop-window {
+  width: 720px !important;
+  max-width: calc(100vw - 24px) !important;
+  min-height: 0 !important;
+  max-height: calc(100vh - 24px) !important;
+}
+
+#shop-window .shop-window-body {
+  height: min(374px, calc(100vh - 82px)) !important;
+  max-height: min(374px, calc(100vh - 82px)) !important;
+  overflow-y: hidden !important;
+  padding: 10px 12px 10px 12px !important;
+}
+
+#shop-window .shop-panel {
+  height: 100% !important;
+  min-height: 0 !important;
+}
+
+#shop-window .shop-layout {
+  height: calc(100% - 34px) !important;
+  min-height: 0 !important;
+}
+
+#shop-window .shop-list,
+#shop-window .shop-detail-panel {
+  height: 100% !important;
+  min-height: 0 !important;
+  overflow-y: auto !important;
+}
+
+#shop-window .shop-detail-card {
+  min-height: auto !important;
+}
+
+#shop-window .shop-detail-desc {
+  max-height: 125px !important;
+  overflow-y: auto !important;
+}
+
+@media (max-width: 980px), (max-height: 650px) {
+  #shop-window .shop-window-body {
+    height: min(390px, calc(100vh - 74px)) !important;
+    max-height: min(390px, calc(100vh - 74px)) !important;
+    overflow-y: auto !important;
+  }
+  #shop-window .shop-layout {
+    height: auto !important;
+    grid-template-columns: 1fr !important;
+  }
+  #shop-window .shop-list {
+    height: 200px !important;
+    max-height: 200px !important;
+  }
+  #shop-window .shop-detail-panel {
+    height: 245px !important;
+    min-height: 245px !important;
+  }
+}

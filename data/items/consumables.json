@@ -197,6 +197,28 @@
     "slotCount": 0,
     "ClassNum": 0
   },
+  "657": {
+    "id": 657,
+    "officialId": 657,
+    "name": "菠色克藥水",
+    "type": "consume",
+    "category": "buff",
+    "subCategory": "aspd_potion",
+    "buyPrice": 4500,
+    "sellPrice": 2250,
+    "description": [
+      "可讓全身的血沸騰,變成狂戰士的狀態,是種非常厲害的藥水,服用時, 可讓攻擊速度上升。",
+      "等級85級以上的角色才能使用,只有跆拳/拳聖/悟靈士/神槍手/叛亂者/流氓/魔法師/巫師/劍士系列/商人系列使用。",
+      "重量 : ^77777720^000000"
+    ],
+    "icon": "images/items/657.webp",
+    "slots": 0,
+    "slotCount": 0,
+    "ClassNum": 0,
+    "requiredLevel": 85,
+    "weight": 20,
+    "script": "sc_start SC_ASPDPOTION2,1800000,9;"
+  },
   "1065": {
     "id": 1065,
     "officialId": 1065,
