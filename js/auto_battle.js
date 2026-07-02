@@ -207,8 +207,8 @@ function updateAutoCombatUI() {
   const attackSkills = getLearnedSkillsByType("attack");
   const buffSkills = getLearnedSkillsByType("buff");
 
-  if (cfg.heal.skillId && !healSkills.some(skill => skill.id === cfg.heal.skillId)) cfg.heal.skillId = null;
-  if (cfg.attack.skillId && !attackSkills.some(skill => skill.id === cfg.attack.skillId)) cfg.attack.skillId = null;
+  if (cfg.heal.skillId && !healSkills.some(skill => String(typeof getSkillStorageKey === "function" ? getSkillStorageKey(skill) : skill.id) === String(cfg.heal.skillId))) cfg.heal.skillId = null;
+  if (cfg.attack.skillId && !attackSkills.some(skill => String(typeof getSkillStorageKey === "function" ? getSkillStorageKey(skill) : skill.id) === String(cfg.attack.skillId))) cfg.attack.skillId = null;
 
   const healEnabled = document.getElementById("autoCombatHealEnabled");
   const healSkill = document.getElementById("autoCombatHealSkill");
@@ -223,7 +223,7 @@ function updateAutoCombatUI() {
     healSkill.innerHTML = healSkills.length ? "" : '<option value="">尚未學會治癒技能</option>';
     healSkills.forEach(skill => {
       const option = document.createElement("option");
-      option.value = skill.id;
+      option.value = (typeof getSkillStorageKey === "function" ? getSkillStorageKey(skill) : String(skill.id));
       option.textContent = skill.name;
       healSkill.appendChild(option);
     });
@@ -243,7 +243,7 @@ function updateAutoCombatUI() {
     attackSkill.innerHTML = attackSkills.length ? "" : '<option value="">尚未學會攻擊技能</option>';
     attackSkills.forEach(skill => {
       const option = document.createElement("option");
-      option.value = skill.id;
+      option.value = (typeof getSkillStorageKey === "function" ? getSkillStorageKey(skill) : String(skill.id));
       option.textContent = skill.name;
       attackSkill.appendChild(option);
     });
@@ -259,12 +259,12 @@ function updateAutoCombatUI() {
       buffBox.innerHTML = '<div class="auto-empty">尚未學會 Buff 技能</div>';
     } else {
       buffSkills.forEach(skill => {
-        if (cfg.buffs[skill.id] === undefined) {
-          cfg.buffs[skill.id] = !!skill.ai?.defaultMaintain;
+        if (cfg.buffs[(typeof getSkillStorageKey === "function" ? getSkillStorageKey(skill) : String(skill.id))] === undefined) {
+          cfg.buffs[(typeof getSkillStorageKey === "function" ? getSkillStorageKey(skill) : String(skill.id))] = !!skill.ai?.defaultMaintain;
         }
         const label = document.createElement("label");
         label.className = "auto-buff-row";
-        label.innerHTML = `<input type="checkbox" data-auto-buff-skill="${skill.id}" ${cfg.buffs[skill.id] ? "checked" : ""}> ${skill.name} Lv${getSkillLevel(skill.id)}`;
+        label.innerHTML = `<input type="checkbox" data-auto-buff-skill="${typeof getSkillStorageKey === "function" ? getSkillStorageKey(skill) : String(skill.id)}" ${cfg.buffs[(typeof getSkillStorageKey === "function" ? getSkillStorageKey(skill) : String(skill.id))] ? "checked" : ""}> ${skill.name} Lv${getSkillLevel(skill.id)}`;
         buffBox.appendChild(label);
       });
     }

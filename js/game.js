@@ -12,7 +12,7 @@ let items = {};
 let expTables = null;
 let currentMap = null;
 
-const RO_WEB_VERSION = "0.9.64";
+const RO_WEB_VERSION = "0.9.68";
 
 function normalizeDataPath(path) {
   return String(path || "")
@@ -43,8 +43,14 @@ async function loadJson(path, fallback = null) {
     return cloneJsonData(window.RO_WEB_DATA[key]);
   }
 
-  const response = await fetch(path);
-  return await response.json();
+  try {
+    const response = await fetch(path);
+    if (!response.ok) throw new Error(`HTTP ${response.status}: ${path}`);
+    return await response.json();
+  } catch (error) {
+    console.warn(`資料載入失敗，使用 fallback：${path}`, error);
+    return cloneJsonData(fallback);
+  }
 }
 
 window.onload = initGame;
@@ -55,6 +61,7 @@ async function initGame() {
   await loadServerConfig();
   await loadJobData();
   await loadSkillData();
+  if (typeof loadJobConstitutionData === "function") await loadJobConstitutionData();
   if (typeof loadStatusData === "function") await loadStatusData();
   await loadMonsterData();
   await loadMapData();
@@ -62,6 +69,7 @@ async function initGame() {
   await loadItemData();
   await loadExpData();
   await loadPlayerData();
+  if (typeof migrateSkillStorageToOfficialIds === "function") migrateSkillStorageToOfficialIds();
 
   setInitialMap();
   if (player?.currentCity && typeof getCityData === "function" && typeof updateTownBackground === "function") {
@@ -84,7 +92,7 @@ async function initGame() {
   if (typeof updateAutoCombatUI === "function") updateAutoCombatUI();
 
   addBattleLog("玩家資料載入完成！");
-  addBattleLog("歡迎來到 RO_WEB Alpha 0.9.64！");
+  addBattleLog("歡迎來到 RO_WEB Alpha 0.9.68！");
 }
 
 async function loadMonsterData() {

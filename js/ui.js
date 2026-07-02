@@ -1,7 +1,7 @@
 //=======================================
 // UI Skeleton v0.1：視窗開關 / 拖曳 / 位置記憶
 //=======================================
-const UI_POS_KEY = "ro_web_ui_positions_v0_9_64";
+const UI_POS_KEY = "ro_web_ui_positions_v0_9_64b";
 let topZIndex = 40;
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -78,7 +78,7 @@ function startDrag(event, win) {
   const rootRect = root.getBoundingClientRect();
   const winRect = win.getBoundingClientRect();
 
-  // V0.9.64：修正 CSS zoom / --ui-scale 下第一次拖曳會往左上角跳一下。
+  // V0.9.64b：修正 CSS zoom / --ui-scale 下第一次拖曳會往左上角跳一下。
   // getBoundingClientRect() 取得的是縮放後尺寸；style.left/top 使用的是未縮放座標，兩者必須換算。
   const visualScale = win.offsetWidth ? (winRect.width / win.offsetWidth) : 1;
   const scale = Number.isFinite(visualScale) && visualScale > 0 ? visualScale : 1;

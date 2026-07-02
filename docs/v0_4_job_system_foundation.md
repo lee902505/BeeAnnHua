@@ -25,7 +25,7 @@ data/skills.json
 
 js/job.js
 
-images/skills/placeholder.webp
+技能 placeholder（已於 v0.9.64c 退休）
 
 docs/v0_4_job_system_foundation.md
 ```
@@ -146,7 +146,7 @@ v0.4 技能圖片不是重點。
 缺圖先用：
 
 ```text
-images/skills/placeholder.webp
+技能 placeholder（已於 v0.9.64c 退休）
 ```
 
 之後抓到正式技能圖後，只要替換 `data/skills.json` 的 icon 路徑即可。

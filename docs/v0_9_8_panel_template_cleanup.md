@@ -11,7 +11,7 @@
 7. 裝備欄改成按照 `equipment_panel.webp` 原本 5×2 裝備格定位，移除額外疊出的格線。
 8. 統計面板改成可拖曳視窗，預設關閉，位置可記憶。
 9. 更新存檔 key 與 UI 位置 key，避免舊版位置/資料干擾。
-10. 補上 `images/skills/placeholder.webp`，清理刪除舊技能圖後可能造成的 fallback 缺圖。
+10. 補上 `技能 placeholder（已於 v0.9.64c 退休）`，清理刪除舊技能圖後可能造成的 fallback 缺圖。
 
 ## 檢查結果
 

@@ -33,7 +33,7 @@ function sanitizeQuickSlot(slot) {
       type: "skill",
       id: skill.id,
       name: skill.name,
-      icon: skill.icon || "images/skills/placeholder.webp",
+      icon: skill.icon || (skill.officialId ? `images/skills/${skill.officialId}.webp` : ""),
       level,
       skillType: skill.skillType,
       hint: `${skill.name} Lv${level}`
@@ -145,7 +145,7 @@ function updateQuickSlotUI() {
 
     if (slot.type !== "empty") {
       const icon = document.createElement("img");
-      icon.src = slot.icon || "images/skills/placeholder.webp";
+      icon.src = slot.icon || "";
       icon.alt = slot.name || "快捷";
       icon.onerror = function () { icon.style.display = "none"; };
       slotEl.appendChild(icon);

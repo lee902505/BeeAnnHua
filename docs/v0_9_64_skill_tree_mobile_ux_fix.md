@@ -1,4 +1,4 @@
-# RO_WEB V0.9.64 - Skill Tree Complete + Mobile Layout v3 + UX Fix
+# RO_WEB V0.9.64b - Skill Tree Complete + Mobile Layout v3 + UX Fix
 
 ## Skill Tree Complete
 - 保留初心者與劍士一轉技能流程。
@@ -25,4 +25,4 @@
 - 壓縮多餘 padding 與底部留白。
 
 ## Cache
-- HTML / CSS / JS cache version updated to `?v=0.9.64`.
+- HTML / CSS / JS cache version updated to `?v=0.9.64b`.

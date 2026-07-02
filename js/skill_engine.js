@@ -69,7 +69,7 @@ function getPassiveSkillBonusTotals() {
 
   getCurrentJobSkills().forEach(skill => {
     if (skill.skillType !== "passive") return;
-    if (skill.id === "NV_BASIC") return; // V0.9.43：初心者知識倍率由 getTrainingBonusTotals 統一處理，不再套 HP/SP 被動。
+    if ((typeof isSkillBasic === "function" && isSkillBasic(skill)) || Number(skill.officialId ?? skill.id) === 1) return; // V0.9.43：初心者知識倍率由 getTrainingBonusTotals 統一處理，不再套 HP/SP 被動。
     const level = getSkillLevel(skill.id);
     if (level <= 0) return;
 

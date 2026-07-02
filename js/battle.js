@@ -11,6 +11,7 @@ const RESPAWN_DELAY = 1500;        // 怪物死亡後 1.5 秒生下一隻
 let lastPlayerAttackAt = 0;
 
 function getPlayerAttackDelayMs() {
+  if (typeof recalculatePlayerStats === "function") recalculatePlayerStats();
   const aspd = Math.max(1, Math.min(190, Number(player?.aspd || 150)));
   // RO_WEB 初版近似：150 ASPD 約 2 秒一擊，190 ASPD 約 0.2 秒一擊。
   return Math.max(200, Math.round(2000 - (aspd - 150) * 45));
@@ -38,10 +39,12 @@ function rollHit(attackerHit, defenderFlee) {
 }
 
 function playerHitsMonster() {
+  if (typeof recalculatePlayerStats === "function") recalculatePlayerStats();
   return rollHit(Number(player?.hit || 0), getMonsterFlee(currentMonster));
 }
 
 function monsterHitsPlayer(monster) {
+  if (typeof recalculatePlayerStats === "function") recalculatePlayerStats();
   return rollHit(getMonsterHit(monster), Number(player?.flee || 0));
 }
 
@@ -227,11 +230,19 @@ function autoAttackMonster() {
 
 // 計算玩家傷害
 function calculatePlayerDamage() {
-  const baseDamage = Math.max(1, player.atk - (currentMonster.def || 0));
+  // 每次攻擊前重新抓一次衍生能力，確保剛裝備武器/防具後傷害立即吃到 ATK。
+  if (typeof recalculatePlayerStats === "function") recalculatePlayerStats();
+  const derived = typeof calculateDerivedPlayerStats === "function" ? calculateDerivedPlayerStats() : null;
+  const currentAtk = Number(derived?.atk ?? player.atk ?? 1);
+  const baseDamage = Math.max(1, currentAtk - Number(currentMonster.def || 0));
   const minDamage = Math.max(1, baseDamage - 2);
   const maxDamage = baseDamage + 2;
 
-  const damage = randomInt(minDamage, maxDamage);
+  let damage = randomInt(minDamage, maxDamage);
+  const critChance = Math.max(0, Math.min(100, Number(derived?.cri ?? player.cri ?? 0)));
+  if (Math.random() * 100 < critChance) {
+    damage = Math.max(1, Math.floor(damage * 1.4));
+  }
   const trainingBonus = typeof getTrainingBonusTotals === "function" ? Number(getTrainingBonusTotals().damageRate || 0) : 0;
   const passiveBonus = typeof getPassiveSkillBonusTotals === "function" ? Number(getPassiveSkillBonusTotals().damageRate || 0) : 0;
   const buffBonus = typeof getActiveBuffBonusTotals === "function" ? Number(getActiveBuffBonusTotals().damageRate || 0) : 0;
@@ -278,7 +289,10 @@ function monsterAttackPlayer() {
 }
 // 計算怪物傷害
 function calculateMonsterDamage(monster) {
-  const baseDamage = Math.max(1, (monster.atk || 1) - (player.def || 0));
+  if (typeof recalculatePlayerStats === "function") recalculatePlayerStats();
+  const derived = typeof calculateDerivedPlayerStats === "function" ? calculateDerivedPlayerStats() : null;
+  const currentDef = Number(derived?.def ?? player.def ?? 0);
+  const baseDamage = Math.max(1, (monster.atk || 1) - currentDef);
   const minDamage = Math.max(1, baseDamage - 2);
   const maxDamage = baseDamage + 2;
 

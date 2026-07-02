@@ -410,13 +410,19 @@ function openJobChangeNpc(npc) {
     const row = document.createElement("div");
     row.className = "shop-item-row job-change-row";
 
-    const okLevel = Number(player.baseLevel || 1) >= Number(rule.requiredBaseLevel || 1)
-      && Number(player.jobLevel || 1) >= Number(rule.requiredJobLevel || 1);
-    const enabled = Boolean(rule.enabled) && okLevel && targetJob && !targetJob.locked;
+    const requirement = typeof describeJobConstitutionRequirement === "function"
+      ? describeJobConstitutionRequirement(rule)
+      : { requiredBaseLevel: rule.requiredBaseLevel || 1, requiredJobLevel: rule.requiredJobLevel || 1, skillText: "" };
+    const constitutionCheck = typeof validateJobConstitution === "function"
+      ? validateJobConstitution(rule, rule.toJob)
+      : { ok: true, message: "" };
+    const enabled = Boolean(rule.enabled) && constitutionCheck.ok && targetJob && !targetJob.locked;
 
     const info = document.createElement("div");
     info.className = "shop-item-name";
-    info.innerHTML = `<b>${targetJob?.name || rule.toJob}</b><small>需要 Base ${rule.requiredBaseLevel || 1} / Job ${rule.requiredJobLevel || 1}${rule.enabled ? "" : "｜未開放"}</small>`;
+    const blockText = constitutionCheck.ok ? "" : `｜${constitutionCheck.message}`;
+    const skillText = requirement.skillText ? `｜技能：${requirement.skillText}` : "";
+    info.innerHTML = `<b>${targetJob?.name || rule.toJob}</b><small>需要 Base ${requirement.requiredBaseLevel || 1} / Job ${requirement.requiredJobLevel || 1}${skillText}${rule.enabled ? "" : "｜未開放"}${blockText}</small>`;
 
     const btn = document.createElement("button");
     btn.textContent = enabled ? "轉職" : "不可轉職";
@@ -443,12 +449,15 @@ function attemptTownJobChange(ruleId) {
     return;
   }
 
-  if (Number(player.baseLevel || 1) < Number(rule.requiredBaseLevel || 1) || Number(player.jobLevel || 1) < Number(rule.requiredJobLevel || 1)) {
-    addBattleLog("等級尚未達到轉職條件。 ");
+  const constitutionCheck = typeof validateJobConstitution === "function"
+    ? validateJobConstitution(rule, rule.toJob)
+    : { ok: true, message: "" };
+  if (!constitutionCheck.ok) {
+    addBattleLog(constitutionCheck.message);
     return;
   }
 
-  changeJob(rule.toJob);
+  changeJob(rule.toJob, rule);
   updateTownUI();
 }
 

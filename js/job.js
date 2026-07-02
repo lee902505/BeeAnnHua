@@ -131,16 +131,48 @@ function getAvailableJobChanges() {
   if (!player) return [];
 
   const currentJob = getCurrentJobData();
-  if (!currentJob || !Array.isArray(currentJob.nextJobs)) return [];
+  if (!currentJob) return [];
 
-  if (player.jobLevel < Number(currentJob.jobMaxLevel || 0)) return [];
+  const ruleList = Array.isArray(jobChangeRules)
+    ? jobChangeRules.filter(rule => rule.fromJob === player.jobKey && rule.enabled !== false)
+    : [];
 
+  if (ruleList.length > 0) {
+    return ruleList
+      .map(rule => {
+        const job = getJobData(rule.toJob);
+        if (!job) return null;
+        const check = typeof validateJobConstitution === "function"
+          ? validateJobConstitution(rule, rule.toJob)
+          : { ok: true, message: "" };
+        return check.ok ? job : null;
+      })
+      .filter(Boolean);
+  }
+
+  if (!Array.isArray(currentJob.nextJobs)) return [];
   return currentJob.nextJobs
     .map(jobKey => getJobData(jobKey))
-    .filter(Boolean);
+    .filter(Boolean)
+    .filter(job => {
+      const rule = { fromJob: player.jobKey, toJob: job.id, enabled: true };
+      const check = typeof validateJobConstitution === "function"
+        ? validateJobConstitution(rule, job.id)
+        : { ok: Number(player.jobLevel || 1) >= Number(currentJob.jobMaxLevel || 0) };
+      return check.ok;
+    });
 }
 
-function changeJob(targetJobKey) {
+
+function meetsJobChangeSkillRequirements(rule = null) {
+  if (typeof describeJobConstitutionRequirement === "function") {
+    const requirement = describeJobConstitutionRequirement(rule || {});
+    return validateRequiredSkills(requirement.requiredSkills || []);
+  }
+  return { ok: true, message: "" };
+}
+
+function changeJob(targetJobKey, rule = null) {
   if (!player) return;
 
   const targetJob = getJobData(targetJobKey);
@@ -151,18 +183,17 @@ function changeJob(targetJobKey) {
     return;
   }
 
-  if (!currentJob.nextJobs || !currentJob.nextJobs.includes(targetJobKey)) {
-    addBattleLog("目前職業不能轉成 " + targetJob.name + "。");
-    return;
-  }
+  const effectiveRule = rule || (jobChangeRules || []).find(item => item.fromJob === player.jobKey && item.toJob === targetJobKey) || {
+    fromJob: player.jobKey,
+    toJob: targetJobKey,
+    enabled: true
+  };
 
-  if (player.jobLevel < Number(currentJob.jobMaxLevel || 0)) {
-    addBattleLog("Job Lv 尚未達到轉職條件。");
-    return;
-  }
-
-  if (targetJob.locked) {
-    addBattleLog(targetJob.name + " 目前只預留架構，尚未開放。");
+  const constitutionCheck = typeof validateJobConstitution === "function"
+    ? validateJobConstitution(effectiveRule, targetJobKey)
+    : { ok: true, message: "" };
+  if (!constitutionCheck.ok) {
+    addBattleLog(constitutionCheck.message);
     return;
   }
 
@@ -172,13 +203,20 @@ function changeJob(targetJobKey) {
   }
 
   const oldJobName = player.job;
+  const isRebirthChange = typeof isRebirthJobChange === "function" ? isRebirthJobChange(effectiveRule, targetJob) : false;
+
   player.jobKey = targetJob.id;
   player.job = targetJob.name;
   player.jobLevel = 1;
   player.jobExp = 0;
   player.jobExpToNext = getExpToNext("job", 1);
-  player.skillPoints = targetJob.id === "novice" ? 0 : 1;
+  player.skillPoints = targetJob.id === "novice" || targetJob.id === "high_novice" ? 0 : 1;
   player.learnedSkills = player.learnedSkills || {};
+
+  // 憲法規則：轉生後素質固定重置，不繼承轉生前剩餘素質點，避免 125 + 舊點數。
+  if (isRebirthChange && typeof applyRebirthConstitutionReset === "function") {
+    applyRebirthConstitutionReset();
+  }
 
   // 轉職後給一點基礎差異，先做輕量版，之後再接 jobs.json 成長表。
   if (targetJob.id === "swordman") {
@@ -289,17 +327,42 @@ function getCurrentJobSkills() {
 }
 
 
-function getSkillDataById(skillId) {
-  return getCurrentJobSkills().find(skill => skill.id === skillId) || null;
+function getSkillPrimaryId(skillOrId) {
+  if (skillOrId && typeof skillOrId === "object") {
+    return skillOrId.officialId ?? skillOrId.id;
+  }
+  const skill = getSkillDataById(skillOrId, true);
+  return skill ? (skill.officialId ?? skill.id) : skillOrId;
+}
+
+function getSkillStorageKey(skillOrId) {
+  const primary = getSkillPrimaryId(skillOrId);
+  return String(primary);
+}
+
+function isSkillBasic(skill) {
+  return String(skill?.code || "") === "NV_BASIC" || Number(skill?.officialId ?? skill?.id) === 1;
+}
+
+function getSkillDataById(skillId, skipNormalize = false) {
+  const raw = skillId && typeof skillId === "object" ? (skillId.officialId ?? skillId.id) : skillId;
+  return getCurrentJobSkills().find(skill => {
+    const official = skill.officialId ?? skill.id;
+    return String(skill.id) === String(raw) ||
+      String(official) === String(raw) ||
+      String(skill.code || "") === String(raw);
+  }) || null;
 }
 
 function getSkillLevel(skillId) {
-  const skill = getCurrentJobSkills().find(item => item.id === skillId) || null;
+  const skill = getSkillDataById(skillId);
   if (skill?.autoUnlocked) {
     return 1;
   }
   if (!player || !player.learnedSkills) return 0;
-  return Number(player.learnedSkills[skillId] || 0);
+  const key = getSkillStorageKey(skill || skillId);
+  const legacyKey = skill?.code ? String(skill.code) : null;
+  return Number(player.learnedSkills[key] ?? (legacyKey ? player.learnedSkills[legacyKey] : 0) ?? 0);
 }
 
 function getPendingSkillAdds() {
@@ -309,7 +372,8 @@ function getPendingSkillAdds() {
 }
 
 function getPendingSkillAdd(skillId) {
-  return Number(getPendingSkillAdds()[skillId] || 0);
+  const key = getSkillStorageKey(skillId);
+  return Number(getPendingSkillAdds()[key] || 0);
 }
 
 function getPreviewSkillLevel(skillId) {
@@ -367,6 +431,62 @@ function clearPendingSkillAdds() {
   if (player) player.pendingSkillAdds = {};
 }
 
+
+function migrateSkillStorageToOfficialIds() {
+  if (!player || typeof getCurrentJobSkills !== "function") return;
+  const allSkills = [];
+  Object.values(skillsData?.jobs || {}).forEach(list => {
+    if (Array.isArray(list)) allSkills.push(...list);
+  });
+
+  const normalizeMapValue = (value) => {
+    const skill = allSkills.find(item =>
+      String(item.id) === String(value) ||
+      String(item.officialId ?? item.id) === String(value) ||
+      String(item.code || "") === String(value)
+    );
+    return skill ? String(skill.officialId ?? skill.id) : String(value);
+  };
+
+  if (player.learnedSkills && typeof player.learnedSkills === "object") {
+    const next = {};
+    Object.entries(player.learnedSkills).forEach(([key, value]) => {
+      const normalized = normalizeMapValue(key);
+      next[normalized] = Math.max(Number(next[normalized] || 0), Number(value || 0));
+    });
+    player.learnedSkills = next;
+  }
+
+  if (player.pendingSkillAdds && typeof player.pendingSkillAdds === "object") {
+    const next = {};
+    Object.entries(player.pendingSkillAdds).forEach(([key, value]) => {
+      const normalized = normalizeMapValue(key);
+      next[normalized] = Math.max(Number(next[normalized] || 0), Number(value || 0));
+    });
+    player.pendingSkillAdds = next;
+  }
+
+  if (Array.isArray(player.quickSlots)) {
+    player.quickSlots.forEach(slot => {
+      if (slot && slot.type === "skill" && slot.id !== undefined) {
+        slot.id = normalizeMapValue(slot.id);
+      }
+    });
+  }
+
+  if (player.autoCombat) {
+    if (player.autoCombat.heal?.skillId) player.autoCombat.heal.skillId = normalizeMapValue(player.autoCombat.heal.skillId);
+    if (player.autoCombat.attack?.skillId) player.autoCombat.attack.skillId = normalizeMapValue(player.autoCombat.attack.skillId);
+    if (player.autoCombat.buffs && typeof player.autoCombat.buffs === "object") {
+      const nextBuffs = {};
+      Object.entries(player.autoCombat.buffs).forEach(([key, value]) => {
+        nextBuffs[normalizeMapValue(key)] = value;
+      });
+      player.autoCombat.buffs = nextBuffs;
+    }
+  }
+}
+
 function getSkillRequirementText(skill) {
   const parts = [];
   if (Number(skill.requiredJobLevel || 1) > 1) {
@@ -374,7 +494,7 @@ function getSkillRequirementText(skill) {
   }
 
   (skill.requires || []).forEach(req => {
-    const reqSkill = getCurrentJobSkills().find(item => item.id === req.id);
+    const reqSkill = getSkillDataById(req.id);
     parts.push(`${reqSkill?.name || req.id} Lv ${req.level}`);
   });
 
@@ -439,7 +559,7 @@ function formatSkillEffectForUI(key, value) {
 
 function buildSkillTooltipText(skill, currentLevel, check, maxed) {
   if (!skill) return "";
-  if (skill.id === "NV_BASIC") {
+  if (isSkillBasic(skill)) {
     const bonus = Number(currentLevel || 0) * 2;
     return [
       `${skill.name} Lv.${currentLevel} / ${skill.maxLevel}`,
@@ -492,7 +612,7 @@ function buildSkillTooltipText(skill, currentLevel, check, maxed) {
 
   lines.push(`說明：${skill.description || skill.name}`);
 
-  if (skill.id === "NV_BASIC") {
+  if (isSkillBasic(skill)) {
     lines.push("操作：點擊可查看初心者修練與轉職資訊。");
   }
   if (skill.autoUnlocked || skill.autoLevelByJobLevel) {
@@ -547,7 +667,7 @@ function canLearnSkill(skill) {
   const requirements = skill.requires || [];
   for (const req of requirements) {
     if (getPreviewSkillLevel(req.id) < Number(req.level || 0)) {
-      const reqSkill = getCurrentJobSkills().find(item => item.id === req.id);
+      const reqSkill = getSkillDataById(req.id);
       return { ok: false, reason: `需要 ${reqSkill?.name || req.id} Lv ${req.level}` };
     }
   }
@@ -566,8 +686,9 @@ function learnSkill(skillId) {
   }
 
   const pending = getPendingSkillAdds();
-  pending[skillId] = Number(pending[skillId] || 0) + 1;
-  addBattleLog(`${skill.name} Lv ${getPreviewSkillLevel(skillId)} 已加入待確認配點，請按「確認配點」套用。`);
+  const key = getSkillStorageKey(skill);
+  pending[key] = Number(pending[key] || 0) + 1;
+  addBattleLog(`${skill.name} Lv ${getPreviewSkillLevel(skill)} 已加入待確認配點，請按「確認配點」套用。`);
   updateSkillUI();
 }
 
@@ -592,7 +713,9 @@ function confirmPendingSkillPoints() {
 
   player.learnedSkills = player.learnedSkills || {};
   entries.forEach(([skillId, add]) => {
-    player.learnedSkills[skillId] = getSkillLevel(skillId) + Number(add || 0);
+    const skill = getSkillDataById(skillId);
+    const key = getSkillStorageKey(skill || skillId);
+    player.learnedSkills[key] = getSkillLevel(skill || skillId) + Number(add || 0);
   });
   player.skillPoints = Math.max(0, Number(player.skillPoints || 0) - totalCost);
   clearPendingSkillAdds();
@@ -696,7 +819,7 @@ function openJobTrainingFromBasicSkill(event) {
         <span>死亡懲罰</span><b>目前不掉經驗</b>
       </div>
       <div class="basic-info-note">每提升 1 級：Base EXP / Job EXP / 掉寶率 / Zeny 各 +2%。</div>
-      <div class="basic-info-note">Job Lv 10 且基本技能 Lv 9 後，即可前往城鎮轉職。</div>
+      <div class="basic-info-note">Job Lv 10、基本技能 Lv9，且技能點全部點完後，即可前往城鎮轉職。</div>
     `;
   }
   infoWindow.classList.remove("hidden-window");
@@ -859,13 +982,15 @@ function drawSkillPrereqPath(fromSlot, toSlot, ok) {
 
 function getSkillSlotById(skillId) {
   if (!skillId) return null;
-  const safeId = (window.CSS && CSS.escape) ? CSS.escape(String(skillId)) : String(skillId).replace(/"/g, '\\"');
+  const key = getSkillStorageKey(skillId);
+  const safeId = (window.CSS && CSS.escape) ? CSS.escape(String(key)) : String(key).replace(/"/g, '\\"');
   return document.querySelector(`#skill-panel .skill-grid-slot[data-skill-id="${safeId}"]`);
 }
 
 function highlightSkillRequirementChain(skill, fromSlot, visited = new Set()) {
-  if (!skill || !fromSlot || visited.has(skill.id)) return;
-  visited.add(skill.id);
+  const visitKey = getSkillStorageKey(skill);
+  if (!skill || !fromSlot || visited.has(visitKey)) return;
+  visited.add(visitKey);
 
   (skill.requires || []).forEach(req => {
     const reqSkill = getSkillDataById(req.id);
@@ -890,7 +1015,7 @@ function highlightSkillRequirements(skill) {
 }
 
 function makeSkillDragPayload(skill) {
-  return JSON.stringify({ type: "skill", id: skill.id });
+  return JSON.stringify({ type: "skill", id: getSkillStorageKey(skill) });
 }
 
 function makeBasicAttackDragPayload() {
@@ -930,7 +1055,7 @@ function renderNoviceSkillRow() {
         event.dataTransfer.effectAllowed = "copy";
       });
     }
-    if (skill.id === "NV_BASIC") {
+    if (isSkillBasic(skill)) {
       chip.classList.add("opens-training");
       chip.title = "左鍵查看初心者知識 / 修練資訊；按 + 加入待確認配點";
       chip.addEventListener("click", openJobTrainingFromBasicSkill);
@@ -999,7 +1124,7 @@ function updateSkillUI() {
     const baseLevel = getSkillLevel(skill.id);
     const pendingAdd = getPendingSkillAdd(skill.id);
     const currentLevel = baseLevel + pendingAdd;
-    slot.dataset.skillId = skill.id;
+    slot.dataset.skillId = getSkillStorageKey(skill);
     const check = canLearnSkill(skill);
     const maxed = currentLevel >= Number(skill.maxLevel || 0);
     const tooltip = buildSkillTooltipText(skill, currentLevel, check, maxed);
@@ -1010,7 +1135,7 @@ function updateSkillUI() {
     slot.dataset.tooltip = tooltip;
     slot.addEventListener("mouseenter", () => highlightSkillRequirements(skill));
     slot.addEventListener("mouseleave", clearSkillRequirementHighlights);
-    if (skill.id === "NV_BASIC") {
+    if (isSkillBasic(skill)) {
       slot.classList.add("opens-training");
       slot.addEventListener("click", openJobTrainingFromBasicSkill);
     }
@@ -1027,7 +1152,7 @@ function updateSkillUI() {
         event.dataTransfer.effectAllowed = "copy";
       });
     }
-    if (skill.id === "NV_BASIC") {
+    if (isSkillBasic(skill)) {
       iconBox.title = "查看初心者基本技能 / 修練";
       iconBox.onclick = openJobTrainingFromBasicSkill;
     }

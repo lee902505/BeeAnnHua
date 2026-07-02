@@ -5,6 +5,7 @@
 let statPointData = { points: {} };
 let jobStatBonuses = {};
 let jobBasePoints = {};
+const INITIAL_STATUS_POINTS = 25;
 
 async function loadStatusData() {
   try {
@@ -50,7 +51,15 @@ function normalizeStatusData() {
     player.stats[key] = Math.max(1, Math.floor(Number(player.stats[key] || 1)));
   });
   player.usedStatusPoints = Math.max(0, Math.floor(Number(player.usedStatusPoints || 0)));
-  player.statusPointBaseOffset = getTotalStatusPointsForLevel(1);
+  // Lv1 初始可分配素質點固定給 25 點。
+  // rAthena statpoints Lv1 total=48，所以 offset 要保留 48-25=23。
+  // 轉生後採憲法固定重置：不繼承舊剩餘點，固定從 125 點開始，再隨 Base Lv 成長。
+  if (player.rebirthStatusPointPolicy === "fixed_reset_not_carry") {
+    const fixedPoints = Number(player.rebirthFixedStatusPoints || 125);
+    player.statusPointBaseOffset = getTotalStatusPointsForLevel(1) - fixedPoints;
+  } else {
+    player.statusPointBaseOffset = getInitialStatusPointBaseOffset();
+  }
   syncStatusPointCache();
 }
 
@@ -66,6 +75,10 @@ function getTotalStatusPointsForLevel(level) {
     total += Math.max(3, Math.floor((i + 7) / 5));
   }
   return total;
+}
+
+function getInitialStatusPointBaseOffset() {
+  return Math.max(0, getTotalStatusPointsForLevel(1) - INITIAL_STATUS_POINTS);
 }
 
 function getAvailableStatusPoints() {
@@ -116,7 +129,7 @@ function getJobBaseValue(type, level, jobKey = player?.jobKey) {
 }
 
 function getEquipmentStatTotals() {
-  const totals = { atk: 0, def: 0, matk: 0, hit: 0, flee: 0, cri: 0, maxHp: 0, maxSp: 0 };
+  const totals = { atk: 0, def: 0, matk: 0, mdef: 0, hit: 0, flee: 0, cri: 0, aspd: 0, maxHp: 0, maxSp: 0 };
   if (!player?.equipment) return totals;
   Object.values(player.equipment).forEach(itemId => {
     if (!itemId) return;
@@ -154,15 +167,20 @@ function calculateDerivedPlayerStats() {
   let atk = Math.floor(baseLevel / 4) + s.str + Math.floor(s.dex / 5) + Math.floor(s.luk / 3) + equip.atk;
   let matk = s.int + Math.floor(s.int / 2) + Math.floor(s.dex / 5) + Math.floor(s.luk / 3) + Math.floor(baseLevel / 4) + equip.matk;
   let def = Math.floor((baseLevel + s.vit) / 2) + Math.floor(s.agi / 5) + equip.def;
-  let mdef = s.int + Math.floor(baseLevel / 4) + Math.floor((s.dex + s.vit) / 5);
+  let mdef = s.int + Math.floor(baseLevel / 4) + Math.floor((s.dex + s.vit) / 5) + equip.mdef;
   let hit = 175 + baseLevel + s.dex + Math.floor(s.luk / 3) + equip.hit;
   let flee = 100 + baseLevel + s.agi + Math.floor(s.luk / 5) + equip.flee;
   let cri = 1 + Math.floor(s.luk / 3) + equip.cri;
-  let aspd = Math.min(190, 150 + Math.floor(s.agi / 5) + Math.floor(s.dex / 10));
+  let aspd = Math.min(190, 150 + Math.floor(s.agi / 5) + Math.floor(s.dex / 10) + equip.aspd);
 
   atk = Math.floor(atk * (100 + Number(bonuses.atkRate || 0)) / 100) + Number(bonuses.atkFlat || 0);
   def = Math.floor(def * (100 + Number(bonuses.defRate || 0)) / 100) + Number(bonuses.defFlat || 0);
   matk = Math.floor(matk * (100 + Number(bonuses.matkRate || 0)) / 100) + Number(bonuses.matkFlat || 0);
+  mdef = Math.floor(mdef * (100 + Number(bonuses.mdefRate || 0)) / 100) + Number(bonuses.mdefFlat || 0);
+  hit = Math.floor(hit * (100 + Number(bonuses.hitRate || 0)) / 100) + Number(bonuses.hitFlat || 0);
+  flee = Math.floor(flee * (100 + Number(bonuses.fleeRate || 0)) / 100) + Number(bonuses.fleeFlat || 0);
+  cri = Math.floor(cri * (100 + Number(bonuses.criRate || 0)) / 100) + Number(bonuses.criFlat || 0);
+  aspd = Math.min(190, Math.floor(aspd * (100 + Number(bonuses.aspdRate || 0)) / 100) + Number(bonuses.aspdFlat || 0));
 
   const baseHp = getJobBaseValue("baseHp", baseLevel);
   const baseSp = getJobBaseValue("baseSp", baseLevel);

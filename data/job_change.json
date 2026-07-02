@@ -6,7 +6,15 @@
     "toJob": "swordman",
     "requiredJobLevel": 10,
     "requiredBaseLevel": 1,
-    "enabled": true
+    "enabled": true,
+    "requiredSkills": [
+      {
+        "id": 1,
+        "level": 9
+      }
+    ],
+    "routeType": "normal",
+    "constitution": "required"
   },
   {
     "id": "swordman_to_knight",
@@ -15,7 +23,9 @@
     "toJob": "knight",
     "requiredJobLevel": 50,
     "requiredBaseLevel": 1,
-    "enabled": true
+    "enabled": true,
+    "routeType": "normal",
+    "constitution": "required"
   },
   {
     "id": "swordman_to_crusader",
@@ -25,7 +35,9 @@
     "requiredJobLevel": 50,
     "requiredBaseLevel": 1,
     "enabled": false,
-    "note": "十字軍架構預留，之後開放。"
+    "note": "十字軍架構預留，之後開放。",
+    "routeType": "normal",
+    "constitution": "required"
   },
   {
     "id": "novice_to_acolyte",
@@ -34,7 +46,15 @@
     "toJob": "acolyte",
     "requiredJobLevel": 10,
     "requiredBaseLevel": 1,
-    "enabled": false
+    "enabled": false,
+    "requiredSkills": [
+      {
+        "id": 1,
+        "level": 9
+      }
+    ],
+    "routeType": "normal",
+    "constitution": "required"
   },
   {
     "id": "novice_to_mage",
@@ -43,7 +63,15 @@
     "toJob": "mage",
     "requiredJobLevel": 10,
     "requiredBaseLevel": 1,
-    "enabled": false
+    "enabled": false,
+    "requiredSkills": [
+      {
+        "id": 1,
+        "level": 9
+      }
+    ],
+    "routeType": "normal",
+    "constitution": "required"
   },
   {
     "id": "novice_to_archer",
@@ -52,7 +80,15 @@
     "toJob": "archer",
     "requiredJobLevel": 10,
     "requiredBaseLevel": 1,
-    "enabled": false
+    "enabled": false,
+    "requiredSkills": [
+      {
+        "id": 1,
+        "level": 9
+      }
+    ],
+    "routeType": "normal",
+    "constitution": "required"
   },
   {
     "id": "novice_to_merchant",
@@ -61,7 +97,15 @@
     "toJob": "merchant",
     "requiredJobLevel": 10,
     "requiredBaseLevel": 1,
-    "enabled": false
+    "enabled": false,
+    "requiredSkills": [
+      {
+        "id": 1,
+        "level": 9
+      }
+    ],
+    "routeType": "normal",
+    "constitution": "required"
   },
   {
     "id": "novice_to_thief",
@@ -70,6 +114,14 @@
     "toJob": "thief",
     "requiredJobLevel": 10,
     "requiredBaseLevel": 1,
-    "enabled": false
+    "enabled": false,
+    "requiredSkills": [
+      {
+        "id": 1,
+        "level": 9
+      }
+    ],
+    "routeType": "normal",
+    "constitution": "required"
   }
 ]

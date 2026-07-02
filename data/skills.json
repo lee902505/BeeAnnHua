@@ -1,9 +1,9 @@
 {
   "meta": {
-    "version": "0.9.61",
-    "iconFallback": "images/skills/placeholder.webp",
-    "note": "v0.9.61：Skill Icon Remaster Trial；初心者與劍士一轉技能導入黑金發光試作圖示，保留前置技能高亮規則。",
-    "iconStyle": "RO Remaster Trial: 保留官方辨識度，黑金框、內斂發光；狀態效果由 CSS 控制。"
+    "version": "0.9.65a",
+    "note": "v0.9.65a：修正騎士技能數量為 12（55~64 + 1001 衝鋒攻擊 + 495 單手劍攻擊速度增加），並補齊對應技能圖。",
+    "iconStyle": "RO Remaster Trial: 保留官方辨識度，黑金框、內斂發光；狀態效果由 CSS 控制。",
+    "idRule": "Skill id uses official numeric Skill ID. code keeps internal English code such as SM_BASH. icon path uses images/skills/{id}.webp."
   },
   "adventurer_training": [
     {
@@ -109,7 +109,7 @@
   "jobs": {
     "swordman": [
       {
-        "id": "SM_SWORD",
+        "id": 2,
         "name": "劍術修練",
         "maxLevel": 10,
         "requiredJobLevel": 1,
@@ -148,10 +148,11 @@
           0,
           0
         ],
-        "icon": "images/skills/2.webp"
+        "icon": "images/skills/2.webp",
+        "code": "SM_SWORD"
       },
       {
-        "id": "SM_TWOHAND",
+        "id": 3,
         "name": "雙手劍修練",
         "maxLevel": 10,
         "requiredJobLevel": 1,
@@ -160,8 +161,9 @@
         "description": "熟悉雙手劍的使用方式。裝備雙手劍時能發揮更高攻擊能力。",
         "requires": [
           {
-            "id": "SM_SWORD",
-            "level": 1
+            "id": 2,
+            "level": 1,
+            "code": "SM_SWORD"
           }
         ],
         "officialId": 3,
@@ -196,10 +198,11 @@
           0,
           0
         ],
-        "icon": "images/skills/3.webp"
+        "icon": "images/skills/3.webp",
+        "code": "SM_TWOHAND"
       },
       {
-        "id": "SM_RECOVERY",
+        "id": 4,
         "name": "快速回復",
         "maxLevel": 10,
         "requiredJobLevel": 1,
@@ -238,10 +241,11 @@
           0,
           0
         ],
-        "icon": "images/skills/4.webp"
+        "icon": "images/skills/4.webp",
+        "code": "SM_RECOVERY"
       },
       {
-        "id": "SM_BASH",
+        "id": 5,
         "name": "狂擊",
         "maxLevel": 10,
         "requiredJobLevel": 1,
@@ -280,10 +284,11 @@
           "enabled": true,
           "defaultSpPercent": 50
         },
-        "icon": "images/skills/5.webp"
+        "icon": "images/skills/5.webp",
+        "code": "SM_BASH"
       },
       {
-        "id": "SM_PROVOKE",
+        "id": 6,
         "name": "挑釁",
         "maxLevel": 10,
         "requiredJobLevel": 1,
@@ -346,10 +351,11 @@
         "ai": {
           "enabled": false
         },
-        "icon": "images/skills/6.webp"
+        "icon": "images/skills/6.webp",
+        "code": "SM_PROVOKE"
       },
       {
-        "id": "SM_MAGNUM",
+        "id": 7,
         "name": "怒爆",
         "maxLevel": 10,
         "requiredJobLevel": 1,
@@ -358,8 +364,9 @@
         "description": "引爆自身周圍的力量，對敵人造成火焰屬性的範圍傷害。",
         "requires": [
           {
-            "id": "SM_BASH",
-            "level": 5
+            "id": 5,
+            "level": 5,
+            "code": "SM_BASH"
           }
         ],
         "officialId": 7,
@@ -394,10 +401,11 @@
           "enabled": true,
           "defaultSpPercent": 60
         },
-        "icon": "images/skills/7.webp"
+        "icon": "images/skills/7.webp",
+        "code": "SM_MAGNUM"
       },
       {
-        "id": "SM_ENDURE",
+        "id": 8,
         "name": "霸體",
         "maxLevel": 10,
         "requiredJobLevel": 1,
@@ -406,8 +414,9 @@
         "description": "集中精神承受攻擊，短時間降低受到的傷害。",
         "requires": [
           {
-            "id": "SM_PROVOKE",
-            "level": 5
+            "id": 6,
+            "level": 5,
+            "code": "SM_PROVOKE"
           }
         ],
         "officialId": 8,
@@ -455,10 +464,11 @@
           "enabled": true,
           "defaultMaintain": true
         },
-        "icon": "images/skills/8.webp"
+        "icon": "images/skills/8.webp",
+        "code": "SM_ENDURE"
       },
       {
-        "id": "SM_MOVINGRECOVERY",
+        "id": 144,
         "name": "移動時恢復 HP",
         "maxLevel": 1,
         "requiredJobLevel": 1,
@@ -479,10 +489,11 @@
         "spCost": [
           0
         ],
-        "icon": "images/skills/144.webp"
+        "icon": "images/skills/144.webp",
+        "code": "SM_MOVINGRECOVERY"
       },
       {
-        "id": "SM_FATALBLOW",
+        "id": 145,
         "name": "攻擊弱點",
         "maxLevel": 1,
         "requiredJobLevel": 1,
@@ -503,10 +514,11 @@
         "spCost": [
           0
         ],
-        "icon": "images/skills/145.webp"
+        "icon": "images/skills/145.webp",
+        "code": "SM_FATALBLOW"
       },
       {
-        "id": "SM_AUTOBERSERK",
+        "id": 146,
         "name": "狂暴狀態",
         "maxLevel": 1,
         "requiredJobLevel": 1,
@@ -530,12 +542,13 @@
         "ai": {
           "enabled": false
         },
-        "icon": "images/skills/146.webp"
+        "icon": "images/skills/146.webp",
+        "code": "SM_AUTOBERSERK"
       }
     ],
     "knight": [
       {
-        "id": "KN_SPEARMASTERY",
+        "id": 55,
         "name": "長矛修練",
         "maxLevel": 10,
         "requiredJobLevel": 1,
@@ -573,10 +586,12 @@
           0,
           0,
           0
-        ]
+        ],
+        "code": "KN_SPEARMASTERY",
+        "icon": "images/skills/55.webp"
       },
       {
-        "id": "KN_PIERCE",
+        "id": 56,
         "name": "連刺攻擊",
         "maxLevel": 10,
         "requiredJobLevel": 1,
@@ -585,8 +600,9 @@
         "description": "以長矛連續刺擊單一敵人，對大型敵人特別有效。",
         "requires": [
           {
-            "id": "KN_SPEARMASTERY",
-            "level": 1
+            "id": 55,
+            "level": 1,
+            "code": "KN_SPEARMASTERY"
           }
         ],
         "officialId": 56,
@@ -620,10 +636,66 @@
         "ai": {
           "enabled": true,
           "defaultSpPercent": 50
-        }
+        },
+        "code": "KN_PIERCE",
+        "icon": "images/skills/56.webp"
       },
       {
-        "id": "KN_SPEARSTAB",
+        "id": 57,
+        "name": "騎乘攻擊",
+        "maxLevel": 10,
+        "requiredJobLevel": 1,
+        "type": "active",
+        "iconText": "衝",
+        "description": "揮舞長矛掃擊前方敵人，造成範圍傷害。",
+        "requires": [
+          {
+            "id": 63,
+            "level": 1,
+            "code": "KN_RIDING"
+          },
+          {
+            "id": 58,
+            "level": 3,
+            "code": "KN_SPEARSTAB"
+          }
+        ],
+        "officialId": 57,
+        "skillType": "attack",
+        "target": "enemy",
+        "spCost": [
+          24,
+          24,
+          24,
+          24,
+          24,
+          24,
+          24,
+          24,
+          24,
+          24
+        ],
+        "power": [
+          120,
+          160,
+          200,
+          240,
+          280,
+          320,
+          360,
+          400,
+          440,
+          480
+        ],
+        "ai": {
+          "enabled": true,
+          "defaultSpPercent": 65
+        },
+        "code": "KN_BRANDISHSPEAR",
+        "icon": "images/skills/57.webp"
+      },
+      {
+        "id": 58,
         "name": "長矛刺擊",
         "maxLevel": 10,
         "requiredJobLevel": 1,
@@ -632,8 +704,9 @@
         "description": "用長矛貫穿敵人並造成強力一擊。",
         "requires": [
           {
-            "id": "KN_PIERCE",
-            "level": 5
+            "id": 56,
+            "level": 5,
+            "code": "KN_PIERCE"
           }
         ],
         "officialId": 58,
@@ -666,10 +739,12 @@
         "ai": {
           "enabled": true,
           "defaultSpPercent": 50
-        }
+        },
+        "code": "KN_SPEARSTAB",
+        "icon": "images/skills/58.webp"
       },
       {
-        "id": "KN_SPEARBOOMERANG",
+        "id": 59,
         "name": "投擲長矛攻擊",
         "maxLevel": 5,
         "requiredJobLevel": 1,
@@ -678,8 +753,9 @@
         "description": "投擲長矛攻擊遠處敵人。",
         "requires": [
           {
-            "id": "KN_PIERCE",
-            "level": 3
+            "id": 56,
+            "level": 3,
+            "code": "KN_PIERCE"
           }
         ],
         "officialId": 59,
@@ -702,72 +778,12 @@
         "ai": {
           "enabled": true,
           "defaultSpPercent": 55
-        }
+        },
+        "code": "KN_SPEARBOOMERANG",
+        "icon": "images/skills/59.webp"
       },
       {
-        "id": "KN_RIDING",
-        "name": "騎乘術",
-        "maxLevel": 1,
-        "requiredJobLevel": 1,
-        "type": "passive",
-        "iconText": "騎",
-        "description": "學習騎乘戰鬥的基礎。",
-        "requires": [
-          {
-            "id": "SM_ENDURE",
-            "level": 1
-          }
-        ],
-        "officialId": 63,
-        "skillType": "passive",
-        "target": "self",
-        "passiveBonuses": {},
-        "ai": {
-          "enabled": false
-        },
-        "spCost": [
-          0
-        ]
-      },
-      {
-        "id": "KN_CAVALIERMASTERY",
-        "name": "騎兵修練",
-        "maxLevel": 5,
-        "requiredJobLevel": 1,
-        "type": "passive",
-        "iconText": "兵",
-        "description": "熟悉騎乘狀態下的攻擊節奏，降低騎乘帶來的不便。",
-        "requires": [
-          {
-            "id": "KN_RIDING",
-            "level": 1
-          }
-        ],
-        "officialId": 64,
-        "skillType": "passive",
-        "target": "self",
-        "passiveBonuses": {
-          "damageRate": [
-            0,
-            1,
-            2,
-            3,
-            4
-          ]
-        },
-        "ai": {
-          "enabled": false
-        },
-        "spCost": [
-          0,
-          0,
-          0,
-          0,
-          0
-        ]
-      },
-      {
-        "id": "KN_TWOHANDQUICKEN",
+        "id": 60,
         "name": "雙手劍攻擊速度增加",
         "maxLevel": 10,
         "requiredJobLevel": 1,
@@ -776,8 +792,9 @@
         "description": "提升雙手劍攻擊速度，短時間內加快攻擊節奏。",
         "requires": [
           {
-            "id": "SM_TWOHAND",
-            "level": 1
+            "id": 3,
+            "level": 1,
+            "code": "SM_TWOHAND"
           }
         ],
         "officialId": 60,
@@ -824,10 +841,12 @@
         "ai": {
           "enabled": true,
           "defaultMaintain": true
-        }
+        },
+        "code": "KN_TWOHANDQUICKEN",
+        "icon": "images/skills/60.webp"
       },
       {
-        "id": "KN_AUTOCOUNTER",
+        "id": 61,
         "name": "反擊",
         "maxLevel": 5,
         "requiredJobLevel": 1,
@@ -836,8 +855,9 @@
         "description": "進入反擊姿態，在受到攻擊時尋找反擊機會。",
         "requires": [
           {
-            "id": "SM_TWOHAND",
-            "level": 1
+            "id": 3,
+            "level": 1,
+            "code": "SM_TWOHAND"
           }
         ],
         "officialId": 61,
@@ -868,10 +888,12 @@
         },
         "ai": {
           "enabled": false
-        }
+        },
+        "code": "KN_AUTOCOUNTER",
+        "icon": "images/skills/61.webp"
       },
       {
-        "id": "KN_BOWLINGBASH",
+        "id": 62,
         "name": "怪物互擊",
         "maxLevel": 10,
         "requiredJobLevel": 1,
@@ -880,24 +902,29 @@
         "description": "猛烈衝撞敵人，造成高倍率物理傷害。",
         "requires": [
           {
-            "id": "SM_BASH",
-            "level": 10
+            "id": 5,
+            "level": 10,
+            "code": "SM_BASH"
           },
           {
-            "id": "SM_MAGNUM",
-            "level": 3
+            "id": 7,
+            "level": 3,
+            "code": "SM_MAGNUM"
           },
           {
-            "id": "SM_TWOHAND",
-            "level": 5
+            "id": 3,
+            "level": 5,
+            "code": "SM_TWOHAND"
           },
           {
-            "id": "KN_TWOHANDQUICKEN",
-            "level": 10
+            "id": 60,
+            "level": 10,
+            "code": "KN_TWOHANDQUICKEN"
           },
           {
-            "id": "KN_AUTOCOUNTER",
-            "level": 5
+            "id": 61,
+            "level": 5,
+            "code": "KN_AUTOCOUNTER"
           }
         ],
         "officialId": 62,
@@ -930,63 +957,145 @@
         "ai": {
           "enabled": true,
           "defaultSpPercent": 65
-        }
+        },
+        "code": "KN_BOWLINGBASH",
+        "icon": "images/skills/62.webp"
       },
       {
-        "id": "KN_BRANDISHSPEAR",
-        "name": "騎乘攻擊",
-        "maxLevel": 10,
+        "id": 63,
+        "name": "騎乘術",
+        "maxLevel": 1,
+        "requiredJobLevel": 1,
+        "type": "passive",
+        "iconText": "騎",
+        "description": "學習騎乘戰鬥的基礎。",
+        "requires": [
+          {
+            "id": 8,
+            "level": 1,
+            "code": "SM_ENDURE"
+          }
+        ],
+        "officialId": 63,
+        "skillType": "passive",
+        "target": "self",
+        "passiveBonuses": {},
+        "ai": {
+          "enabled": false
+        },
+        "spCost": [
+          0
+        ],
+        "code": "KN_RIDING",
+        "icon": "images/skills/63.webp"
+      },
+      {
+        "id": 64,
+        "name": "騎兵修練",
+        "maxLevel": 5,
+        "requiredJobLevel": 1,
+        "type": "passive",
+        "iconText": "兵",
+        "description": "熟悉騎乘狀態下的攻擊節奏，降低騎乘帶來的不便。",
+        "requires": [
+          {
+            "id": 63,
+            "level": 1,
+            "code": "KN_RIDING"
+          }
+        ],
+        "officialId": 64,
+        "skillType": "passive",
+        "target": "self",
+        "passiveBonuses": {
+          "damageRate": [
+            0,
+            1,
+            2,
+            3,
+            4
+          ]
+        },
+        "ai": {
+          "enabled": false
+        },
+        "spCost": [
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "code": "KN_CAVALIERMASTERY",
+        "icon": "images/skills/64.webp"
+      },
+      {
+        "id": 1001,
+        "name": "衝鋒攻擊",
+        "maxLevel": 1,
         "requiredJobLevel": 1,
         "type": "active",
         "iconText": "衝",
-        "description": "揮舞長矛掃擊前方敵人，造成範圍傷害。",
-        "requires": [
-          {
-            "id": "KN_RIDING",
-            "level": 1
-          },
-          {
-            "id": "KN_SPEARSTAB",
-            "level": 3
-          }
-        ],
-        "officialId": 57,
+        "description": "從遠處快速衝向敵人並攻擊，距離越遠越有突擊感。RO_WEB 初版簡化為高倍率單體突擊技能。",
+        "officialId": 1001,
         "skillType": "attack",
         "target": "enemy",
         "spCost": [
-          24,
-          24,
-          24,
-          24,
-          24,
-          24,
-          24,
-          24,
-          24,
-          24
+          40
         ],
         "power": [
-          120,
-          160,
-          200,
-          240,
-          280,
-          320,
-          360,
-          400,
-          440,
-          480
+          700
         ],
+        "cooldown": 5000,
         "ai": {
           "enabled": true,
-          "defaultSpPercent": 65
-        }
+          "defaultSpPercent": 70
+        },
+        "code": "KN_CHARGEATK",
+        "icon": "images/skills/1001.webp",
+        "questSkill": true
+      },
+      {
+        "id": 495,
+        "name": "單手劍攻擊速度增加",
+        "maxLevel": 1,
+        "requiredJobLevel": 1,
+        "type": "buff",
+        "iconText": "單",
+        "description": "使用單手劍時提升攻擊速度。RO_WEB 初版先作為騎士特殊 Buff 保留。",
+        "requires": [
+          {
+            "id": 60,
+            "level": 10,
+            "code": "KN_TWOHANDQUICKEN"
+          }
+        ],
+        "officialId": 495,
+        "skillType": "buff",
+        "target": "self",
+        "spCost": [
+          100
+        ],
+        "duration": [
+          300000
+        ],
+        "effects": {
+          "damageRate": [
+            10
+          ]
+        },
+        "ai": {
+          "enabled": false
+        },
+        "code": "KN_ONEHAND",
+        "icon": "images/skills/495.webp",
+        "specialSkill": true
       }
     ],
     "crusader": [],
     "acolyte": [
       {
-        "id": "AL_HEAL",
+        "id": 28,
         "officialId": 28,
         "name": "治癒術",
         "maxLevel": 10,
@@ -1024,12 +1133,14 @@
           "enabled": true,
           "defaultHpPercent": 60,
           "defaultSpPercent": 20
-        }
+        },
+        "code": "AL_HEAL",
+        "icon": "images/skills/28.webp"
       }
     ],
     "novice": [
       {
-        "id": "NV_BASIC",
+        "id": 1,
         "officialId": 1,
         "name": "基本技能",
         "maxLevel": 9,
@@ -1075,10 +1186,11 @@
             10
           ]
         },
-        "manualLearn": true
+        "manualLearn": true,
+        "code": "NV_BASIC"
       },
       {
-        "id": "NV_FIRSTAID",
+        "id": 142,
         "officialId": 142,
         "name": "急救",
         "maxLevel": 1,
@@ -1095,10 +1207,11 @@
         ],
         "healPower": [
           15
-        ]
+        ],
+        "code": "NV_FIRSTAID"
       },
       {
-        "id": "NV_TRICKDEAD",
+        "id": 143,
         "officialId": 143,
         "name": "裝死",
         "maxLevel": 1,
@@ -1120,7 +1233,8 @@
         },
         "duration": [
           8000
-        ]
+        ],
+        "code": "NV_TRICKDEAD"
       }
     ]
   }

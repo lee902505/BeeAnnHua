@@ -1,3 +1,60 @@
+## V0.9.69 - RA DB_re Level Cap / EXP Constitution Update
+
+- 依專案入口 `RA開機檔案英文版20260608(DB_re)/rathena-master/db/re/job_exp.yml` 重新整理 Base / Job 上限與 EXP 表。
+- `data/exp_tables.json` 擴充至四轉時代：Base Lv 275、Job Lv 60。
+- 補齊目前預留職業的 EXP 表：超級初學者、擴充超初、忍者、影狼/朧、槍手、反叛者、跆拳、拳聖、悟靈士、拳皇、獵靈士、喵族、四轉擴充等。
+- `data/jobs.json` 的 baseMaxLevel / jobMaxLevel 改為依 RA DB_re job_exp.yml 寫入。
+- `data/job_constitution.json` 更新為 v2.1：
+  - RO_WEB 一般職業二轉固定 Job50。
+  - RO_WEB 進階二轉固定 Job50。
+  - 明確不採 RA jobmaster 的一般二轉 Job40。
+  - 一般職業仍排除未轉生直升三轉。
+  - 其他等級條件與 Job 上限依 RA DB_re。
+- 新增 `docs/RA_JOB_EXP_CAP_AUDIT_V0.9.69.md`，記錄本次 RA DB_re 對照結果。
+
+# RO_WEB V0.9.69
+
+- Job Constitution 升級為 v2.0：一般職業線與擴充職業線分開定義。
+- 一般職業明確禁止「未轉生直接三轉」，RO_WEB 必須走轉生 → 進階二轉 → 三轉。
+- 擴充職業依 RA 開機檔逐條寫入 JSON：超級初學者、忍者/影狼/朧、神槍手/反叛者、跆拳/拳聖/悟靈士、喵族等。
+- 修正 job_constitution.json 與 job_constitution.js 格式不一致，避免技能點=0憲法失效。
+- 新增 RA_JOB_ROUTE_AUDIT_V0.9.69.md 作為本次職業路線檢查紀錄。
+- 快取版本更新為 0.9.69。
+
+## V0.9.66a - Job Constitution Skill/Rebirth Patch
+
+- 補強憲法：剩餘技能點 > 0 時，所有階段皆不可轉職。
+- 補強憲法：轉生後素質點固定 125，不繼承轉生前剩餘素質點。
+- 新增轉生 reset 防呆函式，避免未來實作時產生 125 + 舊剩餘點。
+- 抽查 RA/rAthena 資料並新增 `docs/v0_9_66a_job_constitution_audit.md`。
+- 3轉/4轉不確定值維持 pending_confirm / 待確認。
+
+
+## V0.9.66 - Job Engine Constitution
+
+- 正式新增 `data/job_constitution.json` 與 `js/job_constitution.js`。
+- 所有轉職統一經過 Job Constitution 驗證，不再讓城鎮 NPC 或職業程式各自判斷共通規則。
+- 加入共通規則：技能點必須全部點完、手推車/獵鷹等特殊系統必須卸除、Base/Job/技能前置/轉職路線統一檢查。
+- 將「新增職業不得修改核心轉職程式，只允許新增 JSON」寫入專案憲法。
+- 合併 V0.9.65d 裝備能力公式修正：DEF/MDEF/HIT/FLEE/ASPD/CRI 等裝備數值實際套用。
+
+
+## V0.9.65ca - Skill Placeholder Retirement
+
+- 移除 `images/skills/placeholder.webp` 技能保底圖。
+- 快捷欄改為使用技能本身 icon / officialId 圖片路徑，缺圖時隱藏圖片而不是載入 placeholder。
+- 移除 skills.json meta 內的技能 iconFallback 設定。
+- 確認目前技能圖片皆以官方數字 Skill ID 對應。
+
+# V0.9.65ca - Skill Official ID Logic Hotfix
+
+- 技能資料主鍵改為官方數字 Skill ID。
+- 英文技能代號改保留在 `code` 欄位，例如 `SM_BASH`，不再作為主要邏輯 ID。
+- `requires` 前置技能改為吃官方數字 ID，並保留原英文代號於 `code` 方便查資料。
+- 技能學習、暫存配點、快捷欄、Auto Battle 技能選擇加入舊存檔相容轉換。
+- 技能圖片維持官方數字 ID 路徑，例如 `images/skills/5.webp`。
+- 快取版本更新為 `?v=0.9.65c`。
+
 # V0.9.64 - Skill Tree Complete + Mobile Layout v3 + UX Fix
 
 - 初心者 / 劍士一轉技能流程整理：技能 Hover、介紹、技能點數與前置判斷維持完整。
@@ -145,3 +202,9 @@ Auto UI Scale / Mobile Playable Mode 補強版。
 - 修正商店/背包裝備名稱，優先採用官方 identified 名稱。
 - 背包裝備 tooltip 清除韓文、重量、未鑑定提示，結尾改為「點擊可穿上裝備」。
 - 技能配點列下移至底框上方約 5px。
+
+
+## V0.9.65c
+- 修正出生 Lv1 初始素質點：固定 25 點。
+- 修正普攻傷害未即時吃到裝備 ATK：攻擊前重新計算衍生能力。
+- 修正初心者未點滿基本技能 Lv9 仍可轉 1 轉：轉職 NPC 與 changeJob 雙層檢查。

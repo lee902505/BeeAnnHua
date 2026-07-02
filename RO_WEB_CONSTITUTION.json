@@ -1,6 +1,6 @@
 {
   "name": "RO_WEB_Constitution",
-  "version": "draft-3",
+  "version": "draft-7-job-exp-cap-ra-db-re",
   "purpose": "RO_WEB 專案開發憲法。任何 AI 或開發者在修改專案前必須先閱讀本檔案。",
   "must_read_before_any_update": true,
   "ai_update_protocol": {
@@ -182,7 +182,7 @@
       "id": "CORE-001",
       "category": "Core",
       "title": "快取版本號",
-      "rule": "每次修改 CSS、JS、HTML 後，必須同步更新 HTML 資源引用版本號，例如 ?v=0.9.64，避免瀏覽器讀取舊快取造成 UI / CSS / JS 看似沒有更新。",
+      "rule": "每次修改 CSS、JS、HTML 後，必須同步更新 HTML 資源引用版本號，例如 ?v=0.9.64b，避免瀏覽器讀取舊快取造成 UI / CSS / JS 看似沒有更新。",
       "priority": "critical",
       "read_before_coding": true
     },
@@ -214,6 +214,99 @@
       "rule": "新增技能圖片或發光效果時，不得破壞前置技能高亮與 skill-focus / skill-prereq-ok / skill-prereq-needed 狀態。",
       "priority": "critical",
       "read_before_coding": true
+    },
+    {
+      "id": "skill_official_id_primary_key",
+      "title": "技能官方數字 ID 主鍵規則",
+      "rule": "技能資料必須以官方數字 Skill ID 作為主要邏輯 ID；英文技能代號只能保留於 code 欄位作為開發閱讀與官方資料追蹤用途；玩家介面顯示繁體中文 name；技能圖示使用 images/skills/{officialId}.webp。"
+    },
+    {
+      "id": "JOB-001",
+      "category": "Job Engine",
+      "title": "轉職唯一入口",
+      "priority": "critical",
+      "read_before_coding": true,
+      "rule": "任何轉職請求都必須先經由 JobEngine/changeJob，並且第一步必須呼叫 Job Constitution 驗證；任何程式不得直接修改玩家職業。"
+    },
+    {
+      "id": "JOB-002",
+      "category": "Job Engine",
+      "title": "新增職業不得修改核心",
+      "priority": "critical",
+      "read_before_coding": true,
+      "rule": "任何新增職業（包含二轉、進階二轉、三轉、四轉、擴充職業）不得修改核心轉職程式，只允許新增 JSON 資料，例如 jobs.json、skills.json、skillTree.json、job_change.json。"
+    },
+    {
+      "id": "JOB-003",
+      "category": "Job Engine",
+      "title": "所有冒險者共通檢查",
+      "priority": "critical",
+      "read_before_coding": true,
+      "rule": "所有職業共通轉職規則只能存在於 Job Constitution，不得散落於各職業程式。所有冒險者轉職前都必須檢查：技能點是否全部點完、特殊系統是否卸除、Base/Job 等級、技能前置、轉職路線。"
+    },
+    {
+      "id": "JOB-004",
+      "category": "Job Engine",
+      "title": "技能點必須點完（全階段）",
+      "priority": "critical",
+      "read_before_coding": true,
+      "rule": "不管一般一轉、二轉、三轉、四轉，或轉生後的一轉、二轉、三轉、四轉，只要當前技能剩餘點數大於 0，或尚有暫存技能配點未確認，皆不可轉職。"
+    },
+    {
+      "id": "JOB-005",
+      "category": "Job Engine",
+      "title": "轉職前卸除特殊系統",
+      "priority": "critical",
+      "read_before_coding": true,
+      "rule": "轉職前必須卸除手推車與獵鷹；並預留坐騎、狼、龍、機甲、傭兵、召喚物等特殊系統檢查。"
+    },
+    {
+      "id": "JOB-006",
+      "category": "Job Engine",
+      "title": "一般職業決定版流程",
+      "priority": "critical",
+      "read_before_coding": true,
+      "rule": "一般職業線必須走：初心者 → 一轉 → 二轉 → 轉生 → 高級初心者 → 高級一轉 → 進階二轉 → 三轉 → 四轉。RO_WEB 不採用未轉生直接三轉。0→1 需 Job10 + 基本技能 Lv9；1→2 採 Job50；轉生 Base99/Job50；進階二轉→三轉 Base99/Job70；三轉→四轉 Base200/Job70；四轉後 Base 上限 275、Job 上限 60。"
+    },
+    {
+      "id": "JOB-007",
+      "category": "Job Engine",
+      "title": "職業引擎目標",
+      "priority": "critical",
+      "read_before_coding": true,
+      "rule": "RO_WEB 的目標不是完成一個職業，而是建立一個可以容納所有 RO 職業的職業引擎。任何更新都不得破壞此原則。"
+    },
+    {
+      "id": "JOB-008",
+      "category": "Job Engine",
+      "title": "轉生素質點固定重置",
+      "priority": "critical",
+      "read_before_coding": true,
+      "rule": "轉生時不要求剩餘素質點必須花完；但轉生完成後必須強制重置六圍為 1，原剩餘素質點不保留，最終可分配素質點固定為 job_constitution.rebirth.fixedStartingStatusPoints。"
+    },
+    {
+      "id": "JOB-009",
+      "category": "Job Engine",
+      "title": "RA 開機檔參照與待確認原則",
+      "priority": "high",
+      "read_before_coding": true,
+      "rule": "一般職業與擴充職業等級/Job 上限以 RA 開機檔 npc/custom/jobmaster.txt 與 db/re/job_exp.yml 為主要參照；若 RA 與 RO_WEB 決定版衝突，必須在 data/job_constitution.json 標記 source/note，不可散落硬寫。"
+    },
+    {
+      "id": "JOB-010",
+      "category": "Job Engine",
+      "title": "擴充職業獨立路線",
+      "priority": "critical",
+      "read_before_coding": true,
+      "rule": "擴充職業不得硬套一般 1~4 轉流程；超級初學者、忍者、神槍手、跆拳系、喵族等都必須依 data/job_constitution.json 的 extendedJobRoutes 獨立設定 Base/Job 條件與上限，但仍共用技能點=0、特殊狀態卸除等共同憲法。"
+    },
+    {
+      "id": "JOB-011",
+      "category": "Job Engine",
+      "title": "禁止未轉生直接三轉",
+      "priority": "critical",
+      "read_before_coding": true,
+      "rule": "RA jobmaster 內存在一般職業未轉生直接三轉相關入口/需求；RO_WEB 決定版明確不加入。一般職業必須完成轉生與進階二轉後，才可三轉。"
     }
   ]
 }
