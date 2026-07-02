@@ -135,3 +135,10 @@ RO_WEB_CONSTITUTION.json
 - 普通玩家 `walkSpeed = 150`，最快 `20`，最慢 `1000`。
 - 移動速度相關效果（加速術、緩速術、月夜貓卡、坐騎、騎狼、手推車加速等）不得直接改座標位移。
 - 所有速度效果必須統一寫入 `walkSpeed` / `walkSpeedFlat` / `walkSpeedRate`，再由 Position Engine 轉成畫面移動速度。
+
+## V0.9.72 Position Combat 注意事項
+
+- 普攻、技能、怪物攻擊都不得繞過 Position Engine 距離判定。
+- 玩家普攻射程請修改 `data/weapon_types.json`，不要在 `battle.js` 硬寫。
+- 技能射程請在 `data/skills.json` 使用 `rangeCells`。
+- 手機點擊地圖使用 Pointer Events；不要只綁 click。

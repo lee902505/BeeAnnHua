@@ -1,10 +1,10 @@
 //=======================================
-// Position Combat Engine v0.1
+// Position Combat Engine v0.2
 // 目標：在不推翻現有平面戰鬥畫面的前提下，加入玩家/怪物座標、射程、追擊、手動移動與蒼蠅翅膀。
 // 參考 RA mob_db 概念欄位：AttackRange / SkillRange / ChaseRange / WalkSpeed / Ai / Modes。
 //=======================================
 
-const POSITION_ENGINE_VERSION = "0.9.71";
+const POSITION_ENGINE_VERSION = "0.9.72";
 const FLY_WING_ITEM_ID = 601;
 
 //=======================================
@@ -69,6 +69,26 @@ const POSITION_FIELD = {
   spriteAnchorOffsetY: 0
 };
 
+// V0.9.72：正式採用 RO Cell 概念作為射程單位。
+// 目前 1 Cell 先換算為 36px，之後可依畫面手感集中調整，不散落於戰鬥公式。
+const POSITION_CELL_SIZE_PX = 36;
+
+const DEFAULT_WEAPON_RANGE_CELLS = {
+  fist: 1,
+  dagger: 1,
+  sword: 1,
+  oneHandSword: 1,
+  twoHandSword: 1,
+  axe: 1,
+  mace: 1,
+  staff: 1,
+  katar: 1,
+  spear: 2,
+  bow: 4
+};
+
+let weaponRangeConfigCache = null;
+
 let positionEngineTimer = null;
 let autoNoTargetSince = null;
 
@@ -115,23 +135,49 @@ function initPositionEngine() {
   }
 }
 
+function isPointerOnBlockedUi(target) {
+  return Boolean(target?.closest?.("button, input, select, textarea, .game-window, .fixed-panel, #quick-buttons, #top-bar, #quick-slot-bar"));
+}
+
+function getBattleFieldLocalPosition(event, field) {
+  const rect = field.getBoundingClientRect();
+  const clientX = event.clientX ?? event.touches?.[0]?.clientX;
+  const clientY = event.clientY ?? event.touches?.[0]?.clientY;
+  if (!Number.isFinite(clientX) || !Number.isFinite(clientY)) return null;
+
+  // rect 是縮放後尺寸；offsetWidth/offsetHeight 是邏輯尺寸。反推可取得 1280x720 座標系。
+  const scaleX = field.offsetWidth ? rect.width / field.offsetWidth : 1;
+  const scaleY = field.offsetHeight ? rect.height / field.offsetHeight : 1;
+  return {
+    x: (clientX - rect.left) / Math.max(0.0001, scaleX),
+    y: (clientY - rect.top) / Math.max(0.0001, scaleY)
+  };
+}
+
 function bindBattleFieldMovement() {
   const field = document.getElementById("battle-field");
   if (!field || field.dataset.positionBound === "1") return;
   field.dataset.positionBound = "1";
 
-  field.addEventListener("click", event => {
-    if (event.target.closest("button, input, select, textarea, .game-window, .fixed-panel, #quick-buttons, #top-bar, #quick-slot-bar")) return;
+  const handlePointerMoveRequest = event => {
+    if (isPointerOnBlockedUi(event.target)) return;
     if (!player || player.currentCity) return;
 
-    const rect = field.getBoundingClientRect();
-    const scaleX = field.offsetWidth ? rect.width / field.offsetWidth : 1;
-    const scaleY = field.offsetHeight ? rect.height / field.offsetHeight : 1;
-    const x = (event.clientX - rect.left) / scaleX;
-    const y = (event.clientY - rect.top) / scaleY;
-    setPlayerMoveTarget(x, y);
+    const pos = getBattleFieldLocalPosition(event, field);
+    if (!pos) return;
+
+    // Pointer Events 同時支援滑鼠、手機、平板。避免手機瀏覽器把點擊轉成捲動或延遲 click。
+    if (event.cancelable) event.preventDefault();
+    setPlayerMoveTarget(pos.x, pos.y);
     addBattleLog(`移動到座標 (${Math.round(player.position.targetX)}, ${Math.round(player.position.targetY)})。`);
-  });
+  };
+
+  if (window.PointerEvent) {
+    field.addEventListener("pointerdown", handlePointerMoveRequest, { passive: false });
+  } else {
+    field.addEventListener("click", handlePointerMoveRequest, { passive: false });
+    field.addEventListener("touchstart", handlePointerMoveRequest, { passive: false });
+  }
 }
 
 function setPlayerMoveTarget(x, y) {
@@ -195,22 +241,70 @@ function getEquippedWeaponData() {
   return weaponId ? getItemData(weaponId) : null;
 }
 
-function getPlayerNormalAttackRange() {
-  const weapon = getEquippedWeaponData();
-  const weaponType = String(weapon?.weaponType || weapon?.subCategory || weapon?.category || "").toLowerCase();
+function getWeaponRangeConfig() {
+  if (weaponRangeConfigCache) return weaponRangeConfigCache;
+  const bundled = window.RO_WEB_DATA?.["data/weapon_types.json"] || window.RO_WEB_DATA?.weapon_types;
+  weaponRangeConfigCache = bundled || { cellSizePx: POSITION_CELL_SIZE_PX, types: DEFAULT_WEAPON_RANGE_CELLS };
+  if (!weaponRangeConfigCache.types) weaponRangeConfigCache.types = DEFAULT_WEAPON_RANGE_CELLS;
+  return weaponRangeConfigCache;
+}
+
+function normalizeWeaponTypeName(rawType, weapon = null) {
+  const raw = String(rawType || "").trim();
+  const lower = raw.toLowerCase();
   const name = String(weapon?.name || "");
 
-  // 目前先用資料特徵判斷弓類；未來改由 weaponRange JSON 欄位管理。
-  if (weaponType.includes("bow") || name.includes("弓")) return 245;
-  if (weaponType.includes("staff") || name.includes("杖")) return 95;
-  return 68;
+  if (lower.includes("bow") || name.includes("弓")) return "bow";
+  if (lower.includes("spear") || name.includes("矛") || name.includes("槍")) return "spear";
+  if (lower.includes("dagger") || name.includes("短劍") || name.includes("匕首")) return "dagger";
+  if (lower.includes("katar") || name.includes("拳刃")) return "katar";
+  if (lower.includes("staff") || name.includes("杖")) return "staff";
+  if (lower.includes("axe") || name.includes("斧")) return "axe";
+  if (lower.includes("mace") || name.includes("鈍器") || name.includes("錘")) return "mace";
+  if (lower.includes("two") && lower.includes("sword")) return "twoHandSword";
+  if (lower.includes("sword") || name.includes("劍")) return "sword";
+  return raw || "fist";
+}
+
+function cellsToPixels(cells) {
+  const config = getWeaponRangeConfig();
+  const cellSize = Number(config.cellSizePx || POSITION_CELL_SIZE_PX);
+  return Math.max(1, Number(cells || 1) * cellSize);
+}
+
+function getPlayerNormalAttackRangeCells() {
+  const weapon = getEquippedWeaponData();
+  const config = getWeaponRangeConfig();
+  const type = normalizeWeaponTypeName(weapon?.weaponType || weapon?.subCategory || weapon?.category, weapon);
+  const data = config.types?.[type] ?? config.types?.fist ?? DEFAULT_WEAPON_RANGE_CELLS.fist;
+  const cells = typeof data === "object" ? data.attackRangeCells : data;
+  return Math.max(1, Number(cells || 1));
+}
+
+function getPlayerNormalAttackRange() {
+  return cellsToPixels(getPlayerNormalAttackRangeCells());
+}
+
+function getSkillRangeCells(skill) {
+  if (!skill) return getPlayerNormalAttackRangeCells();
+  const raw = skill.rangeCells ?? skill.attackRangeCells ?? skill.skillRangeCells ?? skill.range ?? skill.attackRange ?? skill.skillRange ?? skill.ai?.range;
+  if (raw !== undefined && raw !== null && raw !== "") return Math.max(1, Number(raw));
+  return getPlayerNormalAttackRangeCells();
 }
 
 function getSkillRangePx(skill) {
-  if (!skill) return getPlayerNormalAttackRange();
-  const raw = skill.range ?? skill.attackRange ?? skill.skillRange ?? skill.ai?.range;
-  if (raw !== undefined && raw !== null) return Number(raw) * 36;
-  return getPlayerNormalAttackRange();
+  return cellsToPixels(getSkillRangeCells(skill));
+}
+
+function canAttackMonsterByRange(monster = currentMonster, rangePx = null) {
+  if (!monster) return false;
+  const attackRange = Number(rangePx ?? getPlayerNormalAttackRange());
+  return getCurrentDistanceToMonster(monster) <= attackRange;
+}
+
+// 舊名稱保留給 battle.js / auto_battle.js 呼叫，但內部統一走 Position Engine。 
+function isInPlayerAttackRange(monster = currentMonster, range = null) {
+  return canAttackMonsterByRange(monster, range);
 }
 
 function getMonsterAttackRangePx(monster = currentMonster) {

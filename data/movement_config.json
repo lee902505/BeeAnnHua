@@ -1,5 +1,5 @@
 {
-  "version": "0.9.71",
+  "version": "0.9.72",
   "source": "專案入口 RA開機檔案英文版20260608 / rathena-master/src/common/mmo.hpp",
   "raWalkSpeed": {
     "description": "RA WalkSpeed 數值越小越快；玩家普通速度 150，最快 20，最慢 1000。",

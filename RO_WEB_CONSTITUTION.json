@@ -1,6 +1,6 @@
 {
   "name": "RO_WEB_Constitution",
-  "version": "draft-8-position-combat-prototype",
+  "version": "draft-9-position-combat-v0.2",
   "purpose": "RO_WEB 專案開發憲法。任何 AI 或開發者在修改專案前必須先閱讀本檔案。",
   "must_read_before_any_update": true,
   "ai_update_protocol": {
@@ -323,6 +323,30 @@
       "priority": "high",
       "read_before_coding": true,
       "rule": "怪物移動/追擊/攻擊距離應優先參照 RA mob_db 概念欄位 AttackRange、SkillRange、ChaseRange、WalkSpeed、Ai、Modes；若 RO_WEB 有簡化換算，必須集中在 Position Engine 中。"
+    },
+    {
+      "id": "POSITION-003",
+      "category": "Position Engine",
+      "title": "距離判定唯一入口",
+      "priority": "critical",
+      "read_before_coding": true,
+      "rule": "所有普攻、技能、怪物攻擊的距離判定都必須經由 Position Engine 的 distance / range 函式。不得在 battle.js 或 skill_engine.js 內直接繞過距離造成傷害。"
+    },
+    {
+      "id": "POSITION-004",
+      "category": "Position Engine",
+      "title": "武器射程資料化",
+      "priority": "critical",
+      "read_before_coding": true,
+      "rule": "玩家普攻射程必須讀取 data/weapon_types.json。弓類預設 4 Cell，近戰預設 1 Cell，長矛暫定 2 Cell；不得在戰鬥公式中硬寫射程。"
+    },
+    {
+      "id": "POSITION-005",
+      "category": "Position Engine",
+      "title": "手機與桌機同一套指標事件",
+      "priority": "high",
+      "read_before_coding": true,
+      "rule": "點地圖移動必須優先使用 Pointer Events，確保桌機滑鼠、手機觸控與平板都能使用同一套座標換算。"
     }
   ]
 }

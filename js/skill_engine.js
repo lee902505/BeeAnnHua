@@ -179,6 +179,13 @@ function castAttackSkill(skill, requestedLevel = null) {
   const check = canCastSkill(skill, requestedLevel);
   if (!check.ok || !currentMonster) return false;
 
+  const skillRange = typeof getSkillRangePx === "function" ? getSkillRangePx(skill) : null;
+  if (typeof canAttackMonsterByRange === "function" && !canAttackMonsterByRange(currentMonster, skillRange)) {
+    if (typeof movePlayerTowardMonster === "function") movePlayerTowardMonster(currentMonster, skillRange);
+    addBattleLog(`${skill.name} 距離不足，正在靠近目標。`);
+    return false;
+  }
+
   const level = check.level;
   const damage = calculateSkillAttackDamage(skill, level);
   paySkillCost(skill, level);

@@ -166,15 +166,8 @@ function spawnMonsterFromCurrentMap() {
 function autoAttackMonster() {
   if (!currentMonster) return;
 
-  if (typeof movePlayerTowardMonster === "function" && !isInPlayerAttackRange(currentMonster)) {
-    movePlayerTowardMonster(currentMonster);
-    updateMonsterUI();
-    return;
-  }
-
-  if (!canPlayerAttackNow()) return;
-
-  // v0.6：自動戰鬥 AI，順序為喝水 → 治癒 → Buff → 攻擊技能 → 普攻
+  // v0.9.72：先決定本 tick 要用普攻還是攻擊技能，再用對應射程判定。
+  // 這樣投擲長矛 / 弓類技能不會被普攻 1 Cell 射程綁死。
   const autoAction = typeof runAutoCombatTick === "function"
     ? runAutoCombatTick(currentMonster)
     : { action: "normal" };
@@ -184,12 +177,19 @@ function autoAttackMonster() {
     return;
   }
 
+  const intendedRange = autoAction && autoAction.action === "attackSkill"
+    ? (typeof getSkillRangePx === "function" ? getSkillRangePx(autoAction.skill) : null)
+    : (typeof getPlayerNormalAttackRange === "function" ? getPlayerNormalAttackRange() : null);
+
+  if (typeof canAttackMonsterByRange === "function" && !canAttackMonsterByRange(currentMonster, intendedRange)) {
+    if (typeof movePlayerTowardMonster === "function") movePlayerTowardMonster(currentMonster, intendedRange);
+    updateMonsterUI();
+    return;
+  }
+
+  if (!canPlayerAttackNow()) return;
+
   if (autoAction && autoAction.action === "attackSkill") {
-    const skillRange = typeof getSkillRangePx === "function" ? getSkillRangePx(autoAction.skill) : null;
-    if (typeof isInPlayerAttackRange === "function" && !isInPlayerAttackRange(currentMonster, skillRange)) {
-      if (typeof movePlayerTowardMonster === "function") movePlayerTowardMonster(currentMonster, skillRange);
-      return;
-    }
     markPlayerAttackUsed();
     if (!playerHitsMonster()) {
       addBattleLog("你施放 " + autoAction.skill.name + "，但是 Miss！");
@@ -208,6 +208,11 @@ function autoAttackMonster() {
       monsterAttackPlayer();
       return;
     }
+  }
+
+  if (typeof canAttackMonsterByRange === "function" && !canAttackMonsterByRange(currentMonster, intendedRange)) {
+    if (typeof movePlayerTowardMonster === "function") movePlayerTowardMonster(currentMonster, intendedRange);
+    return;
   }
 
   markPlayerAttackUsed();

@@ -126,7 +126,7 @@ function normalizePlayerData() {
   player.learnedSkills = player.learnedSkills || {};
   player.completedAdventurerTraining = player.completedAdventurerTraining || [];
 
-  // V0.9.71 Position Combat Prototype：出生 / 舊存檔首載贈送蒼蠅翅膀 100 個，用於測試真正座標瞬移。
+  // V0.9.70+ Position Combat Prototype：出生 / 舊存檔首載贈送蒼蠅翅膀 100 個，用於測試真正座標瞬移。
   if (!player.positionEngineStarterFlyWingGranted && typeof addInventoryItemCount === "function") {
     addInventoryItemCount(601, 100);
     player.positionEngineStarterFlyWingGranted = true;

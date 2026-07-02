@@ -1,0 +1,43 @@
+{
+  "version": "0.9.72",
+  "source": "RO_WEB Position Combat v0.2; RA/RO Cell concept. 1 Cell currently maps to 36px in Position Engine.",
+  "cellSizePx": 36,
+  "types": {
+    "fist": {
+      "attackRangeCells": 1,
+      "note": "未裝備 / 拳"
+    },
+    "dagger": {
+      "attackRangeCells": 1
+    },
+    "sword": {
+      "attackRangeCells": 1
+    },
+    "oneHandSword": {
+      "attackRangeCells": 1
+    },
+    "twoHandSword": {
+      "attackRangeCells": 1
+    },
+    "axe": {
+      "attackRangeCells": 1
+    },
+    "mace": {
+      "attackRangeCells": 1
+    },
+    "staff": {
+      "attackRangeCells": 1
+    },
+    "katar": {
+      "attackRangeCells": 1
+    },
+    "spear": {
+      "attackRangeCells": 2,
+      "note": "暫定：長矛普攻 2 Cell，之後依 RA/官方資料微調"
+    },
+    "bow": {
+      "attackRangeCells": 4,
+      "note": "弓類普攻預設 4 Cell"
+    }
+  }
+}

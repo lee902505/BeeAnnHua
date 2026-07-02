@@ -232,3 +232,12 @@ Auto UI Scale / Mobile Playable Mode 補強版。
 - 能力面板新增「移動速度」顯示。
 - 新增 `data/movement_config.json`。
 - 新增 `docs/MOVEMENT_ENGINE_V0.9.71.md`。
+
+## V0.9.72 - Position Combat Engine v0.2
+
+- 普攻加入真正射程判定，距離不足不再隔空命中。
+- 新增 `data/weapon_types.json`，武器射程資料化。
+- 弓類普攻預設 4 Cell，近戰 1 Cell，長矛暫定 2 Cell。
+- 技能射程架構接入 `rangeCells`，投擲長矛先設為 7 Cell 測試。
+- 手機 / 平板點地圖移動改用 Pointer Events。
+- 補充 Position Constitution 規則。
