@@ -122,8 +122,16 @@ RO_WEB_CONSTITUTION.json
 - 修改 Job/EXP 系統時，必讀 `data/job_constitution.json` 與 `docs/RA_JOB_EXP_CAP_AUDIT_V0.9.69.md`。
 
 
-## V0.9.70 Position Combat Prototype 注意事項
+## V0.9.71 Position Combat Prototype 注意事項
 
 - 修改戰鬥、移動、射程、蒼蠅翅膀、怪物追擊前，必須先查看 `js/position_engine.js`。
 - 怪物行為欄位參照 RA mob_db：AttackRange / SkillRange / ChaseRange / WalkSpeed / Ai / Modes。
 - 不要把距離判定散落在技能或怪物資料外的臨時 if；應集中到 Position Engine。
+
+
+## V0.9.71 Movement Engine 必讀
+
+- RO_WEB 採用 RA WalkSpeed 邏輯：數值越小越快。
+- 普通玩家 `walkSpeed = 150`，最快 `20`，最慢 `1000`。
+- 移動速度相關效果（加速術、緩速術、月夜貓卡、坐騎、騎狼、手推車加速等）不得直接改座標位移。
+- 所有速度效果必須統一寫入 `walkSpeed` / `walkSpeedFlat` / `walkSpeedRate`，再由 Position Engine 轉成畫面移動速度。

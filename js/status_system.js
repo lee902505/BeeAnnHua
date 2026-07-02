@@ -129,7 +129,10 @@ function getJobBaseValue(type, level, jobKey = player?.jobKey) {
 }
 
 function getEquipmentStatTotals() {
-  const totals = { atk: 0, def: 0, matk: 0, mdef: 0, hit: 0, flee: 0, cri: 0, aspd: 0, maxHp: 0, maxSp: 0 };
+  const totals = {
+    atk: 0, def: 0, matk: 0, mdef: 0, hit: 0, flee: 0, cri: 0, aspd: 0, maxHp: 0, maxSp: 0,
+    walkSpeedFlat: 0, walkSpeedRate: 0
+  };
   if (!player?.equipment) return totals;
   Object.values(player.equipment).forEach(itemId => {
     if (!itemId) return;
@@ -173,6 +176,12 @@ function calculateDerivedPlayerStats() {
   let cri = 1 + Math.floor(s.luk / 3) + equip.cri;
   let aspd = Math.min(190, 150 + Math.floor(s.agi / 5) + Math.floor(s.dex / 10) + equip.aspd);
 
+  // Movement Engine v0.1：RA WalkSpeed 數值越小越快。
+  // 支援裝備/卡片/技能/Buff 使用 walkSpeedFlat / walkSpeedRate 調整：
+  // walkSpeedFlat = -25 代表變快，+25 代表變慢；walkSpeedRate = -20 代表速度值降低 20%。
+  let walkSpeed = typeof RA_WALK_SPEED !== "undefined" ? RA_WALK_SPEED.DEFAULT : 150;
+  walkSpeed += Number(equip.walkSpeedFlat || 0);
+
   atk = Math.floor(atk * (100 + Number(bonuses.atkRate || 0)) / 100) + Number(bonuses.atkFlat || 0);
   def = Math.floor(def * (100 + Number(bonuses.defRate || 0)) / 100) + Number(bonuses.defFlat || 0);
   matk = Math.floor(matk * (100 + Number(bonuses.matkRate || 0)) / 100) + Number(bonuses.matkFlat || 0);
@@ -181,6 +190,9 @@ function calculateDerivedPlayerStats() {
   flee = Math.floor(flee * (100 + Number(bonuses.fleeRate || 0)) / 100) + Number(bonuses.fleeFlat || 0);
   cri = Math.floor(cri * (100 + Number(bonuses.criRate || 0)) / 100) + Number(bonuses.criFlat || 0);
   aspd = Math.min(190, Math.floor(aspd * (100 + Number(bonuses.aspdRate || 0)) / 100) + Number(bonuses.aspdFlat || 0));
+  walkSpeed += Number(bonuses.walkSpeedFlat || 0);
+  walkSpeed = Math.floor(walkSpeed * (100 + Number(equip.walkSpeedRate || 0) + Number(bonuses.walkSpeedRate || 0)) / 100);
+  walkSpeed = typeof clampRaWalkSpeed === "function" ? clampRaWalkSpeed(walkSpeed) : Math.max(20, Math.min(1000, walkSpeed));
 
   const baseHp = getJobBaseValue("baseHp", baseLevel);
   const baseSp = getJobBaseValue("baseSp", baseLevel);
@@ -201,6 +213,7 @@ function calculateDerivedPlayerStats() {
     flee: Math.max(0, flee),
     cri: Math.max(0, cri),
     aspd,
+    walkSpeed,
     maxHp: Math.max(1, maxHp),
     maxSp: Math.max(0, maxSp)
   };
@@ -296,7 +309,8 @@ function updateStatusUI() {
     { label: "命中率", value: derived.hit, tip: "命中率：影響攻擊命中。" },
     { label: "迴避率", value: derived.flee, tip: "迴避率：影響閃避攻擊。" },
     { label: "暴擊率", value: derived.cri, tip: "暴擊率：影響暴擊機率。" },
-    { label: "攻擊速度", value: derived.aspd, tip: "攻擊速度：之後會影響攻擊間隔。" },
+    { label: "攻擊速度", value: derived.aspd, tip: "攻擊速度：影響攻擊間隔。" },
+    { label: "移動速度", value: derived.walkSpeed, tip: "移動速度：採用 RA WalkSpeed，數值越小越快。普通 150，最快 20，最慢 1000。" },
     { label: "剩餘點數", value: remaining, tip: "剩餘點數：目前可以分配的素質點。" }
   ];
 

@@ -126,7 +126,7 @@ function normalizePlayerData() {
   player.learnedSkills = player.learnedSkills || {};
   player.completedAdventurerTraining = player.completedAdventurerTraining || [];
 
-  // V0.9.70 Position Combat Prototype：出生 / 舊存檔首載贈送蒼蠅翅膀 100 個，用於測試真正座標瞬移。
+  // V0.9.71 Position Combat Prototype：出生 / 舊存檔首載贈送蒼蠅翅膀 100 個，用於測試真正座標瞬移。
   if (!player.positionEngineStarterFlyWingGranted && typeof addInventoryItemCount === "function") {
     addInventoryItemCount(601, 100);
     player.positionEngineStarterFlyWingGranted = true;
@@ -1277,6 +1277,8 @@ function recalculatePlayerStats() {
       player.flee = derived.flee;
       player.cri = derived.cri;
       player.aspd = derived.aspd;
+      player.walkSpeed = derived.walkSpeed ?? (typeof RA_WALK_SPEED !== "undefined" ? RA_WALK_SPEED.DEFAULT : 150);
+      if (player.position && typeof getPlayerMovePixelsPerSecond === "function") player.position.moveSpeed = getPlayerMovePixelsPerSecond();
       player.maxHp = derived.maxHp;
       player.maxSp = derived.maxSp;
       if (player.hp > player.maxHp) player.hp = player.maxHp;
@@ -1309,6 +1311,8 @@ function recalculatePlayerStats() {
   if (player.sp > player.maxSp) player.sp = player.maxSp;
   player.atk = Math.max(1, atk);
   player.def = Math.max(0, def);
+  player.walkSpeed = typeof RA_WALK_SPEED !== "undefined" ? RA_WALK_SPEED.DEFAULT : 150;
+  if (player.position && typeof getPlayerMovePixelsPerSecond === "function") player.position.moveSpeed = getPlayerMovePixelsPerSecond();
 }
 
 //=======================================

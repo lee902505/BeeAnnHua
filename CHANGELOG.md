@@ -209,7 +209,7 @@ Auto UI Scale / Mobile Playable Mode 補強版。
 - 修正普攻傷害未即時吃到裝備 ATK：攻擊前重新計算衍生能力。
 - 修正初心者未點滿基本技能 Lv9 仍可轉 1 轉：轉職 NPC 與 changeJob 雙層檢查。
 
-## V0.9.70 - Position Combat Prototype
+## V0.9.71 - Position Combat Prototype
 
 - 新增 `js/position_engine.js`。
 - 新增玩家 / 怪物 x,y 座標。
@@ -220,4 +220,15 @@ Auto UI Scale / Mobile Playable Mode 補強版。
 - 蒼蠅翅膀可真正隨機瞬移。
 - 出生 / 舊存檔首載贈送蒼蠅翅膀 x100。
 - 自動戰鬥新增「找不到可鎖定怪物 1 秒 / 3 秒後自動瞬移」。
-- 新增 `docs/POSITION_COMBAT_PROTOTYPE_V0.9.70.md`。
+- 新增 `docs/POSITION_COMBAT_PROTOTYPE_V0.9.71.md`。
+
+
+## V0.9.71 - Movement Engine v0.1
+
+- 接入 RA WalkSpeed 規則：普通 150、最快 20、最慢 1000。
+- `walkSpeed` 成為玩家移動速度的統一來源，數值越小越快。
+- Position Engine 改用 `walkSpeed -> px/sec` 轉換，不再使用固定移動速度。
+- 裝備 / 卡片 / 技能 / Buff 預留 `walkSpeedFlat`、`walkSpeedRate`。
+- 能力面板新增「移動速度」顯示。
+- 新增 `data/movement_config.json`。
+- 新增 `docs/MOVEMENT_ENGINE_V0.9.71.md`。

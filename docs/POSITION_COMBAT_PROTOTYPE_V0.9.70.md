@@ -1,4 +1,4 @@
-# RO_WEB V0.9.70 Position Combat Prototype
+# RO_WEB V0.9.71 Position Combat Prototype
 
 本版是座標戰鬥試驗版，不推翻原有狩獵流程，先在目前 1280x720 平面地圖上加入最小可用的 Position Engine。
 

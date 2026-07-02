@@ -44,6 +44,6 @@ Skill Icon Remaster Trial：初心者與劍士一轉技能 ICON 試作版。
 - 3轉/4轉仍標記待確認，不硬寫死。
 
 
-## V0.9.70
+## V0.9.71
 
 新增 Position Combat Prototype：平面地圖座標、近戰/遠攻射程、怪物追擊、蒼蠅翅膀瞬移與自動找不到怪物瞬移設定。

@@ -4,8 +4,57 @@
 // 參考 RA mob_db 概念欄位：AttackRange / SkillRange / ChaseRange / WalkSpeed / Ai / Modes。
 //=======================================
 
-const POSITION_ENGINE_VERSION = "0.9.70";
+const POSITION_ENGINE_VERSION = "0.9.71";
 const FLY_WING_ITEM_ID = 601;
+
+//=======================================
+// Movement Engine v0.1
+// 參考 rAthena src/common/mmo.hpp：
+// DEFAULT_WALK_SPEED = 150, MIN_WALK_SPEED = 20, MAX_WALK_SPEED = 1000。
+// RA WalkSpeed 數值越小越快；RO_WEB 統一使用 walkSpeed 表示速度狀態，
+// 再轉換成畫面上的 px/sec。
+//=======================================
+const RA_WALK_SPEED = {
+  FASTEST: 20,
+  DEFAULT: 150,
+  SLOWEST: 1000
+};
+
+const ROWEB_MOVEMENT = {
+  defaultPixelsPerSecond: 115,
+  minPixelsPerSecond: 18,
+  maxPixelsPerSecond: 420
+};
+
+function clampRaWalkSpeed(value) {
+  const v = Number(value);
+  if (!Number.isFinite(v)) return RA_WALK_SPEED.DEFAULT;
+  return Math.max(RA_WALK_SPEED.FASTEST, Math.min(RA_WALK_SPEED.SLOWEST, Math.round(v)));
+}
+
+function raWalkSpeedToPixelsPerSecond(walkSpeed) {
+  const ws = clampRaWalkSpeed(walkSpeed);
+  const px = ROWEB_MOVEMENT.defaultPixelsPerSecond * (RA_WALK_SPEED.DEFAULT / ws);
+  return Math.max(ROWEB_MOVEMENT.minPixelsPerSecond, Math.min(ROWEB_MOVEMENT.maxPixelsPerSecond, px));
+}
+
+function getPlayerEffectiveWalkSpeed() {
+  // 不在這裡呼叫 recalculatePlayerStats，避免狀態計算與移動速度互相遞迴。
+  return clampRaWalkSpeed(player?.walkSpeed ?? RA_WALK_SPEED.DEFAULT);
+}
+
+function getPlayerMovePixelsPerSecond() {
+  return raWalkSpeedToPixelsPerSecond(getPlayerEffectiveWalkSpeed());
+}
+
+function getMonsterEffectiveWalkSpeed(monster = currentMonster) {
+  const raw = Number(monster?.WalkSpeed ?? monster?.walkSpeed ?? 400);
+  return clampRaWalkSpeed(raw);
+}
+
+function getMonsterMovePixelsPerSecond(monster = currentMonster) {
+  return raWalkSpeedToPixelsPerSecond(getMonsterEffectiveWalkSpeed(monster));
+}
 
 const POSITION_FIELD = {
   minX: 330,
@@ -42,7 +91,7 @@ function normalizePositionData() {
     y: clampPositionValue(player.position?.y ?? POSITION_FIELD.playerDefaultY, POSITION_FIELD.minY, POSITION_FIELD.maxY),
     targetX: player.position?.targetX ?? null,
     targetY: player.position?.targetY ?? null,
-    moveSpeed: Number(player.position?.moveSpeed || 115)
+    moveSpeed: getPlayerMovePixelsPerSecond()
   };
 
   if (!player.autoCombat) player.autoCombat = {};
@@ -110,7 +159,8 @@ function updatePositionMovement(dt) {
     return;
   }
 
-  const step = Math.max(1, Number(player.position.moveSpeed || 115) * dt);
+  player.position.moveSpeed = getPlayerMovePixelsPerSecond();
+  const step = Math.max(1, Number(player.position.moveSpeed || ROWEB_MOVEMENT.defaultPixelsPerSecond) * dt);
   const ratio = Math.min(1, step / dist);
   player.position.x += dx * ratio;
   player.position.y += dy * ratio;
@@ -176,9 +226,8 @@ function getMonsterChaseRangePx(monster = currentMonster) {
 }
 
 function getMonsterMoveSpeedPx(monster = currentMonster) {
-  const raw = Number(monster?.WalkSpeed ?? monster?.walkSpeed ?? 400);
-  // RA WalkSpeed 是每格移動間隔概念，數字越小越快；這裡轉成 RO_WEB 像素速度。
-  return Math.max(40, Math.min(180, Math.round(24000 / Math.max(120, raw))));
+  // RA WalkSpeed：數值越小越快；此函式保留舊名稱供其他模組呼叫。
+  return getMonsterMovePixelsPerSecond(monster);
 }
 
 function isInPlayerAttackRange(monster = currentMonster, range = null) {
