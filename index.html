@@ -4,8 +4,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>RO_WEB V0.9.69</title>
-  <link rel="stylesheet" href="css/style.css?v=0.9.69">
+  <title>RO_WEB V0.9.70</title>
+  <link rel="stylesheet" href="css/style.css?v=0.9.70">
 </head>
 
 <body>
@@ -221,6 +221,11 @@
             <button id="autoBattleStart" onclick="startAutoBattle()">開始戰鬥</button>
             <button id="autoBattleStop" onclick="stopAutoBattle()">停止戰鬥</button>
           </div>
+          <div class="auto-section-title">座標戰鬥 / 瞬移</div>
+          <label><input type="checkbox" id="autoCombatTeleportEnabled"> 找不到可鎖定怪物時自動使用蒼蠅翅膀</label>
+          <div>等待 <select id="autoCombatTeleportSeconds"><option value="1">1 秒</option><option value="3" selected>3 秒</option></select> 後瞬移</div>
+          <button type="button" onclick="useFlyWing()">手動使用蒼蠅翅膀</button>
+          <div class="auto-hint">出生 / 舊存檔首載贈送蒼蠅翅膀 x100。近戰需靠近，弓類可遠距攻擊。</div>
           <div class="auto-section-title">自動補給</div>
           <label><input type="checkbox" id="autoCombatHpPotionEnabled"> HP 藥水</label>
           <div>HP 低於 <input type="number" id="autoCombatHpPotionPercent" min="1" max="100" value="50"> %</div>
@@ -257,21 +262,22 @@
     </div>
   </div>
 
-  <script src="./js/data_bundle.js?v=0.9.69"></script>
-  <script src="./js/player.js?v=0.9.69"></script>
-  <script src="./js/job_constitution.js?v=0.9.69"></script>
-  <script src="./js/job.js?v=0.9.69"></script>
-  <script src="./js/skill_engine.js?v=0.9.69"></script>
-  <script src="./js/status_system.js?v=0.9.69"></script>
-  <script src="./js/stats.js?v=0.9.69"></script>
-  <script src="./js/loot.js?v=0.9.69"></script>
-  <script src="./js/auto_battle.js?v=0.9.69"></script>
-  <script src="./js/battle.js?v=0.9.69"></script>
-  <script src="./js/map.js?v=0.9.69"></script>
-  <script src="./js/town.js?v=0.9.69"></script>
-  <script src="./js/ui.js?v=0.9.69"></script>
-  <script src="./js/quick_slots.js?v=0.9.69"></script>
-  <script src="./js/game.js?v=0.9.69"></script>
+  <script src="./js/data_bundle.js?v=0.9.70"></script>
+  <script src="./js/player.js?v=0.9.70"></script>
+  <script src="./js/position_engine.js?v=0.9.70"></script>
+  <script src="./js/job_constitution.js?v=0.9.70"></script>
+  <script src="./js/job.js?v=0.9.70"></script>
+  <script src="./js/skill_engine.js?v=0.9.70"></script>
+  <script src="./js/status_system.js?v=0.9.70"></script>
+  <script src="./js/stats.js?v=0.9.70"></script>
+  <script src="./js/loot.js?v=0.9.70"></script>
+  <script src="./js/auto_battle.js?v=0.9.70"></script>
+  <script src="./js/battle.js?v=0.9.70"></script>
+  <script src="./js/map.js?v=0.9.70"></script>
+  <script src="./js/town.js?v=0.9.70"></script>
+  <script src="./js/ui.js?v=0.9.70"></script>
+  <script src="./js/quick_slots.js?v=0.9.70"></script>
+  <script src="./js/game.js?v=0.9.70"></script>
 </body>
 
 </html>

@@ -1,6 +1,6 @@
 {
   "name": "RO_WEB_Constitution",
-  "version": "draft-7-job-exp-cap-ra-db-re",
+  "version": "draft-8-position-combat-prototype",
   "purpose": "RO_WEB 專案開發憲法。任何 AI 或開發者在修改專案前必須先閱讀本檔案。",
   "must_read_before_any_update": true,
   "ai_update_protocol": {
@@ -307,6 +307,22 @@
       "priority": "critical",
       "read_before_coding": true,
       "rule": "RA jobmaster 內存在一般職業未轉生直接三轉相關入口/需求；RO_WEB 決定版明確不加入。一般職業必須完成轉生與進階二轉後，才可三轉。"
+    },
+    {
+      "id": "POSITION-001",
+      "category": "Position Engine",
+      "title": "座標戰鬥核心原則",
+      "priority": "high",
+      "read_before_coding": true,
+      "rule": "RO_WEB 可在 1280x720 平面背景上建立 Position Engine；玩家、怪物、技能、瞬移、掉落與 NPC 互動應逐步改由 x/y 座標與射程判定，不應在各技能或怪物程式中散落硬寫距離邏輯。"
+    },
+    {
+      "id": "POSITION-002",
+      "category": "Position Engine",
+      "title": "RA mob_db 行為欄位參照",
+      "priority": "high",
+      "read_before_coding": true,
+      "rule": "怪物移動/追擊/攻擊距離應優先參照 RA mob_db 概念欄位 AttackRange、SkillRange、ChaseRange、WalkSpeed、Ai、Modes；若 RO_WEB 有簡化換算，必須集中在 Position Engine 中。"
     }
   ]
 }

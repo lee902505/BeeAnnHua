@@ -208,3 +208,16 @@ Auto UI Scale / Mobile Playable Mode 補強版。
 - 修正出生 Lv1 初始素質點：固定 25 點。
 - 修正普攻傷害未即時吃到裝備 ATK：攻擊前重新計算衍生能力。
 - 修正初心者未點滿基本技能 Lv9 仍可轉 1 轉：轉職 NPC 與 changeJob 雙層檢查。
+
+## V0.9.70 - Position Combat Prototype
+
+- 新增 `js/position_engine.js`。
+- 新增玩家 / 怪物 x,y 座標。
+- 玩家可點擊地圖移動。
+- 近戰需靠近到射程內才會攻擊。
+- 弓類武器可用較遠距離普攻。
+- 怪物會依 AttackRange / ChaseRange / WalkSpeed 概念追擊玩家。
+- 蒼蠅翅膀可真正隨機瞬移。
+- 出生 / 舊存檔首載贈送蒼蠅翅膀 x100。
+- 自動戰鬥新增「找不到可鎖定怪物 1 秒 / 3 秒後自動瞬移」。
+- 新增 `docs/POSITION_COMBAT_PROTOTYPE_V0.9.70.md`。

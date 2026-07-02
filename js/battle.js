@@ -101,6 +101,7 @@ function startAutoBattle() {
   spawnMonsterFromCurrentMap();
 
   autoBattleTimer = setInterval(() => {
+    if (typeof maybeAutoTeleportWhenNoTarget === "function") maybeAutoTeleportWhenNoTarget();
     autoAttackMonster();
   }, AUTO_ATTACK_INTERVAL);
 }
@@ -153,6 +154,9 @@ function spawnMonsterFromCurrentMap() {
     currentHp: monsterData.maxHp || monsterData.hp
   };
 
+  if (typeof assignMonsterSpawnPosition === "function") assignMonsterSpawnPosition(currentMonster);
+  autoNoTargetSince = null;
+
   if (player) player.state = "Attacking";
   updateMonsterUI();
   addBattleLog("出現了 " + currentMonster.name + "！");
@@ -161,6 +165,13 @@ function spawnMonsterFromCurrentMap() {
 // 玩家自動攻擊怪物
 function autoAttackMonster() {
   if (!currentMonster) return;
+
+  if (typeof movePlayerTowardMonster === "function" && !isInPlayerAttackRange(currentMonster)) {
+    movePlayerTowardMonster(currentMonster);
+    updateMonsterUI();
+    return;
+  }
+
   if (!canPlayerAttackNow()) return;
 
   // v0.6：自動戰鬥 AI，順序為喝水 → 治癒 → Buff → 攻擊技能 → 普攻
@@ -174,6 +185,11 @@ function autoAttackMonster() {
   }
 
   if (autoAction && autoAction.action === "attackSkill") {
+    const skillRange = typeof getSkillRangePx === "function" ? getSkillRangePx(autoAction.skill) : null;
+    if (typeof isInPlayerAttackRange === "function" && !isInPlayerAttackRange(currentMonster, skillRange)) {
+      if (typeof movePlayerTowardMonster === "function") movePlayerTowardMonster(currentMonster, skillRange);
+      return;
+    }
     markPlayerAttackUsed();
     if (!playerHitsMonster()) {
       addBattleLog("你施放 " + autoAction.skill.name + "，但是 Miss！");
@@ -254,6 +270,13 @@ function calculatePlayerDamage() {
 function monsterAttackPlayer() {
   if (!currentMonster) return;
 
+  if (typeof getCurrentDistanceToMonster === "function" && typeof getMonsterAttackRangePx === "function") {
+    if (getCurrentDistanceToMonster(currentMonster) > getMonsterAttackRangePx(currentMonster)) {
+      currentMonster.aiState = "CHASE";
+      return;
+    }
+  }
+
   if (!monsterHitsPlayer(currentMonster)) {
     addBattleLog(currentMonster.name + " 攻擊你，但是 Miss！");
     updatePlayerUI();
@@ -328,6 +351,7 @@ function defeatMonster() {
 
   playMonsterDeathAnimation();
   currentMonster = null;
+  autoNoTargetSince = Date.now();
   if (player) player.state = "Searching";
 
   updatePlayerUI();

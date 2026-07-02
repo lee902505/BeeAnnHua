@@ -12,7 +12,7 @@ let items = {};
 let expTables = null;
 let currentMap = null;
 
-const RO_WEB_VERSION = "0.9.68";
+const RO_WEB_VERSION = "0.9.70";
 
 function normalizeDataPath(path) {
   return String(path || "")
@@ -72,6 +72,7 @@ async function initGame() {
   if (typeof migrateSkillStorageToOfficialIds === "function") migrateSkillStorageToOfficialIds();
 
   setInitialMap();
+  if (typeof initPositionEngine === "function") initPositionEngine();
   if (player?.currentCity && typeof getCityData === "function" && typeof updateTownBackground === "function") {
     updateTownBackground(getCityData(player.currentCity));
   } else if (typeof updateBattleBackground === "function") {
@@ -92,7 +93,7 @@ async function initGame() {
   if (typeof updateAutoCombatUI === "function") updateAutoCombatUI();
 
   addBattleLog("玩家資料載入完成！");
-  addBattleLog("歡迎來到 RO_WEB Alpha 0.9.68！");
+  addBattleLog("歡迎來到 RO_WEB Alpha 0.9.70！");
 }
 
 async function loadMonsterData() {

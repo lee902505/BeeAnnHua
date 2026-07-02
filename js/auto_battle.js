@@ -9,7 +9,8 @@ function createDefaultAutoCombat() {
     spPotion: { enabled: false, spPercent: 30, itemId: null },
     heal: { enabled: false, skillId: null, hpPercent: 60, spPercent: 20, level: 1 },
     attack: { enabled: true, skillId: null, spPercent: 50, level: 1 },
-    buffs: {}
+    buffs: {},
+    teleport: { enabled: false, noTargetSeconds: 3 }
   };
 }
 
@@ -25,6 +26,7 @@ function normalizeAutoCombatSettings() {
   player.autoCombat.heal = { ...defaults.heal, ...(player.autoCombat.heal || {}) };
   player.autoCombat.attack = { ...defaults.attack, ...(player.autoCombat.attack || {}) };
   player.autoCombat.buffs = { ...(player.autoCombat.buffs || {}) };
+  player.autoCombat.teleport = { ...defaults.teleport, ...(player.autoCombat.teleport || {}) };
 
   // 兼容 v0.5 autoPotion
   if (player.autoPotion) {
@@ -120,6 +122,8 @@ function syncAutoCombatSettingsFromUI(options = {}) {
   const attackSkill = document.getElementById("autoCombatAttackSkill");
   const attackLevel = document.getElementById("autoCombatAttackLevel");
   const attackSpPercent = document.getElementById("autoCombatAttackSpPercent");
+  const teleportEnabled = document.getElementById("autoCombatTeleportEnabled");
+  const teleportSeconds = document.getElementById("autoCombatTeleportSeconds");
 
   if (hpEnabled) player.autoCombat.hpPotion.enabled = hpEnabled.checked;
   if (hpPercent) player.autoCombat.hpPotion.hpPercent = Number(hpPercent.value) || 50;
@@ -139,6 +143,8 @@ function syncAutoCombatSettingsFromUI(options = {}) {
   if (attackSkill) player.autoCombat.attack.skillId = attackSkill.value || null;
   if (attackLevel) player.autoCombat.attack.level = Number(attackLevel.value) || 1;
   if (attackSpPercent) player.autoCombat.attack.spPercent = Number(attackSpPercent.value) || 50;
+  if (teleportEnabled) player.autoCombat.teleport.enabled = teleportEnabled.checked;
+  if (teleportSeconds) player.autoCombat.teleport.noTargetSeconds = Number(teleportSeconds.value) || 3;
 
   document.querySelectorAll("[data-auto-buff-skill]").forEach(input => {
     player.autoCombat.buffs[input.dataset.autoBuffSkill] = input.checked;
@@ -200,6 +206,10 @@ function updateAutoCombatUI() {
   if (hpPercent) hpPercent.value = cfg.hpPotion.hpPercent;
   if (spEnabled) spEnabled.checked = !!cfg.spPotion.enabled;
   if (spPercent) spPercent.value = cfg.spPotion.spPercent;
+  const teleportEnabled = document.getElementById("autoCombatTeleportEnabled");
+  const teleportSeconds = document.getElementById("autoCombatTeleportSeconds");
+  if (teleportEnabled) teleportEnabled.checked = !!cfg.teleport?.enabled;
+  if (teleportSeconds) teleportSeconds.value = Number(cfg.teleport?.noTargetSeconds || 3);
   updatePotionSelectOptions(hpItem, "hp", cfg.hpPotion.itemId);
   updatePotionSelectOptions(spItem, "sp", cfg.spPotion.itemId);
 

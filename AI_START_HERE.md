@@ -120,3 +120,10 @@ RO_WEB_CONSTITUTION.json
 - 除上述 RO_WEB 排除/覆寫規則外，Base / Job 上限與 EXP 表依專案入口 RA DB_re `db/re/job_exp.yml`。
 - 四轉與擴充四轉：Base 上限 275，Job 上限 60。
 - 修改 Job/EXP 系統時，必讀 `data/job_constitution.json` 與 `docs/RA_JOB_EXP_CAP_AUDIT_V0.9.69.md`。
+
+
+## V0.9.70 Position Combat Prototype 注意事項
+
+- 修改戰鬥、移動、射程、蒼蠅翅膀、怪物追擊前，必須先查看 `js/position_engine.js`。
+- 怪物行為欄位參照 RA mob_db：AttackRange / SkillRange / ChaseRange / WalkSpeed / Ai / Modes。
+- 不要把距離判定散落在技能或怪物資料外的臨時 if；應集中到 Position Engine。

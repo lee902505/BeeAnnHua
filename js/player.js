@@ -126,6 +126,14 @@ function normalizePlayerData() {
   player.learnedSkills = player.learnedSkills || {};
   player.completedAdventurerTraining = player.completedAdventurerTraining || [];
 
+  // V0.9.70 Position Combat Prototype：出生 / 舊存檔首載贈送蒼蠅翅膀 100 個，用於測試真正座標瞬移。
+  if (!player.positionEngineStarterFlyWingGranted && typeof addInventoryItemCount === "function") {
+    addInventoryItemCount(601, 100);
+    player.positionEngineStarterFlyWingGranted = true;
+  }
+
+  if (typeof normalizePositionData === "function") normalizePositionData();
+
   // 自動補給設定，避免舊存檔沒有這個欄位造成錯誤
   // 同時相容早期的 player.autoBattle 設定名稱
   player.autoPotion = {
@@ -1408,6 +1416,12 @@ function consumeItem(itemData) {
 
   if (!inventoryItem || inventoryItem.count <= 0) {
     addBattleLog("背包裡沒有 " + itemData.name + "。");
+    return;
+  }
+
+  // 蒼蠅翅膀：交給 Position Engine 做真正座標瞬移與扣道具。
+  if (String(itemData.id) === "601" && typeof useFlyWing === "function") {
+    useFlyWing();
     return;
   }
 

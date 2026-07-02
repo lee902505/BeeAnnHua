@@ -35,6 +35,10 @@
     {
       "id": 501,
       "count": 30
+    },
+    {
+      "id": 601,
+      "count": 100
     }
   ],
   "autoBattle": {
@@ -75,5 +79,19 @@
   },
   "usedStatusPoints": 0,
   "statusPointBaseOffset": 23,
-  "statusPoints": 25
+  "statusPoints": 25,
+  "position": {
+    "x": 470,
+    "y": 338,
+    "targetX": null,
+    "targetY": null,
+    "moveSpeed": 115
+  },
+  "autoCombat": {
+    "teleport": {
+      "enabled": false,
+      "noTargetSeconds": 3
+    }
+  },
+  "positionEngineStarterFlyWingGranted": true
 }

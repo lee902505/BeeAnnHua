@@ -34,6 +34,15 @@
         "qtyMin": 1,
         "qtyMax": 1
       }
+    ],
+    "AttackRange": 1,
+    "SkillRange": 10,
+    "ChaseRange": 12,
+    "WalkSpeed": 400,
+    "Ai": "02",
+    "Modes": [
+      "CanMove",
+      "CanAttack"
     ]
   },
   {
@@ -65,6 +74,15 @@
         "qtyMin": 1,
         "qtyMax": 1
       }
+    ],
+    "AttackRange": 1,
+    "SkillRange": 10,
+    "ChaseRange": 12,
+    "WalkSpeed": 350,
+    "Ai": "02",
+    "Modes": [
+      "CanMove",
+      "CanAttack"
     ]
   },
   {
@@ -96,6 +114,15 @@
         "qtyMin": 1,
         "qtyMax": 1
       }
+    ],
+    "AttackRange": 1,
+    "SkillRange": 10,
+    "ChaseRange": 12,
+    "WalkSpeed": 450,
+    "Ai": "02",
+    "Modes": [
+      "CanMove",
+      "CanAttack"
     ]
   },
   {
@@ -127,6 +154,15 @@
         "qtyMin": 1,
         "qtyMax": 1
       }
+    ],
+    "AttackRange": 1,
+    "SkillRange": 10,
+    "ChaseRange": 12,
+    "WalkSpeed": 400,
+    "Ai": "02",
+    "Modes": [
+      "CanMove",
+      "CanAttack"
     ]
   },
   {
@@ -158,6 +194,15 @@
         "qtyMin": 1,
         "qtyMax": 1
       }
+    ],
+    "AttackRange": 1,
+    "SkillRange": 10,
+    "ChaseRange": 12,
+    "WalkSpeed": 400,
+    "Ai": "02",
+    "Modes": [
+      "CanMove",
+      "CanAttack"
     ]
   },
   {
@@ -189,6 +234,15 @@
         "qtyMin": 1,
         "qtyMax": 1
       }
+    ],
+    "AttackRange": 1,
+    "SkillRange": 10,
+    "ChaseRange": 12,
+    "WalkSpeed": 400,
+    "Ai": "02",
+    "Modes": [
+      "CanMove",
+      "CanAttack"
     ]
   },
   {
@@ -220,6 +274,15 @@
         "qtyMin": 1,
         "qtyMax": 1
       }
+    ],
+    "AttackRange": 1,
+    "SkillRange": 10,
+    "ChaseRange": 12,
+    "WalkSpeed": 400,
+    "Ai": "02",
+    "Modes": [
+      "CanMove",
+      "CanAttack"
     ]
   },
   {
@@ -251,6 +314,15 @@
         "qtyMin": 1,
         "qtyMax": 1
       }
+    ],
+    "AttackRange": 1,
+    "SkillRange": 10,
+    "ChaseRange": 12,
+    "WalkSpeed": 400,
+    "Ai": "02",
+    "Modes": [
+      "CanMove",
+      "CanAttack"
     ]
   },
   {
@@ -282,6 +354,15 @@
         "qtyMin": 1,
         "qtyMax": 1
       }
+    ],
+    "AttackRange": 1,
+    "SkillRange": 10,
+    "ChaseRange": 12,
+    "WalkSpeed": 400,
+    "Ai": "02",
+    "Modes": [
+      "CanMove",
+      "CanAttack"
     ]
   },
   {
@@ -313,6 +394,15 @@
         "qtyMin": 1,
         "qtyMax": 1
       }
+    ],
+    "AttackRange": 1,
+    "SkillRange": 10,
+    "ChaseRange": 12,
+    "WalkSpeed": 400,
+    "Ai": "02",
+    "Modes": [
+      "CanMove",
+      "CanAttack"
     ]
   }
 ]
