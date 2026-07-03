@@ -4,7 +4,7 @@
 // 參考 RA mob_db 概念欄位：AttackRange / SkillRange / ChaseRange / WalkSpeed / Ai / Modes。
 //=======================================
 
-const POSITION_ENGINE_VERSION = "0.9.72c";
+const POSITION_ENGINE_VERSION = "0.9.72d";
 const FLY_WING_ITEM_ID = 601;
 
 //=======================================
@@ -72,18 +72,15 @@ const POSITION_FIELD = {
 // V0.9.72b：手機直式版改採動態可行走區。
 // 桌機仍保留原本 1280x720 的穩定手感；手機則依實際 battle-field 尺寸、
 // 底部戰鬥紀錄/快捷欄與右側按鈕區計算邊界，避免角色跑出框外或躲到 UI 後面。
-const POSITION_MOBILE_SAFE = {
-  // V0.9.72c：手機直式改以實際可玩紅框範圍為主，不再只保留底部窄區。
-  left: 58,
-  topPortrait: 238,
-  topLandscape: 92,
-  rightPortrait: 28,
-  rightLandscape: 24,
-  bottom: 126,
-  spriteW: 92,
-  spriteH: 142,
-  monsterW: 96,
-  monsterH: 120
+const POSITION_SAFE = {
+  // V0.9.72d：PC / Mobile 共用動態可走區。
+  // 目標：盡量使用整張戰鬥畫面，只避開左上人物欄與下方對話欄/快捷欄。
+  left: 10,
+  right: 10,
+  topGap: 8,
+  bottomGap: 14,
+  playerW: 62,
+  monsterW: 70
 };
 
 function getBattleFieldElement() {
@@ -132,50 +129,42 @@ function getUiBottomInField(elementId) {
 }
 
 function getDynamicPositionBounds(kind = "player") {
-  if (!isMobileBattleLayout()) {
-    return { ...POSITION_FIELD };
-  }
-
   const { width, height } = getFieldLogicalSize();
-  const portrait = isPortraitBattleLayout();
-  const spriteW = kind === "monster" ? POSITION_MOBILE_SAFE.monsterW : POSITION_MOBILE_SAFE.spriteW;
-  const spriteH = kind === "monster" ? POSITION_MOBILE_SAFE.monsterH : POSITION_MOBILE_SAFE.spriteH;
+  const spriteW = kind === "monster" ? POSITION_SAFE.monsterW : POSITION_SAFE.playerW;
 
+  // 上界只避開左上角色資訊欄；等待怪物的「?」或怪物座標不參與邊界計算。
+  const playerInfoBottom = getUiBottomInField("player-info");
+  const minY = Math.max(
+    40,
+    Number.isFinite(playerInfoBottom) ? playerInfoBottom + POSITION_SAFE.topGap : POSITION_FIELD.minY
+  );
+
+  // 下界以戰鬥紀錄上緣為主，沒有戰鬥紀錄時才用快捷欄。
+  // 這讓 PC 與手機都能使用更大的戰鬥區，而不是被舊版 500px 固定值限制。
   const logTop = getUiTopInField("battle-log");
   const quickTop = getUiTopInField("quick-slot-bar");
-  const firstBottomUiTop = [logTop, quickTop].filter(v => Number.isFinite(v) && v > 0).sort((a, b) => a - b)[0];
+  const bottomUiTop = [logTop, quickTop]
+    .filter(v => Number.isFinite(v) && v > 0)
+    .sort((a, b) => a - b)[0];
+  const maxY = Math.max(
+    minY,
+    Number.isFinite(bottomUiTop)
+      ? bottomUiTop - POSITION_SAFE.bottomGap
+      : height - 78
+  );
 
-  const minX = POSITION_MOBILE_SAFE.left;
-
-  // 手機直式：可玩範圍以上方 UI 底線 + 安全距離，以及玩家實測紅框為準。
-  // 角色座標代表 sprite 左上/錨點，不能讓它躲進左上角色卡、金幣列或右上按鈕下方。
-  const topUiBottom = [
-    getUiBottomInField("player-info"),
-    getUiBottomInField("top-bar"),
-    getUiBottomInField("quick-buttons")
-  ].filter(v => Number.isFinite(v) && v > 0).sort((a, b) => b - a)[0];
-  const baseMinY = portrait ? POSITION_MOBILE_SAFE.topPortrait : POSITION_MOBILE_SAFE.topLandscape;
-  const minY = Math.max(baseMinY, Number.isFinite(topUiBottom) ? topUiBottom + 18 : baseMinY);
-
-  const rightSafe = portrait ? POSITION_MOBILE_SAFE.rightPortrait : POSITION_MOBILE_SAFE.rightLandscape;
-  const maxX = Math.max(minX, width - rightSafe - spriteW);
-
-  // V0.9.72c：底部以戰鬥紀錄/快捷欄上緣為界，但只留最小安全距離，
-  // 讓手機直式能使用接近紅框的大範圍，而不是被壓縮在 500 多的座標。
-  const uiLimitedMaxY = Number.isFinite(firstBottomUiTop)
-    ? firstBottomUiTop - 22
-    : height - POSITION_MOBILE_SAFE.bottom;
-  const maxY = Math.max(minY, Math.min(height - 64, uiLimitedMaxY));
+  const minX = POSITION_SAFE.left;
+  const maxX = Math.max(minX, width - POSITION_SAFE.right - spriteW);
 
   return {
     minX,
     maxX,
     minY,
     maxY,
-    playerDefaultX: clampPositionValue(width * 0.55, minX, maxX),
-    playerDefaultY: clampPositionValue(height * 0.34, minY, maxY),
-    monsterDefaultX: clampPositionValue(width * 0.78, minX, maxX),
-    monsterDefaultY: clampPositionValue(height * 0.30, minY, maxY)
+    playerDefaultX: clampPositionValue(width * 0.48, minX, maxX),
+    playerDefaultY: clampPositionValue((minY + maxY) * 0.48, minY, maxY),
+    monsterDefaultX: clampPositionValue(width * 0.70, minX, maxX),
+    monsterDefaultY: clampPositionValue((minY + maxY) * 0.42, minY, maxY)
   };
 }
 

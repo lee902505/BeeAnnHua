@@ -11211,3 +11211,125 @@ button#equipment-close-btn.window-close {
     z-index: 3 !important;
   }
 }
+
+
+/* =========================================================
+   RO_WEB V0.9.72d Mobile / Position Final Tuning
+   - 商店手機版：商品清單、物品說明、購買區不互相覆蓋
+   - 背包手機版：格子區置中，修正只在手機偏左
+   - Position：PC/手機可走區放大由 JS 動態控制
+   - 貨幣提示：由 JS 控制 3 秒自動消失
+   ========================================================= */
+@media (max-width: 900px) {
+  #inventory-window {
+    width: min(92vw, 360px) !important;
+    max-width: calc(100vw - 18px) !important;
+  }
+  #inventory-window .inventory-body {
+    width: 100% !important;
+    height: 300px !important;
+    padding: 8px 10px !important;
+  }
+  #inventory-window .inventory-tabs {
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    width: 276px !important;
+  }
+  #inventory-window #inventory-panel {
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    width: 276px !important;
+  }
+  #inventory-window .inventory-grid-wrapper {
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    width: 276px !important;
+  }
+  #inventory-window #inventory-list,
+  #inventory-window #inventory-list.inventory-slot-grid {
+    padding: 0 !important;
+    justify-content: center !important;
+  }
+
+  #shop-window {
+    width: min(94vw, 620px) !important;
+    max-width: calc(100vw - 14px) !important;
+    height: min(88dvh, 720px) !important;
+    max-height: calc(100dvh - 22px) !important;
+  }
+  #shop-window .shop-window-body {
+    height: calc(100% - 38px) !important;
+    max-height: none !important;
+    overflow: hidden !important;
+    padding: 8px 10px 10px !important;
+  }
+  #shop-window .shop-panel {
+    height: 100% !important;
+    min-height: 0 !important;
+  }
+  #shop-window .shop-layout {
+    height: 100% !important;
+    min-height: 0 !important;
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    grid-template-rows: minmax(150px, 38%) minmax(230px, 1fr) !important;
+    gap: 8px !important;
+  }
+  #shop-window .shop-list {
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    overscroll-behavior: contain !important;
+    padding-right: 6px !important;
+  }
+  #shop-window .shop-detail-panel {
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    overscroll-behavior: contain !important;
+    padding: 8px 10px 10px !important;
+  }
+  #shop-window .shop-detail-card {
+    min-height: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 7px !important;
+  }
+  #shop-window .shop-detail-desc {
+    max-height: 118px !important;
+    min-height: 74px !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+  #shop-window .shop-qty-row {
+    grid-template-columns: 38px 32px 1fr 32px 38px !important;
+    gap: 4px !important;
+  }
+  #shop-window .shop-action-row {
+    position: static !important;
+    bottom: auto !important;
+    background: transparent !important;
+    padding-top: 3px !important;
+    margin-top: 2px !important;
+    grid-template-columns: 1fr 88px !important;
+  }
+}
+
+@media (orientation: portrait) and (max-width: 480px) {
+  #shop-window {
+    height: min(86dvh, 690px) !important;
+  }
+  #shop-window .shop-layout {
+    grid-template-rows: minmax(132px, 34%) minmax(245px, 1fr) !important;
+  }
+  #shop-window .shop-item-row.shop-item-button {
+    min-height: 48px !important;
+  }
+  #shop-window .shop-detail-desc {
+    max-height: 96px !important;
+  }
+}

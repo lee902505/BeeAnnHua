@@ -1,7 +1,7 @@
 //=======================================
 // UI Skeleton v0.1：視窗開關 / 拖曳 / 位置記憶
 //=======================================
-const UI_POS_KEY = "ro_web_ui_positions_v0_9_72c";
+const UI_POS_KEY = "ro_web_ui_positions_v0_9_72d";
 let topZIndex = 40;
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -302,7 +302,8 @@ function initGameTooltips() {
 }
 
 
-// V0.9.72c：手機金幣列空間不足時，點擊資源列顯示完整數量。
+// V0.9.72d：手機金幣列空間不足時，點擊資源列顯示完整數量，3 秒後自動熄滅。
+let currencyDetailHideTimer = null;
 function initCurrencyDetailPopup() {
   const topBar = document.getElementById("top-bar");
   if (!topBar || topBar.dataset.currencyDetailBound === "1") return;
@@ -315,12 +316,20 @@ function initCurrencyDetailPopup() {
     const z = Number(player?.zeny || 0).toLocaleString("zh-TW");
     const b = Number(player?.blueGem || 0).toLocaleString("zh-TW");
     const r = Number(player?.redGem || 0).toLocaleString("zh-TW");
-    const text = `Zeny：${z}<br>藍寶石：${b}<br>紅寶石：${r}`;
+    const text = `Zeny：${z}
+藍寶石：${b}
+紅寶石：${r}`;
     if (typeof showGameTooltip === "function") {
       const point = event?.touches?.[0] || event;
       showGameTooltip(text, point?.clientX || window.innerWidth - 180, point?.clientY || 48);
+      clearTimeout(currencyDetailHideTimer);
+      currencyDetailHideTimer = setTimeout(() => {
+        if (typeof hideGameTooltip === "function") hideGameTooltip();
+      }, 3000);
     } else {
-      alert(`Zeny：${z}\n藍寶石：${b}\n紅寶石：${r}`);
+      alert(`Zeny：${z}
+藍寶石：${b}
+紅寶石：${r}`);
     }
   };
 
