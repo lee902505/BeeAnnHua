@@ -1,7 +1,7 @@
 //=======================================
 // UI Skeleton v0.1：視窗開關 / 拖曳 / 位置記憶
 //=======================================
-const UI_POS_KEY = "ro_web_ui_positions_v0_9_64b";
+const UI_POS_KEY = "ro_web_ui_positions_v0_9_72a";
 let topZIndex = 40;
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -10,6 +10,18 @@ document.addEventListener("DOMContentLoaded", () => {
   initCloseButtons();
   initGameTooltips();
 });
+
+window.addEventListener("resize", () => {
+  if (!isMobileViewport()) return;
+  document.querySelectorAll(".draggable-window:not(.hidden-window)").forEach(centerWindowForMobile);
+});
+window.addEventListener("orientationchange", () => {
+  setTimeout(() => {
+    if (!isMobileViewport()) return;
+    document.querySelectorAll(".draggable-window:not(.hidden-window)").forEach(centerWindowForMobile);
+  }, 250);
+});
+
 
 function initToggleButtons() {
   document.querySelectorAll(".ui-toggle").forEach(button => {
@@ -39,11 +51,31 @@ function initCloseButtons() {
   });
 }
 
+function isMobileViewport() {
+  return window.matchMedia?.("(max-width: 900px)")?.matches || window.innerWidth <= 900;
+}
+
+function centerWindowForMobile(win) {
+  if (!win || !isMobileViewport()) return;
+  const root = document.getElementById("battle-field");
+  const rootWidth = root?.clientWidth || window.innerWidth;
+  const rootHeight = root?.clientHeight || window.innerHeight;
+  const width = Math.min(win.offsetWidth || 360, rootWidth - 16);
+  const height = Math.min(win.offsetHeight || 420, rootHeight - 16);
+  const x = Math.max(8, Math.round((rootWidth - width) / 2));
+  const y = Math.max(8, Math.round((rootHeight - height) / 2));
+  win.style.setProperty("left", `${x}px`, "important");
+  win.style.setProperty("top", `${y}px`, "important");
+  win.style.setProperty("right", "auto", "important");
+  win.style.setProperty("transform", "none", "important");
+}
+
 function toggleWindow(id) {
   if (typeof hideGameTooltip === "function") hideGameTooltip();
   const win = document.getElementById(id);
   if (!win) return;
   win.classList.toggle("hidden-window");
+  if (!win.classList.contains("hidden-window")) centerWindowForMobile(win);
   bringWindowToFront(win);
 }
 
@@ -55,6 +87,7 @@ function initDraggableWindows() {
     const pos = saved[win.id] || { x: defaultX, y: defaultY };
     win.style.left = `${pos.x}px`;
     win.style.top = `${pos.y}px`;
+    if (isMobileViewport()) centerWindowForMobile(win);
     if (win.id === "basic-skill-info-window") {
       win.style.setProperty("--basic-info-left", `${pos.x}px`);
       win.style.setProperty("--basic-info-top", `${pos.y}px`);

@@ -4,7 +4,7 @@
 // 參考 RA mob_db 概念欄位：AttackRange / SkillRange / ChaseRange / WalkSpeed / Ai / Modes。
 //=======================================
 
-const POSITION_ENGINE_VERSION = "0.9.72";
+const POSITION_ENGINE_VERSION = "0.9.72a";
 const FLY_WING_ITEM_ID = 601;
 
 //=======================================
@@ -69,7 +69,7 @@ const POSITION_FIELD = {
   spriteAnchorOffsetY: 0
 };
 
-// V0.9.72：正式採用 RO Cell 概念作為射程單位。
+// V0.9.72a：正式採用 RO Cell 概念作為射程單位。
 // 目前 1 Cell 先換算為 36px，之後可依畫面手感集中調整，不散落於戰鬥公式。
 const POSITION_CELL_SIZE_PX = 36;
 
@@ -139,19 +139,26 @@ function isPointerOnBlockedUi(target) {
   return Boolean(target?.closest?.("button, input, select, textarea, .game-window, .fixed-panel, #quick-buttons, #top-bar, #quick-slot-bar"));
 }
 
+function getEventClientPoint(event) {
+  const touch = event.touches?.[0] || event.changedTouches?.[0];
+  const clientX = event.clientX ?? touch?.clientX;
+  const clientY = event.clientY ?? touch?.clientY;
+  if (!Number.isFinite(clientX) || !Number.isFinite(clientY)) return null;
+  return { clientX, clientY };
+}
+
 function getBattleFieldLocalPosition(event, field) {
   const rect = field.getBoundingClientRect();
-  const clientX = event.clientX ?? event.touches?.[0]?.clientX;
-  const clientY = event.clientY ?? event.touches?.[0]?.clientY;
-  if (!Number.isFinite(clientX) || !Number.isFinite(clientY)) return null;
+  const point = getEventClientPoint(event);
+  if (!point || rect.width <= 0 || rect.height <= 0) return null;
 
-  // rect 是縮放後尺寸；offsetWidth/offsetHeight 是邏輯尺寸。反推可取得 1280x720 座標系。
-  const scaleX = field.offsetWidth ? rect.width / field.offsetWidth : 1;
-  const scaleY = field.offsetHeight ? rect.height / field.offsetHeight : 1;
-  return {
-    x: (clientX - rect.left) / Math.max(0.0001, scaleX),
-    y: (clientY - rect.top) / Math.max(0.0001, scaleY)
-  };
+  // rect 是實際畫面尺寸；offsetWidth/offsetHeight 是邏輯尺寸。
+  // iPhone Safari 上若 CSS zoom / viewport 造成 offset 異常，退回 1280x720 內部座標。
+  const logicalWidth = field.offsetWidth || 1280;
+  const logicalHeight = field.offsetHeight || 720;
+  const x = ((point.clientX - rect.left) / rect.width) * logicalWidth;
+  const y = ((point.clientY - rect.top) / rect.height) * logicalHeight;
+  return { x, y };
 }
 
 function bindBattleFieldMovement() {
@@ -159,25 +166,29 @@ function bindBattleFieldMovement() {
   if (!field || field.dataset.positionBound === "1") return;
   field.dataset.positionBound = "1";
 
+  let lastTouchMoveRequestAt = 0;
   const handlePointerMoveRequest = event => {
     if (isPointerOnBlockedUi(event.target)) return;
     if (!player || player.currentCity) return;
 
+    // iPhone Safari 可能同時派發 touchstart + synthetic click，避免重複下達移動指令。
+    const now = Date.now();
+    if (event.type === "click" && now - lastTouchMoveRequestAt < 450) return;
+    if (event.type === "touchstart") lastTouchMoveRequestAt = now;
+
     const pos = getBattleFieldLocalPosition(event, field);
     if (!pos) return;
 
-    // Pointer Events 同時支援滑鼠、手機、平板。避免手機瀏覽器把點擊轉成捲動或延遲 click。
     if (event.cancelable) event.preventDefault();
+    event.stopPropagation?.();
     setPlayerMoveTarget(pos.x, pos.y);
     addBattleLog(`移動到座標 (${Math.round(player.position.targetX)}, ${Math.round(player.position.targetY)})。`);
   };
 
-  if (window.PointerEvent) {
-    field.addEventListener("pointerdown", handlePointerMoveRequest, { passive: false });
-  } else {
-    field.addEventListener("click", handlePointerMoveRequest, { passive: false });
-    field.addEventListener("touchstart", handlePointerMoveRequest, { passive: false });
-  }
+  // V0.9.72a：iPhone Safari 修正。即使支援 PointerEvent，也額外綁 touchstart 作保險。
+  field.addEventListener("pointerdown", handlePointerMoveRequest, { passive: false, capture: true });
+  field.addEventListener("touchstart", handlePointerMoveRequest, { passive: false, capture: true });
+  field.addEventListener("click", handlePointerMoveRequest, { passive: false, capture: true });
 }
 
 function setPlayerMoveTarget(x, y) {
@@ -401,15 +412,17 @@ function renderPositionSprites() {
   if (player?.position) {
     const playerEl = document.getElementById("player-sprite");
     if (playerEl) {
-      playerEl.style.left = `${Math.round(player.position.x)}px`;
-      playerEl.style.top = `${Math.round(player.position.y)}px`;
+      // V0.9.72a：手機 CSS 曾用 !important 固定角色位置，會蓋掉 JS 座標。
+      // 這裡用 inline important，確保 PC / iPhone 都由 Position Engine 控制。
+      playerEl.style.setProperty("left", `${Math.round(player.position.x)}px`, "important");
+      playerEl.style.setProperty("top", `${Math.round(player.position.y)}px`, "important");
     }
   }
 
   const monsterEl = document.getElementById("monster-sprite");
   if (monsterEl && currentMonster?.position) {
-    monsterEl.style.left = `${Math.round(currentMonster.position.x)}px`;
-    monsterEl.style.top = `${Math.round(currentMonster.position.y)}px`;
+    monsterEl.style.setProperty("left", `${Math.round(currentMonster.position.x)}px`, "important");
+    monsterEl.style.setProperty("top", `${Math.round(currentMonster.position.y)}px`, "important");
     monsterEl.dataset.aiState = currentMonster.aiState || "IDLE";
   }
 }

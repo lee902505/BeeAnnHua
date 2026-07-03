@@ -10938,3 +10938,196 @@ button#equipment-close-btn.window-close {
 .monster-sprite[data-ai-state="CHASE"] .sprite-label::after { content:" 追擊"; color:#ffcf7a; font-size:11px; }
 .auto-hint { margin:4px 0 8px; font-size:12px; color:#d8bf87; line-height:1.35; opacity:.9; }
 #autoCombatTeleportSeconds { min-width:70px; }
+
+
+/* =========================================================
+   RO_WEB V0.9.72a Mobile Fix
+   - iPhone Safari 觸控移動 / Position Engine 優先權
+   - 手機資源列、Job 等級、彈窗置中
+   ========================================================= */
+#battle-field {
+  touch-action: none !important;
+  -webkit-user-select: none !important;
+  user-select: none !important;
+  -webkit-tap-highlight-color: transparent !important;
+}
+#player-sprite,
+#monster-sprite,
+.battle-sprite {
+  pointer-events: none !important;
+}
+#top-bar,
+#quick-buttons,
+.game-window,
+.fixed-panel,
+.chat-panel,
+.quick-slot-bar,
+.dev-buttons {
+  pointer-events: auto !important;
+}
+
+@media (max-width: 900px) {
+  body { overscroll-behavior: none !important; }
+  #game-root {
+    align-items: start !important;
+    justify-items: center !important;
+    padding-top: env(safe-area-inset-top) !important;
+    padding-bottom: env(safe-area-inset-bottom) !important;
+  }
+  #battle-field {
+    width: 100vw !important;
+    max-width: 1280px !important;
+    height: 100vh !important;
+    max-height: 720px !important;
+    touch-action: none !important;
+  }
+
+  /* 上方金幣列：避開左上角色卡，避免蓋到金幣 icon */
+  #top-bar {
+    left: auto !important;
+    right: 8px !important;
+    top: 8px !important;
+    width: min(292px, calc(100vw - 158px)) !important;
+    min-width: 0 !important;
+    height: 34px !important;
+    padding: 3px 5px !important;
+    gap: 4px !important;
+    transform: none !important;
+    transform-origin: top right !important;
+    z-index: 30 !important;
+  }
+  #top-bar .currency-item {
+    flex: 1 1 0 !important;
+    min-width: 0 !important;
+    height: 26px !important;
+    padding: 1px 5px 1px 2px !important;
+    gap: 3px !important;
+    font-size: 12px !important;
+    overflow: hidden !important;
+  }
+  #top-bar .currency-item img {
+    width: 20px !important;
+    height: 20px !important;
+    flex: 0 0 20px !important;
+  }
+  #top-bar .currency-item span {
+    min-width: 0 !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+  }
+
+  /* 左上角色卡：Job Lv 改成可見，避免被窄寬裁掉 */
+  #player-info.character-card {
+    left: 6px !important;
+    top: 8px !important;
+    width: 150px !important;
+    height: 166px !important;
+    padding: 7px 7px !important;
+    overflow: hidden !important;
+    z-index: 28 !important;
+  }
+  #player-info.character-card h2 {
+    height: 16px !important;
+    line-height: 16px !important;
+    font-size: 12px !important;
+    margin-bottom: 4px !important;
+  }
+  #player-info.character-card .portrait-placeholder {
+    left: 5px !important;
+    top: 4px !important;
+    width: 62px !important;
+    height: 86px !important;
+  }
+  #player-info.character-card .profile-row > div:last-child {
+    left: 72px !important;
+    width: 68px !important;
+  }
+  #player-info.character-card .name-line {
+    width: 66px !important;
+    height: 18px !important;
+    line-height: 18px !important;
+    font-size: 13px !important;
+  }
+  #player-info.character-card .level-line {
+    top: 20px !important;
+    width: 66px !important;
+    height: 30px !important;
+    line-height: 14px !important;
+    font-size: 10px !important;
+    white-space: normal !important;
+    overflow: visible !important;
+  }
+  #player-info.character-card .level-line::before {
+    content: "";
+    display: block;
+  }
+  #player-info.character-card .status-line {
+    left: -67px !important;
+    width: 132px !important;
+    height: 17px !important;
+    line-height: 17px !important;
+    font-size: 10px !important;
+    padding: 0 5px !important;
+  }
+  #player-info.character-card .hp-line { top: 94px !important; }
+  #player-info.character-card .sp-line { top: 114px !important; }
+  #player-info.character-card .exp-line { top: 134px !important; }
+  #player-info.character-card .exp-line + .exp-line { top: 154px !important; }
+
+  /* 功能按鈕稍微收窄，避免蓋太多地圖 */
+  #quick-buttons {
+    right: 8px !important;
+    top: 48px !important;
+    width: 150px !important;
+    gap: 5px !important;
+    transform: none !important;
+  }
+  #quick-buttons button {
+    min-width: 44px !important;
+    height: 32px !important;
+    padding: 0 8px !important;
+    font-size: 13px !important;
+  }
+
+  /* 彈窗手機版開啟時預設置中，不再偏右需要橫向拖動 */
+  .game-window.draggable-window,
+  #inventory-window,
+  #skill-window,
+  #map-window,
+  #town-window,
+  #status-window,
+  #equipment-window,
+  #auto-combat-panel,
+  #hunting-stats-panel,
+  #shop-window {
+    width: min(94vw, 680px) !important;
+    max-width: calc(100vw - 16px) !important;
+    max-height: calc(100vh - 28px) !important;
+    overflow: hidden !important;
+  }
+  .game-window .window-body {
+    max-height: calc(100vh - 86px) !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+
+  #skill-window.true-skill-window {
+    width: min(94vw, 560px) !important;
+  }
+  #skill-window.true-skill-window .skill-window-body,
+  #skill-window.true-skill-window .job-body {
+    max-height: calc(100vh - 96px) !important;
+    overflow-y: auto !important;
+  }
+}
+
+@media (orientation: portrait) and (max-width: 480px) {
+  :root { --ui-scale: .56; }
+  #top-bar {
+    width: calc(100vw - 166px) !important;
+  }
+  #top-bar .currency-item {
+    font-size: 11px !important;
+  }
+}

@@ -1,3 +1,13 @@
+# V0.9.72a - Mobile Fix / iPhone Safari Position Hotfix
+
+- 修正 iPhone Safari 點地圖無反應：Position Engine 同時綁定 pointerdown / touchstart / click。
+- 修正手機版角色 / 怪物座標被 CSS `!important` 固定導致原地不動：改由 Position Engine inline important 控制。
+- 手機版戰鬥區新增 `touch-action: none`，避免瀏覽器捲動/縮放吃掉移動事件。
+- 修正手機版上方金幣列偏左蓋到圖示。
+- 修正手機版左上角 Job Lv 顯示被裁切。
+- 背包 / 技能 / 裝備 / 素質 / 地圖 / 城鎮 / 戰鬥設定等彈窗在手機版預設置中。
+- 版本號更新為 0.9.72a。
+
 ## V0.9.69 - RA DB_re Level Cap / EXP Constitution Update
 
 - 依專案入口 `RA開機檔案英文版20260608(DB_re)/rathena-master/db/re/job_exp.yml` 重新整理 Base / Job 上限與 EXP 表。
