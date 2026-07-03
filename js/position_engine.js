@@ -4,7 +4,7 @@
 // 參考 RA mob_db 概念欄位：AttackRange / SkillRange / ChaseRange / WalkSpeed / Ai / Modes。
 //=======================================
 
-const POSITION_ENGINE_VERSION = "0.9.72a";
+const POSITION_ENGINE_VERSION = "0.9.72b";
 const FLY_WING_ITEM_ID = 601;
 
 //=======================================
@@ -69,7 +69,103 @@ const POSITION_FIELD = {
   spriteAnchorOffsetY: 0
 };
 
-// V0.9.72a：正式採用 RO Cell 概念作為射程單位。
+// V0.9.72b：手機直式版改採動態可行走區。
+// 桌機仍保留原本 1280x720 的穩定手感；手機則依實際 battle-field 尺寸、
+// 底部戰鬥紀錄/快捷欄與右側按鈕區計算邊界，避免角色跑出框外或躲到 UI 後面。
+const POSITION_MOBILE_SAFE = {
+  left: 14,
+  top: 176,
+  rightPortrait: 166,
+  rightLandscape: 26,
+  bottom: 170,
+  spriteW: 92,
+  spriteH: 142,
+  monsterW: 96,
+  monsterH: 120
+};
+
+function getBattleFieldElement() {
+  return document.getElementById("battle-field");
+}
+
+function isMobileBattleLayout() {
+  const field = getBattleFieldElement();
+  const width = field?.offsetWidth || window.innerWidth || 1280;
+  return width <= 900 || window.matchMedia?.("(pointer: coarse)")?.matches;
+}
+
+function isPortraitBattleLayout() {
+  const field = getBattleFieldElement();
+  const width = field?.offsetWidth || window.innerWidth || 1280;
+  const height = field?.offsetHeight || window.innerHeight || 720;
+  return height > width;
+}
+
+function getFieldLogicalSize() {
+  const field = getBattleFieldElement();
+  return {
+    width: Math.max(1, Number(field?.offsetWidth || 1280)),
+    height: Math.max(1, Number(field?.offsetHeight || 720))
+  };
+}
+
+function getUiTopInField(elementId) {
+  const field = getBattleFieldElement();
+  const el = document.getElementById(elementId);
+  if (!field || !el) return null;
+  const fr = field.getBoundingClientRect();
+  const er = el.getBoundingClientRect();
+  if (!Number.isFinite(er.top) || er.height <= 0) return null;
+  return er.top - fr.top;
+}
+
+function getDynamicPositionBounds(kind = "player") {
+  if (!isMobileBattleLayout()) {
+    return { ...POSITION_FIELD };
+  }
+
+  const { width, height } = getFieldLogicalSize();
+  const portrait = isPortraitBattleLayout();
+  const spriteW = kind === "monster" ? POSITION_MOBILE_SAFE.monsterW : POSITION_MOBILE_SAFE.spriteW;
+  const spriteH = kind === "monster" ? POSITION_MOBILE_SAFE.monsterH : POSITION_MOBILE_SAFE.spriteH;
+
+  const logTop = getUiTopInField("battle-log");
+  const quickTop = getUiTopInField("quick-slot-bar");
+  const firstBottomUiTop = [logTop, quickTop].filter(v => Number.isFinite(v) && v > 0).sort((a, b) => a - b)[0];
+
+  const minX = POSITION_MOBILE_SAFE.left;
+  const minY = portrait ? POSITION_MOBILE_SAFE.top : 92;
+  const rightSafe = portrait ? POSITION_MOBILE_SAFE.rightPortrait : POSITION_MOBILE_SAFE.rightLandscape;
+  const maxX = Math.max(minX, width - rightSafe - spriteW);
+
+  // 這裡的 position.y 是角色錨點/上緣座標，不等同整張人物圖底部。
+  // 手機版若扣掉完整 spriteH，會導致可走區過窄；因此以底部 UI 上緣預留 90px 為主。
+  const uiLimitedMaxY = Number.isFinite(firstBottomUiTop)
+    ? firstBottomUiTop - 90
+    : height - POSITION_MOBILE_SAFE.bottom;
+  const maxY = Math.max(minY, Math.min(height - 110, uiLimitedMaxY));
+
+  return {
+    minX,
+    maxX,
+    minY,
+    maxY,
+    playerDefaultX: clampPositionValue(width * 0.55, minX, maxX),
+    playerDefaultY: clampPositionValue(height * 0.34, minY, maxY),
+    monsterDefaultX: clampPositionValue(width * 0.78, minX, maxX),
+    monsterDefaultY: clampPositionValue(height * 0.30, minY, maxY)
+  };
+}
+
+function clampPositionToBounds(pos, kind = "player") {
+  const bounds = getDynamicPositionBounds(kind);
+  return {
+    x: clampPositionValue(pos?.x, bounds.minX, bounds.maxX),
+    y: clampPositionValue(pos?.y, bounds.minY, bounds.maxY)
+  };
+}
+
+// V0.9.72b：正式採用 RO Cell 概念作為射程單位。
 // 目前 1 Cell 先換算為 36px，之後可依畫面手感集中調整，不散落於戰鬥公式。
 const POSITION_CELL_SIZE_PX = 36;
 
@@ -96,21 +192,31 @@ function clampPositionValue(value, min, max) {
   return Math.max(min, Math.min(max, Number(value || 0)));
 }
 
-function randomPositionInBattleField() {
+function randomPositionInBattleField(kind = "monster") {
+  const bounds = getDynamicPositionBounds(kind);
   return {
-    x: randomInt(POSITION_FIELD.minX, POSITION_FIELD.maxX),
-    y: randomInt(POSITION_FIELD.minY, POSITION_FIELD.maxY)
+    x: randomInt(Math.round(bounds.minX), Math.round(bounds.maxX)),
+    y: randomInt(Math.round(bounds.minY), Math.round(bounds.maxY))
   };
 }
 
 function normalizePositionData() {
   if (!player) return;
 
+  const bounds = getDynamicPositionBounds("player");
+  const currentPos = clampPositionToBounds({
+    x: player.position?.x ?? bounds.playerDefaultX,
+    y: player.position?.y ?? bounds.playerDefaultY
+  }, "player");
+  const targetPos = (player.position?.targetX !== null && player.position?.targetX !== undefined && player.position?.targetY !== null && player.position?.targetY !== undefined)
+    ? clampPositionToBounds({ x: player.position.targetX, y: player.position.targetY }, "player")
+    : { x: null, y: null };
+
   player.position = {
-    x: clampPositionValue(player.position?.x ?? POSITION_FIELD.playerDefaultX, POSITION_FIELD.minX, POSITION_FIELD.maxX),
-    y: clampPositionValue(player.position?.y ?? POSITION_FIELD.playerDefaultY, POSITION_FIELD.minY, POSITION_FIELD.maxY),
-    targetX: player.position?.targetX ?? null,
-    targetY: player.position?.targetY ?? null,
+    x: currentPos.x,
+    y: currentPos.y,
+    targetX: targetPos.x,
+    targetY: targetPos.y,
     moveSpeed: getPlayerMovePixelsPerSecond()
   };
 
@@ -125,6 +231,21 @@ function initPositionEngine() {
   normalizePositionData();
   bindBattleFieldMovement();
   renderPositionSprites();
+
+  if (!window.__roWebPositionResizeBound) {
+    window.__roWebPositionResizeBound = true;
+    const recalcPositionBounds = () => {
+      normalizePositionData();
+      if (currentMonster?.position) {
+        const safeMonsterPos = clampPositionToBounds(currentMonster.position, "monster");
+        currentMonster.position.x = safeMonsterPos.x;
+        currentMonster.position.y = safeMonsterPos.y;
+      }
+      renderPositionSprites();
+    };
+    window.addEventListener("resize", recalcPositionBounds, { passive: true });
+    window.addEventListener("orientationchange", () => setTimeout(recalcPositionBounds, 250), { passive: true });
+  }
 
   if (!positionEngineTimer) {
     positionEngineTimer = setInterval(() => {
@@ -152,13 +273,15 @@ function getBattleFieldLocalPosition(event, field) {
   const point = getEventClientPoint(event);
   if (!point || rect.width <= 0 || rect.height <= 0) return null;
 
-  // rect 是實際畫面尺寸；offsetWidth/offsetHeight 是邏輯尺寸。
-  // iPhone Safari 上若 CSS zoom / viewport 造成 offset 異常，退回 1280x720 內部座標。
+  // rect 是實際畫面尺寸；offsetWidth/offsetHeight 是 Position Engine 使用的邏輯尺寸。
+  // 手機直式版 battle-field 會被拉高，因此必須用當下實際比例換算。
   const logicalWidth = field.offsetWidth || 1280;
   const logicalHeight = field.offsetHeight || 720;
-  const x = ((point.clientX - rect.left) / rect.width) * logicalWidth;
-  const y = ((point.clientY - rect.top) / rect.height) * logicalHeight;
-  return { x, y };
+  const raw = {
+    x: ((point.clientX - rect.left) / rect.width) * logicalWidth,
+    y: ((point.clientY - rect.top) / rect.height) * logicalHeight
+  };
+  return clampPositionToBounds(raw, "player");
 }
 
 function bindBattleFieldMovement() {
@@ -185,7 +308,7 @@ function bindBattleFieldMovement() {
     addBattleLog(`移動到座標 (${Math.round(player.position.targetX)}, ${Math.round(player.position.targetY)})。`);
   };
 
-  // V0.9.72a：iPhone Safari 修正。即使支援 PointerEvent，也額外綁 touchstart 作保險。
+  // V0.9.72b：iPhone Safari 修正。即使支援 PointerEvent，也額外綁 touchstart 作保險。
   field.addEventListener("pointerdown", handlePointerMoveRequest, { passive: false, capture: true });
   field.addEventListener("touchstart", handlePointerMoveRequest, { passive: false, capture: true });
   field.addEventListener("click", handlePointerMoveRequest, { passive: false, capture: true });
@@ -193,8 +316,9 @@ function bindBattleFieldMovement() {
 
 function setPlayerMoveTarget(x, y) {
   normalizePositionData();
-  player.position.targetX = clampPositionValue(x, POSITION_FIELD.minX, POSITION_FIELD.maxX);
-  player.position.targetY = clampPositionValue(y, POSITION_FIELD.minY, POSITION_FIELD.maxY);
+  const target = clampPositionToBounds({ x, y }, "player");
+  player.position.targetX = target.x;
+  player.position.targetY = target.y;
   player.state = autoBattleTimer ? "Moving" : "Move";
 }
 
@@ -219,8 +343,12 @@ function updatePositionMovement(dt) {
   player.position.moveSpeed = getPlayerMovePixelsPerSecond();
   const step = Math.max(1, Number(player.position.moveSpeed || ROWEB_MOVEMENT.defaultPixelsPerSecond) * dt);
   const ratio = Math.min(1, step / dist);
-  player.position.x += dx * ratio;
-  player.position.y += dy * ratio;
+  const next = clampPositionToBounds({
+    x: player.position.x + dx * ratio,
+    y: player.position.y + dy * ratio
+  }, "player");
+  player.position.x = next.x;
+  player.position.y = next.y;
 }
 
 function distanceBetween(a, b) {
@@ -393,15 +521,18 @@ function moveMonsterToward(monster, target, dt, stopDistance = 50) {
   if (dist <= stopDistance) return;
   const step = getMonsterMoveSpeedPx(monster) * dt;
   const ratio = Math.min(1, step / Math.max(1, dist - stopDistance));
-  pos.x = clampPositionValue(pos.x + dx * ratio, POSITION_FIELD.minX, POSITION_FIELD.maxX);
-  pos.y = clampPositionValue(pos.y + dy * ratio, POSITION_FIELD.minY, POSITION_FIELD.maxY);
+  const next = clampPositionToBounds({ x: pos.x + dx * ratio, y: pos.y + dy * ratio }, "monster");
+  pos.x = next.x;
+  pos.y = next.y;
 }
 
 function assignMonsterSpawnPosition(monster) {
-  const pos = randomPositionInBattleField();
+  const pos = randomPositionInBattleField("monster");
   // 避免貼臉出生，盡量讓玩家先看到靠近/遠距差異。
   if (player?.position && distanceBetween(player.position, pos) < 180) {
-    pos.x = clampPositionValue(pos.x + 220, POSITION_FIELD.minX, POSITION_FIELD.maxX);
+    const shifted = clampPositionToBounds({ x: pos.x + 220, y: pos.y }, "monster");
+    pos.x = shifted.x;
+    pos.y = shifted.y;
   }
   monster.position = pos;
   monster.spawnPosition = { ...pos };
@@ -410,9 +541,12 @@ function assignMonsterSpawnPosition(monster) {
 
 function renderPositionSprites() {
   if (player?.position) {
+    const safePlayerPos = clampPositionToBounds(player.position, "player");
+    player.position.x = safePlayerPos.x;
+    player.position.y = safePlayerPos.y;
     const playerEl = document.getElementById("player-sprite");
     if (playerEl) {
-      // V0.9.72a：手機 CSS 曾用 !important 固定角色位置，會蓋掉 JS 座標。
+      // V0.9.72b：手機 CSS 曾用 !important 固定角色位置，會蓋掉 JS 座標。
       // 這裡用 inline important，確保 PC / iPhone 都由 Position Engine 控制。
       playerEl.style.setProperty("left", `${Math.round(player.position.x)}px`, "important");
       playerEl.style.setProperty("top", `${Math.round(player.position.y)}px`, "important");
@@ -421,6 +555,9 @@ function renderPositionSprites() {
 
   const monsterEl = document.getElementById("monster-sprite");
   if (monsterEl && currentMonster?.position) {
+    const safeMonsterPos = clampPositionToBounds(currentMonster.position, "monster");
+    currentMonster.position.x = safeMonsterPos.x;
+    currentMonster.position.y = safeMonsterPos.y;
     monsterEl.style.setProperty("left", `${Math.round(currentMonster.position.x)}px`, "important");
     monsterEl.style.setProperty("top", `${Math.round(currentMonster.position.y)}px`, "important");
     monsterEl.dataset.aiState = currentMonster.aiState || "IDLE";
@@ -463,10 +600,11 @@ function useFlyWing(options = {}) {
   }
 
   consumeInventoryItemCount(FLY_WING_ITEM_ID, 1);
-  const pos = randomPositionInBattleField();
+  const pos = randomPositionInBattleField("player");
   normalizePositionData();
-  player.position.x = pos.x;
-  player.position.y = pos.y;
+  const safePos = clampPositionToBounds(pos, "player");
+  player.position.x = safePos.x;
+  player.position.y = safePos.y;
   player.position.targetX = null;
   player.position.targetY = null;
   if (currentMonster) currentMonster.aiState = "IDLE";

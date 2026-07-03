@@ -12,7 +12,7 @@ let items = {};
 let expTables = null;
 let currentMap = null;
 
-const RO_WEB_VERSION = "0.9.72a";
+const RO_WEB_VERSION = "0.9.72b";
 
 function normalizeDataPath(path) {
   return String(path || "")
@@ -93,7 +93,7 @@ async function initGame() {
   if (typeof updateAutoCombatUI === "function") updateAutoCombatUI();
 
   addBattleLog("玩家資料載入完成！");
-  addBattleLog("歡迎來到 RO_WEB Alpha 0.9.72a！");
+  addBattleLog("歡迎來到 RO_WEB Alpha 0.9.72b！");
 }
 
 async function loadMonsterData() {

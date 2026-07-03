@@ -1,4 +1,14 @@
-# V0.9.72a - Mobile Fix / iPhone Safari Position Hotfix
+
+## V0.9.72b - Mobile Bounds Fix
+
+- 修正手機直式螢幕角色可能跑出框外。
+- Position Engine 新增手機動態可行走區計算。
+- 手機版座標依 battle-field 實際尺寸校正。
+- 玩家 / 怪物位置會被限制在安全邊界。
+- 底部戰鬥紀錄、快捷欄、右側功能按鈕納入手機安全邊界。
+- 橫直切換與視窗尺寸變動時重新校正座標。
+
+# V0.9.72b - Mobile Fix / iPhone Safari Position Hotfix
 
 - 修正 iPhone Safari 點地圖無反應：Position Engine 同時綁定 pointerdown / touchstart / click。
 - 修正手機版角色 / 怪物座標被 CSS `!important` 固定導致原地不動：改由 Position Engine inline important 控制。
@@ -6,7 +16,7 @@
 - 修正手機版上方金幣列偏左蓋到圖示。
 - 修正手機版左上角 Job Lv 顯示被裁切。
 - 背包 / 技能 / 裝備 / 素質 / 地圖 / 城鎮 / 戰鬥設定等彈窗在手機版預設置中。
-- 版本號更新為 0.9.72a。
+- 版本號更新為 0.9.72b。
 
 ## V0.9.69 - RA DB_re Level Cap / EXP Constitution Update
 

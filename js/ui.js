@@ -1,7 +1,7 @@
 //=======================================
 // UI Skeleton v0.1：視窗開關 / 拖曳 / 位置記憶
 //=======================================
-const UI_POS_KEY = "ro_web_ui_positions_v0_9_72a";
+const UI_POS_KEY = "ro_web_ui_positions_v0_9_72b";
 let topZIndex = 40;
 
 document.addEventListener("DOMContentLoaded", () => {
