@@ -1,3 +1,7 @@
+## V0.9.75b
+
+快取版本與歡迎訊息版本號更新為 0.9.75b；本版不更動 Position Engine。
+
 ## V0.9.75a Mobile UI Fit / Shop Detail / Inventory Double Tap
 
 - 手機版彈窗改為優先吃滿可視寬高，修正小螢幕技能欄與地圖/商店彈窗裁切問題。

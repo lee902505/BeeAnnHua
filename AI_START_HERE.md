@@ -1,3 +1,7 @@
+## V0.9.75b 快取更新提醒
+
+本版已同步更新 HTML 資源引用 `?v=0.9.75b`、`RO_WEB_VERSION` 與進入歡迎訊息版本號。之後任何 CSS / JS / HTML 更新都必須同步更新快取版本。
+
 ## V0.9.75 Mobile UI Fit / Shop Detail / Inventory Double Tap
 
 - 手機版彈窗改為優先吃滿可視寬高，修正小螢幕技能欄與地圖/商店彈窗裁切問題。
