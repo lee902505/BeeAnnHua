@@ -1,3 +1,10 @@
+## V0.9.72h - iPhone Safari Visual Viewport Touch Fix
+
+- 手機觸控座標改用 battle-field 與 visualViewport 的可視交集換算，避免 Safari 底部網址列造成下方座標被壓縮。
+- 手機 touch 改以 touchstart 為主，忽略 touch pointerdown，避免同一次點擊重複覆蓋移動目標。
+- visualViewport resize / scroll 時重新校正 Position Engine 顯示。
+- 版本號更新為 0.9.72h。
+
 ## V0.9.72g - Mobile Position Save + Touch Boundary Fix
 
 - Position 座標改為每 60 秒自動保存一次；F5 / 關閉 / 切到背景時會補存一次。

@@ -4,7 +4,7 @@
 // 參考 RA mob_db 概念欄位：AttackRange / SkillRange / ChaseRange / WalkSpeed / Ai / Modes。
 //=======================================
 
-const POSITION_ENGINE_VERSION = "0.9.72g";
+const POSITION_ENGINE_VERSION = "0.9.72h";
 const FLY_WING_ITEM_ID = 601;
 
 //=======================================
@@ -246,6 +246,8 @@ function initPositionEngine() {
     };
     window.addEventListener("resize", recalcPositionBounds, { passive: true });
     window.addEventListener("orientationchange", () => setTimeout(recalcPositionBounds, 250), { passive: true });
+    window.visualViewport?.addEventListener?.("resize", recalcPositionBounds, { passive: true });
+    window.visualViewport?.addEventListener?.("scroll", recalcPositionBounds, { passive: true });
   }
 
   if (!positionEngineTimer) {
@@ -309,18 +311,66 @@ function getEventClientPoint(event) {
   return { clientX, clientY };
 }
 
-function getBattleFieldLocalPosition(event, field) {
-  const rect = field.getBoundingClientRect();
-  const point = getEventClientPoint(event);
-  if (!point || rect.width <= 0 || rect.height <= 0) return null;
+function getVisualViewportRectFallback() {
+  const vv = window.visualViewport;
+  if (vv && Number.isFinite(vv.width) && Number.isFinite(vv.height)) {
+    return {
+      left: Number(vv.offsetLeft || 0),
+      top: Number(vv.offsetTop || 0),
+      right: Number(vv.offsetLeft || 0) + Number(vv.width || 0),
+      bottom: Number(vv.offsetTop || 0) + Number(vv.height || 0),
+      width: Number(vv.width || 0),
+      height: Number(vv.height || 0)
+    };
+  }
+  return {
+    left: 0,
+    top: 0,
+    right: window.innerWidth || document.documentElement.clientWidth || 1280,
+    bottom: window.innerHeight || document.documentElement.clientHeight || 720,
+    width: window.innerWidth || document.documentElement.clientWidth || 1280,
+    height: window.innerHeight || document.documentElement.clientHeight || 720
+  };
+}
 
-  // rect 是實際畫面尺寸；offsetWidth/offsetHeight 是 Position Engine 使用的邏輯尺寸。
-  // 手機直式版 battle-field 會被拉高，因此必須用當下實際比例換算。
+function getBattleFieldVisibleRect(field) {
+  const rect = field.getBoundingClientRect();
+  const vv = getVisualViewportRectFallback();
+
+  // V0.9.72h：iPhone Safari 底部網址列會讓 100vh / rect.height 大於實際可觸控高度。
+  // 如果直接用完整 rect.height 換算，手指點到可視畫面最下方也只會換算到邏輯中下段，
+  // 造成「下方走不到、越往下點偶爾反而往上」。因此手機觸控採用 battle-field 與
+  // visualViewport 的交集作為實際可點擊矩形。
+  const left = Math.max(rect.left, vv.left);
+  const top = Math.max(rect.top, vv.top);
+  const right = Math.min(rect.right, vv.right);
+  const bottom = Math.min(rect.bottom, vv.bottom);
+  const width = Math.max(1, right - left);
+  const height = Math.max(1, bottom - top);
+
+  return { left, top, right, bottom, width, height };
+}
+
+function clampClientPointToRect(point, rect) {
+  return {
+    clientX: clampPositionValue(point.clientX, rect.left, rect.right),
+    clientY: clampPositionValue(point.clientY, rect.top, rect.bottom)
+  };
+}
+
+function getBattleFieldLocalPosition(event, field) {
+  const point = getEventClientPoint(event);
+  if (!point) return null;
+
+  const rect = getBattleFieldVisibleRect(field);
+  if (rect.width <= 0 || rect.height <= 0) return null;
+
   const logicalWidth = field.offsetWidth || 1280;
   const logicalHeight = field.offsetHeight || 720;
+  const safePoint = clampClientPointToRect(point, rect);
   const raw = {
-    x: ((point.clientX - rect.left) / rect.width) * logicalWidth,
-    y: ((point.clientY - rect.top) / rect.height) * logicalHeight
+    x: ((safePoint.clientX - rect.left) / rect.width) * logicalWidth,
+    y: ((safePoint.clientY - rect.top) / rect.height) * logicalHeight
   };
   return clampPositionToBounds(raw, "player");
 }
@@ -335,9 +385,13 @@ function bindBattleFieldMovement() {
     if (isPointerOnBlockedUi(event.target)) return;
     if (!player || player.currentCity) return;
 
+    // V0.9.72h：手機只採 touchstart；忽略 touch pointerdown，避免 iOS 同一點觸發兩次、
+    // 且兩次座標來源不同步時覆蓋移動目標。
+    if (event.type === "pointerdown" && event.pointerType === "touch") return;
+
     // iPhone Safari 可能同時派發 touchstart + synthetic click，避免重複下達移動指令。
     const now = Date.now();
-    if (event.type === "click" && now - lastTouchMoveRequestAt < 450) return;
+    if (event.type === "click" && now - lastTouchMoveRequestAt < 550) return;
     if (event.type === "touchstart") lastTouchMoveRequestAt = now;
 
     const pos = getBattleFieldLocalPosition(event, field);

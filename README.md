@@ -49,7 +49,11 @@ Skill Icon Remaster Trial：初心者與劍士一轉技能 ICON 試作版。
 新增 Position Combat Prototype：平面地圖座標、近戰/遠攻射程、怪物追擊、蒼蠅翅膀瞬移與自動找不到怪物瞬移設定。
 
 
-## V0.9.72g
+## V0.9.72h
+
+- iPhone Safari visualViewport 觸控座標修正：下方點擊改以可視戰鬥區換算，減少人物走不到底或反向修正。
+- 手機 touch 事件去重：避免同一次觸控被 pointerdown / touchstart / click 重複下達座標。
+
 手機直式可行走區、商店滾動與金幣列完整數量顯示修正。
 
 
