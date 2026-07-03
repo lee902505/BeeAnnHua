@@ -4,7 +4,7 @@
 // 參考 RA mob_db 概念欄位：AttackRange / SkillRange / ChaseRange / WalkSpeed / Ai / Modes。
 //=======================================
 
-const POSITION_ENGINE_VERSION = "0.9.72j";
+const POSITION_ENGINE_VERSION = "0.9.73";
 const FLY_WING_ITEM_ID = 601;
 
 //=======================================
@@ -189,7 +189,7 @@ let lastMoveInputSignature = "";
 let lastMoveInputAt = 0;
 let lastPositionDebug = null;
 
-const POSITION_DEBUG_ENABLED = true;
+const POSITION_DEBUG_ENABLED = false;
 const POSITION_AUTO_SAVE_MS = 60 * 1000;
 
 function clampPositionValue(value, min, max) {
@@ -392,7 +392,7 @@ function updatePositionDebugCross(pos = player?.position) {
 }
 
 function isPointerOnBlockedUi(target) {
-  // V0.9.72j：右側走不到的主因之一，是手機 UI 容器本身（top-bar / quick-buttons）
+  // V0.9.73：右側走不到的主因之一，是手機 UI 容器本身（top-bar / quick-buttons）
   // 佔住了右側可點擊區。全背景可走後，只阻擋真正可互動的按鈕、輸入框、彈窗、快捷格。
   // 金幣列、透明對話框、快捷按鈕容器空白處不再整片吃掉地圖點擊。
   return Boolean(target?.closest?.("button, input, select, textarea, .game-window, .fixed-panel, .quick-slot, .quick-slot-item, .dev-buttons"));
@@ -432,7 +432,7 @@ function getBattleFieldVisibleRect(field) {
   const rect = field.getBoundingClientRect();
   const vv = getVisualViewportRectFallback();
 
-  // V0.9.72j：iPhone Safari 底部網址列會讓 100vh / rect.height 大於實際可觸控高度。
+  // V0.9.73：iPhone Safari 底部網址列會讓 100vh / rect.height 大於實際可觸控高度。
   // 如果直接用完整 rect.height 換算，手指點到可視畫面最下方也只會換算到邏輯中下段，
   // 造成「下方走不到、越往下點偶爾反而往上」。因此手機觸控採用 battle-field 與
   // visualViewport 的交集作為實際可點擊矩形。
@@ -464,9 +464,9 @@ function getBattleFieldLocalPosition(event, field) {
   const logicalWidth = field.offsetWidth || 1280;
   const logicalHeight = field.offsetHeight || 720;
 
-  // V0.9.72j：X 軸改回使用 battle-field 完整 rect，避免 visualViewport / 右側網址列縮放
+  // V0.9.73：X 軸改回使用 battle-field 完整 rect，避免 visualViewport / 右側網址列縮放
   // 或右側 UI 容器造成可點寬度被誤縮，導致右邊角落永遠換算不到 maxX。
-  // Y 軸仍使用可視交集，保留 0.9.72j 對 iPhone Safari 底部網址列的修正。
+  // Y 軸仍使用可視交集，保留 0.9.73 對 iPhone Safari 底部網址列的修正。
   const safeX = clampPositionValue(point.clientX, fieldRect.left, fieldRect.right);
   const safeY = clampPositionValue(point.clientY, visibleRect.top, visibleRect.bottom);
   const raw = {
@@ -502,7 +502,7 @@ function bindBattleFieldMovement() {
     updatePositionDebugOverlay({ tap: `${event.type}/${event.pointerType || ""} → ${Math.round(pos.x)},${Math.round(pos.y)}` });
     addBattleLog(`移動到座標 (${Math.round(player.position.targetX)}, ${Math.round(player.position.targetY)})。`);
   };
-  // V0.9.72j：同一個點擊只綁一種主要事件，避免 pointerdown + click / touchstart + click
+  // V0.9.73：同一個點擊只綁一種主要事件，避免 pointerdown + click / touchstart + click
   // 同時下達移動指令，造成戰鬥紀錄出現兩次座標。
   if (window.PointerEvent) {
     field.addEventListener("pointerdown", handlePointerMoveRequest, { passive: false, capture: true });
@@ -767,6 +767,7 @@ function getUiFadeElements() {
     document.getElementById("battle-log"),
     document.getElementById("quick-slot-bar"),
     document.getElementById("auto-battle-area"),
+    document.querySelector(".dev-buttons"),
     ...Array.from(document.querySelectorAll(".game-window:not(.hidden-window)"))
   ].filter(Boolean);
 }

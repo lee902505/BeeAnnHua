@@ -21,6 +21,15 @@ RO_WEB_CONSTITUTION.json
 不要自行更改架構。
 
 
+## V0.9.73 Position Engine 憲法
+
+- Mobile Position Engine 已完成跨平台驗證：Windows 桌面、iPhone Safari、Android 均可到達左上、右上、左下、右下四個角落。
+- Camera、Viewport、Touch / Pointer 輸入、Sprite Pivot、World Position 換算屬於穩定核心，不可任意重構或改回 CSS 固定座標。
+- 角色與怪物位置必須以 Position Engine 的 inline left/top 與腳底 Pivot 為準；不要再用手機 CSS 固定 `left/top` 覆蓋。
+- 若未來修改上述模組，必須重新驗證：四角可到達、點擊座標只記錄一筆、UI 透明判定同步、iPhone Safari 與 Android 實機皆通過。
+- Debug Overlay 只允許臨時開啟用於除錯，正式版本預設必須關閉。
+
+
 ## Cache Busting / 快取版本號
 
 每次更新 CSS / JS / HTML 後，必須同步更新 `index.html` 內所有資源引用版本號，例如：

@@ -1,6 +1,6 @@
 {
   "name": "RO_WEB_Constitution",
-  "version": "draft-9-position-combat-v0.2",
+  "version": "draft-10-mobile-position-engine-stable-v0.9.73",
   "purpose": "RO_WEB 專案開發憲法。任何 AI 或開發者在修改專案前必須先閱讀本檔案。",
   "must_read_before_any_update": true,
   "ai_update_protocol": {
@@ -347,6 +347,14 @@
       "priority": "high",
       "read_before_coding": true,
       "rule": "點地圖移動必須優先使用 Pointer Events，確保桌機滑鼠、手機觸控與平板都能使用同一套座標換算。"
+    },
+    {
+      "id": "POS-001",
+      "category": "Position Engine",
+      "title": "Mobile Position Engine Stable",
+      "rule": "Mobile Position Engine 已於 V0.9.73 完成 Windows、iPhone Safari、Android 三平台四角可到達驗證。Camera、Viewport、Touch/Pointer 輸入、Sprite Pivot、World Position 換算不可任意重構或改回 CSS 固定座標；若修改必須重新驗證四角可到達、點擊座標只記錄一筆、UI 透明判定同步、iPhone Safari 與 Android 實機通過。",
+      "priority": "critical",
+      "read_before_coding": true
     }
   ]
 }

@@ -11439,7 +11439,7 @@ button#equipment-close-btn.window-close {
 }
 
 /* =========================================================
-   RO_WEB V0.9.72j Mobile Position Debug + Sprite Scale Fix
+   RO_WEB V0.9.73 Mobile Position Debug + Sprite Scale Fix
    - 角色 / 怪物不再使用 CSS zoom 縮放，改用實際 width/height
    - 讓 Position Engine 的 offsetWidth / getBoundingClientRect 與視覺腳底同步
    - 加入手機測試用 debug overlay / foot cross
@@ -11506,5 +11506,39 @@ button#equipment-close-btn.window-close {
   .position-debug-overlay {
     bottom: 118px;
     font-size: 10px;
+  }
+}
+
+/* =========================================================
+   RO_WEB V0.9.73 Stable Mobile Position Engine Polish
+   - Debug 視窗預設關閉
+   - 存檔 / 清存檔按鈕加入角色重疊透明判定
+   - Android / iPhone 底部 safe-area：快捷欄與對話欄上移，避免被手勢列裁切
+   ========================================================= */
+.dev-buttons {
+  transition: opacity .16s ease, filter .16s ease !important;
+}
+.dev-buttons.ui-under-player {
+  opacity: .3 !important;
+}
+
+@media (max-width: 900px) {
+  #quick-slot-bar.quick-slot-bar {
+    bottom: calc(18px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+  #battle-log.chat-panel {
+    bottom: calc(92px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+  .dev-buttons {
+    bottom: calc(18px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+}
+
+@media (orientation: portrait) and (max-width: 480px) {
+  #quick-slot-bar.quick-slot-bar {
+    bottom: calc(20px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+  #battle-log.chat-panel {
+    bottom: calc(96px + env(safe-area-inset-bottom, 0px)) !important;
   }
 }
