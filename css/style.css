@@ -11425,3 +11425,15 @@ button#equipment-close-btn.window-close {
 .game-window.ui-under-player {
   opacity: .3 !important;
 }
+
+
+/* =========================================================
+   RO_WEB V0.9.72g Mobile Position Save + Touch Boundary Fix
+   - Position Engine 以 JS inline important 作為角色/怪物唯一座標來源
+   - 手機 CSS zoom 由 JS 反校正腳底座標，不再把可走下界壓縮
+   - 戰鬥紀錄透明 UI 不阻擋地圖點擊
+   ========================================================= */
+#player-sprite.player-sprite,
+#monster-sprite.monster-sprite {
+  will-change: left, top !important;
+}

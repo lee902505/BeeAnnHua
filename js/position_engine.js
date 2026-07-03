@@ -4,7 +4,7 @@
 // 參考 RA mob_db 概念欄位：AttackRange / SkillRange / ChaseRange / WalkSpeed / Ai / Modes。
 //=======================================
 
-const POSITION_ENGINE_VERSION = "0.9.72f";
+const POSITION_ENGINE_VERSION = "0.9.72g";
 const FLY_WING_ITEM_ID = 601;
 
 //=======================================
@@ -181,7 +181,12 @@ const DEFAULT_WEAPON_RANGE_CELLS = {
 let weaponRangeConfigCache = null;
 
 let positionEngineTimer = null;
+let positionAutoSaveTimer = null;
+let positionBeforeUnloadBound = false;
+let lastSavedPositionSnapshot = "";
 let autoNoTargetSince = null;
+
+const POSITION_AUTO_SAVE_MS = 60 * 1000;
 
 function clampPositionValue(value, min, max) {
   return Math.max(min, Math.min(max, Number(value || 0)));
@@ -226,6 +231,7 @@ function initPositionEngine() {
   normalizePositionData();
   bindBattleFieldMovement();
   renderPositionSprites();
+  bindPositionAutoSave();
 
   if (!window.__roWebPositionResizeBound) {
     window.__roWebPositionResizeBound = true;
@@ -251,8 +257,48 @@ function initPositionEngine() {
   }
 }
 
+function getPositionSaveSnapshot() {
+  if (!player?.position) return "";
+  return JSON.stringify({
+    map: player.map || currentMap?.id || "",
+    x: Math.round(Number(player.position.x || 0)),
+    y: Math.round(Number(player.position.y || 0)),
+    city: player.currentCity || null
+  });
+}
+
+function savePositionIfChanged(options = {}) {
+  if (!player || typeof saveGame !== "function") return;
+  normalizePositionData();
+  const snapshot = getPositionSaveSnapshot();
+  if (!options.force && snapshot && snapshot === lastSavedPositionSnapshot) return;
+  saveGame();
+  lastSavedPositionSnapshot = snapshot;
+}
+
+function bindPositionAutoSave() {
+  if (!positionAutoSaveTimer) {
+    lastSavedPositionSnapshot = getPositionSaveSnapshot();
+    positionAutoSaveTimer = setInterval(() => {
+      savePositionIfChanged();
+    }, POSITION_AUTO_SAVE_MS);
+  }
+
+  if (!positionBeforeUnloadBound) {
+    positionBeforeUnloadBound = true;
+    window.addEventListener("beforeunload", () => {
+      savePositionIfChanged({ force: true });
+    });
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "hidden") savePositionIfChanged({ force: true });
+    });
+  }
+}
+
 function isPointerOnBlockedUi(target) {
-  return Boolean(target?.closest?.("button, input, select, textarea, .game-window, .fixed-panel, #quick-buttons, #top-bar, #quick-slot-bar"));
+  // V0.9.72g：全背景可走後，戰鬥紀錄與透明 UI 不再阻擋地圖點擊。
+  // 仍保留按鈕、輸入框、彈窗、快捷列等互動元素，避免誤觸使用道具或拖窗。
+  return Boolean(target?.closest?.("button, input, select, textarea, .game-window, .fixed-panel, #quick-buttons, #top-bar, #quick-slot-bar, .dev-buttons"));
 }
 
 function getEventClientPoint(event) {
@@ -601,6 +647,55 @@ function updateUiFadeForPosition() {
   });
 }
 
+function getFieldClientScale() {
+  const field = getBattleFieldElement();
+  const rect = field?.getBoundingClientRect?.();
+  const logicalWidth = field?.offsetWidth || 1280;
+  const logicalHeight = field?.offsetHeight || 720;
+  return {
+    x: rect?.width ? rect.width / logicalWidth : 1,
+    y: rect?.height ? rect.height / logicalHeight : 1
+  };
+}
+
+function getSpriteAnchorRatio(kind = "player") {
+  return {
+    x: 0.5,
+    y: kind === "monster" ? 0.82 : 0.86
+  };
+}
+
+function placeSpriteByFootPosition(element, pos, kind = "player") {
+  if (!element || !pos) return;
+
+  // 初始定位：用目前 DOM 尺寸計算腳底中心。
+  const anchor = getSpriteAnchorOffset(element, kind);
+  element.style.setProperty("left", `${Math.round(Number(pos.x || 0) - anchor.x)}px`, "important");
+  element.style.setProperty("top", `${Math.round(Number(pos.y || 0) - anchor.y)}px`, "important");
+
+  // V0.9.72g：手機版 UI Scale / CSS zoom 會讓視覺腳底與邏輯座標不同步。
+  // 用實際 getBoundingClientRect() 反校正一次，確保點擊下方邊界時角色真的能走到底。
+  const targetClient = getLogicalPointClientPosition(pos);
+  const rect = element.getBoundingClientRect?.();
+  if (!targetClient || !rect || rect.width <= 0 || rect.height <= 0) return;
+
+  const ratio = getSpriteAnchorRatio(kind);
+  const actualClient = {
+    x: rect.left + rect.width * ratio.x,
+    y: rect.top + rect.height * ratio.y
+  };
+  const fieldScale = getFieldClientScale();
+  const dx = (targetClient.x - actualClient.x) / Math.max(0.01, fieldScale.x);
+  const dy = (targetClient.y - actualClient.y) / Math.max(0.01, fieldScale.y);
+
+  if (Math.abs(dx) > 0.5 || Math.abs(dy) > 0.5) {
+    const currentLeft = parseFloat(element.style.left) || 0;
+    const currentTop = parseFloat(element.style.top) || 0;
+    element.style.setProperty("left", `${Math.round(currentLeft + dx)}px`, "important");
+    element.style.setProperty("top", `${Math.round(currentTop + dy)}px`, "important");
+  }
+}
+
 function renderPositionSprites() {
   if (player?.position) {
     const safePlayerPos = clampPositionToBounds(player.position, "player");
@@ -609,9 +704,7 @@ function renderPositionSprites() {
     const playerEl = document.getElementById("player-sprite");
     if (playerEl) {
       // Position 座標為腳底中心；圖片本體可覆蓋 UI，但不再縮小可走範圍。
-      const anchor = getSpriteAnchorOffset(playerEl, "player");
-      playerEl.style.setProperty("left", `${Math.round(player.position.x - anchor.x)}px`, "important");
-      playerEl.style.setProperty("top", `${Math.round(player.position.y - anchor.y)}px`, "important");
+      placeSpriteByFootPosition(playerEl, player.position, "player");
     }
   }
 
@@ -620,9 +713,7 @@ function renderPositionSprites() {
     const safeMonsterPos = clampPositionToBounds(currentMonster.position, "monster");
     currentMonster.position.x = safeMonsterPos.x;
     currentMonster.position.y = safeMonsterPos.y;
-    const anchor = getSpriteAnchorOffset(monsterEl, "monster");
-    monsterEl.style.setProperty("left", `${Math.round(currentMonster.position.x - anchor.x)}px`, "important");
-    monsterEl.style.setProperty("top", `${Math.round(currentMonster.position.y - anchor.y)}px`, "important");
+    placeSpriteByFootPosition(monsterEl, currentMonster.position, "monster");
     monsterEl.dataset.aiState = currentMonster.aiState || "IDLE";
   }
   updateUiFadeForPosition();
