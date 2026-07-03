@@ -1,7 +1,7 @@
 //=======================================
 // UI Skeleton v0.1：視窗開關 / 拖曳 / 位置記憶
 //=======================================
-const UI_POS_KEY = "ro_web_ui_positions_v0_9_72d";
+const UI_POS_KEY = "ro_web_ui_positions_v0_9_76c";
 let topZIndex = 40;
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -14,11 +14,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
 window.addEventListener("resize", () => {
   if (!isMobileViewport()) return;
+  if (window.RO_WEB_UI_DRAG_ACTIVE) return;
   document.querySelectorAll(".draggable-window:not(.hidden-window)").forEach(centerWindowForMobile);
 });
 window.addEventListener("orientationchange", () => {
   setTimeout(() => {
     if (!isMobileViewport()) return;
+    if (window.RO_WEB_UI_DRAG_ACTIVE) return;
     document.querySelectorAll(".draggable-window:not(.hidden-window)").forEach(centerWindowForMobile);
   }, 250);
 });
@@ -106,72 +108,119 @@ function startDrag(event, win) {
   if (typeof hideGameTooltip === "function") hideGameTooltip();
   if (event.button !== undefined && event.button !== 0) return;
   if (event.target.closest("button, input, select, textarea, a, [data-no-drag]")) return;
+
+  // V0.9.76c：Mobile Drag Engine V2.1。
+  // 修正 V2 在手機上拖曳起手會往左上跳：不要用 getBoundingClientRect() 的視覺座標
+  // 直接覆寫 left/top，而是以目前 CSS left/top / offsetLeft 作為邏輯座標，再用 pointer delta 換算。
   event.preventDefault();
-  bringWindowToFront(win);
+  event.stopPropagation?.();
+  event.stopImmediatePropagation?.();
 
   const root = document.getElementById("battle-field");
   if (!root) return;
-  const rootRect = root.getBoundingClientRect();
-  const winRect = win.getBoundingClientRect();
 
-  // V0.9.75a：手機版不再允許 CSS translate/scale 參與拖曳座標。
-  // 先把視覺位置轉成 battle-field 內的實際 left/top，再清掉 transform，避免往右上彈跳。
-  const isMobileDrag = isMobileViewport();
-  if (isMobileDrag) {
-    win.classList.add("is-user-positioned");
-    const visualLeft = Math.round(winRect.left - rootRect.left);
-    const visualTop = Math.round(winRect.top - rootRect.top);
-    win.style.setProperty("left", `${visualLeft}px`, "important");
-    win.style.setProperty("top", `${visualTop}px`, "important");
+  window.RO_WEB_UI_DRAG_ACTIVE = true;
+  document.documentElement.classList.add("ui-drag-active");
+  bringWindowToFront(win);
+
+  const handle = event.currentTarget || win;
+  const startRect = win.getBoundingClientRect();
+  const pointerStartX = event.clientX;
+  const pointerStartY = event.clientY;
+
+  const inlineLeft = parseFloat(win.style.left);
+  const inlineTop = parseFloat(win.style.top);
+  const startLeft = Number.isFinite(inlineLeft) ? inlineLeft : (win.offsetLeft || 0);
+  const startTop = Number.isFinite(inlineTop) ? inlineTop : (win.offsetTop || 0);
+
+  // CSS zoom / transform 會讓 pointer 移動距離與 layout px 不一致。
+  // 以實際渲染寬高 / layout 寬高估算比例，拖曳時除回 layout 座標。
+  const layoutW = Math.max(1, win.offsetWidth || startRect.width || 1);
+  const layoutH = Math.max(1, win.offsetHeight || startRect.height || 1);
+  const scaleX = Math.max(0.2, Math.min(2, (startRect.width || layoutW) / layoutW));
+  const scaleY = Math.max(0.2, Math.min(2, (startRect.height || layoutH) / layoutH));
+
+  win.classList.add("is-user-positioned", "is-dragging");
+  win.dataset.dragLocked = "1";
+
+  function setWindowPosition(x, y) {
+    win.style.setProperty("--drag-left", `${Math.round(x)}px`);
+    win.style.setProperty("--drag-top", `${Math.round(y)}px`);
+    win.style.setProperty("left", `${Math.round(x)}px`, "important");
+    win.style.setProperty("top", `${Math.round(y)}px`, "important");
     win.style.setProperty("right", "auto", "important");
+    win.style.setProperty("bottom", "auto", "important");
     win.style.setProperty("transform", "none", "important");
+    win.style.setProperty("transform-origin", "top left", "important");
+    if (win.id === "basic-skill-info-window") {
+      win.style.setProperty("--basic-info-left", `${Math.round(x)}px`);
+      win.style.setProperty("--basic-info-top", `${Math.round(y)}px`);
+    }
   }
 
-  const normalizedWinRect = win.getBoundingClientRect();
-  const visualScale = (!isMobileDrag && win.offsetWidth) ? (normalizedWinRect.width / win.offsetWidth) : 1;
-  const scale = Number.isFinite(visualScale) && visualScale > 0 ? visualScale : 1;
-  const offsetX = (event.clientX - normalizedWinRect.left) / scale;
-  const offsetY = (event.clientY - normalizedWinRect.top) / scale;
+  // 只鎖定 transform，不在 pointerdown 當下改變 left/top，避免起手跳動。
+  win.style.setProperty("right", "auto", "important");
+  win.style.setProperty("bottom", "auto", "important");
+  win.style.setProperty("transform", "none", "important");
+  win.style.setProperty("transform-origin", "top left", "important");
 
-  if (event.pointerId !== undefined && win.setPointerCapture) {
-    try { win.setPointerCapture(event.pointerId); } catch (error) {}
+  if (event.pointerId !== undefined && handle.setPointerCapture) {
+    try { handle.setPointerCapture(event.pointerId); } catch (error) {}
+  }
+
+  function clampWindowPosition(x, y) {
+    const rootRect = root.getBoundingClientRect();
+    const visibleTitle = 52;
+    const safeBottom = isMobileViewport() ? 34 : 0;
+    const winWidth = Math.max(visibleTitle, win.offsetWidth || startRect.width || 320);
+    const winHeight = Math.max(visibleTitle, win.offsetHeight || startRect.height || 220);
+    const rootWidth = root.clientWidth || rootRect.width || window.innerWidth;
+    const rootHeight = root.clientHeight || rootRect.height || window.innerHeight;
+
+    const minX = -(winWidth - visibleTitle);
+    const maxX = Math.max(0, rootWidth - visibleTitle);
+    const minY = 0;
+    const maxY = Math.max(0, rootHeight - visibleTitle - safeBottom);
+    return {
+      x: Math.round(Math.max(minX, Math.min(x, maxX))),
+      y: Math.round(Math.max(minY, Math.min(y, maxY)))
+    };
+  }
+
+  function applyPosition(x, y) {
+    const pos = clampWindowPosition(x, y);
+    setWindowPosition(pos.x, pos.y);
   }
 
   function onMove(moveEvent) {
-    let x = (moveEvent.clientX - rootRect.left) / scale - offsetX;
-    let y = (moveEvent.clientY - rootRect.top) / scale - offsetY;
-
-    // 至少保留一小段標題區在畫面內，避免面板被拖到找不回來。
-    const keepVisible = 48;
-    const safeBottom = isMobileViewport() ? 42 : 0;
-    const maxX = (root.clientWidth / scale) - keepVisible;
-    const maxY = (root.clientHeight / scale) - keepVisible - safeBottom;
-    x = Math.max(-(win.offsetWidth - keepVisible), Math.min(x, maxX));
-    y = Math.max(0, Math.min(y, maxY));
-
-    const px = Math.round(x);
-    const py = Math.round(y);
-    win.style.left = `${px}px`;
-    win.style.top = `${py}px`;
-    if (win.id === "basic-skill-info-window") {
-      win.style.setProperty("--basic-info-left", `${px}px`);
-      win.style.setProperty("--basic-info-top", `${py}px`);
-    }
+    if (moveEvent.pointerId !== undefined && event.pointerId !== undefined && moveEvent.pointerId !== event.pointerId) return;
+    if (moveEvent.cancelable) moveEvent.preventDefault();
+    moveEvent.stopPropagation?.();
+    moveEvent.stopImmediatePropagation?.();
+    const dx = (moveEvent.clientX - pointerStartX) / scaleX;
+    const dy = (moveEvent.clientY - pointerStartY) / scaleY;
+    applyPosition(startLeft + dx, startTop + dy);
   }
 
   function onUp(upEvent) {
-    if (upEvent?.pointerId !== undefined && win.releasePointerCapture) {
-      try { win.releasePointerCapture(upEvent.pointerId); } catch (error) {}
+    upEvent?.stopPropagation?.();
+    upEvent?.stopImmediatePropagation?.();
+    if (upEvent?.pointerId !== undefined && handle.releasePointerCapture) {
+      try { handle.releasePointerCapture(upEvent.pointerId); } catch (error) {}
     }
-    document.removeEventListener("pointermove", onMove);
-    document.removeEventListener("pointerup", onUp);
-    document.removeEventListener("pointercancel", onUp);
+    win.classList.remove("is-dragging");
+    window.RO_WEB_UI_DRAG_ACTIVE = false;
+    document.documentElement.classList.remove("ui-drag-active");
+    document.removeEventListener("pointermove", onMove, true);
+    document.removeEventListener("pointerup", onUp, true);
+    document.removeEventListener("pointercancel", onUp, true);
     saveWindowPosition(win);
+    setTimeout(() => { if (!window.RO_WEB_UI_DRAG_ACTIVE) document.documentElement.classList.remove("ui-drag-active"); }, 0);
   }
 
-  document.addEventListener("pointermove", onMove);
-  document.addEventListener("pointerup", onUp);
-  document.addEventListener("pointercancel", onUp);
+  document.addEventListener("pointermove", onMove, { passive: false, capture: true });
+  document.addEventListener("pointerup", onUp, { passive: false, capture: true });
+  document.addEventListener("pointercancel", onUp, { passive: false, capture: true });
 }
 
 function bringWindowToFront(win) {

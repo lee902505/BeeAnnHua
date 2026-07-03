@@ -1,4 +1,4 @@
-/* RO_WEB V0.9.75b Cache Refresh: CSS/JS query params + welcome version updated. */
+/* RO_WEB V0.9.76c Mobile Drag Engine V2 + cache refreshed. */
 * { box-sizing: border-box; }
 html, body { margin:0; min-height:100%; background:#080705; color:#f6e6be; font-family:"Microsoft JhengHei", system-ui, sans-serif; overflow:hidden; }
 button { font-family:inherit; cursor:pointer; }
@@ -11866,5 +11866,502 @@ button#equipment-close-btn.window-close {
     left: 86px !important;
     width: calc(100% - 100px) !important;
     grid-auto-rows: 40px !important;
+  }
+}
+
+
+/* =========================================================
+   RO_WEB V0.9.76c Mobile Drag Engine + Mobile UI Clamp
+   - 僅修 UI 拖曳、商店底部購買區、手機技能欄/快捷欄溢出
+   - 不修改 Position Engine / Camera / Viewport 座標核心
+   ========================================================= */
+:root { --android-safe-bottom: 28px; }
+.draggable-window.is-dragging {
+  touch-action: none !important;
+  user-select: none !important;
+  -webkit-user-select: none !important;
+}
+.draggable-window.is-user-positioned {
+  right: auto !important;
+  bottom: auto !important;
+  transform: none !important;
+}
+@media (max-width: 900px) {
+  .drag-handle {
+    touch-action: none !important;
+    -webkit-user-select: none !important;
+    user-select: none !important;
+  }
+  .game-window.draggable-window:not(.hidden-window) {
+    max-width: calc(100vw - 8px) !important;
+    max-height: calc(100dvh - 74px - env(safe-area-inset-bottom, 0px)) !important;
+    box-sizing: border-box !important;
+  }
+  .game-window.draggable-window.is-user-positioned {
+    left: var(--drag-left, auto);
+    top: var(--drag-top, auto);
+    right: auto !important;
+    bottom: auto !important;
+    transform: none !important;
+  }
+
+  /* 下方快捷欄：小螢幕寬度內完整塞入 1~0，不再爆出外框 */
+  #quick-slot-bar.quick-slot-bar {
+    left: 6px !important;
+    right: 6px !important;
+    width: auto !important;
+    max-width: calc(100vw - 12px) !important;
+    height: 52px !important;
+    padding: 5px !important;
+    gap: 3px !important;
+    justify-content: space-between !important;
+    bottom: calc(28px + env(safe-area-inset-bottom, 0px)) !important;
+    box-sizing: border-box !important;
+  }
+  #quick-slot-bar .quick-slot {
+    width: min(40px, calc((100vw - 54px) / 10)) !important;
+    height: min(40px, calc((100vw - 54px) / 10)) !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    flex: 0 1 auto !important;
+  }
+  #quick-slot-bar .quick-slot img {
+    width: 28px !important;
+    height: 28px !important;
+  }
+
+  /* 技能視窗：手機版固定在可視範圍內，內部改為可捲動與較小格距 */
+  #skill-window.true-skill-window {
+    width: calc(100vw - 10px) !important;
+    height: min(536px, calc(100dvh - 104px - env(safe-area-inset-bottom, 0px))) !important;
+    max-width: calc(100vw - 10px) !important;
+    max-height: calc(100dvh - 100px - env(safe-area-inset-bottom, 0px)) !important;
+    overflow: hidden !important;
+    box-sizing: border-box !important;
+    transform: none !important;
+  }
+  #skill-window.true-skill-window .skill-window-body {
+    width: 100% !important;
+    height: calc(100% - 32px) !important;
+    overflow: hidden !important;
+    box-sizing: border-box !important;
+  }
+  #skill-window.true-skill-window .skill-tab-row {
+    left: 8px !important;
+    right: 8px !important;
+    width: auto !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+  #skill-window.true-skill-window .novice-skill-row,
+  #skill-window.true-skill-window #novice-skill-row {
+    left: 74px !important;
+    right: 6px !important;
+    top: 70px !important;
+    height: 46px !important;
+  }
+  #skill-window.true-skill-window #skill-panel.skill-grid.skill-slot-grid {
+    left: 74px !important;
+    top: 126px !important;
+    width: calc(100% - 84px) !important;
+    height: calc(100% - 184px) !important;
+    grid-template-columns: repeat(5, minmax(34px, 1fr)) !important;
+    grid-auto-rows: 38px !important;
+    gap: 5px !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+  }
+  #skill-window.true-skill-window .skill-grid-slot { height: 38px !important; }
+  #skill-window.true-skill-window .skill-grid-icon { width: 29px !important; height: 29px !important; }
+  #skill-window.true-skill-window #skill-point-footer {
+    right: 28px !important;
+    bottom: 10px !important;
+    width: 150px !important;
+  }
+
+  /* 商店：購買區貼齊底部邊框，只保留約 5px */
+  #shop-window .shop-detail-panel {
+    padding: 8px 8px 5px !important;
+  }
+  #shop-window .shop-detail-card {
+    min-height: 100% !important;
+    display: flex !important;
+    flex-direction: column !important;
+  }
+  #shop-window .shop-detail-desc {
+    flex: 1 1 auto !important;
+    min-height: 62px !important;
+  }
+  #shop-window .shop-total-row { margin-top: auto !important; }
+  #shop-window .shop-action-row {
+    margin-top: 3px !important;
+    margin-bottom: 0 !important;
+    padding-bottom: 0 !important;
+  }
+}
+
+@media (orientation: portrait) and (max-width: 390px) {
+  #skill-window.true-skill-window .novice-skill-row,
+  #skill-window.true-skill-window #novice-skill-row {
+    left: 68px !important;
+    right: 5px !important;
+  }
+  #skill-window.true-skill-window #skill-panel.skill-grid.skill-slot-grid {
+    left: 68px !important;
+    width: calc(100% - 76px) !important;
+    grid-template-columns: repeat(4, minmax(38px, 1fr)) !important;
+  }
+}
+
+/* =========================================================
+   RO_WEB V0.9.76c Mobile Drag Engine V2 + Shop Bottom Align
+   - 真正鎖定拖曳後 left/top，覆蓋舊手機置中 left:50% / transform 規則
+   - 拖曳中讓地圖輸入失效，避免 UI 與 Position Engine 搶事件
+   - 商店確認購買區貼齊底部邊框，底部保留 5px
+   ========================================================= */
+.ui-drag-active #battle-field {
+  touch-action: none !important;
+}
+.ui-drag-active #battle-field::after,
+.ui-drag-active #player-sprite,
+.ui-drag-active #monster-sprite {
+  pointer-events: none !important;
+}
+.draggable-window.is-dragging {
+  cursor: grabbing !important;
+  touch-action: none !important;
+  user-select: none !important;
+  -webkit-user-select: none !important;
+}
+@media (max-width: 900px) {
+  .game-window.draggable-window.is-user-positioned,
+  #map-window.true-map-window.is-user-positioned,
+  #town-window.is-user-positioned,
+  #inventory-window.is-user-positioned,
+  #equipment-window.is-user-positioned,
+  #status-window.is-user-positioned,
+  #auto-combat-panel.is-user-positioned,
+  #hunting-stats-panel.is-user-positioned,
+  #shop-window.is-user-positioned,
+  #skill-window.true-skill-window.is-user-positioned {
+    left: var(--drag-left, 8px) !important;
+    top: var(--drag-top, 48px) !important;
+    right: auto !important;
+    bottom: auto !important;
+    transform: none !important;
+    transform-origin: top left !important;
+  }
+
+  #shop-window .shop-detail-panel {
+    padding-bottom: 5px !important;
+  }
+  #shop-window .shop-detail-card {
+    min-height: 100% !important;
+    display: flex !important;
+    flex-direction: column !important;
+  }
+  #shop-window .shop-detail-desc {
+    flex: 1 1 auto !important;
+  }
+  #shop-window .shop-total-row {
+    margin-top: auto !important;
+  }
+  #shop-window .shop-action-row {
+    margin-top: 3px !important;
+    margin-bottom: 0 !important;
+    padding-bottom: 0 !important;
+  }
+}
+
+/* =========================================================
+   RO_WEB V0.9.76c Mobile UI Hotfix
+   - Drag 起手不再左上跳：由 JS 使用 layout 座標處理
+   - 內容區恢復 pan-y 捲動，只有標題列負責拖曳
+   - 商店購買控制區貼齊 detail panel 底部，底框保留 5px
+   ========================================================= */
+.game-window.draggable-window {
+  touch-action: auto !important;
+}
+.game-window.draggable-window .drag-handle,
+.game-window.draggable-window .window-title {
+  touch-action: none !important;
+  user-select: none !important;
+  -webkit-user-select: none !important;
+}
+.game-window.draggable-window .window-body,
+#shop-window .shop-window-body,
+#shop-window .shop-list,
+#shop-window .shop-detail-panel,
+#shop-window .shop-detail-card,
+#shop-window .shop-detail-desc {
+  touch-action: pan-y !important;
+  -webkit-overflow-scrolling: touch !important;
+}
+
+#shop-window .shop-detail-panel {
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
+  padding: 10px 10px 5px 10px !important;
+}
+#shop-window .shop-detail-card {
+  flex: 1 1 auto !important;
+  min-height: 100% !important;
+  height: 100% !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 8px !important;
+}
+#shop-window .shop-detail-desc {
+  flex: 1 1 auto !important;
+  min-height: 74px !important;
+  max-height: none !important;
+  overflow-y: auto !important;
+}
+#shop-window .shop-qty-row,
+#shop-window .shop-total-row,
+#shop-window .shop-action-row {
+  flex: 0 0 auto !important;
+}
+#shop-window .shop-action-row {
+  margin-top: auto !important;
+  padding-bottom: 0 !important;
+  position: static !important;
+  bottom: auto !important;
+}
+
+@media (max-width: 900px) {
+  #shop-window .shop-window-body {
+    overflow-y: auto !important;
+    padding-bottom: 8px !important;
+  }
+  #shop-window .shop-detail-panel {
+    height: min(310px, calc(100dvh - 392px)) !important;
+    min-height: 238px !important;
+    max-height: 330px !important;
+  }
+  #shop-window .shop-detail-desc {
+    min-height: 66px !important;
+  }
+}
+
+/* =========================================================
+   RO_WEB V0.9.76c Shop Purchase Dialog + Mobile Inventory Size
+   - 商店主視窗改回商品清單為主，購買/介紹改由獨立購買窗處理
+   - 手機版背包取消過度縮小，格子恢復可點尺寸
+   - 不修改 Position Engine / Camera / Viewport
+   ========================================================= */
+#shop-window.is-shop-list-only {
+  width: 420px !important;
+  min-height: 0 !important;
+  height: auto !important;
+  max-height: min(520px, calc(100vh - 44px)) !important;
+}
+#shop-window.is-shop-list-only .shop-window-body {
+  height: auto !important;
+  max-height: min(470px, calc(100vh - 88px)) !important;
+  overflow: hidden !important;
+  padding: 10px 12px 12px !important;
+}
+#shop-window.is-shop-list-only .shop-panel {
+  height: auto !important;
+  min-height: 0 !important;
+}
+#shop-window.is-shop-list-only .shop-title {
+  display: block !important;
+}
+#shop-window.is-shop-list-only .shop-layout {
+  height: auto !important;
+  min-height: 0 !important;
+  display: block !important;
+}
+#shop-window.is-shop-list-only .shop-list {
+  height: auto !important;
+  max-height: min(395px, calc(100vh - 150px)) !important;
+  min-height: 0 !important;
+  overflow-y: auto !important;
+  padding-right: 8px !important;
+}
+#shop-window.is-shop-list-only .shop-detail-panel {
+  display: none !important;
+}
+
+#purchase-window.shop-purchase-window {
+  width: 430px !important;
+  max-width: calc(100vw - 18px) !important;
+  min-height: 0 !important;
+  height: auto !important;
+  max-height: calc(100vh - 36px) !important;
+  overflow: hidden !important;
+}
+#purchase-window .purchase-window-body {
+  padding: 12px !important;
+  max-height: calc(100vh - 88px) !important;
+  overflow: hidden !important;
+}
+#purchase-window .purchase-card {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 9px !important;
+  min-height: 350px !important;
+}
+#purchase-window .purchase-head {
+  display: grid !important;
+  grid-template-columns: 58px 1fr !important;
+  align-items: center !important;
+  gap: 10px !important;
+  padding-bottom: 8px !important;
+  border-bottom: 1px solid rgba(138,102,48,.58) !important;
+}
+#purchase-window .purchase-icon {
+  width: 54px !important;
+  height: 54px !important;
+  display: grid !important;
+  place-items: center !important;
+  border: 1px solid #b98f45 !important;
+  border-radius: 9px !important;
+  background: linear-gradient(#2d2011,#0d0905) !important;
+}
+#purchase-window .purchase-icon img {
+  max-width: 46px !important;
+  max-height: 46px !important;
+  object-fit: contain !important;
+}
+#purchase-window .purchase-name {
+  color: #fff0bd !important;
+  font-weight: 900 !important;
+  font-size: 18px !important;
+}
+#purchase-window .purchase-meta {
+  margin-top: 4px !important;
+  color: #cdb486 !important;
+  font-size: 13px !important;
+}
+#purchase-window .purchase-desc {
+  flex: 1 1 auto !important;
+  min-height: 128px !important;
+  max-height: 220px !important;
+  overflow-y: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+  touch-action: pan-y !important;
+  padding: 9px 10px !important;
+  border: 1px solid rgba(138,102,48,.48) !important;
+  border-radius: 9px !important;
+  background: rgba(0,0,0,.22) !important;
+  color: #f6e6be !important;
+  font-size: 13px !important;
+  line-height: 1.58 !important;
+}
+#purchase-window .purchase-controls {
+  flex: 0 0 auto !important;
+  margin-top: auto !important;
+  padding-top: 2px !important;
+}
+#purchase-window .purchase-action-row {
+  margin-top: 7px !important;
+  padding-bottom: 0 !important;
+  grid-template-columns: 1fr 92px !important;
+}
+#purchase-window #purchase-buy-confirm {
+  border-color: #e0b35b !important;
+  box-shadow: 0 0 10px rgba(224,179,91,.18) inset !important;
+}
+#purchase-window,
+#purchase-window *,
+#shop-window.is-shop-list-only,
+#shop-window.is-shop-list-only * {
+  touch-action: pan-y !important;
+}
+#purchase-window .drag-handle,
+#purchase-window .window-title,
+#purchase-window button,
+#purchase-window input,
+#shop-window .drag-handle,
+#shop-window .window-title,
+#shop-window button {
+  touch-action: none !important;
+}
+
+@media (max-width: 900px) {
+  #shop-window.is-shop-list-only {
+    width: min(92vw, 430px) !important;
+    height: auto !important;
+    max-height: calc(100dvh - 112px - env(safe-area-inset-bottom, 0px)) !important;
+  }
+  #shop-window.is-shop-list-only .shop-window-body {
+    height: auto !important;
+    max-height: calc(100dvh - 164px - env(safe-area-inset-bottom, 0px)) !important;
+    overflow: hidden !important;
+    padding: 8px 10px 10px !important;
+  }
+  #shop-window.is-shop-list-only .shop-list {
+    max-height: calc(100dvh - 220px - env(safe-area-inset-bottom, 0px)) !important;
+    overflow-y: auto !important;
+  }
+
+  #purchase-window.shop-purchase-window {
+    width: min(92vw, 430px) !important;
+    max-width: calc(100vw - 14px) !important;
+    height: auto !important;
+    max-height: calc(100dvh - 102px - env(safe-area-inset-bottom, 0px)) !important;
+  }
+  #purchase-window .purchase-window-body {
+    max-height: calc(100dvh - 152px - env(safe-area-inset-bottom, 0px)) !important;
+    overflow: hidden !important;
+    padding: 10px !important;
+  }
+  #purchase-window .purchase-card {
+    min-height: min(430px, calc(100dvh - 178px - env(safe-area-inset-bottom, 0px))) !important;
+    max-height: calc(100dvh - 174px - env(safe-area-inset-bottom, 0px)) !important;
+  }
+  #purchase-window .purchase-desc {
+    min-height: 96px !important;
+    max-height: 30dvh !important;
+    font-size: 14px !important;
+  }
+  #purchase-window .purchase-qty-row button,
+  #purchase-window .purchase-action-row button,
+  #purchase-window #purchase-buy-qty {
+    min-height: 36px !important;
+    font-size: 14px !important;
+  }
+
+  /* 背包手機版：獨立放大，不吃過小的全域 UI scale。 */
+  #inventory-window {
+    zoom: .86 !important;
+    width: 330px !important;
+    max-width: 330px !important;
+  }
+  #inventory-window .inventory-body {
+    height: 520px !important;
+    min-height: 520px !important;
+  }
+  #inventory-window #inventory-panel {
+    width: 360px !important;
+    height: 500px !important;
+  }
+  #inventory-window #inventory-list.inventory-slot-grid {
+    left: 45px !important;
+    top: 78px !important;
+    width: 277px !important;
+    height: 392px !important;
+    grid-template-columns: repeat(5, 43px) !important;
+    grid-template-rows: repeat(8, 43px) !important;
+    grid-auto-rows: 43px !important;
+    gap: 8px 8px !important;
+  }
+  #inventory-window #inventory-list.inventory-slot-grid .inventory-slot,
+  #inventory-window #inventory-list.inventory-slot-grid button.inventory-slot,
+  #inventory-window #inventory-list .inventory-slot:nth-child(n) {
+    width: 43px !important;
+    height: 43px !important;
+    min-width: 43px !important;
+    min-height: 43px !important;
+  }
+  #inventory-window #inventory-list .inventory-slot img {
+    width: 30px !important;
+    height: 30px !important;
+    max-width: 34px !important;
+    max-height: 34px !important;
   }
 }

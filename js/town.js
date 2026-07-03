@@ -7,6 +7,7 @@ let currentCity = null;
 let currentShopId = null;
 let currentShopSelectedItem = null;
 let currentShopBuyQty = 1;
+let currentPurchaseItem = null;
 
 function normalizeTownData() {
   if (!player) return;
@@ -184,6 +185,7 @@ function openShop(shopId) {
   currentShopId = shopId;
   currentShopSelectedItem = null;
   currentShopBuyQty = 1;
+  closePurchaseDialog();
   const shopWindow = document.getElementById("shop-window");
   if (shopWindow) {
     shopWindow.classList.remove("hidden-window");
@@ -200,6 +202,7 @@ function renderShopPanel(shopId) {
   if (!shopPanel || !list) return;
 
   if (!shopId) {
+    if (shopWindow) shopWindow.classList.remove("is-shop-list-only");
     shopPanel.classList.add("hidden-town-section");
     list.innerHTML = "";
     if (detail) detail.innerHTML = '<div class="town-empty">左鍵點選商品可查看介紹與購買數量。</div>';
@@ -216,6 +219,7 @@ function renderShopPanel(shopId) {
   }
 
   shopPanel.classList.remove("hidden-town-section");
+  if (shopWindow) shopWindow.classList.add("is-shop-list-only");
   const title = shopPanel.querySelector(".shop-title");
   if (title) title.textContent = shop.name || "商店";
   const windowTitle = document.getElementById("shop-window-title");
@@ -249,10 +253,8 @@ function renderShopPanel(shopId) {
     list.appendChild(row);
   });
 
-  if (currentShopSelectedItem) {
-    renderShopItemDetail(currentShopSelectedItem.itemId, currentShopSelectedItem.price);
-  } else if (detail) {
-    detail.innerHTML = '<div class="town-empty">左鍵點選商品可查看介紹與購買數量。</div>';
+  if (detail) {
+    detail.innerHTML = '<div class="town-empty">點選商品後會開啟獨立購買視窗。</div>';
   }
 }
 
@@ -264,6 +266,95 @@ function selectShopItem(itemId, price) {
   currentShopSelectedItem = { itemId, price };
   currentShopBuyQty = 1;
   renderShopPanel(currentShopId);
+  openPurchaseDialog(itemId, price);
+}
+
+function openPurchaseDialog(itemId, price) {
+  currentPurchaseItem = { itemId, price };
+  renderPurchaseDialog(itemId, price);
+  const win = document.getElementById("purchase-window");
+  if (win) {
+    win.classList.remove("hidden-window");
+    if (typeof centerWindowForMobile === "function") centerWindowForMobile(win);
+    if (typeof bringWindowToFront === "function") bringWindowToFront(win);
+  }
+}
+
+function closePurchaseDialog() {
+  const win = document.getElementById("purchase-window");
+  if (win) win.classList.add("hidden-window");
+  currentPurchaseItem = null;
+}
+
+function renderPurchaseDialog(itemId, price) {
+  const content = document.getElementById("purchase-content");
+  const title = document.getElementById("purchase-window-title");
+  if (!content) return;
+
+  const item = getItemData(itemId);
+  if (!item) {
+    content.innerHTML = '<div class="town-empty">找不到物品資料。</div>';
+    return;
+  }
+
+  const qty = Math.max(1, Number(currentShopBuyQty || 1));
+  const total = Number(price || 0) * qty;
+  const descriptionLines = typeof cleanItemDescriptionLines === "function" ? cleanItemDescriptionLines(item) : (Array.isArray(item.description) ? item.description : []);
+  const description = descriptionLines.length ? descriptionLines.join("\n") : "沒有更多說明。";
+  const renderedDescription = typeof renderROColoredTooltipText === "function"
+    ? renderROColoredTooltipText(description)
+    : escapeShopHtml(description).replace(/\n/g, "<br>");
+  if (title) title.textContent = item.name || "確認購買";
+
+  content.innerHTML = `
+    <div class="purchase-card">
+      <div class="purchase-head">
+        <div class="purchase-icon"><img src="${escapeShopAttr(item.icon || `images/items/${item.officialId || item.id}.webp`)}" alt=""></div>
+        <div>
+          <div class="purchase-name">${escapeShopHtml(item.name || getItemName(itemId))}</div>
+          <div class="purchase-meta">${escapeShopHtml(getItemTypeText(item))}｜單價 ${price} Zeny</div>
+        </div>
+      </div>
+      <div class="purchase-desc">${renderedDescription}</div>
+      <div class="purchase-controls">
+        <div class="shop-qty-row purchase-qty-row">
+          <button type="button" data-purchase-qty="-10">-10</button>
+          <button type="button" data-purchase-qty="-1">-</button>
+          <input id="purchase-buy-qty" type="number" min="1" max="999" value="${qty}" data-no-drag>
+          <button type="button" data-purchase-qty="1">+</button>
+          <button type="button" data-purchase-qty="10">+10</button>
+        </div>
+        <div class="shop-total-row purchase-total-row">總價：<b>${total}</b> Zeny</div>
+        <div class="shop-action-row purchase-action-row">
+          <button type="button" id="purchase-buy-confirm">確認購買</button>
+          <button type="button" id="purchase-buy-cancel">取消</button>
+        </div>
+      </div>
+    </div>
+  `;
+
+  content.querySelectorAll("[data-purchase-qty]").forEach(button => {
+    button.onclick = function () { changePurchaseBuyQty(Number(button.dataset.purchaseQty || 0)); };
+  });
+  const qtyInput = content.querySelector("#purchase-buy-qty");
+  if (qtyInput) qtyInput.onchange = function () { setPurchaseBuyQty(qtyInput.value); };
+  const confirm = content.querySelector("#purchase-buy-confirm");
+  if (confirm) confirm.onclick = function () { buyShopItem(itemId, price, currentShopBuyQty); };
+  const cancel = content.querySelector("#purchase-buy-cancel");
+  if (cancel) cancel.onclick = function () { closePurchaseDialog(); };
+}
+
+function changePurchaseBuyQty(delta) {
+  setPurchaseBuyQty(Number(currentShopBuyQty || 1) + Number(delta || 0));
+}
+
+function setPurchaseBuyQty(value) {
+  currentShopBuyQty = Math.max(1, Math.min(999, Math.floor(Number(value || 1))));
+  if (currentPurchaseItem) {
+    renderPurchaseDialog(currentPurchaseItem.itemId, currentPurchaseItem.price);
+  } else if (currentShopSelectedItem) {
+    renderPurchaseDialog(currentShopSelectedItem.itemId, currentShopSelectedItem.price);
+  }
 }
 
 function renderShopItemDetail(itemId, price) {
@@ -374,6 +465,7 @@ function buyShopItem(itemId, price, qty = 1) {
   updatePlayerUI();
   updateInventoryUI();
   renderShopPanel(currentShopId);
+  closePurchaseDialog();
   saveGame();
 }
 
@@ -393,7 +485,9 @@ function openJobChangeNpc(npc) {
 
   currentShopId = null;
   currentShopSelectedItem = null;
+  closePurchaseDialog();
   if (shopWindow) {
+    shopWindow.classList.remove("is-shop-list-only");
     shopWindow.classList.remove("hidden-window");
     if (typeof bringWindowToFront === "function") bringWindowToFront(shopWindow);
   }

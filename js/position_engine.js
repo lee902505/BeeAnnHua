@@ -483,6 +483,7 @@ function bindBattleFieldMovement() {
 
   let lastTouchMoveRequestAt = 0;
   const handlePointerMoveRequest = event => {
+    if (window.RO_WEB_UI_DRAG_ACTIVE) return;
     if (!isPrimaryMoveInput(event)) return;
     if (isPointerOnBlockedUi(event.target)) return;
     if (!player || player.currentCity) return;
