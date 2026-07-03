@@ -1,4 +1,9 @@
-## V0.9.73
+## V0.9.74
+
+- Android 底部快捷欄 / 戰鬥紀錄上移 28px safe-area 微調。
+- Position Engine 保持 V0.9.73 穩定版，不變更。
+
+## V0.9.74
 
 - Mobile Position Debug / Sprite Scale Sync。
 - 修正手機點一次移動出現兩筆座標 log。
@@ -55,7 +60,7 @@ Skill Icon Remaster Trial：初心者與劍士一轉技能 ICON 試作版。
 新增 Position Combat Prototype：平面地圖座標、近戰/遠攻射程、怪物追擊、蒼蠅翅膀瞬移與自動找不到怪物瞬移設定。
 
 
-## V0.9.73
+## V0.9.74
 
 - iPhone Safari visualViewport 觸控座標修正：下方點擊改以可視戰鬥區換算，減少人物走不到底或反向修正。
 - 手機 touch 事件去重：避免同一次觸控被 pointerdown / touchstart / click 重複下達座標。
@@ -68,7 +73,7 @@ Skill Icon Remaster Trial：初心者與劍士一轉技能 ICON 試作版。
 Full Map Walk + UI Fade：Position 座標改以腳底中心 / 1 Cell 為基準，玩家與怪物可在整張背景圖範圍內移動與出生；UI 不再硬擋路，角色進入 UI 覆蓋區時 UI 透明度降至 0.3。
 
 
-## V0.9.73
+## V0.9.74
 
 Mobile Position Engine Stable Release：
 

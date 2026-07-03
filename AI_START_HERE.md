@@ -1,3 +1,11 @@
+
+## V0.9.74 Android Safe Area 微調
+
+- 本版只調整 Android 底部 UI Safe Area。
+- 快捷欄 / 存檔按鈕底部距離設定為 `28px + env(safe-area-inset-bottom, 0px)`。
+- 戰鬥紀錄同步上移，避免與快捷欄重疊。
+- 禁止因本項微調改動 Position Engine / Camera / Touch / Sprite Pivot。
+
 # AI_START_HERE
 
 # RO_WEB AI START

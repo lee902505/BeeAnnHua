@@ -11510,7 +11510,7 @@ button#equipment-close-btn.window-close {
 }
 
 /* =========================================================
-   RO_WEB V0.9.73 Stable Mobile Position Engine Polish
+   RO_WEB V0.9.74 Android Safe Area Bottom +28
    - Debug 視窗預設關閉
    - 存檔 / 清存檔按鈕加入角色重疊透明判定
    - Android / iPhone 底部 safe-area：快捷欄與對話欄上移，避免被手勢列裁切
@@ -11524,21 +11524,21 @@ button#equipment-close-btn.window-close {
 
 @media (max-width: 900px) {
   #quick-slot-bar.quick-slot-bar {
-    bottom: calc(18px + env(safe-area-inset-bottom, 0px)) !important;
+    bottom: calc(28px + env(safe-area-inset-bottom, 0px)) !important;
   }
   #battle-log.chat-panel {
-    bottom: calc(92px + env(safe-area-inset-bottom, 0px)) !important;
+    bottom: calc(102px + env(safe-area-inset-bottom, 0px)) !important;
   }
   .dev-buttons {
-    bottom: calc(18px + env(safe-area-inset-bottom, 0px)) !important;
+    bottom: calc(28px + env(safe-area-inset-bottom, 0px)) !important;
   }
 }
 
 @media (orientation: portrait) and (max-width: 480px) {
   #quick-slot-bar.quick-slot-bar {
-    bottom: calc(20px + env(safe-area-inset-bottom, 0px)) !important;
+    bottom: calc(28px + env(safe-area-inset-bottom, 0px)) !important;
   }
   #battle-log.chat-panel {
-    bottom: calc(96px + env(safe-area-inset-bottom, 0px)) !important;
+    bottom: calc(104px + env(safe-area-inset-bottom, 0px)) !important;
   }
 }
