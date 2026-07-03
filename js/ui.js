@@ -58,6 +58,8 @@ function isMobileViewport() {
 
 function centerWindowForMobile(win) {
   if (!win || !isMobileViewport()) return;
+  // V0.9.75a：玩家手動拖曳後不再自動置中，避免手機 UI 被拖曳時回彈。
+  if (win.classList.contains("is-user-positioned")) return;
   const root = document.getElementById("battle-field");
   const rootWidth = root?.clientWidth || window.innerWidth;
   const rootHeight = root?.clientHeight || window.innerHeight;
@@ -112,12 +114,24 @@ function startDrag(event, win) {
   const rootRect = root.getBoundingClientRect();
   const winRect = win.getBoundingClientRect();
 
-  // V0.9.64b：修正 CSS zoom / --ui-scale 下第一次拖曳會往左上角跳一下。
-  // getBoundingClientRect() 取得的是縮放後尺寸；style.left/top 使用的是未縮放座標，兩者必須換算。
-  const visualScale = win.offsetWidth ? (winRect.width / win.offsetWidth) : 1;
+  // V0.9.75a：手機版不再允許 CSS translate/scale 參與拖曳座標。
+  // 先把視覺位置轉成 battle-field 內的實際 left/top，再清掉 transform，避免往右上彈跳。
+  const isMobileDrag = isMobileViewport();
+  if (isMobileDrag) {
+    win.classList.add("is-user-positioned");
+    const visualLeft = Math.round(winRect.left - rootRect.left);
+    const visualTop = Math.round(winRect.top - rootRect.top);
+    win.style.setProperty("left", `${visualLeft}px`, "important");
+    win.style.setProperty("top", `${visualTop}px`, "important");
+    win.style.setProperty("right", "auto", "important");
+    win.style.setProperty("transform", "none", "important");
+  }
+
+  const normalizedWinRect = win.getBoundingClientRect();
+  const visualScale = (!isMobileDrag && win.offsetWidth) ? (normalizedWinRect.width / win.offsetWidth) : 1;
   const scale = Number.isFinite(visualScale) && visualScale > 0 ? visualScale : 1;
-  const offsetX = (event.clientX - winRect.left) / scale;
-  const offsetY = (event.clientY - winRect.top) / scale;
+  const offsetX = (event.clientX - normalizedWinRect.left) / scale;
+  const offsetY = (event.clientY - normalizedWinRect.top) / scale;
 
   if (event.pointerId !== undefined && win.setPointerCapture) {
     try { win.setPointerCapture(event.pointerId); } catch (error) {}
@@ -129,8 +143,9 @@ function startDrag(event, win) {
 
     // 至少保留一小段標題區在畫面內，避免面板被拖到找不回來。
     const keepVisible = 48;
+    const safeBottom = isMobileViewport() ? 42 : 0;
     const maxX = (root.clientWidth / scale) - keepVisible;
-    const maxY = (root.clientHeight / scale) - keepVisible;
+    const maxY = (root.clientHeight / scale) - keepVisible - safeBottom;
     x = Math.max(-(win.offsetWidth - keepVisible), Math.min(x, maxX));
     y = Math.max(0, Math.min(y, maxY));
 

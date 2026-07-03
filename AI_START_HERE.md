@@ -166,3 +166,8 @@ RO_WEB_CONSTITUTION.json
 - 玩家普攻射程請修改 `data/weapon_types.json`，不要在 `battle.js` 硬寫。
 - 技能射程請在 `data/skills.json` 使用 `rangeCells`。
 - 手機點擊地圖使用 Pointer Events；不要只綁 click。
+
+
+## V0.9.75a 補充
+- 手機 UI 拖曳修正僅限 ui.js / CSS 視窗定位，不可改 Position Engine。
+- 手機技能欄使用實際寬度收斂，不再使用 transform scale 壓縮整窗。

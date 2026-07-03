@@ -1,3 +1,10 @@
+# RO_WEB V0.9.75a
+
+- 手機 UI 熱修：修正拖曳彈往右上並卡住的問題。
+- 技能欄手機版改為實際寬度收斂，避免小螢幕爆出外框。
+- 商店購買區貼近底部邊框，保留約 5px。
+- 未修改 Position Engine。
+
 ## V0.9.75 Mobile UI Fit / Shop Detail / Inventory Double Tap
 
 - 手機版彈窗改為優先吃滿可視寬高，修正小螢幕技能欄與地圖/商店彈窗裁切問題。

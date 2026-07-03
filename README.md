@@ -1,4 +1,4 @@
-## V0.9.75 Mobile UI Fit / Shop Detail / Inventory Double Tap
+## V0.9.75a Mobile UI Fit / Shop Detail / Inventory Double Tap
 
 - 手機版彈窗改為優先吃滿可視寬高，修正小螢幕技能欄與地圖/商店彈窗裁切問題。
 - 手機商店商品區與物品介紹/購買區重新分配高度，商品資訊、數量與確認購買按鈕在小螢幕更容易操作。

@@ -11733,3 +11733,137 @@ button#equipment-close-btn.window-close {
     min-height: 52px !important;
   }
 }
+
+
+/* =========================================================
+   RO_WEB V0.9.75a Mobile UI Hotfix
+   - 修正手機拖曳視窗往右上彈跳：拖曳後使用實際 left/top，不再被置中 transform 強拉回去
+   - 技能欄手機版改成真正縮到螢幕內，不使用 scale 造成內容爆出
+   - 商店購買區貼近底部邊框，保留約 5px
+   ========================================================= */
+@media (max-width: 900px) {
+  .game-window.draggable-window.is-user-positioned {
+    transform: none !important;
+    right: auto !important;
+  }
+
+  #map-window.true-map-window.is-user-positioned,
+  #town-window.is-user-positioned,
+  #inventory-window.is-user-positioned,
+  #equipment-window.is-user-positioned,
+  #status-window.is-user-positioned,
+  #auto-combat-panel.is-user-positioned,
+  #hunting-stats-panel.is-user-positioned,
+  #shop-window.is-user-positioned,
+  #skill-window.true-skill-window.is-user-positioned {
+    transform: none !important;
+  }
+
+  #skill-window.true-skill-window {
+    width: min(94vw, 390px) !important;
+    height: min(calc(100dvh - 96px - env(safe-area-inset-bottom, 0px)), 548px) !important;
+    max-width: calc(100vw - 12px) !important;
+    max-height: calc(100dvh - 92px - env(safe-area-inset-bottom, 0px)) !important;
+    overflow: hidden !important;
+    transform: none !important;
+  }
+  #skill-window.true-skill-window .window-title,
+  #skill-window.true-skill-window .skill-window-body {
+    width: 100% !important;
+  }
+  #skill-window.true-skill-window .skill-window-body {
+    height: 100% !important;
+    min-height: 0 !important;
+    overflow: hidden !important;
+  }
+  #skill-window.true-skill-window .novice-skill-row,
+  #skill-window.true-skill-window #novice-skill-row {
+    left: 92px !important;
+    right: 10px !important;
+    top: 74px !important;
+    height: 48px !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    white-space: nowrap !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+  #skill-window.true-skill-window .novice-skill-chip {
+    min-width: 82px !important;
+    max-width: 106px !important;
+    padding: 0 7px !important;
+    flex: 0 0 auto !important;
+  }
+  #skill-window.true-skill-window .novice-skill-chip-text {
+    max-width: 64px !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+  #skill-window.true-skill-window #skill-panel.skill-grid.skill-slot-grid {
+    left: 92px !important;
+    top: 136px !important;
+    width: calc(100% - 108px) !important;
+    height: calc(100% - 202px) !important;
+    grid-template-columns: repeat(5, minmax(38px, 1fr)) !important;
+    grid-auto-rows: 42px !important;
+    gap: 6px !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+  }
+  #skill-window.true-skill-window .skill-grid-slot {
+    width: 100% !important;
+    height: 42px !important;
+  }
+  #skill-window.true-skill-window .skill-grid-icon {
+    width: 31px !important;
+    height: 31px !important;
+  }
+  #skill-window.true-skill-window #skill-point-footer {
+    left: auto !important;
+    right: 42px !important;
+    top: auto !important;
+    bottom: 17px !important;
+    width: 160px !important;
+  }
+
+  #shop-window .shop-detail-panel {
+    padding: 10px 10px 5px !important;
+  }
+  #shop-window .shop-detail-card {
+    min-height: 100% !important;
+    display: flex !important;
+    flex-direction: column !important;
+  }
+  #shop-window .shop-detail-desc {
+    flex: 1 1 auto !important;
+    min-height: 72px !important;
+  }
+  #shop-window .shop-total-row {
+    margin-top: auto !important;
+  }
+  #shop-window .shop-action-row {
+    margin-top: 4px !important;
+    margin-bottom: 0 !important;
+    padding-bottom: 0 !important;
+  }
+}
+
+@media (orientation: portrait) and (max-width: 390px) {
+  #skill-window.true-skill-window {
+    width: calc(100vw - 8px) !important;
+    height: min(calc(100dvh - 92px - env(safe-area-inset-bottom, 0px)), 536px) !important;
+    transform: none !important;
+  }
+  #skill-window.true-skill-window .skill-tab-row {
+    left: 8px !important;
+  }
+  #skill-window.true-skill-window .novice-skill-row,
+  #skill-window.true-skill-window #novice-skill-row {
+    left: 86px !important;
+    right: 8px !important;
+  }
+  #skill-window.true-skill-window #skill-panel.skill-grid.skill-slot-grid {
+    left: 86px !important;
+    width: calc(100% - 100px) !important;
+    grid-auto-rows: 40px !important;
+  }
+}
