@@ -11333,3 +11333,75 @@ button#equipment-close-btn.window-close {
     max-height: 96px !important;
   }
 }
+
+/* =========================================================
+   RO_WEB V0.9.72e Full Map Walk + UI Fade
+   - 玩家 / 怪物以腳底中心 1 Cell 為 Position 座標
+   - 可走 / 出生範圍改為整張背景圖
+   - UI 不再阻擋行走；角色進入 UI 範圍時 UI 透明度降至 0.3
+   - 手機商店購買窗改為完整視窗內可滾動，避免物品介紹被吃掉
+   ========================================================= */
+#player-info,
+#top-bar,
+#quick-buttons,
+#battle-log,
+#quick-slot-bar,
+#auto-battle-area,
+.game-window {
+  transition: opacity .16s ease, filter .16s ease !important;
+}
+#player-info.ui-under-player,
+#top-bar.ui-under-player,
+#quick-buttons.ui-under-player,
+#battle-log.ui-under-player,
+#quick-slot-bar.ui-under-player,
+#auto-battle-area.ui-under-player,
+.game-window.ui-under-player {
+  opacity: .3 !important;
+}
+
+@media (max-width: 900px) {
+  #shop-window {
+    height: min(94dvh, 720px) !important;
+    max-height: calc(100dvh - 12px) !important;
+  }
+  #shop-window .shop-window-body {
+    height: calc(100% - 34px) !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    overscroll-behavior: contain !important;
+    padding-bottom: 14px !important;
+  }
+  #shop-window .shop-layout {
+    display: flex !important;
+    flex-direction: column !important;
+    height: auto !important;
+    min-height: 0 !important;
+    gap: 8px !important;
+  }
+  #shop-window .shop-list {
+    height: min(30dvh, 210px) !important;
+    min-height: 126px !important;
+    max-height: 210px !important;
+    flex: 0 0 auto !important;
+  }
+  #shop-window .shop-detail-panel {
+    height: auto !important;
+    min-height: 0 !important;
+    overflow: visible !important;
+  }
+  #shop-window .shop-detail-card {
+    display: flex !important;
+    flex-direction: column !important;
+    min-height: 0 !important;
+  }
+  #shop-window .shop-detail-desc {
+    max-height: none !important;
+    min-height: 88px !important;
+    overflow-y: visible !important;
+  }
+  #shop-window .shop-action-row {
+    position: static !important;
+    margin-top: 8px !important;
+  }
+}

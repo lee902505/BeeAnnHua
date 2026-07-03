@@ -49,5 +49,10 @@ Skill Icon Remaster Trial：初心者與劍士一轉技能 ICON 試作版。
 新增 Position Combat Prototype：平面地圖座標、近戰/遠攻射程、怪物追擊、蒼蠅翅膀瞬移與自動找不到怪物瞬移設定。
 
 
-## V0.9.72d
+## V0.9.72e
 手機直式可行走區、商店滾動與金幣列完整數量顯示修正。
+
+
+## V0.9.72e
+
+Full Map Walk + UI Fade：Position 座標改以腳底中心 / 1 Cell 為基準，玩家與怪物可在整張背景圖範圍內移動與出生；UI 不再硬擋路，角色進入 UI 覆蓋區時 UI 透明度降至 0.3。

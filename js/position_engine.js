@@ -4,7 +4,7 @@
 // 參考 RA mob_db 概念欄位：AttackRange / SkillRange / ChaseRange / WalkSpeed / Ai / Modes。
 //=======================================
 
-const POSITION_ENGINE_VERSION = "0.9.72d";
+const POSITION_ENGINE_VERSION = "0.9.72e";
 const FLY_WING_ITEM_ID = 601;
 
 //=======================================
@@ -130,41 +130,25 @@ function getUiBottomInField(elementId) {
 
 function getDynamicPositionBounds(kind = "player") {
   const { width, height } = getFieldLogicalSize();
-  const spriteW = kind === "monster" ? POSITION_SAFE.monsterW : POSITION_SAFE.playerW;
 
-  // 上界只避開左上角色資訊欄；等待怪物的「?」或怪物座標不參與邊界計算。
-  const playerInfoBottom = getUiBottomInField("player-info");
-  const minY = Math.max(
-    40,
-    Number.isFinite(playerInfoBottom) ? playerInfoBottom + POSITION_SAFE.topGap : POSITION_FIELD.minY
-  );
-
-  // 下界以戰鬥紀錄上緣為主，沒有戰鬥紀錄時才用快捷欄。
-  // 這讓 PC 與手機都能使用更大的戰鬥區，而不是被舊版 500px 固定值限制。
-  const logTop = getUiTopInField("battle-log");
-  const quickTop = getUiTopInField("quick-slot-bar");
-  const bottomUiTop = [logTop, quickTop]
-    .filter(v => Number.isFinite(v) && v > 0)
-    .sort((a, b) => a - b)[0];
-  const maxY = Math.max(
-    minY,
-    Number.isFinite(bottomUiTop)
-      ? bottomUiTop - POSITION_SAFE.bottomGap
-      : height - 78
-  );
-
-  const minX = POSITION_SAFE.left;
-  const maxX = Math.max(minX, width - POSITION_SAFE.right - spriteW);
+  // V0.9.72e：可走範圍改為「整張背景圖」。
+  // Position 座標代表腳底中心 / 1 Cell，不再用人物整張圖片、角色卡、金幣列、
+  // 右上按鈕、戰鬥紀錄或快捷欄縮小座標範圍。UI 被角色走到下方時改由透明度處理。
+  const cellMargin = Math.max(8, POSITION_CELL_SIZE_PX * 0.5);
+  const minX = cellMargin;
+  const maxX = Math.max(minX, width - cellMargin);
+  const minY = cellMargin;
+  const maxY = Math.max(minY, height - cellMargin);
 
   return {
     minX,
     maxX,
     minY,
     maxY,
-    playerDefaultX: clampPositionValue(width * 0.48, minX, maxX),
-    playerDefaultY: clampPositionValue((minY + maxY) * 0.48, minY, maxY),
-    monsterDefaultX: clampPositionValue(width * 0.70, minX, maxX),
-    monsterDefaultY: clampPositionValue((minY + maxY) * 0.42, minY, maxY)
+    playerDefaultX: clampPositionValue(width * 0.38, minX, maxX),
+    playerDefaultY: clampPositionValue(height * 0.66, minY, maxY),
+    monsterDefaultX: clampPositionValue(width * 0.68, minX, maxX),
+    monsterDefaultY: clampPositionValue(height * 0.58, minY, maxY)
   };
 }
 
@@ -550,6 +534,60 @@ function assignMonsterSpawnPosition(monster) {
   monster.aiState = "IDLE";
 }
 
+function getSpriteAnchorOffset(element, kind = "player") {
+  if (!element) return { x: 0, y: 0 };
+  const width = Number(element.offsetWidth || (kind === "monster" ? 150 : 220));
+  const height = Number(element.offsetHeight || (kind === "monster" ? 170 : 250));
+  return {
+    x: width * 0.5,
+    y: height * (kind === "monster" ? 0.82 : 0.86)
+  };
+}
+
+function getLogicalPointClientPosition(pos) {
+  const field = getBattleFieldElement();
+  if (!field || !pos) return null;
+  const rect = field.getBoundingClientRect();
+  const logicalWidth = field.offsetWidth || 1280;
+  const logicalHeight = field.offsetHeight || 720;
+  return {
+    x: rect.left + (Number(pos.x || 0) / logicalWidth) * rect.width,
+    y: rect.top + (Number(pos.y || 0) / logicalHeight) * rect.height
+  };
+}
+
+function getUiFadeElements() {
+  return [
+    document.getElementById("player-info"),
+    document.getElementById("top-bar"),
+    document.getElementById("quick-buttons"),
+    document.getElementById("battle-log"),
+    document.getElementById("quick-slot-bar"),
+    document.getElementById("auto-battle-area"),
+    ...Array.from(document.querySelectorAll(".game-window:not(.hidden-window)"))
+  ].filter(Boolean);
+}
+
+function updateUiFadeForPosition() {
+  const point = getLogicalPointClientPosition(player?.position);
+  const elements = getUiFadeElements();
+  if (!point) {
+    elements.forEach(el => el.classList.remove("ui-under-player"));
+    return;
+  }
+  const radius = POSITION_CELL_SIZE_PX * 0.7;
+  elements.forEach(el => {
+    const rect = el.getBoundingClientRect();
+    const isVisible = rect.width > 0 && rect.height > 0;
+    const overlaps = isVisible &&
+      point.x >= rect.left - radius &&
+      point.x <= rect.right + radius &&
+      point.y >= rect.top - radius &&
+      point.y <= rect.bottom + radius;
+    el.classList.toggle("ui-under-player", overlaps);
+  });
+}
+
 function renderPositionSprites() {
   if (player?.position) {
     const safePlayerPos = clampPositionToBounds(player.position, "player");
@@ -557,10 +595,10 @@ function renderPositionSprites() {
     player.position.y = safePlayerPos.y;
     const playerEl = document.getElementById("player-sprite");
     if (playerEl) {
-      // V0.9.72b：手機 CSS 曾用 !important 固定角色位置，會蓋掉 JS 座標。
-      // 這裡用 inline important，確保 PC / iPhone 都由 Position Engine 控制。
-      playerEl.style.setProperty("left", `${Math.round(player.position.x)}px`, "important");
-      playerEl.style.setProperty("top", `${Math.round(player.position.y)}px`, "important");
+      // Position 座標為腳底中心；圖片本體可覆蓋 UI，但不再縮小可走範圍。
+      const anchor = getSpriteAnchorOffset(playerEl, "player");
+      playerEl.style.setProperty("left", `${Math.round(player.position.x - anchor.x)}px`, "important");
+      playerEl.style.setProperty("top", `${Math.round(player.position.y - anchor.y)}px`, "important");
     }
   }
 
@@ -569,10 +607,12 @@ function renderPositionSprites() {
     const safeMonsterPos = clampPositionToBounds(currentMonster.position, "monster");
     currentMonster.position.x = safeMonsterPos.x;
     currentMonster.position.y = safeMonsterPos.y;
-    monsterEl.style.setProperty("left", `${Math.round(currentMonster.position.x)}px`, "important");
-    monsterEl.style.setProperty("top", `${Math.round(currentMonster.position.y)}px`, "important");
+    const anchor = getSpriteAnchorOffset(monsterEl, "monster");
+    monsterEl.style.setProperty("left", `${Math.round(currentMonster.position.x - anchor.x)}px`, "important");
+    monsterEl.style.setProperty("top", `${Math.round(currentMonster.position.y - anchor.y)}px`, "important");
     monsterEl.dataset.aiState = currentMonster.aiState || "IDLE";
   }
+  updateUiFadeForPosition();
 }
 
 function countInventoryItem(itemId) {
