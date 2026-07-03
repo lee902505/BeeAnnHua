@@ -11131,3 +11131,83 @@ button#equipment-close-btn.window-close {
     font-size: 11px !important;
   }
 }
+
+
+/* =========================================================
+   RO_WEB V0.9.72c Mobile Combat Area + Shop Scroll Fix
+   - 手機直式可行走範圍改接近實測紅框
+   - 商店購買窗允許內層穩定滾動，不被 battle-field touch-action 攔截
+   - 金幣列可點擊查看完整數量
+   ========================================================= */
+#top-bar { cursor: pointer; }
+#top-bar:active { filter: brightness(1.13); }
+
+@media (max-width: 900px) {
+  #top-bar .currency-item span {
+    max-width: 72px !important;
+  }
+
+  #shop-window,
+  #shop-window *,
+  #town-window,
+  #town-window * {
+    touch-action: pan-y !important;
+  }
+
+  #shop-window {
+    height: auto !important;
+    max-height: calc(100dvh - 24px) !important;
+    overflow: hidden !important;
+    overscroll-behavior: contain !important;
+  }
+
+  #shop-window .shop-window-body {
+    height: min(620px, calc(100dvh - 76px)) !important;
+    max-height: calc(100dvh - 76px) !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    overscroll-behavior: contain !important;
+    touch-action: pan-y !important;
+    padding-bottom: 18px !important;
+  }
+
+  #shop-window .shop-layout {
+    height: auto !important;
+    min-height: 0 !important;
+    grid-template-columns: 1fr !important;
+  }
+
+  #shop-window .shop-list {
+    height: 31dvh !important;
+    max-height: 260px !important;
+    min-height: 132px !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    overscroll-behavior: contain !important;
+  }
+
+  #shop-window .shop-detail-panel {
+    height: auto !important;
+    min-height: 250px !important;
+    max-height: none !important;
+    overflow: visible !important;
+    padding-bottom: 12px !important;
+  }
+
+  #shop-window .shop-detail-desc {
+    max-height: 24dvh !important;
+    min-height: 92px !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    overscroll-behavior: contain !important;
+    touch-action: pan-y !important;
+  }
+
+  #shop-window .shop-action-row {
+    position: sticky !important;
+    bottom: 0 !important;
+    background: linear-gradient(rgba(22,12,6,.92), rgba(8,5,3,.98)) !important;
+    padding-top: 8px !important;
+    z-index: 3 !important;
+  }
+}

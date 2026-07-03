@@ -4,7 +4,7 @@
 // 參考 RA mob_db 概念欄位：AttackRange / SkillRange / ChaseRange / WalkSpeed / Ai / Modes。
 //=======================================
 
-const POSITION_ENGINE_VERSION = "0.9.72b";
+const POSITION_ENGINE_VERSION = "0.9.72c";
 const FLY_WING_ITEM_ID = 601;
 
 //=======================================
@@ -73,11 +73,13 @@ const POSITION_FIELD = {
 // 桌機仍保留原本 1280x720 的穩定手感；手機則依實際 battle-field 尺寸、
 // 底部戰鬥紀錄/快捷欄與右側按鈕區計算邊界，避免角色跑出框外或躲到 UI 後面。
 const POSITION_MOBILE_SAFE = {
-  left: 14,
-  top: 176,
-  rightPortrait: 166,
-  rightLandscape: 26,
-  bottom: 170,
+  // V0.9.72c：手機直式改以實際可玩紅框範圍為主，不再只保留底部窄區。
+  left: 58,
+  topPortrait: 238,
+  topLandscape: 92,
+  rightPortrait: 28,
+  rightLandscape: 24,
+  bottom: 126,
   spriteW: 92,
   spriteH: 142,
   monsterW: 96,
@@ -119,6 +121,16 @@ function getUiTopInField(elementId) {
   return er.top - fr.top;
 }
 
+function getUiBottomInField(elementId) {
+  const field = getBattleFieldElement();
+  const el = document.getElementById(elementId);
+  if (!field || !el) return null;
+  const fr = field.getBoundingClientRect();
+  const er = el.getBoundingClientRect();
+  if (!Number.isFinite(er.bottom) || er.height <= 0) return null;
+  return er.bottom - fr.top;
+}
+
 function getDynamicPositionBounds(kind = "player") {
   if (!isMobileBattleLayout()) {
     return { ...POSITION_FIELD };
@@ -134,16 +146,26 @@ function getDynamicPositionBounds(kind = "player") {
   const firstBottomUiTop = [logTop, quickTop].filter(v => Number.isFinite(v) && v > 0).sort((a, b) => a - b)[0];
 
   const minX = POSITION_MOBILE_SAFE.left;
-  const minY = portrait ? POSITION_MOBILE_SAFE.top : 92;
+
+  // 手機直式：可玩範圍以上方 UI 底線 + 安全距離，以及玩家實測紅框為準。
+  // 角色座標代表 sprite 左上/錨點，不能讓它躲進左上角色卡、金幣列或右上按鈕下方。
+  const topUiBottom = [
+    getUiBottomInField("player-info"),
+    getUiBottomInField("top-bar"),
+    getUiBottomInField("quick-buttons")
+  ].filter(v => Number.isFinite(v) && v > 0).sort((a, b) => b - a)[0];
+  const baseMinY = portrait ? POSITION_MOBILE_SAFE.topPortrait : POSITION_MOBILE_SAFE.topLandscape;
+  const minY = Math.max(baseMinY, Number.isFinite(topUiBottom) ? topUiBottom + 18 : baseMinY);
+
   const rightSafe = portrait ? POSITION_MOBILE_SAFE.rightPortrait : POSITION_MOBILE_SAFE.rightLandscape;
   const maxX = Math.max(minX, width - rightSafe - spriteW);
 
-  // 這裡的 position.y 是角色錨點/上緣座標，不等同整張人物圖底部。
-  // 手機版若扣掉完整 spriteH，會導致可走區過窄；因此以底部 UI 上緣預留 90px 為主。
+  // V0.9.72c：底部以戰鬥紀錄/快捷欄上緣為界，但只留最小安全距離，
+  // 讓手機直式能使用接近紅框的大範圍，而不是被壓縮在 500 多的座標。
   const uiLimitedMaxY = Number.isFinite(firstBottomUiTop)
-    ? firstBottomUiTop - 90
+    ? firstBottomUiTop - 22
     : height - POSITION_MOBILE_SAFE.bottom;
-  const maxY = Math.max(minY, Math.min(height - 110, uiLimitedMaxY));
+  const maxY = Math.max(minY, Math.min(height - 64, uiLimitedMaxY));
 
   return {
     minX,

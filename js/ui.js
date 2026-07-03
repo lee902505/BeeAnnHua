@@ -1,7 +1,7 @@
 //=======================================
 // UI Skeleton v0.1：視窗開關 / 拖曳 / 位置記憶
 //=======================================
-const UI_POS_KEY = "ro_web_ui_positions_v0_9_72b";
+const UI_POS_KEY = "ro_web_ui_positions_v0_9_72c";
 let topZIndex = 40;
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -9,6 +9,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initDraggableWindows();
   initCloseButtons();
   initGameTooltips();
+  initCurrencyDetailPopup();
 });
 
 window.addEventListener("resize", () => {
@@ -297,5 +298,38 @@ function initGameTooltips() {
     // 手機 / 平板沒有 hover，點一下文字或技能 icon 也能看說明。
     showGameTooltip(target.dataset.tooltip, event.clientX || 24, event.clientY || 24);
     activeTooltipTarget = target;
+  });
+}
+
+
+// V0.9.72c：手機金幣列空間不足時，點擊資源列顯示完整數量。
+function initCurrencyDetailPopup() {
+  const topBar = document.getElementById("top-bar");
+  if (!topBar || topBar.dataset.currencyDetailBound === "1") return;
+  topBar.dataset.currencyDetailBound = "1";
+  topBar.setAttribute("role", "button");
+  topBar.setAttribute("tabindex", "0");
+  topBar.title = "點擊顯示完整貨幣數量";
+
+  const show = event => {
+    const z = Number(player?.zeny || 0).toLocaleString("zh-TW");
+    const b = Number(player?.blueGem || 0).toLocaleString("zh-TW");
+    const r = Number(player?.redGem || 0).toLocaleString("zh-TW");
+    const text = `Zeny：${z}<br>藍寶石：${b}<br>紅寶石：${r}`;
+    if (typeof showGameTooltip === "function") {
+      const point = event?.touches?.[0] || event;
+      showGameTooltip(text, point?.clientX || window.innerWidth - 180, point?.clientY || 48);
+    } else {
+      alert(`Zeny：${z}\n藍寶石：${b}\n紅寶石：${r}`);
+    }
+  };
+
+  topBar.addEventListener("click", show);
+  topBar.addEventListener("touchstart", event => {
+    if (event.cancelable) event.preventDefault();
+    show(event);
+  }, { passive: false });
+  topBar.addEventListener("keydown", event => {
+    if (event.key === "Enter" || event.key === " ") show(event);
   });
 }
