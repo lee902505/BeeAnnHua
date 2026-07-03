@@ -11405,3 +11405,23 @@ button#equipment-close-btn.window-close {
     margin-top: 8px !important;
   }
 }
+
+/* =========================================================
+   RO_WEB V0.9.72f Full Background Bounds + Accurate UI Fade
+   - Position Engine 的 inline left/top 是唯一角色/怪物座標來源
+   - 清除舊手機固定座標的殘留影響
+   - UI Fade 由 JS 用腳底 1 Cell 判定；此處只保留透明顯示
+   ========================================================= */
+#player-sprite.player-sprite,
+#monster-sprite.monster-sprite {
+  will-change: left, top !important;
+}
+#player-info.ui-under-player,
+#top-bar.ui-under-player,
+#quick-buttons.ui-under-player,
+#battle-log.ui-under-player,
+#quick-slot-bar.ui-under-player,
+#auto-battle-area.ui-under-player,
+.game-window.ui-under-player {
+  opacity: .3 !important;
+}

@@ -4,7 +4,7 @@
 // 參考 RA mob_db 概念欄位：AttackRange / SkillRange / ChaseRange / WalkSpeed / Ai / Modes。
 //=======================================
 
-const POSITION_ENGINE_VERSION = "0.9.72e";
+const POSITION_ENGINE_VERSION = "0.9.72f";
 const FLY_WING_ITEM_ID = 601;
 
 //=======================================
@@ -131,14 +131,14 @@ function getUiBottomInField(elementId) {
 function getDynamicPositionBounds(kind = "player") {
   const { width, height } = getFieldLogicalSize();
 
-  // V0.9.72e：可走範圍改為「整張背景圖」。
-  // Position 座標代表腳底中心 / 1 Cell，不再用人物整張圖片、角色卡、金幣列、
-  // 右上按鈕、戰鬥紀錄或快捷欄縮小座標範圍。UI 被角色走到下方時改由透明度處理。
-  const cellMargin = Math.max(8, POSITION_CELL_SIZE_PX * 0.5);
-  const minX = cellMargin;
-  const maxX = Math.max(minX, width - cellMargin);
-  const minY = cellMargin;
-  const maxY = Math.max(minY, height - cellMargin);
+  // V0.9.72f：真正全背景可走。
+  // Position 座標只代表「腳底中心點 / 1 Cell」，不再用角色圖片寬高、UI 安全區、
+  // 右側按鈕、下方聊天欄或等待怪物狀態縮小可走範圍。
+  // 注意：可視背景邊框就是唯一硬邊界；角色圖片本體可以壓在 UI 或接近畫面邊緣。
+  const minX = 0;
+  const maxX = Math.max(minX, width);
+  const minY = 0;
+  const maxY = Math.max(minY, height);
 
   return {
     minX,
@@ -575,15 +575,28 @@ function updateUiFadeForPosition() {
     elements.forEach(el => el.classList.remove("ui-under-player"));
     return;
   }
-  const radius = POSITION_CELL_SIZE_PX * 0.7;
+
+  // V0.9.72f：UI Fade 改用「腳底 1 Cell 的小判定框」與 UI 實際 DOM 矩形相交。
+  // 不再使用很大的放大半徑，避免右側 / 下方 UI 在角色還很遠時就透明；
+  // 同時讓左側 / 上方 / 彈窗都用同一套判定，不再有方向差異。
+  const halfCell = Math.max(6, POSITION_CELL_SIZE_PX * 0.33);
+  const footRect = {
+    left: point.x - halfCell,
+    right: point.x + halfCell,
+    top: point.y - halfCell,
+    bottom: point.y + halfCell
+  };
+
   elements.forEach(el => {
+    const style = window.getComputedStyle?.(el);
     const rect = el.getBoundingClientRect();
-    const isVisible = rect.width > 0 && rect.height > 0;
+    const isVisible = rect.width > 0 && rect.height > 0 &&
+      style?.display !== "none" && style?.visibility !== "hidden";
     const overlaps = isVisible &&
-      point.x >= rect.left - radius &&
-      point.x <= rect.right + radius &&
-      point.y >= rect.top - radius &&
-      point.y <= rect.bottom + radius;
+      footRect.right >= rect.left &&
+      footRect.left <= rect.right &&
+      footRect.bottom >= rect.top &&
+      footRect.top <= rect.bottom;
     el.classList.toggle("ui-under-player", overlaps);
   });
 }
