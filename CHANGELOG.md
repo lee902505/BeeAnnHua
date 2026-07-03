@@ -1,22 +1,29 @@
-## V0.9.74 - Android Safe Area +28
+## V0.9.75 Mobile UI Fit / Shop Detail / Inventory Double Tap
+
+- 手機版彈窗改為優先吃滿可視寬高，修正小螢幕技能欄與地圖/商店彈窗裁切問題。
+- 手機商店商品區與物品介紹/購買區重新分配高度，商品資訊、數量與確認購買按鈕在小螢幕更容易操作。
+- 背包裝備類物品改為：單點只看介紹，雙點才穿戴；避免點一下就直接穿上。
+- 本版只調整 UI / 背包互動，不修改 Position Engine / Camera / Touch / Sprite Pivot。
+
+## V0.9.75 - Android Safe Area +28
 
 - Android 手機底部快捷欄改為 `bottom: calc(28px + env(safe-area-inset-bottom, 0px))`。
 - 戰鬥紀錄同步上移，避免與快捷欄重疊。
 - 不修改 Position Engine，只做底部 UI safe-area 微調。
 
-## V0.9.74 - Mobile Position Engine Stable Release
+## V0.9.75 - Mobile Position Engine Stable Release
 
 - 移除 Position Debug Overlay / 十字測試點，正式版不再顯示座標除錯視窗。
 - 保留 V0.9.72j 已驗證的 Mobile Position Engine：Windows / iPhone Safari / Android 四角皆可到達。
 - 存檔 / 清存檔按鈕加入 UI 透明判定，角色走到按鈕附近時會同步淡化。
 - Android / iPhone 底部 Safe Area 修正：快捷欄、戰鬥紀錄、存檔按鈕上移，降低被手勢列或瀏覽器底欄裁切機率。
-- 版本號與快取參數更新為 0.9.74。
+- 版本號與快取參數更新為 0.9.75。
 
 ## V0.9.72j - Mobile Position Debug / Sprite Scale Sync
 
 - 修正手機版同一次點擊可能產生兩筆「移動到座標」紀錄的問題。
 - 角色 / 怪物手機縮放改成實際寬高，不再使用 CSS zoom，避免邏輯座標已到底但 Sprite 顯示仍卡在中段。
-- 加入 Position Debug Overlay，手機實測時可直接看到 Player / Target / Field / Sprite 座標；V0.9.74 正式版已關閉。
+- 加入 Position Debug Overlay，手機實測時可直接看到 Player / Target / Field / Sprite 座標；V0.9.75 正式版已關閉。
 - 版本號更新為 0.9.72j。
 
 ## V0.9.72h - iPhone Safari Visual Viewport Touch Fix

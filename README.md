@@ -1,9 +1,16 @@
-## V0.9.74
+## V0.9.75 Mobile UI Fit / Shop Detail / Inventory Double Tap
+
+- 手機版彈窗改為優先吃滿可視寬高，修正小螢幕技能欄與地圖/商店彈窗裁切問題。
+- 手機商店商品區與物品介紹/購買區重新分配高度，商品資訊、數量與確認購買按鈕在小螢幕更容易操作。
+- 背包裝備類物品改為：單點只看介紹，雙點才穿戴；避免點一下就直接穿上。
+- 本版只調整 UI / 背包互動，不修改 Position Engine / Camera / Touch / Sprite Pivot。
+
+## V0.9.75
 
 - Android 底部快捷欄 / 戰鬥紀錄上移 28px safe-area 微調。
 - Position Engine 保持 V0.9.73 穩定版，不變更。
 
-## V0.9.74
+## V0.9.75
 
 - Mobile Position Debug / Sprite Scale Sync。
 - 修正手機點一次移動出現兩筆座標 log。
@@ -60,7 +67,7 @@ Skill Icon Remaster Trial：初心者與劍士一轉技能 ICON 試作版。
 新增 Position Combat Prototype：平面地圖座標、近戰/遠攻射程、怪物追擊、蒼蠅翅膀瞬移與自動找不到怪物瞬移設定。
 
 
-## V0.9.74
+## V0.9.75
 
 - iPhone Safari visualViewport 觸控座標修正：下方點擊改以可視戰鬥區換算，減少人物走不到底或反向修正。
 - 手機 touch 事件去重：避免同一次觸控被 pointerdown / touchstart / click 重複下達座標。
@@ -73,7 +80,7 @@ Skill Icon Remaster Trial：初心者與劍士一轉技能 ICON 試作版。
 Full Map Walk + UI Fade：Position 座標改以腳底中心 / 1 Cell 為基準，玩家與怪物可在整張背景圖範圍內移動與出生；UI 不再硬擋路，角色進入 UI 覆蓋區時 UI 透明度降至 0.3。
 
 
-## V0.9.74
+## V0.9.75
 
 Mobile Position Engine Stable Release：
 

@@ -11542,3 +11542,194 @@ button#equipment-close-btn.window-close {
     bottom: calc(104px + env(safe-area-inset-bottom, 0px)) !important;
   }
 }
+
+/* =========================================================
+   RO_WEB V0.9.75 Mobile UI Fit + Shop Detail + Inventory Double Tap
+   - 僅調整手機彈窗 / 商店 / 技能欄 UI，不改 Position Engine
+   - 小螢幕彈窗盡量吃滿可視寬高，避免右側與底部被裁切
+   ========================================================= */
+@media (max-width: 900px) {
+  .game-window.draggable-window:not(.hidden-window) {
+    max-width: calc(100vw - 10px) !important;
+    max-height: calc(100dvh - 78px - env(safe-area-inset-bottom, 0px)) !important;
+  }
+
+  #map-window.true-map-window,
+  #town-window,
+  #inventory-window,
+  #equipment-window,
+  #status-window,
+  #auto-combat-panel,
+  #hunting-stats-panel {
+    left: 50% !important;
+    top: calc(48px + env(safe-area-inset-top, 0px)) !important;
+    transform: translateX(-50%) !important;
+    width: min(94vw, 520px) !important;
+  }
+
+  #skill-window.true-skill-window {
+    left: 50% !important;
+    top: calc(58px + env(safe-area-inset-top, 0px)) !important;
+    width: 440px !important;
+    height: 568px !important;
+    max-width: none !important;
+    max-height: none !important;
+    overflow: visible !important;
+    transform-origin: top center !important;
+    transform: translateX(-50%) scale(.84) !important;
+  }
+
+  #skill-window.true-skill-window .skill-window-body {
+    width: 440px !important;
+    height: 568px !important;
+    max-height: none !important;
+    overflow: hidden !important;
+  }
+
+  #shop-window {
+    left: 50% !important;
+    top: calc(42px + env(safe-area-inset-top, 0px)) !important;
+    transform: translateX(-50%) !important;
+    width: min(96vw, 640px) !important;
+    height: calc(100dvh - 116px - env(safe-area-inset-bottom, 0px)) !important;
+    min-height: 520px !important;
+    max-height: 680px !important;
+    overflow: hidden !important;
+  }
+
+  #shop-window .shop-window-body {
+    height: calc(100% - 38px) !important;
+    max-height: none !important;
+    overflow: hidden !important;
+    padding: 8px 10px 10px !important;
+  }
+
+  #shop-window .shop-panel {
+    height: 100% !important;
+    min-height: 0 !important;
+  }
+
+  #shop-window .shop-title {
+    display: none !important;
+  }
+
+  #shop-window .shop-layout {
+    height: 100% !important;
+    min-height: 0 !important;
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    grid-template-rows: minmax(118px, 34%) minmax(280px, 1fr) !important;
+    gap: 8px !important;
+  }
+
+  #shop-window .shop-list {
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    padding-right: 6px !important;
+  }
+
+  #shop-window .shop-item-row.shop-item-button {
+    min-height: 56px !important;
+    grid-template-columns: 42px 1fr !important;
+  }
+
+  #shop-window .shop-item-icon {
+    width: 38px !important;
+    height: 38px !important;
+  }
+
+  #shop-window .shop-item-icon img {
+    max-width: 32px !important;
+    max-height: 32px !important;
+  }
+
+  #shop-window .shop-item-name b {
+    font-size: 15px !important;
+  }
+
+  #shop-window .shop-item-name small {
+    font-size: 13px !important;
+  }
+
+  #shop-window .shop-detail-panel {
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    padding: 10px !important;
+  }
+
+  #shop-window .shop-detail-card {
+    min-height: 100% !important;
+    display: grid !important;
+    grid-template-rows: auto minmax(96px, 1fr) auto auto auto !important;
+    gap: 8px !important;
+  }
+
+  #shop-window .shop-detail-head {
+    grid-template-columns: 56px 1fr !important;
+  }
+
+  #shop-window .shop-detail-icon {
+    width: 52px !important;
+    height: 52px !important;
+  }
+
+  #shop-window .shop-detail-icon img {
+    max-width: 46px !important;
+    max-height: 46px !important;
+  }
+
+  #shop-window .shop-detail-name {
+    font-size: 17px !important;
+  }
+
+  #shop-window .shop-detail-meta,
+  #shop-window .shop-total-row {
+    font-size: 14px !important;
+  }
+
+  #shop-window .shop-detail-desc {
+    min-height: 96px !important;
+    max-height: none !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    font-size: 14px !important;
+    line-height: 1.55 !important;
+  }
+
+  #shop-window .shop-qty-row button,
+  #shop-window .shop-action-row button,
+  #shop-window .shop-qty-row input {
+    min-height: 34px !important;
+    font-size: 14px !important;
+  }
+
+  #shop-window .shop-action-row {
+    position: static !important;
+    grid-template-columns: 1fr 92px !important;
+    gap: 8px !important;
+    margin-top: 2px !important;
+  }
+}
+
+@media (orientation: portrait) and (max-width: 390px) {
+  #skill-window.true-skill-window {
+    transform: translateX(-50%) scale(.80) !important;
+  }
+  #shop-window {
+    width: calc(100vw - 8px) !important;
+    height: calc(100dvh - 106px - env(safe-area-inset-bottom, 0px)) !important;
+    min-height: 500px !important;
+  }
+  #shop-window .shop-layout {
+    grid-template-rows: minmax(108px, 31%) minmax(292px, 1fr) !important;
+  }
+  #shop-window .shop-item-row.shop-item-button {
+    min-height: 52px !important;
+  }
+}

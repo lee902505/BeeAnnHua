@@ -652,7 +652,7 @@ function buildItemTooltip(item, itemData) {
   if (itemData.slots !== undefined) lines.push(`卡槽：${itemData.slots}`);
   lines.push(...cleanItemDescriptionLines(itemData));
   lines.push(`數量：${Number(item.count || 0)}`);
-  if (itemData.type === "equipment") lines.push("點擊可穿上裝備。");
+  if (itemData.type === "equipment") lines.push("單點查看介紹；雙點可穿上裝備。");
   else if (itemData.type === "consume") lines.push("點擊使用。");
   else lines.push("目前只能查看。");
   return lines.join("\n");
@@ -939,6 +939,37 @@ function getItemTypeText(itemData) {
   return category || type || "未知";
 }
 
+
+let lastInventoryEquipTap = { itemId: null, time: 0 };
+
+function handleInventorySlotClick(item, itemData) {
+  if (!item || !itemData) return;
+  if (typeof hideGameTooltip === "function") hideGameTooltip();
+
+  if (inventoryLockMode) {
+    toggleInventoryItemLock(item.id);
+    return;
+  }
+
+  if (itemData.type === "equipment") {
+    const now = Date.now();
+    const isSecondTap = String(lastInventoryEquipTap.itemId) === String(item.id) && (now - lastInventoryEquipTap.time) <= 380;
+    lastInventoryEquipTap = { itemId: item.id, time: now };
+    if (isSecondTap) {
+      lastInventoryEquipTap = { itemId: null, time: 0 };
+      useItem(item.id);
+      return;
+    }
+    showItemInfo(item.id);
+    return;
+  }
+
+  showItemInfo(item.id);
+  if (itemData.type === "consume") {
+    useItem(item.id);
+  }
+}
+
 //=======================================
 // 更新背包畫面
 //=======================================
@@ -1004,15 +1035,10 @@ function updateInventoryUI() {
       }
 
       slot.onclick = function () {
-        if (typeof hideGameTooltip === "function") hideGameTooltip();
-        if (inventoryLockMode) {
-          toggleInventoryItemLock(item.id);
-          return;
-        }
-        showItemInfo(item.id);
-        if (itemData.type === "equipment" || itemData.type === "consume") {
-          useItem(item.id);
-        }
+        handleInventorySlotClick(item, itemData);
+      };
+      slot.ondblclick = function (event) {
+        if (event) event.preventDefault();
       };
     } else {
       slot.setAttribute("aria-label", "空格");
