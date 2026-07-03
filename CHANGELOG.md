@@ -1,9 +1,16 @@
-## V0.9.72h - iPhone Safari Visual Viewport Touch Fix
+## V0.9.72j - Mobile Position Debug / Sprite Scale Sync
+
+- 修正手機版同一次點擊可能產生兩筆「移動到座標」紀錄的問題。
+- 角色 / 怪物手機縮放改成實際寬高，不再使用 CSS zoom，避免邏輯座標已到底但 Sprite 顯示仍卡在中段。
+- 加入 Position Debug Overlay，手機實測時可直接看到 Player / Target / Field / Sprite 座標。
+- 版本號更新為 0.9.72j。
+
+## V0.9.72j - iPhone Safari Visual Viewport Touch Fix
 
 - 手機觸控座標改用 battle-field 與 visualViewport 的可視交集換算，避免 Safari 底部網址列造成下方座標被壓縮。
 - 手機 touch 改以 touchstart 為主，忽略 touch pointerdown，避免同一次點擊重複覆蓋移動目標。
 - visualViewport resize / scroll 時重新校正 Position Engine 顯示。
-- 版本號更新為 0.9.72h。
+- 版本號更新為 0.9.72j。
 
 ## V0.9.72g - Mobile Position Save + Touch Boundary Fix
 

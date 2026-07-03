@@ -4,7 +4,7 @@
 // 參考 RA mob_db 概念欄位：AttackRange / SkillRange / ChaseRange / WalkSpeed / Ai / Modes。
 //=======================================
 
-const POSITION_ENGINE_VERSION = "0.9.72h";
+const POSITION_ENGINE_VERSION = "0.9.72j";
 const FLY_WING_ITEM_ID = 601;
 
 //=======================================
@@ -185,7 +185,11 @@ let positionAutoSaveTimer = null;
 let positionBeforeUnloadBound = false;
 let lastSavedPositionSnapshot = "";
 let autoNoTargetSince = null;
+let lastMoveInputSignature = "";
+let lastMoveInputAt = 0;
+let lastPositionDebug = null;
 
+const POSITION_DEBUG_ENABLED = true;
 const POSITION_AUTO_SAVE_MS = 60 * 1000;
 
 function clampPositionValue(value, min, max) {
@@ -297,10 +301,101 @@ function bindPositionAutoSave() {
   }
 }
 
+
+function isPrimaryMoveInput(event) {
+  if (!event) return false;
+  if (event.type === "pointerdown") {
+    // 只接受主要指標；避免 iPhone / Chrome 同時送 mouse-like pointer 造成兩筆 log。
+    if (event.isPrimary === false) return false;
+    if (event.button !== undefined && event.button !== 0) return false;
+    return ["touch", "mouse", "pen", ""].includes(event.pointerType || "");
+  }
+  if (event.type === "touchstart") return true;
+  if (event.type === "click") return true;
+  return false;
+}
+
+function shouldAcceptMoveInput(event, pos) {
+  const now = Date.now();
+  const x = Math.round(Number(pos?.x || 0));
+  const y = Math.round(Number(pos?.y || 0));
+  const family = event?.pointerType || (event?.type?.startsWith?.("touch") ? "touch" : event?.type || "unknown");
+  const signature = `${family}:${x}:${y}`;
+
+  // 同一次手機點擊可能產生 pointerdown + touchstart/click，或因 capture/bubble 被重進。
+  // 只要 650ms 內座標幾乎相同，就視為同一次移動命令。
+  if (now - lastMoveInputAt < 650) {
+    const prev = String(lastMoveInputSignature || "").split(":");
+    const px = Number(prev[1]);
+    const py = Number(prev[2]);
+    if (Number.isFinite(px) && Number.isFinite(py) && Math.hypot(px - x, py - y) <= 8) {
+      return false;
+    }
+  }
+
+  lastMoveInputSignature = signature;
+  lastMoveInputAt = now;
+  return true;
+}
+
+function ensurePositionDebugOverlay() {
+  if (!POSITION_DEBUG_ENABLED) return null;
+  const field = getBattleFieldElement();
+  if (!field) return null;
+  let el = document.getElementById("position-debug-overlay");
+  if (!el) {
+    el = document.createElement("div");
+    el.id = "position-debug-overlay";
+    el.className = "position-debug-overlay";
+    field.appendChild(el);
+  }
+  return el;
+}
+
+function updatePositionDebugOverlay(extra = {}) {
+  if (!POSITION_DEBUG_ENABLED) return;
+  const el = ensurePositionDebugOverlay();
+  const field = getBattleFieldElement();
+  if (!el || !field) return;
+  const rect = field.getBoundingClientRect();
+  const p = player?.position || {};
+  const playerEl = document.getElementById("player-sprite");
+  const pr = playerEl?.getBoundingClientRect?.();
+  const vv = getVisualViewportRectFallback();
+  const logical = getFieldLogicalSize();
+  const clientPoint = getLogicalPointClientPosition(p);
+  lastPositionDebug = { ...lastPositionDebug, ...extra };
+  el.textContent = [
+    `P ${Math.round(p.x || 0)},${Math.round(p.y || 0)} → T ${Math.round(p.targetX ?? -1)},${Math.round(p.targetY ?? -1)}`,
+    `Field L ${Math.round(logical.width)}x${Math.round(logical.height)} / R ${Math.round(rect.width)}x${Math.round(rect.height)}`,
+    `Client ${Math.round(clientPoint?.x ?? -1)},${Math.round(clientPoint?.y ?? -1)} Sprite ${Math.round(pr?.left ?? -1)},${Math.round(pr?.top ?? -1)}`,
+    lastPositionDebug?.tap ? `Tap ${lastPositionDebug.tap}` : ""
+  ].filter(Boolean).join("\n");
+}
+
+function updatePositionDebugCross(pos = player?.position) {
+  if (!POSITION_DEBUG_ENABLED) return;
+  const field = getBattleFieldElement();
+  if (!field || !pos) return;
+  let cross = document.getElementById("position-debug-cross");
+  if (!cross) {
+    cross = document.createElement("div");
+    cross.id = "position-debug-cross";
+    cross.className = "position-debug-cross";
+    field.appendChild(cross);
+  }
+  const point = getLogicalPointClientPosition(pos);
+  const fieldRect = field.getBoundingClientRect();
+  if (!point) return;
+  cross.style.left = `${Math.round(point.x - fieldRect.left)}px`;
+  cross.style.top = `${Math.round(point.y - fieldRect.top)}px`;
+}
+
 function isPointerOnBlockedUi(target) {
-  // V0.9.72g：全背景可走後，戰鬥紀錄與透明 UI 不再阻擋地圖點擊。
-  // 仍保留按鈕、輸入框、彈窗、快捷列等互動元素，避免誤觸使用道具或拖窗。
-  return Boolean(target?.closest?.("button, input, select, textarea, .game-window, .fixed-panel, #quick-buttons, #top-bar, #quick-slot-bar, .dev-buttons"));
+  // V0.9.72j：右側走不到的主因之一，是手機 UI 容器本身（top-bar / quick-buttons）
+  // 佔住了右側可點擊區。全背景可走後，只阻擋真正可互動的按鈕、輸入框、彈窗、快捷格。
+  // 金幣列、透明對話框、快捷按鈕容器空白處不再整片吃掉地圖點擊。
+  return Boolean(target?.closest?.("button, input, select, textarea, .game-window, .fixed-panel, .quick-slot, .quick-slot-item, .dev-buttons"));
 }
 
 function getEventClientPoint(event) {
@@ -337,7 +432,7 @@ function getBattleFieldVisibleRect(field) {
   const rect = field.getBoundingClientRect();
   const vv = getVisualViewportRectFallback();
 
-  // V0.9.72h：iPhone Safari 底部網址列會讓 100vh / rect.height 大於實際可觸控高度。
+  // V0.9.72j：iPhone Safari 底部網址列會讓 100vh / rect.height 大於實際可觸控高度。
   // 如果直接用完整 rect.height 換算，手指點到可視畫面最下方也只會換算到邏輯中下段，
   // 造成「下方走不到、越往下點偶爾反而往上」。因此手機觸控採用 battle-field 與
   // visualViewport 的交集作為實際可點擊矩形。
@@ -362,15 +457,21 @@ function getBattleFieldLocalPosition(event, field) {
   const point = getEventClientPoint(event);
   if (!point) return null;
 
-  const rect = getBattleFieldVisibleRect(field);
-  if (rect.width <= 0 || rect.height <= 0) return null;
+  const fieldRect = field.getBoundingClientRect();
+  const visibleRect = getBattleFieldVisibleRect(field);
+  if (fieldRect.width <= 0 || fieldRect.height <= 0 || visibleRect.width <= 0 || visibleRect.height <= 0) return null;
 
   const logicalWidth = field.offsetWidth || 1280;
   const logicalHeight = field.offsetHeight || 720;
-  const safePoint = clampClientPointToRect(point, rect);
+
+  // V0.9.72j：X 軸改回使用 battle-field 完整 rect，避免 visualViewport / 右側網址列縮放
+  // 或右側 UI 容器造成可點寬度被誤縮，導致右邊角落永遠換算不到 maxX。
+  // Y 軸仍使用可視交集，保留 0.9.72j 對 iPhone Safari 底部網址列的修正。
+  const safeX = clampPositionValue(point.clientX, fieldRect.left, fieldRect.right);
+  const safeY = clampPositionValue(point.clientY, visibleRect.top, visibleRect.bottom);
   const raw = {
-    x: ((safePoint.clientX - rect.left) / rect.width) * logicalWidth,
-    y: ((safePoint.clientY - rect.top) / rect.height) * logicalHeight
+    x: ((safeX - fieldRect.left) / fieldRect.width) * logicalWidth,
+    y: ((safeY - visibleRect.top) / visibleRect.height) * logicalHeight
   };
   return clampPositionToBounds(raw, "player");
 }
@@ -382,31 +483,33 @@ function bindBattleFieldMovement() {
 
   let lastTouchMoveRequestAt = 0;
   const handlePointerMoveRequest = event => {
+    if (!isPrimaryMoveInput(event)) return;
     if (isPointerOnBlockedUi(event.target)) return;
     if (!player || player.currentCity) return;
 
-    // V0.9.72h：手機只採 touchstart；忽略 touch pointerdown，避免 iOS 同一點觸發兩次、
-    // 且兩次座標來源不同步時覆蓋移動目標。
-    if (event.type === "pointerdown" && event.pointerType === "touch") return;
-
-    // iPhone Safari 可能同時派發 touchstart + synthetic click，避免重複下達移動指令。
     const now = Date.now();
-    if (event.type === "click" && now - lastTouchMoveRequestAt < 550) return;
-    if (event.type === "touchstart") lastTouchMoveRequestAt = now;
+    if (event.type === "click" && now - lastTouchMoveRequestAt < 700) return;
+    if (event.type === "touchstart" || event.pointerType === "touch") lastTouchMoveRequestAt = now;
 
     const pos = getBattleFieldLocalPosition(event, field);
     if (!pos) return;
+    if (!shouldAcceptMoveInput(event, pos)) return;
 
     if (event.cancelable) event.preventDefault();
+    event.stopImmediatePropagation?.();
     event.stopPropagation?.();
     setPlayerMoveTarget(pos.x, pos.y);
+    updatePositionDebugOverlay({ tap: `${event.type}/${event.pointerType || ""} → ${Math.round(pos.x)},${Math.round(pos.y)}` });
     addBattleLog(`移動到座標 (${Math.round(player.position.targetX)}, ${Math.round(player.position.targetY)})。`);
   };
-
-  // V0.9.72b：iPhone Safari 修正。即使支援 PointerEvent，也額外綁 touchstart 作保險。
-  field.addEventListener("pointerdown", handlePointerMoveRequest, { passive: false, capture: true });
-  field.addEventListener("touchstart", handlePointerMoveRequest, { passive: false, capture: true });
-  field.addEventListener("click", handlePointerMoveRequest, { passive: false, capture: true });
+  // V0.9.72j：同一個點擊只綁一種主要事件，避免 pointerdown + click / touchstart + click
+  // 同時下達移動指令，造成戰鬥紀錄出現兩次座標。
+  if (window.PointerEvent) {
+    field.addEventListener("pointerdown", handlePointerMoveRequest, { passive: false, capture: true });
+  } else {
+    field.addEventListener("touchstart", handlePointerMoveRequest, { passive: false, capture: true });
+    field.addEventListener("click", handlePointerMoveRequest, { passive: false, capture: true });
+  }
 }
 
 function setPlayerMoveTarget(x, y) {
@@ -771,6 +874,8 @@ function renderPositionSprites() {
     monsterEl.dataset.aiState = currentMonster.aiState || "IDLE";
   }
   updateUiFadeForPosition();
+  updatePositionDebugCross(player?.position);
+  updatePositionDebugOverlay();
 }
 
 function countInventoryItem(itemId) {
