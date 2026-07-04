@@ -33,7 +33,7 @@ function sanitizeQuickSlot(slot) {
       type: "skill",
       id: skill.id,
       name: skill.name,
-      icon: skill.icon || (skill.officialId ? `images/skills/${skill.officialId}.webp` : ""),
+      icon: skill.icon || (skill.officialId ? `images/skills/${skill.officialId}.png` : ""),
       level,
       skillType: skill.skillType,
       hint: `${skill.name} Lv${level}`

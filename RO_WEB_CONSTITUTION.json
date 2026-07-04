@@ -218,7 +218,7 @@
     {
       "id": "skill_official_id_primary_key",
       "title": "技能官方數字 ID 主鍵規則",
-      "rule": "技能資料必須以官方數字 Skill ID 作為主要邏輯 ID；英文技能代號只能保留於 code 欄位作為開發閱讀與官方資料追蹤用途；玩家介面顯示繁體中文 name；技能圖示使用 images/skills/{officialId}.webp。"
+      "rule": "技能資料必須以官方數字 Skill ID 作為主要邏輯 ID；英文技能代號只能保留於 code 欄位作為開發閱讀與官方資料追蹤用途；玩家介面顯示繁體中文 name；技能圖示使用 images/skills/{officialId}.png。"
     },
     {
       "id": "JOB-001",

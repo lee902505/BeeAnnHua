@@ -3,7 +3,7 @@
     "version": "0.9.65a",
     "note": "v0.9.65a：修正騎士技能數量為 12（55~64 + 1001 衝鋒攻擊 + 495 單手劍攻擊速度增加），並補齊對應技能圖。",
     "iconStyle": "RO Remaster Trial: 保留官方辨識度，黑金框、內斂發光；狀態效果由 CSS 控制。",
-    "idRule": "Skill id uses official numeric Skill ID. code keeps internal English code such as SM_BASH. icon path uses images/skills/{id}.webp."
+    "idRule": "Skill id uses official numeric Skill ID. code keeps internal English code such as SM_BASH. icon path uses images/skills/{id}.png."
   },
   "adventurer_training": [
     {
@@ -14,7 +14,7 @@
       "bonuses": {
         "maxHpRate": 2
       },
-      "icon": "images/skills/life_training_1.webp"
+      "icon": "images/skills/life_training_1.png"
     },
     {
       "jobLevel": 2,
@@ -24,7 +24,7 @@
       "bonuses": {
         "maxSpRate": 2
       },
-      "icon": "images/skills/spirit_training_1.webp"
+      "icon": "images/skills/spirit_training_1.png"
     },
     {
       "jobLevel": 3,
@@ -34,7 +34,7 @@
       "bonuses": {
         "atkRate": 2
       },
-      "icon": "images/skills/combat_training_1.webp"
+      "icon": "images/skills/combat_training_1.png"
     },
     {
       "jobLevel": 4,
@@ -44,7 +44,7 @@
       "bonuses": {
         "baseExpRate": 2
       },
-      "icon": "images/skills/adventure_knowledge_1.webp"
+      "icon": "images/skills/adventure_knowledge_1.png"
     },
     {
       "jobLevel": 5,
@@ -54,7 +54,7 @@
       "bonuses": {
         "zenyRate": 2
       },
-      "icon": "images/skills/money_management_1.webp"
+      "icon": "images/skills/money_management_1.png"
     },
     {
       "jobLevel": 6,
@@ -64,7 +64,7 @@
       "bonuses": {
         "dropRate": 1
       },
-      "icon": "images/skills/scavenging_1.webp"
+      "icon": "images/skills/scavenging_1.png"
     },
     {
       "jobLevel": 7,
@@ -74,7 +74,7 @@
       "bonuses": {
         "defRate": 2
       },
-      "icon": "images/skills/defense_training_1.webp"
+      "icon": "images/skills/defense_training_1.png"
     },
     {
       "jobLevel": 8,
@@ -84,7 +84,7 @@
       "bonuses": {
         "damageRate": 1
       },
-      "icon": "images/skills/weapon_familiarity_1.webp"
+      "icon": "images/skills/weapon_familiarity_1.png"
     },
     {
       "jobLevel": 9,
@@ -95,7 +95,7 @@
         "atkFlat": 1,
         "defFlat": 1
       },
-      "icon": "images/skills/adventurer_spirit.webp"
+      "icon": "images/skills/adventurer_spirit.png"
     },
     {
       "jobLevel": 10,
@@ -103,7 +103,7 @@
       "name": "修練完成",
       "effect": "開啟一轉職業",
       "bonuses": {},
-      "icon": "images/skills/training_complete.webp"
+      "icon": "images/skills/training_complete.png"
     }
   ],
   "jobs": {
@@ -148,7 +148,7 @@
           0,
           0
         ],
-        "icon": "images/skills/2.webp",
+        "icon": "images/skills/2.png",
         "code": "SM_SWORD"
       },
       {
@@ -198,7 +198,7 @@
           0,
           0
         ],
-        "icon": "images/skills/3.webp",
+        "icon": "images/skills/3.png",
         "code": "SM_TWOHAND"
       },
       {
@@ -241,7 +241,7 @@
           0,
           0
         ],
-        "icon": "images/skills/4.webp",
+        "icon": "images/skills/4.png",
         "code": "SM_RECOVERY"
       },
       {
@@ -284,7 +284,7 @@
           "enabled": true,
           "defaultSpPercent": 50
         },
-        "icon": "images/skills/5.webp",
+        "icon": "images/skills/5.png",
         "code": "SM_BASH"
       },
       {
@@ -351,7 +351,7 @@
         "ai": {
           "enabled": false
         },
-        "icon": "images/skills/6.webp",
+        "icon": "images/skills/6.png",
         "code": "SM_PROVOKE"
       },
       {
@@ -401,7 +401,7 @@
           "enabled": true,
           "defaultSpPercent": 60
         },
-        "icon": "images/skills/7.webp",
+        "icon": "images/skills/7.png",
         "code": "SM_MAGNUM"
       },
       {
@@ -464,7 +464,7 @@
           "enabled": true,
           "defaultMaintain": true
         },
-        "icon": "images/skills/8.webp",
+        "icon": "images/skills/8.png",
         "code": "SM_ENDURE"
       },
       {
@@ -489,7 +489,7 @@
         "spCost": [
           0
         ],
-        "icon": "images/skills/144.webp",
+        "icon": "images/skills/144.png",
         "code": "SM_MOVINGRECOVERY"
       },
       {
@@ -514,7 +514,7 @@
         "spCost": [
           0
         ],
-        "icon": "images/skills/145.webp",
+        "icon": "images/skills/145.png",
         "code": "SM_FATALBLOW"
       },
       {
@@ -542,7 +542,7 @@
         "ai": {
           "enabled": false
         },
-        "icon": "images/skills/146.webp",
+        "icon": "images/skills/146.png",
         "code": "SM_AUTOBERSERK"
       }
     ],
@@ -588,7 +588,7 @@
           0
         ],
         "code": "KN_SPEARMASTERY",
-        "icon": "images/skills/55.webp"
+        "icon": "images/skills/55.png"
       },
       {
         "id": 56,
@@ -638,7 +638,7 @@
           "defaultSpPercent": 50
         },
         "code": "KN_PIERCE",
-        "icon": "images/skills/56.webp"
+        "icon": "images/skills/56.png"
       },
       {
         "id": 57,
@@ -692,7 +692,7 @@
           "defaultSpPercent": 65
         },
         "code": "KN_BRANDISHSPEAR",
-        "icon": "images/skills/57.webp"
+        "icon": "images/skills/57.png"
       },
       {
         "id": 58,
@@ -741,7 +741,7 @@
           "defaultSpPercent": 50
         },
         "code": "KN_SPEARSTAB",
-        "icon": "images/skills/58.webp"
+        "icon": "images/skills/58.png"
       },
       {
         "id": 59,
@@ -780,7 +780,7 @@
           "defaultSpPercent": 55
         },
         "code": "KN_SPEARBOOMERANG",
-        "icon": "images/skills/59.webp"
+        "icon": "images/skills/59.png"
       },
       {
         "id": 60,
@@ -843,7 +843,7 @@
           "defaultMaintain": true
         },
         "code": "KN_TWOHANDQUICKEN",
-        "icon": "images/skills/60.webp"
+        "icon": "images/skills/60.png"
       },
       {
         "id": 61,
@@ -890,7 +890,7 @@
           "enabled": false
         },
         "code": "KN_AUTOCOUNTER",
-        "icon": "images/skills/61.webp"
+        "icon": "images/skills/61.png"
       },
       {
         "id": 62,
@@ -959,7 +959,7 @@
           "defaultSpPercent": 65
         },
         "code": "KN_BOWLINGBASH",
-        "icon": "images/skills/62.webp"
+        "icon": "images/skills/62.png"
       },
       {
         "id": 63,
@@ -987,7 +987,7 @@
           0
         ],
         "code": "KN_RIDING",
-        "icon": "images/skills/63.webp"
+        "icon": "images/skills/63.png"
       },
       {
         "id": 64,
@@ -1027,7 +1027,7 @@
           0
         ],
         "code": "KN_CAVALIERMASTERY",
-        "icon": "images/skills/64.webp"
+        "icon": "images/skills/64.png"
       },
       {
         "id": 1001,
@@ -1052,7 +1052,7 @@
           "defaultSpPercent": 70
         },
         "code": "KN_CHARGEATK",
-        "icon": "images/skills/1001.webp",
+        "icon": "images/skills/1001.png",
         "questSkill": true
       },
       {
@@ -1088,7 +1088,7 @@
           "enabled": false
         },
         "code": "KN_ONEHAND",
-        "icon": "images/skills/495.webp",
+        "icon": "images/skills/495.png",
         "specialSkill": true
       }
     ],
@@ -1135,7 +1135,7 @@
           "defaultSpPercent": 20
         },
         "code": "AL_HEAL",
-        "icon": "images/skills/28.webp"
+        "icon": "images/skills/28.png"
       }
     ],
     "novice": [
@@ -1149,7 +1149,7 @@
         "skillType": "passive",
         "target": "self",
         "iconText": "基",
-        "icon": "images/skills/1.webp",
+        "icon": "images/skills/1.png",
         "description": "RO_WEB 初心者知識。點擊左鍵可查看目前伺服器倍率、掉寶率、Zeny 與轉職提示；技能等級需由玩家自行配點。",
         "spCost": [
           0,
@@ -1199,7 +1199,7 @@
         "skillType": "heal",
         "target": "self",
         "iconText": "急",
-        "icon": "images/skills/142.webp",
+        "icon": "images/skills/142.png",
         "autoUnlocked": true,
         "description": "消耗少量 SP，立即恢復少量 HP。適合新手冒險時緊急補血。",
         "spCost": [
@@ -1220,7 +1220,7 @@
         "skillType": "support",
         "target": "self",
         "iconText": "死",
-        "icon": "images/skills/143.webp",
+        "icon": "images/skills/143.png",
         "autoUnlocked": true,
         "description": "倒地裝死，短時間內讓敵人放鬆警戒。RO_WEB 初版先保留為趣味支援技能。",
         "spCost": [

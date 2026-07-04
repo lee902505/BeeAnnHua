@@ -277,8 +277,12 @@ function updateBattleBackground(mapData) {
   }
 
   if (mapData && mapData.background) {
-    battleField.style.backgroundImage = `linear-gradient(rgba(20, 20, 20, 0.18), rgba(20, 20, 20, 0.18)), url("${mapData.background}")`;
+    const bgImage = `linear-gradient(rgba(20, 20, 20, 0.18), rgba(20, 20, 20, 0.18)), url("${mapData.background}")`;
+    // V0.9.78W：世界地圖背景交給專用 world-camera-layer，避免手機版 background-position 沒有套到真正顯示層。
+    battleField.dataset.worldBackgroundImage = bgImage;
+    battleField.style.backgroundImage = isWorldCameraMap ? "none" : bgImage;
   } else {
+    battleField.dataset.worldBackgroundImage = "none";
     battleField.style.backgroundImage = "none";
   }
 

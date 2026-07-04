@@ -1107,9 +1107,10 @@ function updateSkillUI() {
     return;
   }
 
-  const visibleSkills = skillList.slice(0, 40);
+  const visibleSkills = skillList;
+  const skillSlotCount = Math.max(40, visibleSkills.length);
 
-  for (let index = 0; index < 40; index += 1) {
+  for (let index = 0; index < skillSlotCount; index += 1) {
     const slot = document.createElement("div");
     slot.className = "skill-grid-slot";
     slot.dataset.slotIndex = String(index + 1);

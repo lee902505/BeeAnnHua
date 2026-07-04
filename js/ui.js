@@ -1,7 +1,7 @@
 //=======================================
 // UI Skeleton v0.1：視窗開關 / 拖曳 / 位置記憶
 //=======================================
-const UI_POS_KEY = "ro_web_ui_positions_v0_9_76c";
+const UI_POS_KEY = "ro_web_ui_positions_v0_9_78ad";
 let topZIndex = 40;
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -58,20 +58,46 @@ function isMobileViewport() {
   return window.matchMedia?.("(max-width: 900px)")?.matches || window.innerWidth <= 900;
 }
 
+function getViewportSizeForUI() {
+  const vv = window.visualViewport;
+  return {
+    width: Math.max(1, Math.round(vv?.width || window.innerWidth || document.documentElement.clientWidth || 640)),
+    height: Math.max(1, Math.round(vv?.height || window.innerHeight || document.documentElement.clientHeight || 900))
+  };
+}
+
+function getMobileWindowStartPosition(win) {
+  const vp = getViewportSizeForUI();
+  const w = Math.min(win.offsetWidth || 320, Math.max(280, vp.width - 24));
+  const h = Math.min(win.offsetHeight || 360, Math.max(220, vp.height - 72));
+  const safeTop = 64;
+  const bottomSafe = 64;
+  const id = win?.id || "";
+  if (id === "inventory-window") {
+    return { x: 10, y: Math.min(Math.max(74, safeTop), Math.max(safeTop, vp.height - h - bottomSafe)) };
+  }
+  if (id === "equipment-window") {
+    return { x: Math.max(10, vp.width - w - 14), y: Math.min(86, Math.max(safeTop, vp.height - h - bottomSafe)) };
+  }
+  if (id === "skill-window") {
+    return { x: Math.max(10, Math.round((vp.width - w) / 2)), y: Math.max(safeTop, Math.min(vp.height - h - bottomSafe, 170)) };
+  }
+  return {
+    x: Math.max(8, Math.round((vp.width - w) / 2)),
+    y: Math.max(safeTop, Math.round((vp.height - h) / 2))
+  };
+}
+
 function centerWindowForMobile(win) {
   if (!win || !isMobileViewport()) return;
-  // V0.9.75a：玩家手動拖曳後不再自動置中，避免手機 UI 被拖曳時回彈。
+  // V0.9.78AD：五欄 UI 清理，手機三大視窗改走乾淨預設排版。
+  // 玩家手動拖曳後不再自動置中，避免拖曳時回彈。
   if (win.classList.contains("is-user-positioned")) return;
-  const root = document.getElementById("battle-field");
-  const rootWidth = root?.clientWidth || window.innerWidth;
-  const rootHeight = root?.clientHeight || window.innerHeight;
-  const width = Math.min(win.offsetWidth || 360, rootWidth - 16);
-  const height = Math.min(win.offsetHeight || 420, rootHeight - 16);
-  const x = Math.max(8, Math.round((rootWidth - width) / 2));
-  const y = Math.max(8, Math.round((rootHeight - height) / 2));
-  win.style.setProperty("left", `${x}px`, "important");
-  win.style.setProperty("top", `${y}px`, "important");
+  const pos = getMobileWindowStartPosition(win);
+  win.style.setProperty("left", `${pos.x}px`, "important");
+  win.style.setProperty("top", `${pos.y}px`, "important");
   win.style.setProperty("right", "auto", "important");
+  win.style.setProperty("bottom", "auto", "important");
   win.style.setProperty("transform", "none", "important");
 }
 
@@ -169,21 +195,17 @@ function startDrag(event, win) {
   }
 
   function clampWindowPosition(x, y) {
-    const rootRect = root.getBoundingClientRect();
-    // V0.9.78N：手機 UI 拖曳邊界改成四邊一致。
-    // 左邊原本允許「只保留約一段標題可抓」而視窗可超出畫面；右邊/下方也採同樣規則，
-    // 不再額外扣 safeBottom，避免拖到右側或底部時像撞到透明牆。
-    const visibleTitle = 52;
+    // V0.9.78AD：拖曳邊界改以 viewport 計算，不再用 battle-field 尺寸當牆。
+    // 四邊都只要求保留一小段標題可抓回來，因此右邊與下方可以像左邊一樣超出畫面。
+    const visibleTitle = 38;
     const winWidth = Math.max(visibleTitle, win.offsetWidth || startRect.width || 320);
     const winHeight = Math.max(visibleTitle, win.offsetHeight || startRect.height || 220);
-    const viewport = window.visualViewport;
-    const rootWidth = Math.max(1, root.clientWidth || rootRect.width || viewport?.width || window.innerWidth);
-    const rootHeight = Math.max(1, root.clientHeight || rootRect.height || viewport?.height || window.innerHeight);
-
+    const vp = getViewportSizeForUI();
     const minX = -(winWidth - visibleTitle);
-    const maxX = Math.max(0, rootWidth - visibleTitle);
-    const minY = 0;
-    const maxY = Math.max(0, rootHeight - visibleTitle);
+    // 右/下也允許像左/上一樣拖出畫面，只保留一小段可抓回來的範圍。
+    const maxX = Math.max(0, vp.width - visibleTitle);
+    const minY = -(winHeight - visibleTitle);
+    const maxY = Math.max(0, vp.height - visibleTitle);
     return {
       x: Math.round(Math.max(minX, Math.min(x, maxX))),
       y: Math.round(Math.max(minY, Math.min(y, maxY)))

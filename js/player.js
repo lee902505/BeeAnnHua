@@ -581,20 +581,13 @@ function addItem(item, count = 1) {
 let activeInventoryFilter = "consume";
 let activeInventoryPage = 0;
 let inventoryLockMode = false;
-const INVENTORY_PAGE_SIZE = 100;
-// V0.9.14：背包改用 UI 圖固定座標，不再交給 CSS grid/flex 自動排。
-const INVENTORY_SLOT_CENTERS = (() => {
-  const cols = [52, 116, 180, 244, 308];
-  const rows = [87, 144, 201, 258, 315, 372, 429, 486];
-  const centers = [];
-  rows.forEach(y => cols.forEach(x => centers.push({ x, y })));
-  return centers;
-})();
-
+const INVENTORY_PAGE_SIZE = 40;
+const INVENTORY_VISIBLE_SLOT_COUNT = 20;
+// V0.9.78AI：背包格子完全交給 CSS Grid。
+// 舊版固定座標表已退休；這個函式只負責清除可能殘留的 inline 座標。
 function applyInventorySlotPosition(slot, index) {
-  // V0.9.15：背包改用 CSS grid 控制位置，避免圖片模板座標不準。
-  slot.style.left = "";
-  slot.style.top = "";
+  if (!slot) return;
+  slot.removeAttribute("style");
 }
 let activeEquipmentView = "equipment";
 
@@ -652,7 +645,7 @@ function buildItemTooltip(item, itemData) {
   if (itemData.slots !== undefined) lines.push(`卡槽：${itemData.slots}`);
   lines.push(...cleanItemDescriptionLines(itemData));
   lines.push(`數量：${Number(item.count || 0)}`);
-  if (itemData.type === "equipment") lines.push("單點查看介紹；雙點可穿上裝備。");
+  if (itemData.type === "equipment") lines.push("雙點可穿上裝備。");
   else if (itemData.type === "consume") lines.push("點擊使用。");
   else lines.push("目前只能查看。");
   return lines.join("\n");
@@ -674,6 +667,8 @@ function initInventoryTabs() {
       activeInventoryPage = 0;
       document.querySelectorAll(".inventory-tab").forEach(tab => tab.classList.toggle("is-active", tab === button));
       updateInventoryUI();
+      const inventoryList = document.getElementById("inventory-list");
+      if (inventoryList) inventoryList.scrollTop = 0;
     };
   });
 }
@@ -986,14 +981,15 @@ function updateInventoryUI() {
   inventoryList.classList.add("inventory-slot-grid");
 
   const filteredItems = getFilteredInventoryItems();
-  const totalPages = getInventoryTotalPages(filteredItems.length);
-  clampInventoryPage(totalPages);
-  const pageItems = filteredItems.slice(
-    activeInventoryPage * INVENTORY_PAGE_SIZE,
-    (activeInventoryPage + 1) * INVENTORY_PAGE_SIZE
-  );
+  // V0.9.78AW：背包改為同分類單一可捲動 Grid。
+  // 40 格以內維持固定 5x8 外觀；超過 40 格時繼續往下生成，
+  // 由 CSS 在格子區內顯示垂直滾輪，Header / Tabs / Footer 不跟著捲。
+  const totalPages = 1;
+  activeInventoryPage = 0;
+  const pageItems = filteredItems;
+  const slotCount = Math.max(INVENTORY_VISIBLE_SLOT_COUNT, pageItems.length);
 
-  for (let index = 0; index < INVENTORY_PAGE_SIZE; index += 1) {
+  for (let index = 0; index < slotCount; index += 1) {
     const item = pageItems[index] || null;
     const itemData = item ? getItemData(item.id) : null;
     const slot = document.createElement("button");
