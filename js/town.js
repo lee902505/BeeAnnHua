@@ -555,9 +555,45 @@ function attemptTownJobChange(ruleId) {
   updateTownUI();
 }
 
+function resetWorldCameraForTown(battleField) {
+  if (!battleField) return;
+
+  // V0.9.78j：回城時完整退出 World Camera / Large Map 狀態。
+  // 避免野外 4608×4608 background-size、camera offset、world sprite CSS 殘留，
+  // 造成城鎮背景被放大成模糊巨圖。
+  battleField.classList.remove("world-camera-mode", "large-map-mode");
+  battleField.classList.add("city-mode");
+  battleField.dataset.worldCamera = "false";
+  delete battleField.dataset.mapId;
+
+  [
+    "--world-camera-width",
+    "--world-camera-height",
+    "--world-width",
+    "--world-height",
+    "--world-player-width",
+    "--world-player-height"
+  ].forEach(name => battleField.style.removeProperty(name));
+
+  battleField.style.backgroundSize = "cover";
+  battleField.style.backgroundPosition = "center center";
+  battleField.style.backgroundRepeat = "no-repeat";
+}
+
 function updateTownBackground(city) {
   const battleField = document.getElementById("battle-field") || document.getElementById("battle-area");
   if (!battleField) return;
+
+  resetWorldCameraForTown(battleField);
+
+  const playerImage = document.getElementById("playerImage");
+  if (playerImage) {
+    playerImage.src = "images/player/male/idle/0001.png";
+  }
+
+  if (typeof renderCityPlayerSprite === "function") {
+    renderCityPlayerSprite();
+  }
 
   if (city && city.background) {
     battleField.style.backgroundImage = `linear-gradient(rgba(20, 20, 20, 0.25), rgba(20, 20, 20, 0.25)), url("${city.background}")`;

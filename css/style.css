@@ -1,4 +1,4 @@
-/* RO_WEB V0.9.76c Mobile Drag Engine V2 + cache refreshed. */
+/* RO_WEB V0.9.77a Mobile Drag Engine V2 + cache refreshed. */
 * { box-sizing: border-box; }
 html, body { margin:0; min-height:100%; background:#080705; color:#f6e6be; font-family:"Microsoft JhengHei", system-ui, sans-serif; overflow:hidden; }
 button { font-family:inherit; cursor:pointer; }
@@ -3282,8 +3282,8 @@ h2 { font-size:20px; margin:0 0 8px; text-align:center; letter-spacing:2px; colo
 #eq-accessory1 { left: 194px !important; top: 124px !important; }
 #eq-accessory2 { left: 254px !important; top: 124px !important; }
 .equipment-slot img {
-  width: 32px !important;
-  height: 32px !important;
+  width: 36px !important;
+  height: 36px !important;
   object-fit: contain !important;
   display: block !important;
   margin: 0 auto !important;
@@ -3925,8 +3925,8 @@ h2 { font-size:20px; margin:0 0 8px; text-align:center; letter-spacing:2px; colo
   place-items: center !important;
 }
 #skill-window.true-skill-window .skill-grid-icon img {
-  width: 32px !important;
-  height: 32px !important;
+  width: 36px !important;
+  height: 36px !important;
   object-fit: contain !important;
 }
 #skill-window.true-skill-window .skill-grid-level {
@@ -8672,8 +8672,8 @@ button#equipment-close-btn.window-close {
   border-color: rgba(255,218,105,.92) !important;
 }
 #skill-window.true-skill-window .novice-skill-chip-icon {
-  width: 24px !important;
-  height: 24px !important;
+  width: 36px !important;
+  height: 36px !important;
   flex: 0 0 24px !important;
   display: inline-flex !important;
   align-items: center !important;
@@ -10978,7 +10978,7 @@ button#equipment-close-btn.window-close {
   #battle-field {
     width: 100vw !important;
     max-width: 1280px !important;
-    height: 100vh !important;
+    height: 100dvh !important;
     max-height: 720px !important;
     touch-action: none !important;
   }
@@ -11871,7 +11871,7 @@ button#equipment-close-btn.window-close {
 
 
 /* =========================================================
-   RO_WEB V0.9.76c Mobile Drag Engine + Mobile UI Clamp
+   RO_WEB V0.9.77a Mobile Drag Engine + Mobile UI Clamp
    - 僅修 UI 拖曳、商店底部購買區、手機技能欄/快捷欄溢出
    - 不修改 Position Engine / Camera / Viewport 座標核心
    ========================================================= */
@@ -12014,7 +12014,7 @@ button#equipment-close-btn.window-close {
 }
 
 /* =========================================================
-   RO_WEB V0.9.76c Mobile Drag Engine V2 + Shop Bottom Align
+   RO_WEB V0.9.77a Mobile Drag Engine V2 + Shop Bottom Align
    - 真正鎖定拖曳後 left/top，覆蓋舊手機置中 left:50% / transform 規則
    - 拖曳中讓地圖輸入失效，避免 UI 與 Position Engine 搶事件
    - 商店確認購買區貼齊底部邊框，底部保留 5px
@@ -12074,7 +12074,7 @@ button#equipment-close-btn.window-close {
 }
 
 /* =========================================================
-   RO_WEB V0.9.76c Mobile UI Hotfix
+   RO_WEB V0.9.77a Mobile UI Hotfix
    - Drag 起手不再左上跳：由 JS 使用 layout 座標處理
    - 內容區恢復 pan-y 捲動，只有標題列負責拖曳
    - 商店購買控制區貼齊 detail panel 底部，底框保留 5px
@@ -12146,7 +12146,7 @@ button#equipment-close-btn.window-close {
 }
 
 /* =========================================================
-   RO_WEB V0.9.76c Shop Purchase Dialog + Mobile Inventory Size
+   RO_WEB V0.9.77a Shop Purchase Dialog + Mobile Inventory Size
    - 商店主視窗改回商品清單為主，購買/介紹改由獨立購買窗處理
    - 手機版背包取消過度縮小，格子恢復可點尺寸
    - 不修改 Position Engine / Camera / Viewport
@@ -12365,3 +12365,359 @@ button#equipment-close-btn.window-close {
     max-height: 34px !important;
   }
 }
+
+
+/* =========================================================
+   RO_WEB V0.9.78a World Camera 3x Scale Test
+   - 1280x720 Camera 視窗
+   - 3x3 Chunk / 4608x4608 世界測試（512 Chunk x3）
+   - 世界地圖角色使用 36px novice sprite
+   ========================================================= */
+#battle-field[data-map-id="mjolnir_camera_3x3"] {
+  width: min(100vw, 1280px) !important;
+  height: min(100vh, 720px) !important;
+  background-repeat: no-repeat !important;
+  background-size: 4608px 4608px !important;
+}
+#battle-field[data-map-id="mjolnir_chunk_mvp"] {
+  background-size: 512px 512px !important;
+  background-position: center center !important;
+  background-repeat: no-repeat !important;
+}
+#battle-field:is([data-map-id="mjolnir_chunk_mvp"], [data-map-id="mjolnir_camera_3x3"]) #player-sprite.player-sprite {
+  width: 36px !important;
+  height: 36px !important;
+  min-width: 0 !important;
+  z-index: 26 !important;
+  zoom: 1 !important;
+  transform: none !important;
+}
+#battle-field:is([data-map-id="mjolnir_chunk_mvp"], [data-map-id="mjolnir_camera_3x3"]) #player-sprite .sprite-label,
+#battle-field:is([data-map-id="mjolnir_chunk_mvp"], [data-map-id="mjolnir_camera_3x3"]) #player-sprite .slash-effect {
+  display: none !important;
+}
+#battle-field:is([data-map-id="mjolnir_chunk_mvp"], [data-map-id="mjolnir_camera_3x3"]) #player-sprite #playerImage {
+  content: url("../images/player/world/novice_male_world_tight_64.png");
+  left: 0 !important;
+  top: 0 !important;
+  width: 36px !important;
+  height: 36px !important;
+  object-fit: contain !important;
+  animation: none !important;
+  filter: drop-shadow(0 1px 1px rgba(0,0,0,.85)) !important; image-rendering: auto !important;
+}
+#battle-field:is([data-map-id="mjolnir_chunk_mvp"], [data-map-id="mjolnir_camera_3x3"]) #monster-sprite {
+  display: none !important;
+}
+
+
+/* =========================================================
+   RO_WEB V0.9.78b World Camera Single Chunk x3 / 64px Test
+   - 1280x720 Camera 視窗
+   - 單一 512x512 Chunk 顯示放大3倍 = 1536x1536 世界
+   - 世界地圖角色使用 64px novice sprite
+   ========================================================= */
+#battle-field[data-map-id="mjolnir_camera_scale3_single"] {
+  width: min(100vw, 1280px) !important;
+  height: min(100vh, 720px) !important;
+  background-repeat: no-repeat !important;
+  background-size: 1536px 1536px !important;
+}
+#battle-field:is([data-map-id="mjolnir_camera_scale3_single"]) #player-sprite.player-sprite {
+  width: 64px !important;
+  height: 64px !important;
+  min-width: 0 !important;
+  z-index: 26 !important;
+  zoom: 1 !important;
+  transform: none !important;
+}
+#battle-field:is([data-map-id="mjolnir_camera_scale3_single"]) #player-sprite .sprite-label,
+#battle-field:is([data-map-id="mjolnir_camera_scale3_single"]) #player-sprite .slash-effect {
+  display: none !important;
+}
+#battle-field:is([data-map-id="mjolnir_camera_scale3_single"]) #player-sprite #playerImage {
+  content: url("../images/player/world/novice_male_world_tight_64.png");
+  left: 0 !important;
+  top: 0 !important;
+  width: 64px !important;
+  height: 64px !important;
+  object-fit: contain !important;
+  animation: none !important;
+  filter: drop-shadow(0 1px 1px rgba(0,0,0,.85)) !important;
+  image-rendering: auto !important;
+}
+#battle-field:is([data-map-id="mjolnir_camera_scale3_single"]) #monster-sprite {
+  display: none !important;
+}
+
+
+/* =========================================================
+   RO_WEB V0.9.78c World Camera Single 512x3 Hard Override
+   - 只保留單一 512x512 Chunk x3 = 1536x1536 測試
+   - 使用 data-world-camera，避免選到舊 map id 時 CSS 不吃
+   ========================================================= */
+#battle-field[data-world-camera="true"] {
+  width: min(100vw, 1280px) !important;
+  height: min(100vh, 720px) !important;
+  background-repeat: no-repeat !important;
+  background-size: 1536px 1536px !important;
+}
+#battle-field[data-world-camera="true"] #player-sprite.player-sprite {
+  width: 64px !important;
+  height: 64px !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  z-index: 26 !important;
+  zoom: 1 !important;
+  transform: none !important;
+}
+#battle-field[data-world-camera="true"] #player-sprite #playerImage {
+  left: 0 !important;
+  top: 0 !important;
+  width: 64px !important;
+  height: 64px !important;
+  max-width: 64px !important;
+  max-height: 64px !important;
+  object-fit: contain !important;
+  animation: none !important;
+  filter: drop-shadow(0 1px 1px rgba(0,0,0,.85)) !important;
+  image-rendering: auto !important;
+}
+#battle-field[data-world-camera="true"] #player-sprite .sprite-label,
+#battle-field[data-world-camera="true"] #player-sprite .slash-effect,
+#battle-field[data-world-camera="true"] #monster-sprite {
+  display: none !important;
+}
+
+
+/* =========================================================
+   RO_WEB V0.9.78e World Mode Camera Lock
+   - 以 0.9.78c 為底，不再改比例。
+   - battle-field 在 worldCamera 地圖時就是 1280×720 Camera。
+   - 世界背景大小讀 CSS 變數；目前 map 設定為 1536×1536。
+   ========================================================= */
+#battle-field.world-camera-mode,
+#battle-field[data-world-camera="true"] {
+  width: var(--world-camera-width, 1280px) !important;
+  height: var(--world-camera-height, 720px) !important;
+  max-width: var(--world-camera-width, 1280px) !important;
+  max-height: var(--world-camera-height, 720px) !important;
+  min-width: var(--world-camera-width, 1280px) !important;
+  min-height: var(--world-camera-height, 720px) !important;
+  background-repeat: no-repeat !important;
+  background-size: var(--world-width, 1536px) var(--world-height, 1536px) !important;
+  background-color: #090704 !important;
+}
+#battle-field.world-camera-mode #player-sprite.player-sprite,
+#battle-field[data-world-camera="true"] #player-sprite.player-sprite {
+  width: var(--world-player-width, 30px) !important;
+  height: var(--world-player-height, 64px) !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  z-index: 26 !important;
+  zoom: 1 !important;
+  transform: none !important;
+}
+#battle-field.world-camera-mode #player-sprite #playerImage,
+#battle-field[data-world-camera="true"] #player-sprite #playerImage {
+  content: url("../images/player/world/novice_male_world_tight_64.png");
+  left: 0 !important;
+  top: 0 !important;
+  width: var(--world-player-width, 30px) !important;
+  height: var(--world-player-height, 64px) !important;
+  max-width: var(--world-player-width, 30px) !important;
+  max-height: var(--world-player-height, 64px) !important;
+  object-fit: contain !important;
+  animation: none !important;
+  filter: drop-shadow(0 1px 1px rgba(0,0,0,.85)) !important;
+  image-rendering: auto !important;
+}
+#battle-field.world-camera-mode #player-sprite .sprite-label,
+#battle-field.world-camera-mode #player-sprite .slash-effect,
+#battle-field.world-camera-mode #monster-sprite,
+#battle-field[data-world-camera="true"] #player-sprite .sprite-label,
+#battle-field[data-world-camera="true"] #player-sprite .slash-effect,
+#battle-field[data-world-camera="true"] #monster-sprite {
+  display: none !important;
+}
+#battle-field.world-camera-mode #battle-log.chat-panel,
+#battle-field[data-world-camera="true"] #battle-log.chat-panel {
+  left: 350px !important;
+  bottom: 86px !important;
+  width: 560px !important;
+  height: 150px !important;
+}
+#battle-field.world-camera-mode #quick-slot-bar.quick-slot-bar,
+#battle-field[data-world-camera="true"] #quick-slot-bar.quick-slot-bar {
+  left: 350px !important;
+  bottom: 10px !important;
+}
+
+/* =========================================================
+   RO_WEB V0.9.78j Town Return + Mobile Camera Scale Fix
+   - 回村時強制退出 world-camera / large-map 狀態，避免 4608 背景殘留。
+   - 城鎮模式玩家固定右側，左側留給 NPC / 商店。
+   - 手機版 world camera 以 1280×720 等比縮放顯示，背景尺寸由 JS 同步縮放。
+   ========================================================= */
+#battle-field.city-mode {
+  background-size: cover !important;
+  background-position: center center !important;
+  background-repeat: no-repeat !important;
+}
+#battle-field.city-mode #player-sprite.player-sprite {
+  z-index: 26 !important;
+  transform: none !important;
+}
+#battle-field.city-mode #player-sprite #playerImage {
+  object-fit: contain !important;
+  animation: playerIdle 1.35s ease-in-out infinite !important;
+  filter: drop-shadow(0 8px 8px rgba(0,0,0,.6)) !important;
+}
+#battle-field.city-mode #monster-sprite {
+  display: none !important;
+}
+
+@media (max-width: 900px), (pointer: coarse) {
+  #battle-field.world-camera-mode,
+  #battle-field[data-world-camera="true"] {
+    width: min(100vw, calc(100vh * 1.77777778)) !important;
+    height: min(100vh, calc(100vw * 0.5625)) !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    max-width: 100vw !important;
+    max-height: 100dvh !important;
+    margin: 0 auto !important;
+  }
+
+  #battle-field.world-camera-mode #battle-log.chat-panel,
+  #battle-field[data-world-camera="true"] #battle-log.chat-panel {
+    left: 50% !important;
+    width: min(560px, calc(100vw - 24px)) !important;
+    bottom: 76px !important;
+    height: 118px !important;
+    transform: translateX(-50%) !important;
+  }
+
+  #battle-field.world-camera-mode #quick-slot-bar.quick-slot-bar,
+  #battle-field[data-world-camera="true"] #quick-slot-bar.quick-slot-bar {
+    left: 50% !important;
+    width: min(610px, calc(100vw - 24px)) !important;
+    bottom: 10px !important;
+    transform: translateX(-50%) !important;
+  }
+}
+
+
+/* =========================================================
+   RO_WEB V0.9.78k Responsive World Camera Fix
+   - PC keeps the fixed 1280x720 world camera.
+   - Narrow / touch screens fill the available viewport instead of collapsing
+     the world camera into a short 16:9 strip with black space below.
+   - World coordinate logic remains 1280x720; position_engine scales the
+     background and camera offset from the actual rendered rect.
+   ========================================================= */
+@media (max-width: 900px), (pointer: coarse) {
+  #battle-field.world-camera-mode,
+  #battle-field[data-world-camera="true"] {
+    width: 100vw !important;
+    height: 100dvh !important;
+    max-width: 100vw !important;
+    max-height: 100dvh !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    margin: 0 auto !important;
+    overflow: hidden !important;
+  }
+
+  #battle-field.world-camera-mode #battle-log.chat-panel,
+  #battle-field[data-world-camera="true"] #battle-log.chat-panel {
+    left: 50% !important;
+    width: min(560px, calc(100vw - 24px)) !important;
+    bottom: 76px !important;
+    height: min(118px, calc(100dvh - 190px)) !important;
+    transform: translateX(-50%) !important;
+  }
+
+  #battle-field.world-camera-mode #quick-slot-bar.quick-slot-bar,
+  #battle-field[data-world-camera="true"] #quick-slot-bar.quick-slot-bar {
+    left: 50% !important;
+    width: min(610px, calc(100vw - 24px)) !important;
+    bottom: 10px !important;
+    transform: translateX(-50%) !important;
+  }
+}
+
+@media (orientation: portrait) and (max-width: 900px),
+       (orientation: portrait) and (pointer: coarse) {
+  #battle-field.world-camera-mode,
+  #battle-field[data-world-camera="true"] {
+    width: 100vw !important;
+    height: 100dvh !important;
+  }
+}
+
+
+/* =========================================================
+   RO_WEB V0.9.78L Mobile World Camera Coordinate Fix
+   - 手機版 world camera 使用 battle-field 實際尺寸當邏輯 viewport。
+   - 避免 1280x720 固定邏輯視窗套到直向螢幕造成點擊座標與角色位置不同步。
+   ========================================================= */
+@media (max-width: 900px), (pointer: coarse) {
+  #battle-field.world-camera-mode,
+  #battle-field[data-world-camera="true"] {
+    width: 100vw !important;
+    height: 100dvh !important;
+    max-width: 100vw !important;
+    max-height: 100dvh !important;
+    overflow: hidden !important;
+    touch-action: none !important;
+  }
+}
+
+
+/* =========================================================
+   RO_WEB V0.9.78Q World Touch Debug + Panel Safety
+   - 開啟左下角 World Touch Debug 框與綠色十字。
+   - 透明中的視窗內容可點穿到地圖，但標題列 / 按鈕仍可拖曳與操作。
+   - 移除 78O 對背包高度的強制覆蓋，避免黑色大塊。
+   ========================================================= */
+.position-debug-overlay {
+  position: fixed !important;
+  left: 8px !important;
+  bottom: calc(92px + env(safe-area-inset-bottom, 0px)) !important;
+  z-index: 2147483000 !important;
+  max-width: min(420px, calc(100vw - 16px)) !important;
+  border-color: rgba(80, 255, 110, .85) !important;
+  color: #d8ffd8 !important;
+  background: rgba(0, 22, 0, .72) !important;
+}
+.position-debug-cross { z-index: 2147482999 !important; }
+.game-window.ui-under-player .window-body,
+.game-window.ui-under-player .inventory-body,
+.game-window.ui-under-player .skill-window-body,
+.game-window.ui-under-player .map-window-body,
+.game-window.ui-under-player .equipment-window-body,
+.game-window.ui-under-player .status-window-body {
+  pointer-events: none !important;
+}
+.game-window.ui-under-player .window-title,
+.game-window.ui-under-player .drag-handle,
+.game-window.ui-under-player button,
+.game-window.ui-under-player .window-close {
+  pointer-events: auto !important;
+}
+
+/* =========================================================
+   RO_WEB V0.9.78Q World Move Diagnostics
+   - 綠色十字 = 最後點擊落點
+   - 紅色十字 = Player Controller 最終 MoveTarget
+   - 藍色十字 = 玩家目前腳底座標
+   ========================================================= */
+.position-debug-cross-tap::before,
+.position-debug-cross-tap::after { background: rgba(80, 255, 110, .98) !important; }
+.position-debug-cross-target::before,
+.position-debug-cross-target::after { background: rgba(255, 70, 70, .98) !important; height: 2px; width: 19px; }
+.position-debug-cross-target::before { left: 9px !important; top: -1px !important; width: 2px !important; height: 19px !important; }
+.position-debug-cross-target::after { left: 0 !important; top: 8px !important; width: 19px !important; height: 2px !important; }
+.position-debug-cross-player::before,
+.position-debug-cross-player::after { background: rgba(80, 170, 255, .85) !important; }

@@ -170,17 +170,20 @@ function startDrag(event, win) {
 
   function clampWindowPosition(x, y) {
     const rootRect = root.getBoundingClientRect();
+    // V0.9.78N：手機 UI 拖曳邊界改成四邊一致。
+    // 左邊原本允許「只保留約一段標題可抓」而視窗可超出畫面；右邊/下方也採同樣規則，
+    // 不再額外扣 safeBottom，避免拖到右側或底部時像撞到透明牆。
     const visibleTitle = 52;
-    const safeBottom = isMobileViewport() ? 34 : 0;
     const winWidth = Math.max(visibleTitle, win.offsetWidth || startRect.width || 320);
     const winHeight = Math.max(visibleTitle, win.offsetHeight || startRect.height || 220);
-    const rootWidth = root.clientWidth || rootRect.width || window.innerWidth;
-    const rootHeight = root.clientHeight || rootRect.height || window.innerHeight;
+    const viewport = window.visualViewport;
+    const rootWidth = Math.max(1, root.clientWidth || rootRect.width || viewport?.width || window.innerWidth);
+    const rootHeight = Math.max(1, root.clientHeight || rootRect.height || viewport?.height || window.innerHeight);
 
     const minX = -(winWidth - visibleTitle);
     const maxX = Math.max(0, rootWidth - visibleTitle);
     const minY = 0;
-    const maxY = Math.max(0, rootHeight - visibleTitle - safeBottom);
+    const maxY = Math.max(0, rootHeight - visibleTitle);
     return {
       x: Math.round(Math.max(minX, Math.min(x, maxX))),
       y: Math.round(Math.max(minY, Math.min(y, maxY)))

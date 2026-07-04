@@ -4,7 +4,7 @@
 // 參考 RA mob_db 概念欄位：AttackRange / SkillRange / ChaseRange / WalkSpeed / Ai / Modes。
 //=======================================
 
-const POSITION_ENGINE_VERSION = "0.9.73";
+const POSITION_ENGINE_VERSION = "0.9.78Q";
 const FLY_WING_ITEM_ID = 601;
 
 //=======================================
@@ -108,6 +108,176 @@ function getFieldLogicalSize() {
   };
 }
 
+function getViewportLogicalSize() {
+  // V0.9.78L：PC world camera 維持 map 設定的 1280×720。
+  // 手機 / 窄螢幕回到 0.9.76c 的核心修法：用 battle-field 實際 layout 尺寸當邏輯視窗。
+  // 這樣點擊座標、Camera offset、角色定位都在同一套座標中，不會因 CSS RWD 後左右抽動。
+  const map = currentMap || {};
+  if (map.worldCamera) {
+    const field = getBattleFieldElement();
+    const mobile = isMobileBattleLayout();
+    if (mobile && field) {
+      return {
+        width: Math.max(1, Number(field.offsetWidth || field.clientWidth || window.innerWidth || 1280)),
+        height: Math.max(1, Number(field.offsetHeight || field.clientHeight || window.innerHeight || 720))
+      };
+    }
+    return {
+      width: Math.max(1, Number(map.cameraWidth || 1280)),
+      height: Math.max(1, Number(map.cameraHeight || 720))
+    };
+  }
+  return getFieldLogicalSize();
+}
+
+function getCurrentMapWorldSize() {
+  const viewport = getViewportLogicalSize();
+  const map = currentMap || {};
+  const width = Number(map.worldWidth || map.mapWidth || map.width || viewport.width);
+  const height = Number(map.worldHeight || map.mapHeight || map.height || viewport.height);
+  return {
+    width: Math.max(viewport.width, Number.isFinite(width) ? width : viewport.width),
+    height: Math.max(viewport.height, Number.isFinite(height) ? height : viewport.height)
+  };
+}
+
+function isLargeFieldMap() {
+  const viewport = getViewportLogicalSize();
+  const world = getCurrentMapWorldSize();
+  return world.width > viewport.width + 2 || world.height > viewport.height + 2;
+}
+
+function getMapCameraOffset(pos = player?.position) {
+  const viewport = getViewportLogicalSize();
+  const world = getCurrentMapWorldSize();
+  if (!isLargeFieldMap()) return { x: 0, y: 0 };
+  const x = clampPositionValue(Number(pos?.x ?? world.width * 0.5) - viewport.width * 0.5, 0, Math.max(0, world.width - viewport.width));
+  const y = clampPositionValue(Number(pos?.y ?? world.height * 0.5) - viewport.height * 0.5, 0, Math.max(0, world.height - viewport.height));
+  return { x, y };
+}
+
+function applyLargeMapCamera() {
+  const field = getBattleFieldElement();
+  if (!field) return;
+
+  // V0.9.78j：城鎮模式不套用大地圖 Camera。
+  // 回村後若還用野外 camera offset / background-size，城鎮背景會被放成超大模糊圖。
+  if (player?.currentCity || field.classList.contains("city-mode")) {
+    field.classList.remove("large-map-mode", "world-camera-mode");
+    field.dataset.worldCamera = "false";
+    field.style.backgroundSize = "cover";
+    field.style.backgroundPosition = "center center";
+    field.style.backgroundRepeat = "no-repeat";
+    return;
+  }
+
+  if (!isLargeFieldMap()) {
+    field.classList.remove("large-map-mode");
+    field.style.backgroundSize = "cover";
+    field.style.backgroundPosition = "center";
+    field.style.backgroundRepeat = "no-repeat";
+    return;
+  }
+  const world = getCurrentMapWorldSize();
+  const camera = getMapCameraOffset();
+
+  // V0.9.78L：不要再依 rect/1280 比例縮放背景。
+  // getViewportLogicalSize() 已在手機回傳 battle-field 實際 layout 尺寸，
+  // 所以背景、角色、點擊座標都直接使用同一組 CSS px 世界座標。
+  field.classList.add("large-map-mode");
+  field.style.backgroundSize = `${Math.round(world.width)}px ${Math.round(world.height)}px`;
+  field.style.backgroundPosition = `${-Math.round(camera.x)}px ${-Math.round(camera.y)}px`;
+  field.style.backgroundRepeat = "no-repeat";
+}
+
+function syncCityPlayerLogicalPosition(layout = {}) {
+  if (!player) return;
+
+  const field = getBattleFieldElement();
+  const fw = Number(field?.clientWidth || field?.offsetWidth || 1280);
+  const fh = Number(field?.clientHeight || field?.offsetHeight || 720);
+  const spriteW = Number(layout.spriteW || 220);
+  const spriteH = Number(layout.spriteH || 250);
+  const left = Number(layout.left ?? Math.max(0, fw - spriteW - 240));
+  const top = Number(layout.top ?? Math.max(0, fh * 0.35));
+  const anchor = getSpriteAnchorRatio("player");
+
+  const foot = clampPositionToBounds({
+    x: left + spriteW * anchor.x,
+    y: top + spriteH * anchor.y
+  }, "player");
+
+  player.position = {
+    ...(player.position || {}),
+    x: foot.x,
+    y: foot.y,
+    targetX: null,
+    targetY: null,
+    moveSpeed: getPlayerMovePixelsPerSecond()
+  };
+  player.hitbox = {
+    ...(player.hitbox || {}),
+    x: foot.x,
+    y: foot.y,
+    width: Math.max(24, spriteW * 0.36),
+    height: Math.max(24, spriteH * 0.24),
+    anchor: "foot-center"
+  };
+}
+
+function renderCityPlayerSprite() {
+  const field = getBattleFieldElement();
+  const playerEl = document.getElementById("player-sprite");
+  const playerImage = document.getElementById("playerImage");
+  const monsterEl = document.getElementById("monster-sprite");
+  if (!field || !playerEl) return;
+
+  field.classList.add("city-mode");
+  field.classList.remove("world-camera-mode", "large-map-mode");
+  field.dataset.worldCamera = "false";
+  field.style.backgroundSize = "cover";
+  field.style.backgroundPosition = "center center";
+  field.style.backgroundRepeat = "no-repeat";
+
+  if (playerImage) {
+    playerImage.src = "images/player/male/idle/0001.png";
+  }
+
+  // 城鎮畫面改成：左側預留 NPC/商店區，玩家固定站在右側。
+  const fw = Number(field.clientWidth || field.offsetWidth || 1280);
+  const fh = Number(field.clientHeight || field.offsetHeight || 720);
+  const mobile = fw < 900 || Boolean(window.matchMedia?.("(pointer: coarse)")?.matches);
+  const spriteW = mobile ? 150 : 220;
+  const spriteH = mobile ? 178 : 250;
+  const imgW = mobile ? 150 : 220;
+  const imgH = mobile ? 150 : 220;
+  const left = mobile ? Math.max(160, fw - spriteW - 20) : 820;
+  const top = mobile ? Math.max(132, Math.min(fh * 0.38, fh - spriteH - 96)) : 205;
+
+  // V0.9.78M：城鎮右側固定站位不能只推 DOM。
+  // 78L 的問題是 sprite 看起來已經在右側，但 player.position / hitbox / UI fade
+  // 還停在進城前的野外座標，F5 後特別容易出現「人與透明判定分離」。
+  // 這裡以玩家腳底中心作為唯一真實座標，先同步資料，再讓 DOM 照同一座標繪製。
+  syncCityPlayerLogicalPosition({ left, top, spriteW, spriteH });
+
+  playerEl.style.setProperty("left", `${Math.round(left)}px`, "important");
+  playerEl.style.setProperty("top", `${Math.round(top)}px`, "important");
+  playerEl.style.setProperty("width", `${spriteW}px`, "important");
+  playerEl.style.setProperty("height", `${spriteH}px`, "important");
+  playerEl.style.setProperty("z-index", "26", "important");
+
+  if (playerImage) {
+    playerImage.style.setProperty("left", "0px", "important");
+    playerImage.style.setProperty("top", mobile ? "10px" : "16px", "important");
+    playerImage.style.setProperty("width", `${imgW}px`, "important");
+    playerImage.style.setProperty("height", `${imgH}px`, "important");
+    playerImage.style.setProperty("max-width", `${imgW}px`, "important");
+    playerImage.style.setProperty("max-height", `${imgH}px`, "important");
+  }
+
+  if (monsterEl) monsterEl.style.display = "none";
+}
+
 function getUiTopInField(elementId) {
   const field = getBattleFieldElement();
   const el = document.getElementById(elementId);
@@ -129,12 +299,11 @@ function getUiBottomInField(elementId) {
 }
 
 function getDynamicPositionBounds(kind = "player") {
-  const { width, height } = getFieldLogicalSize();
+  const { width, height } = getCurrentMapWorldSize();
 
-  // V0.9.72f：真正全背景可走。
-  // Position 座標只代表「腳底中心點 / 1 Cell」，不再用角色圖片寬高、UI 安全區、
-  // 右側按鈕、下方聊天欄或等待怪物狀態縮小可走範圍。
-  // 注意：可視背景邊框就是唯一硬邊界；角色圖片本體可以壓在 UI 或接近畫面邊緣。
+  // V0.9.77：支援正常網頁遊戲大小的大地圖。
+  // 角色/怪物座標改為世界座標；battle-field 只是一個 1280x720 viewport，
+  // Camera 會跟隨玩家移動背景與精靈，不需要一次把 RO 等級超大地圖全部塞進畫面。
   const minX = 0;
   const maxX = Math.max(minX, width);
   const minY = 0;
@@ -188,8 +357,9 @@ let autoNoTargetSince = null;
 let lastMoveInputSignature = "";
 let lastMoveInputAt = 0;
 let lastPositionDebug = null;
+let lastWorldTouchDebug = null;
 
-const POSITION_DEBUG_ENABLED = false;
+const POSITION_DEBUG_ENABLED = true; // V0.9.78P: 手機大地圖綠色十字 / 左下角座標框測試
 const POSITION_AUTO_SAVE_MS = 60 * 1000;
 
 function clampPositionValue(value, min, max) {
@@ -338,6 +508,65 @@ function shouldAcceptMoveInput(event, pos) {
   return true;
 }
 
+
+function getWorldTouchDiagnostics(pos, options = {}) {
+  const map = currentMap || {};
+  const grid = map.chunkGrid || {};
+  const world = getCurrentMapWorldSize();
+  const displayTileSize = Number(grid.displayTileSize || map.displayChunkSize || ((grid.tileSize || map.chunkSize || 512) * (grid.displayScale || map.worldScale || 1)) || 512);
+  const cols = Number(grid.cols || Math.ceil(world.width / Math.max(1, displayTileSize)) || 1);
+  const rows = Number(grid.rows || Math.ceil(world.height / Math.max(1, displayTileSize)) || 1);
+  const x = Number(pos?.x || 0);
+  const y = Number(pos?.y || 0);
+  const chunkX = Math.floor(x / Math.max(1, displayTileSize));
+  const chunkY = Math.floor(y / Math.max(1, displayTileSize));
+  const localX = x - chunkX * displayTileSize;
+  const localY = y - chunkY * displayTileSize;
+  const sourceIndex = chunkY * cols + chunkX;
+  const sourceTiles = Array.isArray(grid.sourceTiles) ? grid.sourceTiles : [];
+  const outsideWorld = x < 0 || y < 0 || x > world.width || y > world.height;
+  const outsideChunk = chunkX < 0 || chunkY < 0 || chunkX >= cols || chunkY >= rows;
+  const hasChunk = !outsideChunk && (sourceTiles.length === 0 || Boolean(sourceTiles[sourceIndex]));
+  const walkable = !outsideWorld && hasChunk;
+  let reason = 'ok';
+  if (outsideWorld) reason = 'outside world';
+  else if (outsideChunk) reason = 'outside chunk grid';
+  else if (!hasChunk) reason = 'chunk missing';
+  return {
+    chunkX, chunkY, localX, localY, cols, rows, sourceIndex,
+    displayTileSize,
+    walkable,
+    reason,
+    worldWidth: world.width,
+    worldHeight: world.height,
+    eventType: options.eventType || '',
+    pointerType: options.pointerType || ''
+  };
+}
+
+function updatePositionDebugMarker(id, className, pos) {
+  if (!POSITION_DEBUG_ENABLED) return;
+  const field = getBattleFieldElement();
+  if (!field || !pos) return;
+  let marker = document.getElementById(id);
+  if (!marker) {
+    marker = document.createElement('div');
+    marker.id = id;
+    marker.className = className;
+    field.appendChild(marker);
+  }
+  const point = getLogicalPointClientPosition(pos);
+  const fieldRect = field.getBoundingClientRect();
+  if (!point) return;
+  marker.style.left = `${Math.round(point.x - fieldRect.left)}px`;
+  marker.style.top = `${Math.round(point.y - fieldRect.top)}px`;
+}
+
+function updateWorldTouchDebugMarkers(tapPos = null, targetPos = null) {
+  if (tapPos) updatePositionDebugMarker('position-debug-tap-cross', 'position-debug-cross position-debug-cross-tap', tapPos);
+  if (targetPos) updatePositionDebugMarker('position-debug-target-cross', 'position-debug-cross position-debug-cross-target', targetPos);
+}
+
 function ensurePositionDebugOverlay() {
   if (!POSITION_DEBUG_ENABLED) return null;
   const field = getBattleFieldElement();
@@ -361,15 +590,31 @@ function updatePositionDebugOverlay(extra = {}) {
   const p = player?.position || {};
   const playerEl = document.getElementById("player-sprite");
   const pr = playerEl?.getBoundingClientRect?.();
-  const vv = getVisualViewportRectFallback();
   const logical = getFieldLogicalSize();
+  const camera = getMapCameraOffset();
+  const viewport = getViewportLogicalSize();
   const clientPoint = getLogicalPointClientPosition(p);
   lastPositionDebug = { ...lastPositionDebug, ...extra };
+  const tx = Number(p.targetX);
+  const ty = Number(p.targetY);
+  const hasTarget = Number.isFinite(tx) && Number.isFinite(ty);
+  const distance = hasTarget ? Math.hypot(tx - Number(p.x || 0), ty - Number(p.y || 0)) : 0;
+  const chunkInfo = lastWorldTouchDebug || getWorldTouchDiagnostics(p);
   el.textContent = [
-    `P ${Math.round(p.x || 0)},${Math.round(p.y || 0)} → T ${Math.round(p.targetX ?? -1)},${Math.round(p.targetY ?? -1)}`,
+    `World Touch Debug 78Q`,
+    `mode ${currentMap?.worldCamera ? "world" : "normal"} field ${field.dataset.worldCamera || "?"}`,
+    `P ${Math.round(p.x || 0)},${Math.round(p.y || 0)} → T ${hasTarget ? `${Math.round(tx)},${Math.round(ty)}` : "none"}`,
+    `State ${player?.state || "?"} Dist ${Math.round(distance)} Speed ${Math.round(getPlayerMovePixelsPerSecond())}`,
+    `Cam ${Math.round(camera.x)},${Math.round(camera.y)} View ${Math.round(viewport.width)}x${Math.round(viewport.height)}`,
     `Field L ${Math.round(logical.width)}x${Math.round(logical.height)} / R ${Math.round(rect.width)}x${Math.round(rect.height)}`,
     `Client ${Math.round(clientPoint?.x ?? -1)},${Math.round(clientPoint?.y ?? -1)} Sprite ${Math.round(pr?.left ?? -1)},${Math.round(pr?.top ?? -1)}`,
-    lastPositionDebug?.tap ? `Tap ${lastPositionDebug.tap}` : ""
+    lastPositionDebug?.screen ? `Screen ${lastPositionDebug.screen}` : "",
+    lastPositionDebug?.world ? `World ${lastPositionDebug.world}` : "",
+    chunkInfo ? `Chunk ${chunkInfo.chunkX},${chunkInfo.chunkY} / ${chunkInfo.cols}x${chunkInfo.rows} Local ${Math.round(chunkInfo.localX)},${Math.round(chunkInfo.localY)}` : "",
+    chunkInfo ? `Walkable ${chunkInfo.walkable ? "TRUE" : "FALSE"} Reason ${chunkInfo.reason}` : "",
+    lastPositionDebug?.moveTarget ? `MoveTarget ${lastPositionDebug.moveTarget}` : "",
+    lastPositionDebug?.tap ? `Tap ${lastPositionDebug.tap}` : "",
+    lastPositionDebug?.block ? `Block ${lastPositionDebug.block}` : ""
   ].filter(Boolean).join("\n");
 }
 
@@ -381,7 +626,7 @@ function updatePositionDebugCross(pos = player?.position) {
   if (!cross) {
     cross = document.createElement("div");
     cross.id = "position-debug-cross";
-    cross.className = "position-debug-cross";
+    cross.className = "position-debug-cross position-debug-cross-player";
     field.appendChild(cross);
   }
   const point = getLogicalPointClientPosition(pos);
@@ -392,10 +637,13 @@ function updatePositionDebugCross(pos = player?.position) {
 }
 
 function isPointerOnBlockedUi(target) {
-  // V0.9.73：右側走不到的主因之一，是手機 UI 容器本身（top-bar / quick-buttons）
-  // 佔住了右側可點擊區。全背景可走後，只阻擋真正可互動的按鈕、輸入框、彈窗、快捷格。
-  // 金幣列、透明對話框、快捷按鈕容器空白處不再整片吃掉地圖點擊。
-  return Boolean(target?.closest?.("button, input, select, textarea, .game-window, .fixed-panel, .quick-slot, .quick-slot-item, .dev-buttons"));
+  // V0.9.78P：透明中的 UI 視窗只保留標題列 / 按鈕可操作；內容透明區允許點穿到地圖。
+  // 這樣角色站在 UI 下方時，玩家看得到透明 UI，也能直接點大地圖測試綠色十字與移動。
+  const interactive = target?.closest?.("button, input, select, textarea, a, .quick-slot, .quick-slot-item, .dev-buttons, .window-title, .drag-handle, .window-close");
+  if (interactive) return true;
+  const win = target?.closest?.(".game-window");
+  if (win && !win.classList.contains("ui-under-player")) return true;
+  return false;
 }
 
 function getEventClientPoint(event) {
@@ -461,19 +709,29 @@ function getBattleFieldLocalPosition(event, field) {
   const visibleRect = getBattleFieldVisibleRect(field);
   if (fieldRect.width <= 0 || fieldRect.height <= 0 || visibleRect.width <= 0 || visibleRect.height <= 0) return null;
 
-  const logicalWidth = field.offsetWidth || 1280;
-  const logicalHeight = field.offsetHeight || 720;
+  const viewport = getViewportLogicalSize();
+  const camera = getMapCameraOffset();
 
   // V0.9.73：X 軸改回使用 battle-field 完整 rect，避免 visualViewport / 右側網址列縮放
   // 或右側 UI 容器造成可點寬度被誤縮，導致右邊角落永遠換算不到 maxX。
   // Y 軸仍使用可視交集，保留 0.9.73 對 iPhone Safari 底部網址列的修正。
+  // V0.9.77：點擊位置要加上 Camera offset，換算成大地圖世界座標。
   const safeX = clampPositionValue(point.clientX, fieldRect.left, fieldRect.right);
   const safeY = clampPositionValue(point.clientY, visibleRect.top, visibleRect.bottom);
   const raw = {
-    x: ((safeX - fieldRect.left) / fieldRect.width) * logicalWidth,
-    y: ((safeY - visibleRect.top) / visibleRect.height) * logicalHeight
+    // V0.9.78M：完整 screen → camera → world 換算。
+    // screen local ratio 先轉成目前 viewport 邏輯座標，再加上 camera offset 成為世界座標。
+    x: camera.x + ((safeX - fieldRect.left) / Math.max(1, fieldRect.width)) * viewport.width,
+    y: camera.y + ((safeY - visibleRect.top) / Math.max(1, visibleRect.height)) * viewport.height
   };
-  return clampPositionToBounds(raw, "player");
+  const clamped = clampPositionToBounds(raw, "player");
+  lastWorldTouchDebug = getWorldTouchDiagnostics(clamped, { eventType: event?.type, pointerType: event?.pointerType });
+  lastPositionDebug = {
+    ...lastPositionDebug,
+    screen: `${Math.round(point.clientX)},${Math.round(point.clientY)} safe ${Math.round(safeX)},${Math.round(safeY)}`,
+    world: `${Math.round(raw.x)},${Math.round(raw.y)} clamp ${Math.round(clamped.x)},${Math.round(clamped.y)}`
+  };
+  return clamped;
 }
 
 function bindBattleFieldMovement() {
@@ -500,13 +758,54 @@ function bindBattleFieldMovement() {
     event.stopImmediatePropagation?.();
     event.stopPropagation?.();
     setPlayerMoveTarget(pos.x, pos.y);
-    updatePositionDebugOverlay({ tap: `${event.type}/${event.pointerType || ""} → ${Math.round(pos.x)},${Math.round(pos.y)}` });
+    updateWorldTouchDebugMarkers(pos, { x: player.position.targetX, y: player.position.targetY });
+    updatePositionDebugOverlay({ moveTarget: `${Math.round(player.position.targetX)},${Math.round(player.position.targetY)} accepted`, tap: `${event.type}/${event.pointerType || ""} → ${Math.round(pos.x)},${Math.round(pos.y)} OK` });
     addBattleLog(`移動到座標 (${Math.round(player.position.targetX)}, ${Math.round(player.position.targetY)})。`);
   };
   // V0.9.73：同一個點擊只綁一種主要事件，避免 pointerdown + click / touchstart + click
   // 同時下達移動指令，造成戰鬥紀錄出現兩次座標。
   if (window.PointerEvent) {
     field.addEventListener("pointerdown", handlePointerMoveRequest, { passive: false, capture: true });
+
+    // V0.9.78O：手機大地圖輸入改成「世界地圖專用全域保險入口」。
+    // 78N 只補 pointerdown；部分手機瀏覽器在 world-camera + touch-action:none + 透明層時，
+    // pointerdown 可能不穩定，但 touchstart/click 仍會送出。這裡同時監聽 pointerdown/touchstart/click，
+    // 只在 worldCamera 啟用，並以 battle-field 可視矩形做命中，不再依賴 event target 是否為 field 子節點。
+    if (!window.__roWebWorldMoveDocumentFallbackBound) {
+      window.__roWebWorldMoveDocumentFallbackBound = true;
+      const handleWorldCameraGlobalMove = event => {
+        const activeField = getBattleFieldElement();
+        const isWorldMode = Boolean(currentMap?.worldCamera || activeField?.dataset?.worldCamera === "true" || activeField?.classList?.contains("world-camera-mode"));
+        if (!isWorldMode) return;
+        if (window.RO_WEB_UI_DRAG_ACTIVE) { updatePositionDebugOverlay({ block: "ui drag active" }); return; }
+        if (!isPrimaryMoveInput(event)) { updatePositionDebugOverlay({ block: `not primary ${event.type}` }); return; }
+        if (isPointerOnBlockedUi(event.target)) { updatePositionDebugOverlay({ block: `blocked UI ${event.target?.id || event.target?.className || event.target?.tagName}` }); return; }
+        if (!player || player.currentCity) { updatePositionDebugOverlay({ block: player?.currentCity ? "currentCity" : "no player" }); return; }
+
+        const point = getEventClientPoint(event);
+        if (!activeField || !point) { updatePositionDebugOverlay({ block: "no field/point" }); return; }
+        const rect = getBattleFieldVisibleRect(activeField);
+        if (point.clientX < rect.left || point.clientX > rect.right || point.clientY < rect.top || point.clientY > rect.bottom) {
+          updatePositionDebugOverlay({ screen: `${Math.round(point.clientX)},${Math.round(point.clientY)}`, block: "outside field" });
+          return;
+        }
+
+        const pos = getBattleFieldLocalPosition(event, activeField);
+        if (!pos) { updatePositionDebugOverlay({ block: "no pos" }); return; }
+        if (!shouldAcceptMoveInput(event, pos)) { updatePositionDebugOverlay({ block: "duplicate tap" }); return; }
+
+        if (event.cancelable) event.preventDefault();
+        event.stopImmediatePropagation?.();
+        event.stopPropagation?.();
+        setPlayerMoveTarget(pos.x, pos.y);
+        updateWorldTouchDebugMarkers(pos, { x: player.position.targetX, y: player.position.targetY });
+        updatePositionDebugOverlay({ moveTarget: `${Math.round(player.position.targetX)},${Math.round(player.position.targetY)} accepted`, tap: `world-${event.type}/${event.pointerType || ""} → ${Math.round(pos.x)},${Math.round(pos.y)} OK` });
+        addBattleLog(`移動到座標 (${Math.round(player.position.targetX)}, ${Math.round(player.position.targetY)})。`);
+      };
+      document.addEventListener("pointerdown", handleWorldCameraGlobalMove, { passive: false, capture: true });
+      document.addEventListener("touchstart", handleWorldCameraGlobalMove, { passive: false, capture: true });
+      document.addEventListener("click", handleWorldCameraGlobalMove, { passive: false, capture: true });
+    }
   } else {
     field.addEventListener("touchstart", handlePointerMoveRequest, { passive: false, capture: true });
     field.addEventListener("click", handlePointerMoveRequest, { passive: false, capture: true });
@@ -516,9 +815,23 @@ function bindBattleFieldMovement() {
 function setPlayerMoveTarget(x, y) {
   normalizePositionData();
   const target = clampPositionToBounds({ x, y }, "player");
+  const diag = getWorldTouchDiagnostics(target);
+  lastWorldTouchDebug = diag;
+
+  // V0.9.78Q：目前大地圖沒有精細不可走格資料。
+  // 只要落點在世界與 chunk 範圍內，就不要因為 walkable 查不到而擋死移動；
+  // Debug 會顯示 chunk/local/reason，方便下一版再補真正的不可走遮罩。
+  if (!diag.walkable) {
+    lastPositionDebug = { ...(lastPositionDebug || {}), moveTarget: `reject ${Math.round(target.x)},${Math.round(target.y)} ${diag.reason}` };
+    return false;
+  }
+
   player.position.targetX = target.x;
   player.position.targetY = target.y;
   player.state = autoBattleTimer ? "Moving" : "Move";
+  lastPositionDebug = { ...(lastPositionDebug || {}), moveTarget: `${Math.round(target.x)},${Math.round(target.y)} accepted` };
+  updateWorldTouchDebugMarkers(null, target);
+  return true;
 }
 
 function updatePositionMovement(dt) {
@@ -752,11 +1065,13 @@ function getLogicalPointClientPosition(pos) {
   const field = getBattleFieldElement();
   if (!field || !pos) return null;
   const rect = field.getBoundingClientRect();
-  const logicalWidth = field.offsetWidth || 1280;
-  const logicalHeight = field.offsetHeight || 720;
+  const viewport = getViewportLogicalSize();
+  const camera = getMapCameraOffset();
+  const screenX = Number(pos.x || 0) - camera.x;
+  const screenY = Number(pos.y || 0) - camera.y;
   return {
-    x: rect.left + (Number(pos.x || 0) / logicalWidth) * rect.width,
-    y: rect.top + (Number(pos.y || 0) / logicalHeight) * rect.height
+    x: rect.left + (screenX / viewport.width) * rect.width,
+    y: rect.top + (screenY / viewport.height) * rect.height
   };
 }
 
@@ -828,9 +1143,11 @@ function placeSpriteByFootPosition(element, pos, kind = "player") {
   if (!element || !pos) return;
 
   // 初始定位：用目前 DOM 尺寸計算腳底中心。
+  // V0.9.77：大地圖座標為世界座標，精靈顯示位置需扣掉 Camera offset。
   const anchor = getSpriteAnchorOffset(element, kind);
-  element.style.setProperty("left", `${Math.round(Number(pos.x || 0) - anchor.x)}px`, "important");
-  element.style.setProperty("top", `${Math.round(Number(pos.y || 0) - anchor.y)}px`, "important");
+  const camera = getMapCameraOffset();
+  element.style.setProperty("left", `${Math.round(Number(pos.x || 0) - camera.x - anchor.x)}px`, "important");
+  element.style.setProperty("top", `${Math.round(Number(pos.y || 0) - camera.y - anchor.y)}px`, "important");
 
   // V0.9.72g：手機版 UI Scale / CSS zoom 會讓視覺腳底與邏輯座標不同步。
   // 用實際 getBoundingClientRect() 反校正一次，確保點擊下方邊界時角色真的能走到底。
@@ -855,7 +1172,32 @@ function placeSpriteByFootPosition(element, pos, kind = "player") {
   }
 }
 
+
+function resetFieldPlayerSpriteStyle() {
+  const field = getBattleFieldElement();
+  const playerEl = document.getElementById("player-sprite");
+  const playerImage = document.getElementById("playerImage");
+  if (!field || !playerEl) return;
+  field.classList.remove("city-mode");
+  ["width", "height", "min-width", "min-height", "z-index"].forEach(name => playerEl.style.removeProperty(name));
+  if (playerImage) {
+    ["left", "top", "width", "height", "max-width", "max-height"].forEach(name => playerImage.style.removeProperty(name));
+  }
+}
+
 function renderPositionSprites() {
+  if (player?.currentCity) {
+    renderCityPlayerSprite();
+    updateUiFadeForPosition();
+    updatePositionDebugOverlay();
+    return;
+  }
+
+  resetFieldPlayerSpriteStyle();
+  const monsterElForField = document.getElementById("monster-sprite");
+  if (monsterElForField) monsterElForField.style.display = "";
+
+  applyLargeMapCamera();
   if (player?.position) {
     const safePlayerPos = clampPositionToBounds(player.position, "player");
     player.position.x = safePlayerPos.x;
@@ -877,6 +1219,7 @@ function renderPositionSprites() {
   }
   updateUiFadeForPosition();
   updatePositionDebugCross(player?.position);
+  if (player?.position?.targetX !== null && player?.position?.targetX !== undefined) updateWorldTouchDebugMarkers(null, { x: player.position.targetX, y: player.position.targetY });
   updatePositionDebugOverlay();
 }
 

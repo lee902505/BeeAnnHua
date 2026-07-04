@@ -12,7 +12,7 @@ let items = {};
 let expTables = null;
 let currentMap = null;
 
-const RO_WEB_VERSION = "0.9.76c";
+const RO_WEB_VERSION = "0.9.78j";
 
 function normalizeDataPath(path) {
   return String(path || "")
@@ -93,7 +93,7 @@ async function initGame() {
   if (typeof updateAutoCombatUI === "function") updateAutoCombatUI();
 
   addBattleLog("玩家資料載入完成！");
-  addBattleLog("歡迎來到 RO_WEB Alpha 0.9.76c！");
+  addBattleLog("歡迎來到 RO_WEB Alpha 0.9.78j！");
 }
 
 async function loadMonsterData() {
@@ -196,12 +196,22 @@ function setInitialMap() {
     return;
   }
 
-  const savedFieldMapId = player?.map || player?.lastFieldMap || "prontera_south";
-  currentMap = maps.find(map => map.id === savedFieldMapId) || maps.find(map => map.id === "prontera_south") || maps[0];
+  let savedFieldMapId = player?.map || player?.lastFieldMap || "mjolnir_3x3_region_camera";
+  // v0.9.78b：舊 Camera/單格 MVP 存檔會強制導到單格3倍64px測試圖。
+  const wasOldMapMvp = ["mjolnir_chunk_mvp", "mjolnir_camera_3x3", "mjolnir_mountains", "mjolnir_camera_scale3_single", "mjolnir_camera_zoom05_single512"].includes(savedFieldMapId);
+  if (wasOldMapMvp) savedFieldMapId = "mjolnir_3x3_region_camera";
+  currentMap = maps.find(map => map.id === savedFieldMapId) || maps.find(map => map.id === "mjolnir_3x3_region_camera") || maps.find(map => map.id === "prontera_south") || maps[0];
 
   if (player && currentMap) {
     // v0.9.49：即使人在城鎮，也保留 lastFieldMap，讓開局可直接傳送南門。
     player.lastFieldMap = player.lastFieldMap || currentMap.id;
     if (!player.currentCity) player.map = currentMap.id;
+    if (wasOldMapMvp && currentMap.spawnPoint) {
+      player.position = player.position || {};
+      player.position.x = Number(currentMap.spawnPoint.x || 0);
+      player.position.y = Number(currentMap.spawnPoint.y || 0);
+      player.position.targetX = player.position.x;
+      player.position.targetY = player.position.y;
+    }
   }
 }
