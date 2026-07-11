@@ -12,10 +12,7 @@
     "slots": 0,
     "cards": [],
     "requiredLevel": 1,
-    "allowedJobs": [
-      "all"
-    ],
-    "sellPrice": 80,
+    "sellPrice": 400,
     "description": [
       "用布條做成的蝴蝶髮帶,主要是給女性使用。",
       "MDEF+3。",
@@ -26,7 +23,34 @@
     "icon": "images/items/2208.webp",
     "buyPrice": 800,
     "slotCount": 0,
-    "ClassNum": 17
+    "ClassNum": 17,
+    "aegisName": "Ribbon",
+    "dbType": "Armor",
+    "armorLevel": 1,
+    "viewId": 17,
+    "locations": {
+      "Head_Top": true
+    },
+    "refineable": true,
+    "scriptRaw": "bonus bMdef,3;",
+    "dataSource": "itemInfo_UTF8.lub + db/re/item_db_equip.yml",
+    "Id": 2208,
+    "Name": "紫蝶髮帶",
+    "Buy": 800,
+    "AegisName": "Ribbon",
+    "Type": "Armor",
+    "Attack": 0,
+    "Defense": 1,
+    "Slots": 0,
+    "Locations": {
+      "Head_Top": true
+    },
+    "ArmorLevel": 1,
+    "EquipLevelMin": 1,
+    "Refineable": true,
+    "View": 17,
+    "Script": "bonus bMdef,3;",
+    "equipLevelMin": 1
   },
   "2211": {
     "id": 2211,
@@ -49,7 +73,31 @@
     "slots": 0,
     "requiredLevel": 1,
     "slotCount": 0,
-    "ClassNum": 6
+    "ClassNum": 6,
+    "aegisName": "Bandana",
+    "dbType": "Armor",
+    "armorLevel": 1,
+    "viewId": 6,
+    "locations": {
+      "Head_Top": true
+    },
+    "refineable": true,
+    "dataSource": "itemInfo_UTF8.lub + db/re/item_db_equip.yml",
+    "Id": 2211,
+    "Name": "方頭巾",
+    "Buy": 400,
+    "AegisName": "Bandana",
+    "Type": "Armor",
+    "Defense": 2,
+    "Slots": 0,
+    "Locations": {
+      "Head_Top": true
+    },
+    "ArmorLevel": 1,
+    "EquipLevelMin": 1,
+    "Refineable": true,
+    "View": 6,
+    "equipLevelMin": 1
   },
   "2220": {
     "id": 2220,
@@ -72,7 +120,31 @@
     "slots": 0,
     "requiredLevel": 1,
     "slotCount": 0,
-    "ClassNum": 16
+    "ClassNum": 16,
+    "aegisName": "Hat",
+    "dbType": "Armor",
+    "armorLevel": 1,
+    "viewId": 16,
+    "locations": {
+      "Head_Top": true
+    },
+    "refineable": true,
+    "dataSource": "itemInfo_UTF8.lub + db/re/item_db_equip.yml",
+    "Id": 2220,
+    "Name": "漁夫帽",
+    "Buy": 1000,
+    "AegisName": "Hat",
+    "Type": "Armor",
+    "Defense": 2,
+    "Slots": 0,
+    "Locations": {
+      "Head_Top": true
+    },
+    "ArmorLevel": 1,
+    "EquipLevelMin": 1,
+    "Refineable": true,
+    "View": 16,
+    "equipLevelMin": 1
   },
   "2228": {
     "id": 2228,
@@ -95,7 +167,41 @@
     "slots": 0,
     "requiredLevel": 1,
     "slotCount": 0,
-    "ClassNum": 40
+    "ClassNum": 40,
+    "aegisName": "Helm",
+    "dbType": "Armor",
+    "armorLevel": 1,
+    "viewId": 40,
+    "equipJobs": {
+      "Crusader": true,
+      "Knight": true,
+      "Swordman": true
+    },
+    "locations": {
+      "Head_Top": true
+    },
+    "refineable": true,
+    "dataSource": "itemInfo_UTF8.lub + db/re/item_db_equip.yml",
+    "Id": 2228,
+    "Name": "金屬頭盔",
+    "Buy": 44000,
+    "AegisName": "Helm",
+    "Type": "Armor",
+    "Defense": 13,
+    "Slots": 0,
+    "Jobs": {
+      "Crusader": true,
+      "Knight": true,
+      "Swordman": true
+    },
+    "Locations": {
+      "Head_Top": true
+    },
+    "ArmorLevel": 1,
+    "EquipLevelMin": 1,
+    "Refineable": true,
+    "View": 40,
+    "equipLevelMin": 1
   },
   "2230": {
     "id": 2230,
@@ -119,6 +225,127 @@
     "slots": 0,
     "requiredLevel": 1,
     "slotCount": 0,
-    "ClassNum": 0
+    "ClassNum": 0,
+    "aegisName": "Gemmed_Sallet",
+    "dbType": "Armor",
+    "armorLevel": 1,
+    "equipJobs": {
+      "Alchemist": true,
+      "Assassin": true,
+      "Blacksmith": true,
+      "Crusader": true,
+      "Knight": true,
+      "Merchant": true,
+      "Rogue": true,
+      "Swordman": true,
+      "Thief": true
+    },
+    "locations": {
+      "Head_Top": true
+    },
+    "refineable": true,
+    "scriptRaw": "bonus bMdef,3;",
+    "dataSource": "itemInfo_UTF8.lub + db/re/item_db_equip.yml",
+    "Id": 2230,
+    "Name": "寶石頭盔",
+    "Buy": 50000,
+    "AegisName": "Gemmed_Sallet",
+    "Type": "Armor",
+    "Defense": 8,
+    "Slots": 0,
+    "Jobs": {
+      "Alchemist": true,
+      "Assassin": true,
+      "Blacksmith": true,
+      "Crusader": true,
+      "Knight": true,
+      "Merchant": true,
+      "Rogue": true,
+      "Swordman": true,
+      "Thief": true
+    },
+    "Locations": {
+      "Head_Top": true
+    },
+    "ArmorLevel": 1,
+    "EquipLevelMin": 1,
+    "Refineable": true,
+    "Script": "bonus bMdef,3;",
+    "equipLevelMin": 1
+  },
+  "2226": {
+    "id": 2226,
+    "officialId": 2226,
+    "name": "無邊帽",
+    "type": "equipment",
+    "category": "armor",
+    "subCategory": "headTop",
+    "buyPrice": 12000,
+    "sellPrice": 6000,
+    "description": [
+      "簡單的設計,有著活動性和使用性的帽子。",
+      "系列 : ^777777頭具^000000  防禦 :  ^7777777^000000",
+      "位置 : ^777777頭上^000000",
+      "裝備 : ^777777劍士系列/弓箭手系列/商人系列/盜賊系列^000000"
+    ],
+    "icon": "images/items/2226.webp",
+    "slot": "headTop",
+    "def": 7,
+    "slots": 0,
+    "requiredLevel": 1,
+    "slotCount": 0,
+    "ClassNum": 14,
+    "aegisName": "Cap",
+    "dbType": "Armor",
+    "armorLevel": 1,
+    "viewId": 14,
+    "equipJobs": {
+      "Alchemist": true,
+      "Archer": true,
+      "Assassin": true,
+      "BardDancer": true,
+      "Blacksmith": true,
+      "Crusader": true,
+      "Hunter": true,
+      "Knight": true,
+      "Merchant": true,
+      "Rogue": true,
+      "Swordman": true,
+      "Thief": true
+    },
+    "locations": {
+      "Head_Top": true
+    },
+    "refineable": true,
+    "dataSource": "itemInfo_UTF8.lub + db/re/item_db_equip.yml",
+    "Id": 2226,
+    "Name": "無邊帽",
+    "Buy": 12000,
+    "AegisName": "Cap",
+    "Type": "Armor",
+    "Defense": 7,
+    "Slots": 0,
+    "Jobs": {
+      "Alchemist": true,
+      "Archer": true,
+      "Assassin": true,
+      "BardDancer": true,
+      "Blacksmith": true,
+      "Crusader": true,
+      "Hunter": true,
+      "Knight": true,
+      "Merchant": true,
+      "Rogue": true,
+      "Swordman": true,
+      "Thief": true
+    },
+    "Locations": {
+      "Head_Top": true
+    },
+    "ArmorLevel": 1,
+    "EquipLevelMin": 1,
+    "Refineable": true,
+    "View": 14,
+    "equipLevelMin": 1
   }
 }

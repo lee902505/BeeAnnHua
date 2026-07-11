@@ -1,0 +1,1382 @@
+{
+  "version": "0.9.82",
+  "scope": "Runtime Physical Batch11: Phantasmic Arrow",
+  "sources": [
+    "rAthena db/re/skill_db.yml",
+    "rAthena src/map/skill.cpp",
+    "rAthena src/map/status.cpp",
+    "rAthena src/map/battle.cpp",
+    "Project SkillInfoz"
+  ],
+  "skills": {
+    "5": {
+      "handler": "physical_attack",
+      "ratio": [
+        130,
+        160,
+        190,
+        220,
+        250,
+        280,
+        310,
+        340,
+        370,
+        400
+      ],
+      "hitRateBonusPercentPerLevel": 5,
+      "source": "rAthena skills/swordman/bash.cpp"
+    },
+    "19": {
+      "handler": "magic_multihit",
+      "matkRatioPerHit": 100,
+      "source": "rAthena Fire Bolt / renewal magic attack"
+    },
+    "14": {
+      "handler": "magic_multihit",
+      "matkRatioPerHit": 100,
+      "source": "rAthena Cold Bolt / renewal magic attack"
+    },
+    "20": {
+      "handler": "magic_multihit",
+      "matkRatioPerHit": 100,
+      "source": "rAthena Lightning Bolt / renewal magic attack"
+    },
+    "28": {
+      "handler": "heal",
+      "formula": "renewal_heal",
+      "source": "rAthena skill_calc_heal"
+    },
+    "42": {
+      "handler": "physical_attack",
+      "ratio": [
+        150,
+        200,
+        250,
+        300,
+        350,
+        400,
+        450,
+        500,
+        550,
+        600
+      ],
+      "zenyCost": [
+        100,
+        200,
+        300,
+        400,
+        500,
+        600,
+        700,
+        800,
+        900,
+        1000
+      ],
+      "source": "rAthena skills/merchant/mammonite.cpp"
+    },
+    "46": {
+      "handler": "physical_attack",
+      "ratio": [
+        100,
+        110,
+        120,
+        130,
+        140,
+        150,
+        160,
+        170,
+        180,
+        190
+      ],
+      "hitCount": 2,
+      "source": "rAthena skills/archer/doublestrafe.cpp"
+    },
+    "47": {
+      "handler": "physical_attack",
+      "ratio": [
+        160,
+        170,
+        180,
+        190,
+        200,
+        210,
+        220,
+        230,
+        240,
+        250
+      ],
+      "area": true,
+      "source": "rAthena skills/archer/arrowshower.cpp"
+    },
+    "52": {
+      "handler": "physical_attack",
+      "ratio": [
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100
+      ],
+      "poisonChancePercent": [
+        14,
+        18,
+        22,
+        26,
+        30,
+        34,
+        38,
+        42,
+        46,
+        50
+      ],
+      "source": "rAthena skills/thief/envenom.cpp"
+    },
+    "149": {
+      "handler": "physical_attack",
+      "ratio": 130,
+      "status": "blind",
+      "statusChancePercent": 20,
+      "source": "rAthena skills/thief/sandattack.cpp"
+    },
+    "36": {
+      "handler": "passive",
+      "passiveBonuses": {
+        "maxHpRate": [
+          2,
+          4,
+          6,
+          8,
+          10,
+          12,
+          14,
+          16,
+          18,
+          20
+        ]
+      },
+      "customRule": "RO_WEB custom override"
+    },
+    "34": {
+      "handler": "buff",
+      "durationFromSkill": true,
+      "effects": {
+        "strFlat": "level",
+        "dexFlat": "level",
+        "intFlat": "level"
+      },
+      "source": "rAthena status Blessing"
+    },
+    "29": {
+      "handler": "buff",
+      "durationFromSkill": true,
+      "effects": {
+        "agiFlat": "level",
+        "walkSpeedRate": [
+          -3,
+          -6,
+          -9,
+          -12,
+          -15,
+          -18,
+          -21,
+          -24,
+          -27,
+          -30
+        ]
+      },
+      "source": "rAthena status Increase Agility"
+    },
+    "33": {
+      "handler": "buff",
+      "durationFromSkill": true,
+      "effects": {
+        "defRate": [
+          5,
+          10,
+          15,
+          20,
+          25,
+          30,
+          35,
+          40,
+          45,
+          50
+        ]
+      },
+      "source": "rAthena status Angelus"
+    },
+    "45": {
+      "handler": "buff",
+      "durationFromSkill": true,
+      "effects": {
+        "dexFlat": [
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12
+        ],
+        "agiFlat": [
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12
+        ]
+      },
+      "source": "rAthena status Attention Concentrate"
+    },
+    "155": {
+      "handler": "buff",
+      "duration": 300000,
+      "effects": {
+        "strFlat": 4
+      },
+      "source": "rAthena Crazy Uproar"
+    },
+    "142": {
+      "handler": "heal_fixed",
+      "heal": 5,
+      "spCost": 3,
+      "source": "official First Aid"
+    },
+    "2": {
+      "handler": "passive",
+      "passiveBonuses": {
+        "atkFlat": [
+          4,
+          8,
+          12,
+          16,
+          20,
+          24,
+          28,
+          32,
+          36,
+          40
+        ]
+      },
+      "weaponTypes": [
+        "sword",
+        "oneHandSword"
+      ],
+      "source": "rAthena sword mastery / status calculation"
+    },
+    "3": {
+      "handler": "passive",
+      "passiveBonuses": {
+        "atkFlat": [
+          4,
+          8,
+          12,
+          16,
+          20,
+          24,
+          28,
+          32,
+          36,
+          40
+        ]
+      },
+      "weaponTypes": [
+        "twoHandSword"
+      ],
+      "source": "rAthena two-hand sword mastery / status calculation"
+    },
+    "7": {
+      "handler": "physical_attack",
+      "ratio": [
+        120,
+        140,
+        160,
+        180,
+        200,
+        220,
+        240,
+        260,
+        280,
+        300
+      ],
+      "area": true,
+      "hitRateBonusPercentPerLevel": 10,
+      "selfBuff": {
+        "element": "fire",
+        "weaponAttackRate": 20
+      },
+      "source": "rAthena src/map/skills/swordman/magnum.cpp"
+    },
+    "55": {
+      "handler": "passive",
+      "passiveBonuses": {
+        "atkFlat": [
+          4,
+          8,
+          12,
+          16,
+          20,
+          24,
+          28,
+          32,
+          36,
+          40
+        ]
+      },
+      "weaponTypes": [
+        "spear"
+      ],
+      "source": "rAthena spear mastery / status calculation"
+    },
+    "56": {
+      "handler": "physical_attack_size_hits",
+      "ratio": [
+        110,
+        120,
+        130,
+        140,
+        150,
+        160,
+        170,
+        180,
+        190,
+        200
+      ],
+      "sizeHitCount": {
+        "small": 1,
+        "medium": 2,
+        "large": 3
+      },
+      "hitRateBonusPercentPerLevel": 5,
+      "weaponTypes": [
+        "spear"
+      ],
+      "source": "rAthena src/map/skills/swordman/pierce.cpp"
+    },
+    "58": {
+      "handler": "physical_attack",
+      "ratio": [
+        120,
+        140,
+        160,
+        180,
+        200,
+        220,
+        240,
+        260,
+        280,
+        300
+      ],
+      "knockback": true,
+      "lineArea": true,
+      "weaponTypes": [
+        "spear"
+      ],
+      "source": "rAthena src/map/skills/swordman/spearstab.cpp"
+    },
+    "59": {
+      "handler": "physical_attack",
+      "ratio": [
+        150,
+        200,
+        250,
+        300,
+        350
+      ],
+      "ranged": true,
+      "weaponTypes": [
+        "spear"
+      ],
+      "source": "rAthena src/map/skills/swordman/spearboomerang.cpp"
+    },
+    "60": {
+      "handler": "buff",
+      "durationFromSkill": true,
+      "effects": {
+        "aspdRate": 30
+      },
+      "weaponTypes": [
+        "twoHandSword"
+      ],
+      "source": "rAthena Two-Hand Quicken status"
+    },
+    "62": {
+      "handler": "physical_attack",
+      "ratio": [
+        140,
+        180,
+        220,
+        260,
+        300,
+        340,
+        380,
+        420,
+        460,
+        500
+      ],
+      "area": true,
+      "knockback": true,
+      "weaponTypes": [
+        "twoHandSword"
+      ],
+      "source": "rAthena src/map/skills/swordman/bowlingbash.cpp"
+    },
+    "495": {
+      "handler": "buff",
+      "durationFromSkill": true,
+      "effects": {
+        "aspdRate": 30
+      },
+      "weaponTypes": [
+        "sword",
+        "oneHandSword"
+      ],
+      "source": "rAthena One-Hand Quicken status"
+    },
+    "4": {
+      "handler": "passive",
+      "passiveBonuses": {
+        "hpRecoverySkillLevel": "level"
+      },
+      "formula": "skillLv*5 + skillLv*maxHp/500 per recovery tick",
+      "source": "rAthena status.cpp natural HP recovery"
+    },
+    "6": {
+      "handler": "monster_debuff",
+      "duration": 30000,
+      "successFormula": "70 + 3*skillLv + casterBaseLv - targetBaseLv",
+      "effects": {
+        "atkRate": [
+          5,
+          8,
+          11,
+          14,
+          17,
+          20,
+          23,
+          26,
+          29,
+          32
+        ],
+        "defRate": [
+          -10,
+          -15,
+          -20,
+          -25,
+          -30,
+          -35,
+          -40,
+          -45,
+          -50,
+          -55
+        ]
+      },
+      "forceAggro": true,
+      "blockedOnUndead": true,
+      "blockedOnBoss": true,
+      "source": "rAthena provoke.cpp + status.cpp SC_PROVOKE"
+    },
+    "8": {
+      "handler": "buff",
+      "duration": [
+        10000,
+        13000,
+        16000,
+        19000,
+        22000,
+        25000,
+        28000,
+        31000,
+        34000,
+        37000
+      ],
+      "effects": {
+        "mdefFlat": "level",
+        "noHitStun": 1,
+        "noKnockback": 1
+      },
+      "hitLimit": 7,
+      "cooldown": 10000,
+      "source": "rAthena skill_db.yml SC_ENDURE / status.cpp"
+    },
+    "57": {
+      "handler": "physical_attack_formula",
+      "formula": "renewal_brandish_spear",
+      "area": true,
+      "requiresMounted": true,
+      "requiresWeaponTypes": [
+        "spear"
+      ],
+      "knockback": 2,
+      "source": "rAthena brandishspear.cpp: 400 + 100*Lv + STR*3 %"
+    },
+    "61": {
+      "handler": "counter_stance",
+      "duration": [
+        400,
+        800,
+        1200,
+        1600,
+        2000
+      ],
+      "counterRatio": 100,
+      "hitRateBonusPercent": 20,
+      "critical": true,
+      "source": "rAthena counterattack.cpp + skill_db.yml"
+    },
+    "63": {
+      "handler": "mount_unlock",
+      "mountType": "peco",
+      "source": "rAthena KN_RIDING; RO_WEB mount runtime controls asset switching later"
+    },
+    "64": {
+      "handler": "passive",
+      "requiresMounted": true,
+      "passiveBonuses": {
+        "mountedAspdPenaltyRate": [
+          -40,
+          -30,
+          -20,
+          -10,
+          0
+        ]
+      },
+      "source": "rAthena status.cpp: riding penalty 50-10*skillLv, mapped to RO_WEB ASPD rate"
+    },
+    "1001": {
+      "handler": "physical_charge",
+      "ratio": 700,
+      "moveAdjacentToTarget": true,
+      "knockback": 2,
+      "cooldown": 500,
+      "source": "rAthena chargeattack.cpp Renewal total skill ratio 700%"
+    },
+    "248": {
+      "handler": "passive",
+      "passiveBonuses": {
+        "maxHpFlat": [
+          200,
+          400,
+          600,
+          800,
+          1000,
+          1200,
+          1400,
+          1600,
+          1800,
+          2000
+        ],
+        "holyResistRate": [
+          5,
+          10,
+          15,
+          20,
+          25,
+          30,
+          35,
+          40,
+          45,
+          50
+        ]
+      },
+      "source": "rAthena status.cpp CR_TRUST: max HP +200/lv; Holy resistance +5%/lv"
+    },
+    "250": {
+      "handler": "physical_attack",
+      "ratio": [
+        120,
+        140,
+        160,
+        180,
+        200
+      ],
+      "requiresShield": true,
+      "status": "stun",
+      "statusChancePercent": [
+        20,
+        25,
+        30,
+        35,
+        40
+      ],
+      "statusDuration": 4500,
+      "knockbackCells": [
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "source": "rAthena smite.cpp + skill_db.yml CR_SHIELDCHARGE"
+    },
+    "253": {
+      "handler": "physical_attack_formula",
+      "formula": "renewal_holy_cross",
+      "hitCount": 2,
+      "element": "holy",
+      "status": "blind",
+      "statusChancePercent": [
+        3,
+        6,
+        9,
+        12,
+        15,
+        18,
+        21,
+        24,
+        27,
+        30
+      ],
+      "statusDuration": 18000,
+      "source": "rAthena holycross.cpp: +35%/lv, doubled to +70%/lv with two-hand spear; 2 hits"
+    },
+    "258": {
+      "handler": "buff",
+      "duration": [
+        30000,
+        60000,
+        90000,
+        120000,
+        150000,
+        180000,
+        210000,
+        240000,
+        270000,
+        300000
+      ],
+      "weaponTypes": [
+        "spear"
+      ],
+      "effects": {
+        "aspdRate": [
+          21,
+          22,
+          23,
+          24,
+          25,
+          26,
+          27,
+          28,
+          29,
+          30
+        ],
+        "criFlat": [
+          3,
+          6,
+          9,
+          12,
+          15,
+          18,
+          21,
+          24,
+          27,
+          30
+        ],
+        "fleeFlat": [
+          2,
+          4,
+          6,
+          8,
+          10,
+          12,
+          14,
+          16,
+          18,
+          20
+        ]
+      },
+      "source": "rAthena status.cpp SC_SPEARQUICKEN + skill_db.yml"
+    },
+    "43": {
+      "handler": "passive",
+      "passiveBonuses": {
+        "dexFlat": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10
+        ]
+      },
+      "source": "rAthena status.cpp AC_OWL: DEX + skill level"
+    },
+    "65": {
+      "handler": "passive",
+      "passiveBonuses": {
+        "atkFlat": [
+          3,
+          6,
+          9,
+          12,
+          15,
+          18,
+          21,
+          24,
+          27,
+          30
+        ],
+        "criFlat": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10
+        ]
+      },
+      "weaponTypes": [
+        "mace",
+        "twoHandMace",
+        "oneHandMace"
+      ],
+      "source": "rAthena status.cpp uses CRI x10 internal precision; RO_WEB stores panel CRI, converted to +1 per level"
+    },
+    "105": {
+      "handler": "passive",
+      "passiveBonuses": {
+        "strFlat": 1
+      },
+      "source": "rAthena status.cpp BS_HILTBINDING: STR +1"
+    },
+    "134": {
+      "handler": "passive",
+      "passiveBonuses": {
+        "atkFlat": [
+          3,
+          6,
+          9,
+          12,
+          15,
+          18,
+          21,
+          24,
+          27,
+          30
+        ]
+      },
+      "weaponTypes": [
+        "katar"
+      ],
+      "source": "rAthena battle.cpp AS_KATAR: ATK +3 per level"
+    },
+    "509": {
+      "handler": "passive",
+      "passiveBonuses": {
+        "hitFlat": [
+          2,
+          4,
+          6,
+          8,
+          10,
+          12,
+          14,
+          16,
+          18,
+          20
+        ]
+      },
+      "weaponTypes": [
+        "revolver",
+        "rifle",
+        "shotgun",
+        "gatling",
+        "grenade",
+        "gun"
+      ],
+      "source": "rAthena status.cpp GS_SINGLEACTION: HIT +2 per level with firearm"
+    },
+    "9": {
+      "handler": "passive",
+      "passiveBonuses": {
+        "spRecoverySkillLevel": "level"
+      },
+      "formula": "skillLv*3 + skillLv*maxSp/500 per natural recovery tick",
+      "source": "rAthena status.cpp MG_SRECOVERY (Renewal natural SP recovery)"
+    },
+    "44": {
+      "handler": "passive",
+      "passiveBonuses": {
+        "attackRangeCells": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10
+        ]
+      },
+      "weaponTypes": [
+        "bow"
+      ],
+      "source": "rAthena status.cpp AC_VULTURE: bow normal attack range + skill level cells"
+    },
+    "107": {
+      "handler": "passive",
+      "passiveBonuses": {
+        "atkFlat": [
+          2,
+          4,
+          6,
+          8,
+          10,
+          12,
+          14,
+          16,
+          18,
+          20
+        ]
+      },
+      "source": "rAthena battle.cpp BS_WEAPONRESEARCH (Renewal): weapon damage +2 per level for all weapons"
+    },
+    "37": {
+      "handler": "passive",
+      "passiveBonuses": {
+        "shopBuyDiscountRate": [
+          7,
+          9,
+          11,
+          13,
+          15,
+          17,
+          19,
+          21,
+          23,
+          24
+        ]
+      },
+      "source": "rAthena src/map/pc.cpp pc_modifybuyvalue"
+    },
+    "38": {
+      "handler": "passive",
+      "passiveBonuses": {
+        "shopSellBonusRate": [
+          7,
+          9,
+          11,
+          13,
+          15,
+          17,
+          19,
+          21,
+          23,
+          24
+        ]
+      },
+      "source": "rAthena src/map/pc.cpp pc_modifysellvalue"
+    },
+    "48": {
+      "handler": "passive",
+      "weaponTypes": [
+        "dagger"
+      ],
+      "passiveBonuses": {
+        "doubleAttackChance": [
+          7,
+          14,
+          21,
+          28,
+          35,
+          42,
+          49,
+          56,
+          63,
+          70
+        ],
+        "doubleAttackHits": 2
+      },
+      "source": "rAthena src/map/battle.cpp TF_DOUBLE Renewal"
+    },
+    "49": {
+      "handler": "passive",
+      "passiveBonuses": {
+        "fleeFlat": [
+          3,
+          6,
+          9,
+          12,
+          15,
+          18,
+          21,
+          24,
+          27,
+          30
+        ]
+      },
+      "conditionalJobBonus": {
+        "thiefSecondJobFleePerLevel": 1
+      },
+      "source": "rAthena src/map/status.cpp TF_MISS (3 per level; thief second jobs 4 per level)"
+    },
+    "224": {
+      "handler": "passive",
+      "passiveBonuses": {
+        "shopBuyDiscountRate": [
+          9,
+          13,
+          17,
+          21,
+          25
+        ]
+      },
+      "source": "rAthena src/map/pc.cpp pc_modifybuyvalue RG_COMPULSION"
+    },
+    "226": {
+      "handler": "passive",
+      "weaponTypes": [
+        "axe",
+        "1haxe",
+        "2haxe",
+        "sword",
+        "1hsword"
+      ],
+      "passiveBonuses": {
+        "atkFlat": [
+          3,
+          6,
+          9,
+          12,
+          15,
+          18,
+          21,
+          24,
+          27,
+          30
+        ]
+      },
+      "source": "rAthena src/map/battle.cpp AM_AXEMASTERY Renewal"
+    },
+    "481": {
+      "handler": "passive",
+      "passiveBonuses": {
+        "spCostReductionRate": [
+          4,
+          8,
+          12,
+          16,
+          20
+        ]
+      },
+      "source": "rAthena src/map/status.cpp HP_MANARECHARGE"
+    },
+    "510": {
+      "handler": "passive",
+      "weaponTypes": [
+        "revolver",
+        "rifle",
+        "shotgun",
+        "gatling",
+        "grenade",
+        "gun"
+      ],
+      "passiveBonuses": {
+        "hitFlat": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10
+        ],
+        "attackRangeCells": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10
+        ]
+      },
+      "source": "rAthena src/map/status.cpp GS_SNAKEEYE"
+    },
+    "136": {
+      "handler": "physical_attack",
+      "ratio": [
+        350,
+        400,
+        450,
+        500,
+        550,
+        600,
+        650,
+        700,
+        750,
+        800
+      ],
+      "weaponTypes": [
+        "katar"
+      ],
+      "visualHitCount": 8,
+      "source": "rAthena Renewal AS_SONICBLOW skill ratio; requires 拳刃 (internal weaponType: katar); 8-hit presentation is visual only"
+    },
+    "148": {
+      "handler": "physical_attack",
+      "ratio": 150,
+      "weaponTypes": [
+        "bow"
+      ],
+      "knockbackCells": 6,
+      "projectile": true,
+      "ignoreAmmoRequirement": true,
+      "source": "rAthena Renewal AC_CHARGEARROW; RO_WEB omits arrow consumption"
+    },
+    "316": {
+      "handler": "physical_attack",
+      "ratio": [
+        150,
+        190,
+        230,
+        270,
+        310
+      ],
+      "hitCount": 1,
+      "visualHitCount": 2,
+      "weaponTypes": [
+        "instrument"
+      ],
+      "ignoreAmmoRequirement": true,
+      "source": "RA Renewal rAthena melodystrike.cpp + skill_db.yml; Arrow ammo omitted by RO_WEB"
+    },
+    "324": {
+      "handler": "physical_attack",
+      "ratio": [
+        150,
+        190,
+        230,
+        270,
+        310
+      ],
+      "hitCount": 1,
+      "visualHitCount": 2,
+      "weaponTypes": [
+        "whip"
+      ],
+      "ignoreAmmoRequirement": true,
+      "source": "RA Renewal rAthena slingingarrow.cpp + skill_db.yml; Arrow ammo omitted by RO_WEB"
+    },
+    "523": {
+      "handler": "physical_attack",
+      "ratio": [
+        105,
+        110,
+        115,
+        120,
+        125,
+        130,
+        135,
+        140,
+        145,
+        150
+      ],
+      "hitCount": 1,
+      "ignoreAmmoRequirement": true,
+      "source": "RA Renewal rAthena throwshuriken.cpp; Shuriken consumption omitted by RO_WEB"
+    },
+    "259": {
+      "handler": "passive",
+      "passiveBonuses": {
+        "atkFlat": [
+          3,
+          6,
+          9,
+          12,
+          15,
+          18,
+          21,
+          24,
+          27,
+          30
+        ]
+      },
+      "weaponTypes": [
+        "fist",
+        "knuckle"
+      ],
+      "source": "RA Renewal MO_IRONHAND: Bare Hand / Knuckle Mastery ATK +3 per level"
+    },
+    "376": {
+      "handler": "passive",
+      "passiveBonuses": {
+        "atkRate": [
+          12,
+          14,
+          16,
+          18,
+          20
+        ]
+      },
+      "weaponTypes": [
+        "katar"
+      ],
+      "source": "RA Renewal rAthena battle.cpp ASC_KATAR: physical damage + (10 + 2 × skill level)% while using a Katar"
+    },
+    "315": {
+      "handler": "passive",
+      "passiveBonuses": {
+        "atkFlat": [
+          3,
+          6,
+          9,
+          12,
+          15,
+          18,
+          21,
+          24,
+          27,
+          30
+        ]
+      },
+      "weaponTypes": [
+        "instrument"
+      ],
+      "source": "RA Renewal BA_MUSICALLESSON: Instrument Mastery ATK +3 per skill level while using an instrument"
+    },
+    "323": {
+      "handler": "passive",
+      "passiveBonuses": {
+        "atkFlat": [
+          3,
+          6,
+          9,
+          12,
+          15,
+          18,
+          21,
+          24,
+          27,
+          30
+        ]
+      },
+      "weaponTypes": [
+        "whip"
+      ],
+      "source": "RA Renewal DC_DANCINGLESSON: Whip Mastery ATK +3 per skill level while using a whip"
+    },
+    "274": {
+      "handler": "passive",
+      "passiveBonuses": {
+        "atkFlat": [
+          3,
+          6,
+          9,
+          12,
+          15,
+          18,
+          21,
+          24,
+          27,
+          30
+        ],
+        "aspdFlat": [
+          1,
+          1,
+          2,
+          2,
+          3,
+          3,
+          4,
+          4,
+          5,
+          5
+        ]
+      },
+      "weaponTypes": [
+        "book"
+      ],
+      "source": "RA Renewal rAthena battle.cpp/status.cpp SA_ADVANCEDBOOK: Book Mastery ATK +3 per level; ASPD +ceil(skill level / 2) while using a Book"
+    },
+    "1009": {
+      "handler": "physical_attack",
+      "ratio": 500,
+      "element": "Wind",
+      "knockbackCells": 3,
+      "weaponTypes": [
+        "bow"
+      ],
+      "ammoPolicy": "ignored",
+      "source": "RA Renewal SkillInfoz + rAthena db/re/skill_db.yml (HT_PHANTASMIC)"
+    },
+    "137": {
+      "handler": "physical_attack",
+      "ratio": [
+        120,
+        140,
+        160,
+        180,
+        200
+      ],
+      "weaponTypes": [
+        "katar"
+      ],
+      "element": "weapon",
+      "spCost": 3,
+      "targeting": {
+        "origin": "target",
+        "shape": "circle",
+        "radius": 1,
+        "maxTargets": 999
+      },
+      "damageHitCount": 1,
+      "visualHitCount": 1,
+      "status": "slow",
+      "statusChancePercent": 100,
+      "statusDuration": 1000,
+      "source": "RA Renewal db/re/skill_db.yml + src/map/skills/thief/grimtooth.cpp; Hiding prerequisite ignored by RO_WEB"
+    },
+    "263": {
+      "handler": "passive",
+      "passiveBonuses": {
+        "tripleAttackChance": [
+          30,
+          29,
+          28,
+          27,
+          26,
+          25,
+          24,
+          23,
+          22,
+          21
+        ],
+        "tripleAttackRatio": [
+          120,
+          140,
+          160,
+          180,
+          200,
+          220,
+          240,
+          260,
+          280,
+          300
+        ],
+        "tripleAttackHits": 3
+      },
+      "trigger": "normal_attack_on_hit",
+      "source": "RA Renewal battle.cpp + ragingtrifectablow.cpp; chance 30%-skill level progression, passive normal-attack trigger"
+    },
+    "272": {
+      "handler": "physical_attack_formula",
+      "formula": "renewal_chain_combo",
+      "ratio": [
+        300,
+        350,
+        400,
+        450,
+        500
+      ],
+      "spCost": [
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "damageHitCount": 4,
+      "visualHitCount": 4,
+      "hitCheckMode": "once",
+      "criticalCheckMode": "once",
+      "statusProcMode": "once",
+      "source": "RA Renewal db/re/skill_db.yml + ragingquadrupleblow.cpp; combo prerequisite ignored; knuckle doubles ratio and displays 6 hits"
+    },
+    "273": {
+      "handler": "physical_attack_formula",
+      "formula": "renewal_combo_finish",
+      "spCost": [
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "damageHitCount": 1,
+      "visualHitCount": 1,
+      "targeting": {
+        "origin": "target",
+        "shape": "circle",
+        "radius": 2,
+        "maxTargets": 999
+      },
+      "source": "RA Renewal db/re/skill_db.yml + ragingthrust.cpp; combo/spirit-sphere prerequisite ignored by RO_WEB"
+    },
+    "23": {
+      "handler": "passive",
+      "passiveBonuses": {},
+      "conditionalDamage": {
+        "races": [
+          "Demon",
+          "Undead"
+        ],
+        "elements": [
+          "Undead"
+        ],
+        "formula": "demon_bane"
+      },
+      "source": "RA Renewal src/map/battle.cpp AL_DEMONBANE: Lv × (BaseLv/20 + 3) flat physical damage vs Demon/Undead"
+    },
+    "126": {
+      "handler": "passive",
+      "passiveBonuses": {},
+      "conditionalDamage": {
+        "races": [
+          "Brute",
+          "Insect"
+        ],
+        "flatAtkPerLevel": 4
+      },
+      "source": "RA Renewal src/map/battle.cpp HT_BEASTBANE: +4 flat physical damage per level vs Brute/Insect"
+    },
+    "265": {
+      "handler": "passive",
+      "passiveBonuses": {
+        "fleeFlat": [
+          1,
+          3,
+          4,
+          6,
+          7,
+          9,
+          10,
+          12,
+          13,
+          15
+        ]
+      },
+      "source": "RA Renewal src/map/status.cpp MO_DODGE: floor(Lv × 1.5) FLEE"
+    }
+  },
+  "executionPolicy": "Only executable source for damage/heal/buff/passive. Missing or unsupported profile = pending and cannot execute."
+}

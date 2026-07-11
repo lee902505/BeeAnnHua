@@ -250,7 +250,10 @@ function quickSlotCastSkill(skillId) {
     return;
   }
 
-  if (skill.skillType === "attack") {
+  const runtimeProfile = typeof getSkillRuntimeProfile === "function" ? getSkillRuntimeProfile(skill) : null;
+  const runtimeHandler = runtimeProfile?.handler || null;
+
+  if (["physical_attack", "physical_attack_size_hits", "physical_attack_formula", "physical_charge", "magic_multihit"].includes(runtimeHandler)) {
     if (!quickSlotEnsureFieldMonster()) return;
     if (typeof canPlayerAttackNow === "function" && !canPlayerAttackNow()) return;
     if (typeof markPlayerAttackUsed === "function") markPlayerAttackUsed();
@@ -270,12 +273,25 @@ function quickSlotCastSkill(skillId) {
     return;
   }
 
-  if (skill.skillType === "buff") {
+  if (runtimeHandler === "buff") {
     castBuffSkill(skill, getSkillLevel(skill.id));
     return;
   }
-  if (skill.skillType === "heal") {
+  if (["heal", "heal_fixed"].includes(runtimeHandler)) {
     castHealSkill(skill, getSkillLevel(skill.id));
+    return;
+  }
+  if (runtimeHandler === "monster_debuff") {
+    if (!quickSlotEnsureFieldMonster()) return;
+    castMonsterDebuffSkill(skill, getSkillLevel(skill.id));
+    return;
+  }
+  if (runtimeHandler === "counter_stance") {
+    castCounterStanceSkill(skill, getSkillLevel(skill.id));
+    return;
+  }
+  if (runtimeHandler === "mount_unlock") {
+    togglePlayerMount(runtimeProfile.mountType || "peco");
     return;
   }
   addBattleLog(skill.name + " 目前不能放在快捷欄使用。 ");

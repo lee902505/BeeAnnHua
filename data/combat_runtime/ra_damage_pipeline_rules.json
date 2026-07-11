@@ -1,0 +1,76 @@
+{
+  "version": "0.9.82",
+  "source": "rAthena Renewal src/map/battle.cpp + status.cpp",
+  "pipeline": {
+    "physicalParts": [
+      "statusAtk",
+      "weaponAtk",
+      "equipmentAtk",
+      "masteryAtk",
+      "percentAtk"
+    ],
+    "normalAttackOrder": [
+      "hit",
+      "critical",
+      "weapon variance/max",
+      "passive proc replacement",
+      "skill/global modifiers",
+      "element-size-race",
+      "DEF/RES",
+      "final damage"
+    ],
+    "magicOrder": [
+      "MATK_MIN_MAX roll",
+      "S.MATK",
+      "skill ratio",
+      "forced skill element",
+      "race-element bonuses",
+      "MDEF/MRES",
+      "final damage"
+    ],
+    "commonOrder": [
+      "attack context",
+      "hit",
+      "perfect dodge",
+      "critical",
+      "passive proc registry",
+      "element",
+      "race",
+      "size",
+      "skill formula",
+      "defense",
+      "final modifier",
+      "status metadata",
+      "damage output"
+    ]
+  },
+  "elementSources": [
+    "weapon",
+    "forced",
+    "skill",
+    "neutral"
+  ],
+  "defenseModes": [
+    "normal",
+    "half",
+    "ignore"
+  ],
+  "notes": [
+    "Skills with native element must set elementSource=skill or forced.",
+    "RO_WEB consumable and prerequisite simplifications remain active.",
+    "Unmapped RA server-only mechanics remain pending."
+  ],
+  "architecture": {
+    "singleEntry": "CombatDamagePipeline",
+    "registries": [
+      "PassiveProcRegistry",
+      "ElementModifierRegistry",
+      "RaceModifierRegistry",
+      "SizeModifierRegistry",
+      "DefenseModifierRegistry",
+      "StatusModifierRegistry"
+    ],
+    "principle": "RA shared combat checks are common across jobs; unmet conditions continue to the next registry entry.",
+    "autoBattle": "compatibility mode; no refactor in this version"
+  }
+}

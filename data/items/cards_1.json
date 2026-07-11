@@ -22,6 +22,12 @@
     "icon": "images/items/4001.webp",
     "slots": 0,
     "slotCount": 0,
-    "ClassNum": 0
+    "ClassNum": 0,
+    "buyPrice": 20,
+    "dataSource": "itemInfo_UTF8.lub + RO_WEB manual fallback",
+    "Id": 4001,
+    "Name": "波利卡片",
+    "Buy": 20,
+    "Slots": 0
   }
 }

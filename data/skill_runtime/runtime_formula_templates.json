@@ -1,0 +1,70 @@
+{
+  "title": {
+    "name": "RO_WEB Runtime Formula Templates",
+    "version": "0.9.80ZP"
+  },
+  "templates": {
+    "PHYSICAL_PERCENT": {
+      "handler": "physical_damage",
+      "fields": [
+        "ratio",
+        "hitCount",
+        "element",
+        "weaponTypes",
+        "status"
+      ]
+    },
+    "MAGIC_PERCENT": {
+      "handler": "magic_damage",
+      "fields": [
+        "matkRatio",
+        "hitCount",
+        "element",
+        "area"
+      ]
+    },
+    "HEAL_FORMULA": {
+      "handler": "heal",
+      "fields": [
+        "formula",
+        "base",
+        "perLevel",
+        "statScaling"
+      ]
+    },
+    "TIMED_STATUS": {
+      "handler": "timed_status",
+      "fields": [
+        "effects",
+        "duration",
+        "chance"
+      ]
+    },
+    "PASSIVE_STAT": {
+      "handler": "passive",
+      "fields": [
+        "bonuses",
+        "conditions"
+      ]
+    },
+    "REACTION_EVENT": {
+      "handler": "reaction",
+      "fields": [
+        "event",
+        "chance",
+        "response",
+        "duration"
+      ]
+    },
+    "GROUND_AREA": {
+      "handler": "ground_area",
+      "fields": [
+        "targetMode",
+        "area",
+        "tick",
+        "duration",
+        "formula"
+      ]
+    }
+  }
+}

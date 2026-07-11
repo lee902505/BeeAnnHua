@@ -21,6 +21,30 @@
     "slots": 0,
     "requiredLevel": 1,
     "slotCount": 0,
-    "ClassNum": 8
+    "ClassNum": 8,
+    "aegisName": "Flu_Mask",
+    "dbType": "Armor",
+    "armorLevel": 1,
+    "viewId": 8,
+    "locations": {
+      "Head_Low": true
+    },
+    "scriptRaw": "bonus2 bResEff,Eff_Silence,1000;",
+    "dataSource": "itemInfo_UTF8.lub + db/re/item_db_equip.yml",
+    "Id": 2218,
+    "Name": "口罩",
+    "Buy": 300,
+    "AegisName": "Flu_Mask",
+    "Type": "Armor",
+    "Defense": 0,
+    "Slots": 0,
+    "Locations": {
+      "Head_Low": true
+    },
+    "ArmorLevel": 1,
+    "EquipLevelMin": 1,
+    "View": 8,
+    "Script": "bonus2 bResEff,Eff_Silence,1000;",
+    "equipLevelMin": 1
   }
 }

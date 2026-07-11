@@ -1,0 +1,57 @@
+{
+  "title": {
+    "name": "RO_WEB Runtime Handler Registry",
+    "version": "0.9.80ZP",
+    "purpose": "Shared handler taxonomy for all player skills. Formula data lives in Runtime Profiles; handlers are reusable."
+  },
+  "handlers": {
+    "physical_damage": {
+      "executionStatus": "available",
+      "description": "Weapon/physical damage, hit count, knockback and status chance."
+    },
+    "magic_damage": {
+      "executionStatus": "available_partial",
+      "description": "MATK-based elemental and multi-hit magic."
+    },
+    "heal": {
+      "executionStatus": "available",
+      "description": "HP/SP restoration formulas."
+    },
+    "passive": {
+      "executionStatus": "available",
+      "description": "Recalculated passive stats and conditional bonuses."
+    },
+    "timed_status": {
+      "executionStatus": "available_partial",
+      "description": "Buff/debuff/status with duration and level values."
+    },
+    "ground_area": {
+      "executionStatus": "planned",
+      "description": "Ground-targeted persistent or instant area effect."
+    },
+    "projectile": {
+      "executionStatus": "planned",
+      "description": "Traveling projectile and target impact."
+    },
+    "reaction": {
+      "executionStatus": "available_partial",
+      "description": "OnHit/OnDamage/OnBlock/Counter/Reflect hooks."
+    },
+    "toggle": {
+      "executionStatus": "planned",
+      "description": "Toggle state with activation and cancellation."
+    },
+    "mount": {
+      "executionStatus": "available_partial",
+      "description": "RO_WEB mount state and future atlas swap hook."
+    },
+    "utility": {
+      "executionStatus": "planned",
+      "description": "Non-damage skill action."
+    },
+    "special_review": {
+      "executionStatus": "manual_review",
+      "description": "Skill requires custom flow or unsupported systems."
+    }
+  }
+}

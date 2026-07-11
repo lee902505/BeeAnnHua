@@ -39,11 +39,50 @@ async function loadJobData() {
 
 async function loadSkillData() {
   try {
-    skillsData = await loadJson("./data/skills.json", null);
-    console.log("技能資料載入完成：", skillsData);
+    const manifest = await loadJson("./data/skill_manifest.json", null);
+    if (!manifest?.cores?.length) throw new Error("Skill Core V3 manifest missing");
+
+    const skillIndex = {};
+    for (const corePath of manifest.cores) {
+      const core = await loadJson(`./${corePath}`, { skills: {} });
+      Object.entries(core?.skills || {}).forEach(([id, skill]) => {
+        if (skillIndex[id]) throw new Error(`Duplicate official Skill ID: ${id}`);
+        skillIndex[id] = skill;
+      });
+    }
+
+    const jobsMap = {};
+    for (const treePath of manifest.trees || []) {
+      const tree = await loadJson(`./${treePath}`, null);
+      if (!tree?.job) continue;
+      jobsMap[tree.job] = (tree.skills || []).map(node => {
+        const body = skillIndex[String(node.skillId)];
+        if (!body) throw new Error(`Orphan skill tree reference: ${tree.job} -> ${node.skillId}`);
+        const skill = { ...body, maxLevel: node.maxLevel ?? body.maxLevel };
+        if (node.requiredJobLevel !== undefined) skill.requiredJobLevel = node.requiredJobLevel;
+        if (Array.isArray(node.requires)) skill.requires = node.requires.map(req => ({ id: req.skillId, officialId: req.skillId, level: req.level }));
+        return skill;
+      });
+    }
+
+    const runtimeProfiles = {};
+    for (const runtimePath of manifest.runtimeProfiles || []) {
+      const pack = await loadJson(`./${runtimePath}`, { skills: {} });
+      Object.entries(pack?.skills || {}).forEach(([id, profile]) => { runtimeProfiles[String(id)] = profile; });
+    }
+
+    const trainingData = await loadJson("./data/adventurer_training.json", { adventurer_training: [] });
+    skillsData = {
+      meta: { version: "0.9.80ZP", schema: "Skill Core V3 + Runtime Profile Only", manifest },
+      adventurer_training: trainingData?.adventurer_training || [],
+      skillIndex,
+      runtimeProfiles,
+      jobs: jobsMap
+    };
+    console.log("Skill Core V3 loaded:", Object.keys(skillIndex).length, "unique skills /", Object.keys(jobsMap).length, "job trees");
   } catch (error) {
-    console.warn("技能資料載入失敗。", error);
-    skillsData = null;
+    console.error("Skill Core V3 load failed. Legacy skills.json fallback has been retired.", error);
+    skillsData = { meta: { version: "0.9.80ZP", loadError: String(error) }, adventurer_training: [], skillIndex: {}, runtimeProfiles: {}, jobs: {} };
   }
 }
 
@@ -206,6 +245,7 @@ function changeJob(targetJobKey, rule = null) {
   const isRebirthChange = typeof isRebirthJobChange === "function" ? isRebirthJobChange(effectiveRule, targetJob) : false;
 
   player.jobKey = targetJob.id;
+  if (typeof syncROStudioCharacterFromPlayer === "function") syncROStudioCharacterFromPlayer();
   player.job = targetJob.name;
   player.jobLevel = 1;
   player.jobExp = 0;
@@ -540,7 +580,10 @@ function getSkillEffectLabel(key) {
     fleeFlat: "FLEE",
     criFlat: "CRI",
     aspdFlat: "ASPD",
-    avoidRate: "受擊迴避機率"
+    avoidRate: "受擊迴避機率",
+    attackRangeCells: "普攻射程",
+    hpRecoverySkillLevel: "HP 自然恢復技能等級",
+    spRecoverySkillLevel: "SP 自然恢復技能等級"
   };
   return labels[key] || key;
 }
@@ -584,30 +627,24 @@ function buildSkillTooltipText(skill, currentLevel, check, maxed) {
   if (skill.spCost !== undefined) {
     lines.push(`消耗 SP：${getSkillLevelValueForUI(skill.spCost, previewLevel, 0)}`);
   }
-  if (skill.power !== undefined) {
-    lines.push(`傷害倍率：${getSkillLevelValueForUI(skill.power, previewLevel, 100)}%`);
-  }
-  if (skill.healPower !== undefined) {
-    lines.push(`恢復量：約 ${getSkillLevelValueForUI(skill.healPower, previewLevel, 0)} HP`);
-  }
-  if (skill.duration !== undefined) {
-    lines.push(`持續時間：${formatSkillDurationForUI(getSkillLevelValueForUI(skill.duration, previewLevel, 0))}`);
-  }
-
-  if (skill.passiveBonuses) {
-    const bonusParts = Object.keys(skill.passiveBonuses).map(key => {
-      const value = getSkillLevelValueForUI(skill.passiveBonuses[key], previewLevel, 0);
-      return formatSkillEffectForUI(key, value);
-    });
-    if (bonusParts.length) lines.push(`被動效果：${bonusParts.join(" / ")}`);
-  }
-
-  if (skill.effects) {
-    const effectParts = Object.keys(skill.effects).map(key => {
-      const value = getSkillLevelValueForUI(skill.effects[key], previewLevel, 0);
-      return formatSkillEffectForUI(key, value);
-    });
-    if (effectParts.length) lines.push(`效果：${effectParts.join(" / ")}`);
+  const runtimeProfile = typeof getSkillRuntimeProfile === "function" ? getSkillRuntimeProfile(skill) : null;
+  if (runtimeProfile) {
+    if (runtimeProfile.ratio !== undefined) lines.push(`傷害倍率：${getSkillLevelValueForUI(runtimeProfile.ratio, previewLevel, 100)}%`);
+    if (runtimeProfile.heal !== undefined) lines.push(`恢復量：${getSkillLevelValueForUI(runtimeProfile.heal, previewLevel, 0)} HP`);
+    const runtimeDuration = runtimeProfile.duration !== undefined
+      ? getSkillLevelValueForUI(runtimeProfile.duration, previewLevel, 0)
+      : (runtimeProfile.durationFromSkill ? getSkillLevelValueForUI(skill.duration, previewLevel, 0) : 0);
+    if (runtimeDuration > 0) lines.push(`持續時間：${formatSkillDurationForUI(runtimeDuration)}`);
+    if (runtimeProfile.passiveBonuses) {
+      const bonusParts = Object.keys(runtimeProfile.passiveBonuses).map(key => formatSkillEffectForUI(key, getSkillLevelValueForUI(runtimeProfile.passiveBonuses[key], previewLevel, 0)));
+      if (bonusParts.length) lines.push(`被動效果：${bonusParts.join(" / ")}`);
+    }
+    if (runtimeProfile.effects) {
+      const effectParts = Object.keys(runtimeProfile.effects).map(key => formatSkillEffectForUI(key, runtimeProfile.effects[key] === "level" ? previewLevel : getSkillLevelValueForUI(runtimeProfile.effects[key], previewLevel, 0)));
+      if (effectParts.length) lines.push(`效果：${effectParts.join(" / ")}`);
+    }
+  } else {
+    lines.push("Runtime：尚未完成（不會使用舊傷害或效果公式）");
   }
 
   lines.push(`說明：${skill.description || skill.name}`);
@@ -843,12 +880,50 @@ function openJobTrainingFromBasicSkill(event) {
 
 let currentSkillTier = "first";
 
+function isSuperNoviceFamilyJob(jobKey = player?.jobKey) {
+  return ["super_novice", "expanded_super_novice", "hyper_novice"].includes(String(jobKey || ""));
+}
+
+function getSkillIdSet(list = []) {
+  return new Set((Array.isArray(list) ? list : []).map(skill => String(skill?.officialId ?? skill?.id ?? skill?.code ?? "")));
+}
+
+function getSkillDifference(fullList = [], inheritedList = []) {
+  const inheritedIds = getSkillIdSet(inheritedList);
+  return (Array.isArray(fullList) ? fullList : []).filter(skill => {
+    const id = String(skill?.officialId ?? skill?.id ?? skill?.code ?? "");
+    return id && !inheritedIds.has(id);
+  });
+}
+
 function getSkillTierList(tier) {
   if (!skillsData?.jobs) return [];
+  const jobKey = String(player?.jobKey || "novice");
   if (tier === "novice") return skillsData.jobs.novice || [];
-  if (tier === "first") return player?.jobKey === "novice" ? [] : (skillsData.jobs.swordman || []);
+
+  // V0.9.80ZH：超初系列不得再套用劍士技能樹。
+  // 一般超初顯示超初技能；界限解放與終初只在後續分頁顯示新增技能，避免重複。
+  if (isSuperNoviceFamilyJob(jobKey)) {
+    const superSkills = skillsData.jobs.super_novice || [];
+    const expandedSkills = skillsData.jobs.expanded_super_novice || [];
+    const hyperSkills = skillsData.jobs.hyper_novice || [];
+    if (tier === "first") return superSkills;
+    if (tier === "second") {
+      return ["expanded_super_novice", "hyper_novice"].includes(jobKey)
+        ? getSkillDifference(expandedSkills, superSkills)
+        : [];
+    }
+    if (tier === "fourth") {
+      return jobKey === "hyper_novice"
+        ? getSkillDifference(hyperSkills, expandedSkills)
+        : [];
+    }
+    return [];
+  }
+
+  if (tier === "first") return jobKey === "novice" ? [] : (skillsData.jobs.swordman || []);
   if (tier === "second") {
-    if (player?.jobKey === "knight" || player?.jobKey === "crusader") return skillsData.jobs[player.jobKey] || [];
+    if (jobKey === "knight" || jobKey === "crusader") return skillsData.jobs[jobKey] || [];
     return [];
   }
   return [];
@@ -860,12 +935,24 @@ function getVisibleSkillTier() {
 }
 
 function refreshSkillTabs() {
+  const superFamily = isSuperNoviceFamilyJob();
+  const superLabels = { first: "超初", second: "界限解放", third: "—", fourth: "終初" };
+  const normalLabels = { first: "一轉", second: "二轉", third: "三轉", fourth: "四轉" };
   document.querySelectorAll("#skill-window .skill-tab[data-skill-tier]").forEach(tab => {
     const tier = tab.dataset.skillTier;
+    tab.textContent = (superFamily ? superLabels : normalLabels)[tier] || tab.textContent;
     const disabled = getSkillTierList(tier).length === 0;
     tab.classList.toggle("is-active", tier === getVisibleSkillTier());
     tab.classList.toggle("is-disabled", disabled);
+    tab.disabled = disabled;
   });
+
+  if (getSkillTierList(getVisibleSkillTier()).length === 0) {
+    currentSkillTier = ["first", "second", "third", "fourth"].find(tier => getSkillTierList(tier).length > 0) || "first";
+    document.querySelectorAll("#skill-window .skill-tab[data-skill-tier]").forEach(tab => {
+      tab.classList.toggle("is-active", tab.dataset.skillTier === currentSkillTier);
+    });
+  }
 }
 
 function initSkillTabs() {
@@ -1091,9 +1178,9 @@ function updateSkillUI() {
   initNoviceSkillRowDelegation();
 
   initSkillTabs();
+  refreshSkillTabs();
   const activeTier = getVisibleSkillTier();
   const skillList = getSkillTierList(activeTier);
-  refreshSkillTabs();
   skillPanel.innerHTML = "";
   skillPanel.classList.add("skill-slot-grid");
   skillPanel.dataset.activeTier = activeTier;

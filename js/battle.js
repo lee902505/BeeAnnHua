@@ -3,6 +3,8 @@
 //=======================================
 
 let currentMonster = null;
+try { Object.defineProperty(window, "currentMonster", { configurable: true, get: () => currentMonster, set: value => { currentMonster = value; } }); } catch (_) {}
+window.getCombatGroundCandidates = function(){ return currentMonster ? [currentMonster] : []; };
 let autoBattleTimer = null;
 let spawnTimer = null;
 
@@ -34,6 +36,7 @@ function getMonsterFlee(monster) {
 }
 
 function rollHit(attackerHit, defenderFlee) {
+  if (window.HitResolver) return window.HitResolver.resolve({ hit: attackerHit }, { flee: defenderFlee }).hit;
   const chance = Math.max(5, Math.min(95, 80 + Number(attackerHit || 0) - Number(defenderFlee || 0)));
   return Math.random() * 100 < chance;
 }
@@ -187,6 +190,9 @@ function autoAttackMonster() {
     return;
   }
 
+  // V0.9.79E：進入攻擊距離後立刻停步，避免等 ASPD 期間仍播放走路動畫。
+  if (typeof stopPlayerCombatMovementForAttack === "function") stopPlayerCombatMovementForAttack(currentMonster);
+
   if (!canPlayerAttackNow()) return;
 
   if (autoAction && autoAction.action === "attackSkill") {
@@ -197,7 +203,7 @@ function autoAttackMonster() {
       monsterAttackPlayer();
       return;
     }
-    const used = castAttackSkill(autoAction.skill, autoAction.level);
+    const used = castAttackSkill(autoAction.skill, autoAction.level, { skipHitCheck: true, source: "auto_battle_legacy" });
 
     if (used) {
       if (currentMonster.currentHp <= 0) {
@@ -214,6 +220,8 @@ function autoAttackMonster() {
     if (typeof movePlayerTowardMonster === "function") movePlayerTowardMonster(currentMonster, intendedRange);
     return;
   }
+
+  if (typeof stopPlayerCombatMovementForAttack === "function") stopPlayerCombatMovementForAttack(currentMonster);
 
   markPlayerAttackUsed();
 
@@ -233,7 +241,8 @@ function autoAttackMonster() {
     currentMonster.currentHp = 0;
   }
 
-  addBattleLog("你對 " + currentMonster.name + " 造成 " + playerDamage + " 點傷害。");
+  const normalAttackTriggerText = window.lastNormalAttackWasTriple ? "（六合拳）" : (window.lastNormalAttackWasDouble ? "（二刀連擊）" : "");
+  addBattleLog("你對 " + currentMonster.name + " 造成 " + playerDamage + " 點傷害。" + normalAttackTriggerText);
 
   playPlayerAttackAnimation();
   updateMonsterUI();
@@ -250,25 +259,19 @@ function autoAttackMonster() {
 }
 
 // 計算玩家傷害
-function calculatePlayerDamage() {
-  // 每次攻擊前重新抓一次衍生能力，確保剛裝備武器/防具後傷害立即吃到 ATK。
+function calculatePlayerDamage(options = {}) {
   if (typeof recalculatePlayerStats === "function") recalculatePlayerStats();
-  const derived = typeof calculateDerivedPlayerStats === "function" ? calculateDerivedPlayerStats() : null;
-  const currentAtk = Number(derived?.atk ?? player.atk ?? 1);
-  const baseDamage = Math.max(1, currentAtk - Number(currentMonster.def || 0));
-  const minDamage = Math.max(1, baseDamage - 2);
-  const maxDamage = baseDamage + 2;
-
-  let damage = randomInt(minDamage, maxDamage);
-  const critChance = Math.max(0, Math.min(100, Number(derived?.cri ?? player.cri ?? 0)));
-  if (Math.random() * 100 < critChance) {
-    damage = Math.max(1, Math.floor(damage * 1.4));
+  window.lastNormalAttackWasDouble = false;
+  window.lastNormalAttackWasTriple = false;
+  if (window.CombatDamagePipeline && currentMonster) {
+    const result = window.CombatDamagePipeline.resolveNormalAttack(currentMonster, { ...options, skipHitCheck: true });
+    window.lastNormalAttackWasTriple = result.proc?.key === "triple";
+    window.lastNormalAttackWasDouble = result.proc?.key === "double";
+    window.lastNormalAttackVisualHits = result.visualHits || 1;
+    return Math.max(1, result.damage);
   }
-  const trainingBonus = typeof getTrainingBonusTotals === "function" ? Number(getTrainingBonusTotals().damageRate || 0) : 0;
-  const passiveBonus = typeof getPassiveSkillBonusTotals === "function" ? Number(getPassiveSkillBonusTotals().damageRate || 0) : 0;
-  const buffBonus = typeof getActiveBuffBonusTotals === "function" ? Number(getActiveBuffBonusTotals().damageRate || 0) : 0;
-  const bonus = trainingBonus + passiveBonus + buffBonus;
-  return Math.max(1, Math.floor(damage * (100 + bonus) / 100));
+  const derived = typeof calculateDerivedPlayerStats === "function" ? calculateDerivedPlayerStats() : null;
+  return Math.max(1, Number(derived?.atk ?? player.atk ?? 1));
 }
 
 // 怪物攻擊玩家
@@ -282,8 +285,19 @@ function monsterAttackPlayer() {
     }
   }
 
+  if (typeof consumeCounterStance === "function" && consumeCounterStance(currentMonster)) {
+    if (currentMonster.currentHp <= 0) { defeatMonster(); return; }
+    updatePlayerUI(); saveGame();
+    return;
+  }
+
   if (!monsterHitsPlayer(currentMonster)) {
     addBattleLog(currentMonster.name + " 攻擊你，但是 Miss！");
+    updatePlayerUI();
+    return;
+  }
+  if (window.PerfectDodgeResolver && window.PerfectDodgeResolver.resolve(player).dodged) {
+    addBattleLog(currentMonster.name + " 攻擊你，但被完全迴避！");
     updatePlayerUI();
     return;
   }
@@ -298,6 +312,14 @@ function monsterAttackPlayer() {
   }
 
   addBattleLog(currentMonster.name + " 對你造成 " + monsterDamage + " 點傷害。");
+  const activeRuntimeBuffs = typeof getActiveBuffBonusTotals === "function" ? getActiveBuffBonusTotals() : {};
+  if (!Number(activeRuntimeBuffs.noHitStun || 0) && typeof playROStudioPlayerMotion === "function") {
+    playROStudioPlayerMotion("hurt", { duration: 360 });
+  }
+  if (Number(activeRuntimeBuffs.noHitStun || 0) && player.activeBuffs?.[8]) {
+    player.activeBuffs[8].remainingHits = Number(player.activeBuffs[8].remainingHits ?? 7) - 1;
+    if (player.activeBuffs[8].remainingHits <= 0) delete player.activeBuffs[8];
+  }
 
   // 先判斷死亡，再允許自動喝水。避免 HP 歸零後靠藥水復活。
   if (player.hp <= 0) {
@@ -320,15 +342,26 @@ function calculateMonsterDamage(monster) {
   if (typeof recalculatePlayerStats === "function") recalculatePlayerStats();
   const derived = typeof calculateDerivedPlayerStats === "function" ? calculateDerivedPlayerStats() : null;
   const currentDef = Number(derived?.def ?? player.def ?? 0);
-  const baseDamage = Math.max(1, (monster.atk || 1) - currentDef);
+  const monsterRuntime = typeof getMonsterRuntimeBonuses === "function" ? getMonsterRuntimeBonuses(monster) : {};
+  const runtimeAtkRate = Number(monsterRuntime.atkRate || 0);
+  const originalAtk = Number(monster.atk || monster.attack || 1);
+  const runtimeAtk = Math.max(1, Math.floor(originalAtk * (100 + runtimeAtkRate) / 100));
+  const baseDamage = Math.max(1, runtimeAtk);
   const minDamage = Math.max(1, baseDamage - 2);
   const maxDamage = baseDamage + 2;
 
-  return randomInt(minDamage, maxDamage);
+  let damage = randomInt(minDamage, maxDamage);
+  if (typeof applyROCombatDamageModifiers === "function") {
+    damage = applyROCombatDamageModifiers(damage, { damageType: "physical", source: monster, target: player, attackElement: monster.element || "Neutral", sourceRace: monster.race || "Formless", sourceSize: monster.size || "Medium", applyWeaponSize: false });
+  }
+  return Math.max(1, damage);
 }
 
 // 玩家死亡
 function playerDead() {
+  if (typeof playROStudioPlayerMotion === "function") {
+    playROStudioPlayerMotion("dead", { duration: 900, holdLast: true });
+  }
   addBattleLog("你被 " + currentMonster.name + " 擊敗了。");
 
   stopAutoBattle();
@@ -472,6 +505,10 @@ function updateMonsterUI() {
 
 // 玩家攻擊動畫
 function playPlayerAttackAnimation() {
+  if (typeof playROStudioPlayerMotion === "function" && playROStudioPlayerMotion("attack")) {
+    return;
+  }
+
   const playerSprite = document.getElementById("player-sprite");
   if (!playerSprite) return;
 

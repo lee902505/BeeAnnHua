@@ -1,3 +1,332 @@
+# RO_WEB 0.9.82
+
+- Added shared CombatDamagePipeline and six registries based on RA Renewal battle flow.
+- Normal attack, physical skill and magic skill now enter the same architecture.
+- Unmet passive/equipment/job conditions safely continue to the next registry entry.
+- Auto battle remains in compatibility mode. Skill Coverage remains 73/1139.
+
+# RO_WEB 0.9.82
+
+- 導入 RA Renewal 統一傷害管線。
+- 普攻、物理主動技、魔法主動技、六合拳／二刀連擊被動觸發改走同一套計算。
+- 支援技能固定屬性、武器屬性、半防禦與無視防禦模式。
+- Coverage 維持 73 / 1139，本版不新增技能。
+
+# 0.9.82 — Runtime Passive Batch13
+
+- Official Runtime 70 → 73 / 1139；Pending 1069 → 1066。
+- AL_DEMONBANE 天使之擊：對惡魔／不死追加 Lv × (BaseLv/20 + 3) 固定物理傷害。
+- HT_BEASTBANE 動物殺手：對動物／昆蟲每級追加 4 點固定物理傷害。
+- MO_DODGE 閃躲：FLEE 增加 floor(Lv × 1.5)，Lv10 +15。
+- 三招皆為被動技能，不可主動施放，不消耗 SP。
+
+# 0.9.81D1 — 六合拳被動觸發修正
+
+- MO_TRIPLEATTACK（六合拳）由主動技能修正為被動技能。
+- 普攻命中後依技能等級以 30%～21% 機率觸發。
+- 傷害倍率維持 120%～300%，顯示 3 Hit。
+- 不需要 SP，不可拖入快捷欄主動施放。
+- RO_WEB 仍忽略後續接技前置；本次 Coverage 維持 70 / 1139。
+
+# RO_WEB 0.9.81C - RA Runtime Integration Test
+
+- No new skills; coverage remains 66/1139.
+- Integrated manual skill HIT/CRI/perfect dodge/multi-hit/area/status/knockback.
+- GroundEffectManager now runs on a 100ms runtime loop.
+- Legacy auto battle retains its existing pre-hit check and calls skill runtime with skipHitCheck compatibility.
+- Monster normal attacks now resolve perfect dodge.
+- Added data/combat_runtime/combat_rules.json.
+
+# RO_WEB 0.9.81C
+- 新增第一至第九優先共用 Combat Mechanics Runtime；技能 Coverage 維持 66/1139。
+- 命中、暴擊、防禦、狀態、位移、範圍、多段、資源、Boss、地面效果統一 Resolver。
+- 忽略隱匿/接技前置；位移不做牆壁阻擋；手推車重量改為每級 ATK +1%，Lv10 +10%。
+
+# RO_WEB 0.9.81A — RA Renewal Combat Formula Runtime
+
+- 本版停止新增技能，Official Coverage 維持 66 / 1139。
+- 新增 CombatFormulaRuntime，共用處理 RA Renewal 屬性相剋、武器體型修正、種族/體型/屬性增減傷。
+- 匯入 RA Renewal 四階屬性表與 Renewal size_fix。
+- 目前 10 隻怪物補上官方 race、size、element、elementLevel。
+- 普攻、Runtime 物理技能、Runtime 魔法技能及怪物攻擊接入共用修正層。
+- 修正怪物 Runtime ATK 加成計算後未實際用於 baseDamage 的舊問題。
+- 隱匿、接技等施放前置仍依 RO_WEB 決議忽略。
+
+# 0.9.81 Runtime Physical Batch11
+
+- Runtime Coverage: 65 → 66 / 1139.
+- Added HT_PHANTASMIC（幻影箭）Official Runtime.
+- RA Renewal formula: 500% ATK, Wind element, 3-cell knockback, SP 50.
+- Bow weapon family reused; no duplicate WEAPON JSON added.
+- RO_WEB ammo policy retained: arrows are neither required nor consumed.
+- Pending: 1074 → 1073.
+
+# 0.9.80ZZ Runtime Physical Batch10
+
+- Runtime Coverage: 64 → 65 / 1139.
+- Added SA_ADVANCEDBOOK (進階書本修練): Book-only passive, ATK +3 per level and ASPD +ceil(level/2).
+- Existing book weapon family reused; no duplicate WEAPON JSON added.
+- Pending: 1075 → 1074.
+
+## 0.9.80ZY Runtime Physical Batch9
+
+- Official Runtime Coverage：62 → 64 / 1139。
+- Pending：1077 → 1075。
+- 新增 BA_MUSICALLESSON（樂器練習）：裝備樂器時 Mastery ATK 每級 +3，Lv10 +30。
+- 新增 DC_DANCINGLESSON（舞蹈練習）：裝備鞭子時 Mastery ATK 每級 +3，Lv10 +30。
+- 沿用既有 instrument / whip WEAPON 系列，不建立重複武器分類。
+- Runtime / Formula / Handler / JSON / JS / Bundle / Cache / Regression / Weapon Family Audit 通過。
+
+## 0.9.80ZX Runtime Physical Batch8
+- Official Runtime Coverage: 61 → 62 / 1139.
+- Added ASC_KATAR（進階拳刃修練）: KATAR/拳刃限定，物理傷害 +12%~20%.
+- Pending: 1078 → 1077.
+- Weapon family audit: existing KATAR/拳刃 reused; no duplicate WEAPON JSON created.
+
+# 0.9.80ZX Runtime Physical Batch7
+
+- Runtime Coverage 60 → 61 / 1139。
+- 新增 259 MO_IRONHAND 鐵沙掌：空手或拳套時，每級 Mastery ATK +3。
+- WEAPON 系列 fist / knuckle 已存在，本版不重複新增 JSON。
+- Pending 1079 → 1078。
+- 未將尚未完整支援的雙持、連擊、種族條件與表演加成技能計入 Coverage。
+
+# 0.9.80ZV — Runtime Physical Batch6
+
+- Runtime Coverage：57 → 60。
+- 新增樂器攻擊、纏箭投擲、投擲飛鏢 Official Runtime。
+- 樂器/鞭子系列已存在，不重複新增 WEAPON JSON。
+- 箭矢與飛鏢一律不檢查、不扣除。
+- 多段顯示與總傷害分離，避免 2 Hit 重複乘算。
+- 新增 WEAPON-001 憲法規則。
+
+# 0.9.80ZU Runtime Physical Batch 5
+
+- Runtime Coverage: 55 → 57.
+- Added Sonic Blow and Charge Arrow official Runtime profiles. Grimtooth remains pending until Hiding Runtime is executable.
+- Added state requirement and shared monster knockback capability.
+- Arrow consumption remains disabled by RO_WEB policy.
+- Full Runtime/Formula/Handler/JSON/JS/Bundle/Cache/Regression audit passed.
+
+# 0.9.80ZU
+
+- Runtime 第四批：強制減價、斧頭和單手劍使用熟練度、魔力減免、瞄準之眼。
+- SP 消耗正式接入被動減免；槍械射程與 HIT 接入共用被動 Runtime。
+
+# 0.9.80ZU
+
+- Runtime 被動／經濟／普攻第三批：低價買進、高價賣出、二刀連擊、殘影。
+- 二刀連擊僅短劍生效；商店價格與分解販售價格正式接入 Runtime。
+
+## V0.9.80ZU — Runtime 被動技能第二批與 CRI 單位修正
+
+- 修正 PR_MACEMASTERY：RA 內部 CRI 十倍精度轉為 RO_WEB 面板單位，每級 CRI +1。
+- 新增 MG_SRECOVERY：自然 SP 恢復公式正式接入玩家 5 秒恢復循環。
+- 新增 AC_VULTURE：裝備弓時普攻射程每級 +1 格。
+- 新增 BS_WEAPONRESEARCH：Renewal 武器傷害每級 +2。
+- Runtime Profile 44 → 47；未恢復任何舊公式 fallback。
+- 重建 Runtime Catalog、Pending Review、離線 Bundle 與快取。
+
+# 0.9.80ZU
+
+- Runtime Coverage：39 → 44。
+- 啟用鶚梟之眼、鈍器使用熟練度、武器保有、拳刃修練、單槍射擊。
+- 被動 Runtime 現在會檢查 weaponTypes，武器不符時不套用加成。
+- 未恢復舊公式或 fallback；多人特殊技能政策維持不變。
+
+# V0.9.80ZU Runtime Batch Handler Engine
+
+- Added profiles for all 1139 player skills.
+- Added reusable handler registry and formula templates.
+- Generated profiles are pending by default; only verified profiles execute.
+- Rebuilt pending-review list; no legacy fallback restored.
+
+# 0.9.80ZU — Runtime 批次遷移目錄與待確認清單
+
+- 新增 `data/skill_runtime/runtime_formula_catalog.json`，涵蓋全部 1139 個玩家技能。
+- 新增 `data/skill_runtime/runtime_pending_review.json`，記錄 1100 個尚待公式移植或系統確認的技能。
+- 既有 39 個已驗證 Runtime Profile 維持唯一可執行來源。
+- 新增多人/雙人技能 `official / self_only_override / pending` 決策規則。
+- 新增批次遷移稽核與政策文件；未恢復任何舊公式 fallback。
+
+## 0.9.80ZU
+- 新增十字軍 Runtime 第一批：信任、盾擊、聖十字攻擊、長矛攻擊速度增加。
+- 新增盾牌/武器條件驗證與攻擊狀態命中 Runtime。
+- 維持 Runtime Profile 唯一執行來源，不加入舊公式 fallback。
+
+# V0.9.80ZU
+
+- Skill Runtime V3：完成快速恢復、挑釁、霸體、騎乘攻擊、反擊、騎乘術、騎兵修練、衝鋒攻擊。
+- 新增 RO_WEB 原生 runtimeState / mountState / monster.runtimeState。
+- 坐騎圖片尚未接入；未來統一經 `setPlayerMounted()` 與 `window.onROWebMountStateChanged` 切換素材。
+- 遊戲結果依 RA，實作方式依 RO_WEB；不使用 SPR/ACT。
+- 舊公式 fallback 維持 0。
+
+# V0.9.80ZU — Skill Runtime V2（劍士／騎士公式第一批）
+
+- 新增 10 組經 RA 原始碼核對的 Runtime Profile。
+- 新增單手劍、雙手劍、長矛熟練度被動 ATK。
+- 新增怒爆、連刺攻擊、長矛刺擊、投擲長矛、怪物互擊公式。
+- 連刺攻擊依怪物體型使用 1／2／3 Hit。
+- 新增雙手劍攻速增加與單手劍攻速增加 Buff Profile。
+- 未確認的反擊、騎乘、衝鋒距離分段及複雜特殊技能保持 pending。
+- Runtime Profile 總數由 17 增至 27；沒有恢復任何舊公式 fallback。
+
+## 0.9.80ZU
+
+- 技能 Runtime 改為 Runtime Profile 唯一執行來源。
+- 完全移除 `data/skills.json` 舊技能相容回退。
+- 冒險者修練拆分至 `data/adventurer_training.json`。
+- Core 1/Core 2 移除舊 `power`、`healPower`、`effects`、`passiveBonuses` 執行欄位。
+- Buff、Heal、Attack、Passive 全部只讀 `data/skill_runtime`。
+- 缺少 Runtime Profile 的技能明確顯示 pending，禁止套用舊簡化傷害。
+
+# 0.9.80ZH Skill Data Final Audit
+
+- 完整掃描 Core 1/Core 2、100 份技能樹、1139 張技能圖片與所有 JSON。
+- Core 頂部新增 `title` 資料來源與完成狀態區。
+- 確認 2284.png、5068.png 已使用使用者提供的官方圖示。
+- Runtime 公式尚未完成者維持 pending，不假報完成。
+
+# 0.9.80ZH CORE 2 Expanded Job Skill Trees
+
+- 依 RA skill_tree.yml 建立 20 份擴充玩家職業技能樹。
+- 技能樹格式與初學者至六大職業一致，只引用 Core 1 / Core 2 官方 Skill ID。
+- 以專案 SkillInfoz、官方 Skill ID 與技能圖片交叉驗證。
+- 怪物、傭兵、公會、NPC、GM、測試技能維持排除。
+- 完成前置技能合法性、循環依賴、Core 引用與圖片完整性檢查。
+- CSS、JS 與資料快取更新為 0.9.80ZH。
+
+# 0.9.80ZH CORE 2 Expanded Skill Database
+
+- 完成擴充玩家職業 CORE 2 技能本體資料，依官方 Skill ID 升冪排序。
+- 共用 Skill ID 引用 CORE 1，不在 CORE 2 重複保存。
+- 加入 CORE 2 對應官方技能圖片。
+- 怪物、傭兵、公會、NPC、GM、測試、生命體與元素精靈技能維持排除。
+- 本版不建立擴充職業技能樹，留待後續逐職業更新。
+- CSS、JS 與資料快取更新為 0.9.80ZH。
+
+# RO_WEB V0.9.80ZH
+
+- Re-audited the player-skill whitelist, Skill Core IDs, job-tree references, prerequisites, JSON files and JavaScript syntax.
+- Added the complete 823-player-skill icon set to `images/skills/{SkillID}.png`.
+- 821 icons came from the project skill-image library; the two library gaps (2284 and 5068) were resolved by their named official skill-icon resources and converted to 24×24 PNG.
+- Monster, mercenary, guild, NPC, GM and test skills remain excluded.
+- Added `docs/SKILL_ICON_AUDIT_V0.9.80ZH.json`.
+- Updated CSS/JS/data cache key to `0.9.80ZH`.
+
+# 0.9.80ZH Player Skill Scope Audit
+
+- 技能 Core 改採玩家職業技能樹白名單。
+- 明確排除怪物、傭兵、公會、NPC、GM 與測試技能。
+- 重建技能引用稽核；孤兒技能與前置引用為 0。
+- CSS/JS/資料快取版本更新為 0.9.80ZH。
+
+# 0.9.80ZH Skill Core V3
+
+- Core 1 匯入初學者、超初與六大職業系至四轉的 RA 技能資料與獨立技能樹。
+- 技能視覺改為 SkillID.png + SkillID.json，不再保存 SPR/ACT。
+- MC_INCCARRY 改為每級最大 HP +2%，Lv10 +20%。
+- 實際特殊公式以 metadata_ready_formula_pending 明確區分，避免假完成。
+
+
+## V0.9.80ZH — Super Novice animation/skill-tree hotfix
+- Added all `assets/characters/**/*.json` files to `js/data_bundle.js`, restoring atlas animation when opening `index.html` directly with `file://`.
+- Fixed Super Novice family skill UI so it no longer uses the hard-coded Swordsman list.
+- Super Novice tabs now display `超初 / 界限解放 / — / 終初`; later stages show only newly unlocked skills.
+- Updated CSS/JS cache keys to `0.9.80ZH`.
+# V0.9.80ZH
+- 普隆德拉新增超級初學者導師。
+- 開放 初學者→超初→界限解放→終初，依憲法檢查 Base/Job、基本技能與技能點清空。
+- 加入超初系列完整 Skill Tree V2、前置技能與官方數字 ID 圖示。
+- 未完成的戰鬥效果標記為 tree_only。
+
+# V0.9.80Y
+- 初學者系列男女動畫與超初共用資源規則。
+- 初學者→超初門檻改為 Base10/Job10/基本技能Lv9/技能點清空。
+- Cache Key 更新為 0.9.80Y。
+
+## V0.9.80W - Item DB Loader / Inventory Display Fix
+- 修正 V80S/T 後 item_index 改為 compact item records，舊 loader 仍把 index value 當路徑，導致物品資料 count=0、背包圖示空白。
+- 新增 data/items/database_manifest.json 的 allDataPaths，Runtime 以 manifest 為 split JSON 清單。
+- loadItemData 支援三種模式：manifest allDataPaths、舊 id->path index、新 id->item compact index。
+- file:/// 雙擊模式會從 RO_WEB_DATA 自動補抓 data/items 與 data/equipment split JSON，不再因 fetch 被 CORS 擋而讓物品消失。
+- 更新快取到 0.9.80W。
+
+
+## V0.9.80W - Character Motion JSON Local Bundle Fix
+- 修正 V80S 在 file:/// 雙擊開啟時，Character System V2 的 `assets/characters/.../body_hair.json` 會被瀏覽器 CORS 阻擋，導致人物 atlas 不顯示。
+- 將初學者男/女所有 motion JSON 內嵌到 `js/data_bundle.js`，讓 `loadJson()` 可從 bundle 讀取，不再 fetch 本機 JSON。
+- 不更動人物座標、倍率、城鎮/世界顯示規則。
+- CSS/JS cache key 更新為 0.9.80W。
+
+# V0.9.80R WeaponType Constitution / Equipment Data Update
+
+- 將 weaponType 規則寫入 RO_WEB_CONSTITUTION.json 與 AI_START_HERE.md。
+- 為現有 `data/equipment/weapon/*.json` 可裝備武器補上 `weaponType` 欄位。
+- 新增 `data/weapon_motion_schema.json`，記錄普通攻擊動畫解析規則。
+- 更新 `data/weapon_types.json`，補齊 canonical weaponType 與射程預設。
+- 更新 data_bundle 與 cache key 到 0.9.80R。
+
+
+
+## V0.9.80Q - Character System V2 Migration
+
+- 正式遷移初學者男/女到 `assets/characters/novice/{male|female}/`。
+- 新增每性別 `motions.json`，動畫改由 `currentJob + gender + weaponType` 解析。
+- 城鎮與角色面板 idle 圖改由 `assets/characters/{job}/{gender}/idle.png` 解析，F5 不再寫死初學者或舊騎士圖。
+- 舊 `images/player/male/*`、`images/player/novice_male/*`、`images/player/world/*` 退休，不再作為角色 fallback。
+- 保留既有 PC/手機 Profile、城鎮、世界地圖位置與倍率規則；南門舊測試地圖不再作為主要維護目標。
+# Changelog
+
+## V0.9.80Q - Mobile Profile Idle Y Fine Tune
+- 只調整手機版角色資訊欄 idle 單圖：往上 15px。
+- 電腦版角色資訊、城鎮展示、世界地圖、南門/一般野外 atlas 尺寸不動。
+- CSS/JS cache key 更新到 0.9.80Q。
+
+
+
+## V0.9.80M - Mobile World Atlas Sharpness / Portrait Y Fix
+- 修正手機世界地圖人物模糊：V80K 的 DPR canvas backing store 會在手機世界圖被 CSS 二次縮放，改為手機使用 CSS 尺寸 backing store + imageSmoothing=false。
+- 保留 Town → World 後 atlas 重新啟用修正。
+- 手機左上角色資訊 idle 單圖再往下微調。
+- CSS/JS cache key 更新到 0.9.80M。
+# RO_WEB V0.9.80J - Atlas/Town Visibility Fix
+
+- 比對 V80D / V80G / V80H / V80I 後，修正 atlas 與舊 playerImage / town idle 單圖的顯示條件。
+- 非城鎮（南門、世界地圖）固定只顯示新版 RO Studio atlas canvas，避免舊騎士/舊展示圖被拉爆。
+- 城鎮固定只顯示使用者提供的 256x256 idle 單圖。
+- 修正 player.currentCity 殘留導致南門/世界圖誤判為 town、atlas 被關閉。
+- 左上角色資訊圖位置下移 10~15px 微調。
+- CSS/JS cache key 更新到 0.9.80J。
+
+## V0.9.80C - Anchor140 Idle Test
+- Updated novice male idle atlas JSON anchor to X=128 / Y=140.
+- Synced RO_WEB data_bundle for local/offline launch.
+- Kept walk/attack/hurt/dead/cast runtime unchanged for anchor-only verification.
+
+
+## V0.9.80C - RO Studio Anchor Idle Test
+- 套用 V64 匯出的 novice male idle body_hair.png/json。
+- 站立素材 anchor = 128,150，用於 RO_WEB 腳底座標測試。
+- 更新 data_bundle，確保本機直接開啟也能讀到新 JSON。
+
+
+## V0.9.79E - Save Reset + Debug Cross Restore
+
+- 修復「清存檔」後舊角色 Lv.99 仍殘留的問題：清除期間禁止自動存檔，並清空本網域 localStorage/sessionStorage/cache。
+- 修復綠十字座標被舊 CSS 規則強制隱藏的問題。
+- 方向修正沿用 V0.9.79C。
+
+
+
+## RO_WEB V0.9.79E - RO Studio Atlas Runtime Direction Fix
+- 修正 RO Studio V59 Atlas 左右方向反向問題：左右與斜向攻擊/移動同步修正。
+- Idle 站立改為固定第 1 偵，避免村莊待機時一直擺頭。
+- Walk 播放速度微調為 140ms/幀。
+- 清存檔改為清除 RO_WEB localStorage、sessionStorage，並嘗試清除 Cache Storage 後帶 cache-bust 重新載入。
+- 恢復綠十字座標對位功能，文字 debug overlay 仍保持關閉。
+
 ## V0.9.78CF
 - 座標 CSS UI 從左下角移到系統對話框右下角。
 - 右側預留捲軸與新訊息箭頭空間，移動時的 `→ 目標座標` 不遮擋捲軸。
@@ -378,3 +707,121 @@
 - 手機版角色資訊卡再增加底部高度，避免 Job EXP 條被底框遮擋。
 - 保持 HP / SP / Base EXP / Job EXP 原本位置，只補外框與內容容器高度。
 - CSS 快取更新至 0.9.78CH。
+
+
+## V0.9.79B
+- 修正 RO Studio Atlas Runtime 在 file:// / 無痕 / IE 模式下新 JSON 無法 fetch 時的載入問題：把角色 manifest 與 motion JSON 打入 data_bundle。
+- 修正 Atlas 載入失敗時舊版角色圖被隱藏導致玩家完全不顯示。
+
+
+## V0.9.79F - Reference Point / Attack Lock Debug
+- RO Studio Atlas 玩家錨點改讀 JSON anchor（舊資料預設 128,220）。
+- 綠十字旁加入世界座標與 ref anchor 顯示，方便對照 Anchor Preview。
+- 普攻動畫鎖定完整播放，傷害或 Miss 觸發時不再被 idle/hurt 立即蓋掉。
+- CSS/JS cache key 更新至 0.9.79F。
+
+
+## V0.9.80C Anchor140 All Motions Update
+- 初學者 male atlas 全動作素材改為 Anchor X=128 / Y=140。
+- 更新 idle / walk / hurt / dead / cast / attack(fist)。
+- 預留 dagger / sword / axe / mace / staff 攻擊素材路徑。
+
+
+## V0.9.80D Anchor140 Weapon Motions + World 5x
+- 世界大地圖角色顯示倍率暫測 5x：playerWorldHeight 64→320、Width 30→150。
+- 初學者武器攻擊圖檔與 JSON 保留並啟用：fist / dagger / sword / axe / mace / staff。
+- 急救播放初學者施法動作 cast。
+- 裝死技能自 novice 技能清單移除，暫不使用。
+- 角色面板頭像改用使用者提供的初學者站立圖。
+
+## V0.9.80E - World Player Width Fix + Portrait Cache Fix
+
+- 大地圖角色高度維持 5x 測試：320px。
+- 大地圖角色寬度由 150px 放寬到 240px，修正「高度剛好但身體太窄」問題。
+- 角色資訊面板頭像改為新版初學者站立圖，移除舊圖裁切/放大疊層效果。
+- index.html 全部 CSS/JS cache key 更新為 `0.9.80E`。
+
+
+## V0.9.80I - Town Mode Static Player / Legacy Sprite Conflict Fix
+- 城鎮模式：玩家固定於舊右側展示位置，不吃存檔座標，不接受移動。
+- 城鎮角色改用使用者提供的 256x256 idle 單圖；角色資訊圖同步使用同一張。
+- 手機板城鎮角色 x2；PC 城鎮維持舊展示大小。
+- 世界地圖 PC 版角色寬度在目前數值上 x1.5；手機世界地圖維持 0.9.80D/E 比例。
+- CSS/JS 快取更新至 0.9.80I。
+
+
+## V0.9.80I - Legacy Sprite Conflict Fix
+- 左上角色資訊圖使用 256x256 idle 單圖並放大 2.5 倍。
+- 回退 V80F 的 PC 世界地圖寬度 x1.5，避免舊圖層被拉爆。
+- 世界地圖只顯示 RO Studio atlas canvas，強制隱藏舊 playerImage，避免劍士/騎士舊圖相衝。
+- 城鎮模式只顯示單張 idle 圖，隱藏 atlas canvas，避免新舊圖層重疊。
+- 舊 male/idle、attack、dead、run、test_sheet fallback 圖先以初學者 idle 單圖覆蓋，避免劍士/騎士舊圖被誤抓。
+- CSS/JS cache key 更新至 0.9.80I。
+
+
+## V0.9.80I - Town Static / South Gate Duplicate Fix
+- 修正南門同時顯示 playerImage 與 RO Studio atlas canvas 的雙人物重疊。
+- 非城鎮地圖強制只顯示 RO Studio atlas canvas。
+- 城鎮地圖強制只顯示使用者提供的 idle 單圖。
+- 角色資訊圖維持 2.5 倍並往下 50px。
+- 城鎮展示人物往右 50px。
+- CSS/JS 快取更新到 0.9.80I。
+
+
+## V0.9.80I - Atlas Visibility Recovery / Town Fine Tune
+- 修復 V80H 非城鎮地圖人物消失：atlasActive=true 才隱藏 legacy playerImage，atlas 未就緒時保留 fallback。
+- 世界地圖 / 南門外恢復新版 RO Studio atlas 顯示。
+- 城鎮 PC 靜態人物在 V80H 基礎上放大 1.5 倍並右移 50px。
+- 角色資訊圖位置沿用 V80H，大小在 V80H 基礎上 ×1.2。
+- CSS/JS cache key 更新為 0.9.80I。
+
+
+## V0.9.80M - SouthGate/World Atlas Scale Regression Fix
+- 修正 V80L 將所有非城鎮地圖都套用 world-player 尺寸，導致南門/一般野外人物變小或尺寸錯亂。
+- 非城鎮一般地圖（南門）恢復標準 atlas 尺寸：220x220 / top 16px。
+- 世界地圖仍使用 world-camera 專用尺寸，不再影響南門。
+- 手機角色資訊單圖往上 30px。
+- CSS/JS cache key 更新為 0.9.80M。
+
+
+## V0.9.80W Item / Equipment Constitution V2
+- 中文名稱、說明與圖示來源：`itemInfo_UTF8.lub`。
+- 裝備/武器/防具能力、限制、位置、射程與效果來源：DB_RE `item_db_equip.yml`。
+- 保留欄位：Id、AegisName、Type、SubType、Buy、Attack、MagicAttack、Defense、Range、Slots、Jobs、Classes、Locations、WeaponLevel、ArmorLevel、EquipLevelMin、Refineable、Gradable、View、Script、EquipScript、UnEquipScript。
+- 不使用：Weight、未鑑定、Gender、Trade、Stack、NoUse、Delay、DropEffect。
+- 價格規則：Buy 缺少時預設 20；Sell 優先用官方 Sell，否則 `floor(Buy / 2)`。
+- `weaponType` 改為由 DB_RE `SubType` 自動轉換；普攻射程優先使用每件武器的 `Range`，`data/weapon_types.json` 只作 fallback。
+
+
+## V0.9.80W - Character Attack Weapon Motion Fix
+- 修正 Character V2 攻擊 JSON 指向 `body_hair_weapon.png`，但實際輸出檔名為 `body_hair.png` 造成攻擊 Atlas 載入失敗。
+- 修正 F5 / 讀檔後未從已裝備武器同步 weaponType，導致拿劍、短劍、杖仍播放拳頭攻擊。
+- 裝備切換後會從 `getEquippedWeaponData()` → `weaponType/dbSubType` → `motions.json.attack` 重新載入對應攻擊動畫。
+- CSS/JS cache key 更新為 0.9.80W。
+
+
+## V0.9.80W - Item DB V2 Canonical Field Audit
+- 全面檢查現有 items/equipment 細分 JSON。
+- 新增官方格式 canonical 欄位：Id/AegisName/Name/Type/SubType/Buy/Attack/MagicAttack/Defense/Range/Slots/Jobs/Classes/Locations/WeaponLevel/ArmorLevel/EquipLevelMin/Refineable/Gradable/View/Script。
+- Runtime 由 normalizeItemRecord 統一產生舊欄位相容別名，不再讓各模組自行猜欄位。
+- 移除 Weight、Gender、未鑑定相關資料。
+- 價格統一：官方 Sell 優先，否則 floor(Buy/2)；Buy 缺少時預設 20。
+- 新增 data/item_db_v2_audit.json 驗收報告。
+
+## V0.9.80X - Equipment Job/Class Enforcement
+- 裝備前正式執行 RA DB_RE `Jobs`、`Classes`、`EquipLevelMin`。
+- 初學者無法再裝備弓等未允許裝備。
+- 新增 `data/equipment_job_map.json`，統一 RO_WEB 職業 ID 與 RA Jobs/Classes Key 對照。
+- 裝備限制失敗時不扣背包、不替換原裝備，並顯示原因。
+
+
+## 0.9.80ZU
+- Skill Runtime V1 data-driven profiles.
+- RA SpCost/HitCount normalization.
+- First-job verified formulas and custom MC_INCCARRY HP rule.
+
+
+## 0.9.81D Runtime Physical Batch12
+- Official Runtime 66 → 70 / 1139.
+- Added AS_GRIMTOOTH, MO_TRIPLEATTACK, MO_CHAINCOMBO, MO_COMBOFINISH.
+- Hiding/combo/spirit-sphere activation prerequisites ignored per RO_WEB policy.

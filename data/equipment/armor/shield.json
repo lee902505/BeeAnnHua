@@ -12,10 +12,7 @@
     "slots": 0,
     "cards": [],
     "requiredLevel": 1,
-    "allowedJobs": [
-      "all"
-    ],
-    "sellPrice": 20,
+    "sellPrice": 250,
     "description": [
       "可以抵擋敵人攻擊的盾牌。",
       "系列 : ^777777盾牌^000000  防禦 :  ^77777720^000000",
@@ -24,7 +21,32 @@
     "icon": "images/items/2101.webp",
     "buyPrice": 500,
     "slotCount": 0,
-    "ClassNum": 1
+    "ClassNum": 1,
+    "aegisName": "Guard",
+    "dbType": "Armor",
+    "armorLevel": 1,
+    "viewId": 1,
+    "locations": {
+      "Left_Hand": true
+    },
+    "refineable": true,
+    "dataSource": "itemInfo_UTF8.lub + db/re/item_db_equip.yml",
+    "Id": 2101,
+    "Name": "鐵盾",
+    "Buy": 500,
+    "AegisName": "Guard",
+    "Type": "Armor",
+    "Attack": 0,
+    "Defense": 20,
+    "Slots": 0,
+    "Locations": {
+      "Left_Hand": true
+    },
+    "ArmorLevel": 1,
+    "EquipLevelMin": 1,
+    "Refineable": true,
+    "View": 1,
+    "equipLevelMin": 1
   },
   "2102": {
     "id": 2102,
@@ -33,7 +55,7 @@
     "type": "equipment",
     "category": "armor",
     "subCategory": "shield",
-    "sellPrice": 60,
+    "sellPrice": 250,
     "description": [
       "可以抵擋敵人攻擊的簡易道具。",
       "系列 : ^777777盾牌^000000  防禦 :  ^77777720^000000",
@@ -44,7 +66,30 @@
     "def": 20,
     "slots": 1,
     "slotCount": 1,
-    "ClassNum": 1
+    "ClassNum": 1,
+    "aegisName": "Guard_",
+    "dbType": "Armor",
+    "buyPrice": 500,
+    "armorLevel": 1,
+    "viewId": 1,
+    "locations": {
+      "Left_Hand": true
+    },
+    "refineable": true,
+    "dataSource": "itemInfo_UTF8.lub + db/re/item_db_equip.yml",
+    "Id": 2102,
+    "Name": "鐵盾",
+    "Buy": 500,
+    "AegisName": "Guard_",
+    "Type": "Armor",
+    "Defense": 20,
+    "Slots": 1,
+    "Locations": {
+      "Left_Hand": true
+    },
+    "ArmorLevel": 1,
+    "Refineable": true,
+    "View": 1
   },
   "2103": {
     "id": 2103,
@@ -59,10 +104,7 @@
     "slots": 0,
     "cards": [],
     "requiredLevel": 1,
-    "allowedJobs": [
-      "all"
-    ],
-    "sellPrice": 40,
+    "sellPrice": 7000,
     "description": [
       "製作簡單且方便使用,所以普遍使用的圓形盾牌。",
       "系列 : ^777777盾牌^000000  防禦 :  ^77777740^000000",
@@ -71,7 +113,62 @@
     "icon": "images/items/2103.webp",
     "buyPrice": 14000,
     "slotCount": 0,
-    "ClassNum": 2
+    "ClassNum": 2,
+    "aegisName": "Buckler",
+    "dbType": "Armor",
+    "armorLevel": 1,
+    "viewId": 2,
+    "equipJobs": {
+      "Acolyte": true,
+      "Alchemist": true,
+      "Assassin": true,
+      "BardDancer": true,
+      "Blacksmith": true,
+      "Crusader": true,
+      "Knight": true,
+      "Merchant": true,
+      "Monk": true,
+      "Priest": true,
+      "Rogue": true,
+      "Swordman": true,
+      "Thief": true
+    },
+    "locations": {
+      "Left_Hand": true
+    },
+    "refineable": true,
+    "dataSource": "itemInfo_UTF8.lub + db/re/item_db_equip.yml",
+    "Id": 2103,
+    "Name": "圓盾",
+    "Buy": 14000,
+    "AegisName": "Buckler",
+    "Type": "Armor",
+    "Attack": 0,
+    "Defense": 40,
+    "Slots": 0,
+    "Jobs": {
+      "Acolyte": true,
+      "Alchemist": true,
+      "Assassin": true,
+      "BardDancer": true,
+      "Blacksmith": true,
+      "Crusader": true,
+      "Knight": true,
+      "Merchant": true,
+      "Monk": true,
+      "Priest": true,
+      "Rogue": true,
+      "Swordman": true,
+      "Thief": true
+    },
+    "Locations": {
+      "Left_Hand": true
+    },
+    "ArmorLevel": 1,
+    "EquipLevelMin": 1,
+    "Refineable": true,
+    "View": 2,
+    "equipLevelMin": 1
   },
   "2104": {
     "id": 2104,
@@ -86,10 +183,7 @@
     "slots": 1,
     "cards": [],
     "requiredLevel": 1,
-    "allowedJobs": [
-      "all"
-    ],
-    "sellPrice": 50,
+    "sellPrice": 7000,
     "description": [
       "製作簡單且方便使用,所以普遍使用的圓形盾牌。",
       "系列 : ^777777盾牌^000000  防禦 :  ^77777740^000000",
@@ -97,7 +191,63 @@
     ],
     "icon": "images/items/2104.webp",
     "slotCount": 1,
-    "ClassNum": 2
+    "ClassNum": 2,
+    "aegisName": "Buckler_",
+    "dbType": "Armor",
+    "buyPrice": 14000,
+    "armorLevel": 1,
+    "viewId": 2,
+    "equipJobs": {
+      "Acolyte": true,
+      "Alchemist": true,
+      "Assassin": true,
+      "BardDancer": true,
+      "Blacksmith": true,
+      "Crusader": true,
+      "Knight": true,
+      "Merchant": true,
+      "Monk": true,
+      "Priest": true,
+      "Rogue": true,
+      "Swordman": true,
+      "Thief": true
+    },
+    "locations": {
+      "Left_Hand": true
+    },
+    "refineable": true,
+    "dataSource": "itemInfo_UTF8.lub + db/re/item_db_equip.yml",
+    "Id": 2104,
+    "Name": "圓盾",
+    "Buy": 14000,
+    "AegisName": "Buckler_",
+    "Type": "Armor",
+    "Attack": 0,
+    "Defense": 40,
+    "Slots": 1,
+    "Jobs": {
+      "Acolyte": true,
+      "Alchemist": true,
+      "Assassin": true,
+      "BardDancer": true,
+      "Blacksmith": true,
+      "Crusader": true,
+      "Knight": true,
+      "Merchant": true,
+      "Monk": true,
+      "Priest": true,
+      "Rogue": true,
+      "Swordman": true,
+      "Thief": true
+    },
+    "Locations": {
+      "Left_Hand": true
+    },
+    "ArmorLevel": 1,
+    "EquipLevelMin": 1,
+    "Refineable": true,
+    "View": 2,
+    "equipLevelMin": 1
   },
   "2105": {
     "id": 2105,
@@ -119,7 +269,41 @@
     "slots": 0,
     "requiredLevel": 1,
     "slotCount": 0,
-    "ClassNum": 3
+    "ClassNum": 3,
+    "aegisName": "Shield",
+    "dbType": "Armor",
+    "armorLevel": 1,
+    "viewId": 3,
+    "equipJobs": {
+      "Crusader": true,
+      "Knight": true,
+      "Swordman": true
+    },
+    "locations": {
+      "Left_Hand": true
+    },
+    "refineable": true,
+    "dataSource": "itemInfo_UTF8.lub + db/re/item_db_equip.yml",
+    "Id": 2105,
+    "Name": "鋼盾",
+    "Buy": 56000,
+    "AegisName": "Shield",
+    "Type": "Armor",
+    "Defense": 60,
+    "Slots": 0,
+    "Jobs": {
+      "Crusader": true,
+      "Knight": true,
+      "Swordman": true
+    },
+    "Locations": {
+      "Left_Hand": true
+    },
+    "ArmorLevel": 1,
+    "EquipLevelMin": 1,
+    "Refineable": true,
+    "View": 3,
+    "equipLevelMin": 1
   },
   "2107": {
     "id": 2107,
@@ -142,7 +326,45 @@
     "slots": 0,
     "requiredLevel": 1,
     "slotCount": 0,
-    "ClassNum": 4
+    "ClassNum": 4,
+    "aegisName": "Mirror_Shield",
+    "dbType": "Armor",
+    "armorLevel": 1,
+    "viewId": 4,
+    "equipJobs": {
+      "Crusader": true,
+      "Knight": true,
+      "StarGladiator": true,
+      "Swordman": true
+    },
+    "locations": {
+      "Left_Hand": true
+    },
+    "refineable": true,
+    "scriptRaw": "bonus bMdef,5;",
+    "dataSource": "itemInfo_UTF8.lub + db/re/item_db_equip.yml",
+    "Id": 2107,
+    "Name": "鏡盾",
+    "Buy": 60000,
+    "AegisName": "Mirror_Shield",
+    "Type": "Armor",
+    "Defense": 45,
+    "Slots": 0,
+    "Jobs": {
+      "Crusader": true,
+      "Knight": true,
+      "StarGladiator": true,
+      "Swordman": true
+    },
+    "Locations": {
+      "Left_Hand": true
+    },
+    "ArmorLevel": 1,
+    "EquipLevelMin": 1,
+    "Refineable": true,
+    "View": 4,
+    "Script": "bonus bMdef,5;",
+    "equipLevelMin": 1
   },
   "2111": {
     "id": 2111,
@@ -157,11 +379,8 @@
     "mdef": 5,
     "slots": 0,
     "cards": [],
-    "requiredLevel": 1,
-    "allowedJobs": [
-      "all"
-    ],
-    "sellPrice": 500,
+    "requiredLevel": 83,
+    "sellPrice": 64000,
     "description": [
       "擁有神的旨意,從神的傳令那裡神直接賜給他,具有象徵性的盾牌",
       "INT+2, VIT+3, MDEF+3, 不可破壞。",
@@ -171,6 +390,40 @@
     ],
     "icon": "images/items/2111.webp",
     "slotCount": 0,
-    "ClassNum": 4
+    "ClassNum": 4,
+    "aegisName": "Herald_Of_GOD",
+    "dbType": "Armor",
+    "buyPrice": 128000,
+    "armorLevel": 1,
+    "equipLevelMin": 83,
+    "viewId": 4,
+    "equipJobs": {
+      "Crusader": true
+    },
+    "locations": {
+      "Left_Hand": true
+    },
+    "refineable": true,
+    "scriptRaw": "bonus bVit,3;\nbonus bInt,2;\nbonus bMdef,3;\nbonus bUnbreakableShield;",
+    "dataSource": "itemInfo_UTF8.lub + db/re/item_db_equip.yml",
+    "Id": 2111,
+    "Name": "大天使之盾",
+    "Buy": 128000,
+    "AegisName": "Herald_Of_GOD",
+    "Type": "Armor",
+    "Attack": 0,
+    "Defense": 120,
+    "Slots": 0,
+    "Jobs": {
+      "Crusader": true
+    },
+    "Locations": {
+      "Left_Hand": true
+    },
+    "ArmorLevel": 1,
+    "EquipLevelMin": 83,
+    "Refineable": true,
+    "View": 4,
+    "Script": "bonus bVit,3;\nbonus bInt,2;\nbonus bMdef,3;\nbonus bUnbreakableShield;"
   }
 }

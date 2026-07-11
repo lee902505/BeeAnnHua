@@ -23,7 +23,41 @@
     "requiredLevel": 18,
     "handed": 2,
     "slotCount": 2,
-    "ClassNum": 16
+    "ClassNum": 16,
+    "weaponType": "katar",
+    "aegisName": "Jur",
+    "dbType": "Weapon",
+    "dbSubType": "Katar",
+    "range": 1,
+    "weaponLevel": 2,
+    "equipLevelMin": 18,
+    "equipJobs": {
+      "Assassin": true
+    },
+    "locations": {
+      "Both_Hand": true
+    },
+    "refineable": true,
+    "dataSource": "itemInfo_UTF8.lub + db/re/item_db_equip.yml",
+    "Id": 1250,
+    "Name": "拳刃",
+    "Buy": 19500,
+    "AegisName": "Jur",
+    "Type": "Weapon",
+    "SubType": "Katar",
+    "Attack": 125,
+    "MagicAttack": 0,
+    "Range": 1,
+    "Slots": 2,
+    "Jobs": {
+      "Assassin": true
+    },
+    "Locations": {
+      "Both_Hand": true
+    },
+    "WeaponLevel": 2,
+    "EquipLevelMin": 18,
+    "Refineable": true
   },
   "1252": {
     "id": 1252,
@@ -50,7 +84,43 @@
     "requiredLevel": 33,
     "handed": 2,
     "slotCount": 1,
-    "ClassNum": 16
+    "ClassNum": 16,
+    "weaponType": "katar",
+    "aegisName": "Katar",
+    "dbType": "Weapon",
+    "dbSubType": "Katar",
+    "range": 1,
+    "weaponLevel": 3,
+    "equipLevelMin": 33,
+    "equipJobs": {
+      "Assassin": true
+    },
+    "locations": {
+      "Both_Hand": true
+    },
+    "refineable": true,
+    "scriptRaw": "bonus bDex,1;",
+    "dataSource": "itemInfo_UTF8.lub + db/re/item_db_equip.yml",
+    "Id": 1252,
+    "Name": "卡塔勒拳刃",
+    "Buy": 41000,
+    "AegisName": "Katar",
+    "Type": "Weapon",
+    "SubType": "Katar",
+    "Attack": 148,
+    "MagicAttack": 0,
+    "Range": 1,
+    "Slots": 1,
+    "Jobs": {
+      "Assassin": true
+    },
+    "Locations": {
+      "Both_Hand": true
+    },
+    "WeaponLevel": 3,
+    "EquipLevelMin": 33,
+    "Refineable": true,
+    "Script": "bonus bDex,1;"
   },
   "1254": {
     "id": 1254,
@@ -76,6 +146,40 @@
     "requiredLevel": 33,
     "handed": 2,
     "slotCount": 0,
-    "ClassNum": 16
+    "ClassNum": 16,
+    "weaponType": "katar",
+    "aegisName": "Jamadhar",
+    "dbType": "Weapon",
+    "dbSubType": "Katar",
+    "range": 1,
+    "weaponLevel": 3,
+    "equipLevelMin": 33,
+    "equipJobs": {
+      "Assassin": true
+    },
+    "locations": {
+      "Both_Hand": true
+    },
+    "refineable": true,
+    "dataSource": "itemInfo_UTF8.lub + db/re/item_db_equip.yml",
+    "Id": 1254,
+    "Name": "秘刃 闇嘯",
+    "Buy": 37200,
+    "AegisName": "Jamadhar",
+    "Type": "Weapon",
+    "SubType": "Katar",
+    "Attack": 165,
+    "MagicAttack": 0,
+    "Range": 1,
+    "Slots": 0,
+    "Jobs": {
+      "Assassin": true
+    },
+    "Locations": {
+      "Both_Hand": true
+    },
+    "WeaponLevel": 3,
+    "EquipLevelMin": 33,
+    "Refineable": true
   }
 }

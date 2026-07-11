@@ -91,6 +91,7 @@ function enterCity(cityId) {
   player.state = "Town";
   if (player.map) player.lastFieldMap = player.map;
   player.map = null;
+  if (typeof applyTownFixedPlayerPosition === "function") applyTownFixedPlayerPosition();
 
   updateTownUI();
   updateMapUI();
@@ -259,7 +260,10 @@ function renderShopPanel(shopId) {
 }
 
 function getShopItemPrice(entry, item) {
-  return Number(entry?.price || item?.buyPrice || Math.max(1, (item?.sellPrice || 1) * 10));
+  const basePrice = Number(entry?.price || item?.buyPrice || Math.max(1, (item?.sellPrice || 1) * 10));
+  const passiveTotals = typeof getPassiveSkillBonusTotals === "function" ? getPassiveSkillBonusTotals() : {};
+  const discountRate = Math.max(0, Math.min(100, Number(passiveTotals.shopBuyDiscountRate || 0)));
+  return Math.max(1, Math.floor(basePrice * (100 - discountRate) / 100));
 }
 
 function selectShopItem(itemId, price) {
@@ -564,6 +568,8 @@ function resetWorldCameraForTown(battleField) {
   battleField.classList.remove("world-camera-mode", "large-map-mode");
   battleField.classList.add("city-mode");
   battleField.dataset.worldCamera = "false";
+  battleField.dataset.atlasActive = "false";
+  document.getElementById("player-sprite")?.setAttribute("data-atlas-active", "false");
   delete battleField.dataset.mapId;
 
   [
@@ -588,8 +594,11 @@ function updateTownBackground(city) {
 
   const playerImage = document.getElementById("playerImage");
   if (playerImage) {
-    playerImage.src = "images/player/male/idle/0001.png";
+    // V0.9.80I：城鎮展示與角色資訊共用使用者提供的 256x256 idle 單圖。
+    playerImage.src = (typeof getROStudioCharacterIdleImage === "function" ? getROStudioCharacterIdleImage() + "?v=0.9.80U" : "assets/characters/novice/male/idle.png?v=0.9.80U");
   }
+
+  if (typeof applyTownFixedPlayerPosition === "function") applyTownFixedPlayerPosition();
 
   if (typeof renderCityPlayerSprite === "function") {
     renderCityPlayerSprite();

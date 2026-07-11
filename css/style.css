@@ -10503,7 +10503,7 @@ h2 { font-size:20px; margin:0 0 8px; text-align:center; letter-spacing:2px; colo
   display: none !important;
 }
 #battle-field:is([data-map-id="mjolnir_chunk_mvp"], [data-map-id="mjolnir_camera_3x3"]) #player-sprite #playerImage {
-  content: url("../images/player/world/novice_male_world_tight_64.png");
+  content: url("../assets/characters/novice/male/idle.png?v=0.9.80R");
   left: 0 !important;
   top: 0 !important;
   width: 36px !important;
@@ -10542,7 +10542,7 @@ h2 { font-size:20px; margin:0 0 8px; text-align:center; letter-spacing:2px; colo
   display: none !important;
 }
 #battle-field:is([data-map-id="mjolnir_camera_scale3_single"]) #player-sprite #playerImage {
-  content: url("../images/player/world/novice_male_world_tight_64.png");
+  content: url("../assets/characters/novice/male/idle.png?v=0.9.80R");
   left: 0 !important;
   top: 0 !important;
   width: 64px !important;
@@ -10626,7 +10626,7 @@ h2 { font-size:20px; margin:0 0 8px; text-align:center; letter-spacing:2px; colo
 }
 #battle-field.world-camera-mode #player-sprite #playerImage,
 #battle-field[data-world-camera="true"] #player-sprite #playerImage {
-  content: url("../images/player/world/novice_male_world_tight_64.png");
+  content: url("../assets/characters/novice/male/idle.png?v=0.9.80R");
   left: 0 !important;
   top: 0 !important;
   width: var(--world-player-width, 30px) !important;
@@ -16364,4 +16364,551 @@ h2 { font-size:20px; margin:0 0 8px; text-align:center; letter-spacing:2px; colo
   #player-info.character-card .sp-line { top: 114px !important; }
   #player-info.character-card .exp-line { top: 134px !important; }
   #player-info.character-card .exp-line + .exp-line { top: 154px !important; }
+}
+
+
+/* V0.9.79B RO Studio Atlas canvas */
+#playerAtlasCanvas { position:absolute; object-fit:contain; image-rendering:auto; }
+
+
+/* =========================================================
+   RO_WEB V0.9.79D - Debug Cross Restore
+   - 覆蓋 0.9.78CC 早期把座標十字強制隱藏的規則。
+   - 綠十字 = 玩家目前腳底 / 世界座標。
+   ========================================================= */
+#position-debug-cross.position-debug-cross,
+.position-debug-cross {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  z-index: 2147483500 !important;
+}
+#position-debug-overlay.position-debug-overlay {
+  display: none !important;
+  visibility: hidden !important;
+}
+#position-debug-cross.position-debug-cross::before,
+#position-debug-cross.position-debug-cross::after {
+  background: rgba(80, 255, 110, .98) !important;
+  box-shadow: 0 0 4px #000, 0 0 8px rgba(80,255,110,.75) !important;
+}
+
+
+/* =========================================================
+   RO_WEB V0.9.79E - Combat Stop + Debug Anchor Test
+   - 暫時隱藏系統對話框右下角座標 UI，避免和腳底綠十字混淆。
+   - 綠十字保留為玩家腳底世界座標 Debug。
+   ========================================================= */
+#position-coordinate-ui {
+  display: none !important;
+  visibility: hidden !important;
+}
+#position-debug-cross.position-debug-cross,
+.position-debug-cross {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  z-index: 2147483600 !important;
+}
+#position-debug-cross.position-debug-cross::before,
+#position-debug-cross.position-debug-cross::after {
+  background: rgba(80, 255, 110, .98) !important;
+  box-shadow: 0 0 4px #000, 0 0 10px rgba(80,255,110,.85) !important;
+}
+
+
+/* =========================================================
+   RO_WEB V0.9.79F - Reference Point Debug Label
+   - 綠十字旁顯示玩家世界座標與 RO Studio JSON anchor。
+   ========================================================= */
+#position-debug-cross.position-debug-cross .position-debug-cross-label,
+.position-debug-cross .position-debug-cross-label {
+  position: absolute !important;
+  left: 10px !important;
+  top: -26px !important;
+  min-width: 118px !important;
+  padding: 2px 5px !important;
+  border: 1px solid rgba(80,255,110,.9) !important;
+  border-radius: 4px !important;
+  background: rgba(0,0,0,.72) !important;
+  color: #5cff7a !important;
+  font: 11px/1.2 Consolas, "Courier New", monospace !important;
+  text-shadow: 0 1px 2px #000 !important;
+  white-space: nowrap !important;
+  pointer-events: none !important;
+}
+
+
+/* =========================================================
+   RO_WEB V0.9.80D Anchor140 / World 5x / Portrait Update
+   ========================================================= */
+#playerPortrait {
+  object-fit: contain !important;
+  object-position: center bottom !important;
+  transform: none !important;
+  image-rendering: auto !important;
+}
+#battle-field.world-camera-mode #player-sprite #playerAtlasCanvas,
+#battle-field[data-world-camera="true"] #player-sprite #playerAtlasCanvas {
+  width: var(--world-player-width, 150px) !important;
+  height: var(--world-player-height, 320px) !important;
+  max-width: var(--world-player-width, 150px) !important;
+  max-height: var(--world-player-height, 320px) !important;
+  filter: drop-shadow(0 2px 2px rgba(0,0,0,.85)) !important;
+}
+
+/* =========================================================
+   RO_WEB V0.9.80R Anchor140 / World Width Fix + Portrait Cache Fix
+   - World camera: keep height 320px, widen player from 150px to 240px.
+   - Portrait: use current novice standing frame without old crop/scale layer.
+   - Cache key updated to 0.9.80R in index.html.
+   ========================================================= */
+#battle-field.world-camera-mode #player-sprite.player-sprite,
+#battle-field[data-world-camera="true"] #player-sprite.player-sprite {
+  width: 240px !important;
+  height: 320px !important;
+  overflow: visible !important;
+}
+#battle-field.world-camera-mode #player-sprite #playerImage,
+#battle-field[data-world-camera="true"] #player-sprite #playerImage {
+  width: 240px !important;
+  height: 320px !important;
+  max-width: 240px !important;
+  max-height: 320px !important;
+  object-fit: fill !important;
+  object-position: center bottom !important;
+  transform: none !important;
+  transform-origin: 50% 100% !important;
+}
+#player-info.character-card .portrait-placeholder {
+  overflow: hidden !important;
+  display: grid !important;
+  place-items: center !important;
+  background: radial-gradient(circle at 50% 45%, rgba(67,43,22,.82), rgba(8,6,5,.92)) !important;
+}
+#player-info.character-card .portrait-placeholder img,
+.character-card .portrait-placeholder img#playerPortrait {
+  content: url("../assets/characters/novice/male/idle.png?v=0.9.80R") !important;
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 100% !important;
+  max-height: 100% !important;
+  object-fit: contain !important;
+  object-position: center bottom !important;
+  transform: none !important;
+  filter: drop-shadow(0 3px 4px rgba(0,0,0,.75)) !important;
+}
+
+
+/* =========================================================
+   RO_WEB V0.9.80R Town Mode / PC World Width x1.5 / Cache Fix
+   ========================================================= */
+#battle-field.city-mode #player-sprite #playerAtlasCanvas {
+  display: none !important;
+}
+#battle-field.city-mode #player-sprite #playerImage {
+  content: url("../assets/characters/novice/male/idle.png?v=0.9.80R") !important;
+  object-fit: contain !important;
+  object-position: center bottom !important;
+  animation: none !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+#battle-field.city-mode #player-sprite.player-sprite {
+  overflow: visible !important;
+}
+#player-info.character-card .portrait-placeholder img,
+.character-card .portrait-placeholder img#playerPortrait {
+  content: url("../assets/characters/novice/male/idle.png?v=0.9.80R") !important;
+}
+@media (min-width: 901px) and (pointer: fine) {
+  #battle-field.world-camera-mode #player-sprite.player-sprite,
+  #battle-field[data-world-camera="true"] #player-sprite.player-sprite {
+    width: var(--world-player-width, 360px) !important;
+    height: var(--world-player-height, 320px) !important;
+  }
+  #battle-field.world-camera-mode #player-sprite #playerImage,
+  #battle-field[data-world-camera="true"] #player-sprite #playerImage,
+  #battle-field.world-camera-mode #player-sprite #playerAtlasCanvas,
+  #battle-field[data-world-camera="true"] #player-sprite #playerAtlasCanvas {
+    width: var(--world-player-width, 360px) !important;
+    height: var(--world-player-height, 320px) !important;
+    max-width: var(--world-player-width, 360px) !important;
+    max-height: var(--world-player-height, 320px) !important;
+  }
+}
+
+
+/* =========================================================
+   RO_WEB V0.9.80R - Legacy Sprite Conflict Fix
+   - Fix old swordman/knight portrait layer being stretched in world maps.
+   - World maps: atlas canvas is the only visible player layer.
+   - Town maps: portrait single idle image is the only visible player layer.
+   - Player info portrait: enlarge the provided 256x256 idle single image by 2.5x.
+   ========================================================= */
+#player-info.character-card .portrait-placeholder {
+  overflow: hidden !important;
+}
+#player-info.character-card .portrait-placeholder img#playerPortrait,
+.character-card .portrait-placeholder img#playerPortrait {
+  content: url("../assets/characters/novice/male/idle.png?v=0.9.80R") !important;
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 100% !important;
+  max-height: 100% !important;
+  object-fit: contain !important;
+  object-position: center bottom !important;
+  transform: scale(2.5) !important;
+  transform-origin: 50% 100% !important;
+  filter: drop-shadow(0 3px 4px rgba(0,0,0,.75)) !important;
+}
+
+/* Town mode uses only the user-provided idle single image. */
+#battle-field.city-mode #player-sprite #playerAtlasCanvas {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+}
+#battle-field.city-mode #player-sprite #playerImage {
+  content: url("../assets/characters/novice/male/idle.png?v=0.9.80R") !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  object-fit: contain !important;
+  object-position: center bottom !important;
+  animation: none !important;
+  transform: none !important;
+}
+
+/* World camera uses only RO Studio atlas canvas. Hide legacy img to prevent old knight/swordman image conflicts. */
+#battle-field.world-camera-mode #player-sprite #playerImage,
+#battle-field[data-world-camera="true"] #player-sprite #playerImage {
+  visibility: hidden !important;
+  opacity: 0 !important;
+  width: var(--world-player-width, 150px) !important;
+  height: var(--world-player-height, 320px) !important;
+  max-width: var(--world-player-width, 150px) !important;
+  max-height: var(--world-player-height, 320px) !important;
+  transform: none !important;
+}
+#battle-field.world-camera-mode #player-sprite #playerAtlasCanvas,
+#battle-field[data-world-camera="true"] #player-sprite #playerAtlasCanvas {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  width: var(--world-player-width, 150px) !important;
+  height: var(--world-player-height, 320px) !important;
+  max-width: var(--world-player-width, 150px) !important;
+  max-height: var(--world-player-height, 320px) !important;
+  object-fit: contain !important;
+  transform: none !important;
+  filter: drop-shadow(0 2px 2px rgba(0,0,0,.85)) !important;
+}
+#battle-field.world-camera-mode #player-sprite.player-sprite,
+#battle-field[data-world-camera="true"] #player-sprite.player-sprite {
+  width: var(--world-player-width, 150px) !important;
+  height: var(--world-player-height, 320px) !important;
+  overflow: visible !important;
+}
+
+
+/* =========================================================
+   RO_WEB V0.9.80R - Town Static / South Gate Duplicate Fix
+   - South Gate / non-town maps use only RO Studio atlas canvas.
+   - Town maps use only portrait idle image.
+   - Player info portrait keeps 2.5x and shifts down 50px.
+   - Cache key updated to 0.9.80R.
+   ========================================================= */
+#player-info.character-card .portrait-placeholder img#playerPortrait,
+.character-card .portrait-placeholder img#playerPortrait {
+  content: url("../assets/characters/novice/male/idle.png?v=0.9.80R") !important;
+  transform: translateY(50px) scale(2.5) !important;
+  transform-origin: 50% 100% !important;
+}
+
+/* Non-town maps must never show the legacy playerImage together with atlas canvas. */
+#battle-field:not(.city-mode) #player-sprite #playerImage {
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+#battle-field:not(.city-mode) #player-sprite #playerAtlasCanvas {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+/* Town maps must only show the provided idle portrait single-frame image. */
+#battle-field.city-mode #player-sprite #playerImage {
+  content: url("../assets/characters/novice/male/idle.png?v=0.9.80R") !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+#battle-field.city-mode #player-sprite #playerAtlasCanvas {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+}
+
+
+/* =========================================================
+   RO_WEB V0.9.80R - Atlas Visibility Recovery / Town Fine Tune
+   - 修復 80H 非城鎮地圖把新版 atlas/舊圖同時判斷錯誤，導致南門外與世界地圖人物消失。
+   - 只有 atlasActive=true 時才隱藏 legacy playerImage；atlas 未就緒時保留舊圖 fallback。
+   - 城鎮展示人物 PC：80H 基礎放大 1.5 倍、右移 50px。
+   - 角色資訊圖：位置沿用 80H，大小在 80H 基礎上 x1.2。
+   ========================================================= */
+#player-info.character-card .portrait-placeholder img#playerPortrait,
+.character-card .portrait-placeholder img#playerPortrait {
+  content: url("../assets/characters/novice/male/idle.png?v=0.9.80R") !important;
+  transform: translateY(50px) scale(3) !important;
+  transform-origin: 50% 100% !important;
+}
+
+/* 回收 80H 的 blanket non-town hide：非城鎮若 atlas 還沒準備好，必須顯示 fallback 圖。 */
+#battle-field:not(.city-mode) #player-sprite #playerImage {
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+#battle-field[data-atlas-active="true"]:not(.city-mode) #player-sprite #playerImage,
+#player-sprite[data-atlas-active="true"] #playerImage {
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+#battle-field[data-atlas-active="true"]:not(.city-mode) #player-sprite #playerAtlasCanvas,
+#player-sprite[data-atlas-active="true"] #playerAtlasCanvas,
+#battle-field.world-camera-mode #player-sprite #playerAtlasCanvas,
+#battle-field[data-world-camera="true"] #player-sprite #playerAtlasCanvas {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  z-index: 3 !important;
+}
+#battle-field:not([data-atlas-active="true"]):not(.city-mode) #player-sprite #playerAtlasCanvas {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+}
+
+@media (min-width: 901px) and (pointer: fine) {
+  #battle-field.city-mode #player-sprite.player-sprite {
+    width: 330px !important;
+    height: 375px !important;
+  }
+  #battle-field.city-mode #player-sprite #playerImage {
+    width: 330px !important;
+    height: 330px !important;
+    max-width: 330px !important;
+    max-height: 330px !important;
+  }
+}
+
+
+/* =========================================================
+   RO_WEB V0.9.80R - Atlas/Town Final Visibility Fix
+   - 修復 V80I：非城鎮 fallback 舊圖重新顯示，導致世界圖巨大舊角色圖。
+   - 修復 V80H：Town 判斷太粗導致南門/世界圖 atlas 被關掉。
+   - 規則：城鎮=idle 單圖；南門/世界/非城鎮=新版 atlas canvas。
+   ========================================================= */
+#player-info.character-card .portrait-placeholder img#playerPortrait,
+.character-card .portrait-placeholder img#playerPortrait {
+  content: url("../assets/characters/novice/male/idle.png?v=0.9.80R") !important;
+  transform: translateY(64px) scale(3) !important;
+  transform-origin: 50% 100% !important;
+  object-fit: contain !important;
+  object-position: center bottom !important;
+}
+
+/* 非城鎮：一律關閉舊 img，避免舊騎士/舊展示圖被拉爆；只顯示 atlas canvas。 */
+#battle-field:not(.city-mode) #player-sprite #playerImage,
+#battle-field.world-camera-mode #player-sprite #playerImage,
+#battle-field[data-world-camera="true"] #player-sprite #playerImage {
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+#battle-field:not(.city-mode) #player-sprite #playerAtlasCanvas,
+#battle-field.world-camera-mode #player-sprite #playerAtlasCanvas,
+#battle-field[data-world-camera="true"] #player-sprite #playerAtlasCanvas {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  z-index: 3 !important;
+  width: var(--world-player-width, 150px) !important;
+  height: var(--world-player-height, 320px) !important;
+  max-width: var(--world-player-width, 150px) !important;
+  max-height: var(--world-player-height, 320px) !important;
+  object-fit: contain !important;
+  transform: none !important;
+  filter: drop-shadow(0 2px 2px rgba(0,0,0,.85)) !important;
+}
+#battle-field:not(.city-mode) #player-sprite.player-sprite,
+#battle-field.world-camera-mode #player-sprite.player-sprite,
+#battle-field[data-world-camera="true"] #player-sprite.player-sprite {
+  width: var(--world-player-width, 150px) !important;
+  height: var(--world-player-height, 320px) !important;
+  overflow: visible !important;
+}
+
+/* 城鎮：只顯示 256x256 idle 單圖，atlas 不參與。 */
+#battle-field.city-mode #player-sprite #playerImage {
+  content: url("../assets/characters/novice/male/idle.png?v=0.9.80R") !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  object-fit: contain !important;
+  object-position: center bottom !important;
+  animation: none !important;
+  transform: none !important;
+}
+#battle-field.city-mode #player-sprite #playerAtlasCanvas {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+}
+@media (min-width: 901px) and (pointer: fine) {
+  #battle-field.city-mode #player-sprite.player-sprite {
+    width: 330px !important;
+    height: 375px !important;
+  }
+  #battle-field.city-mode #player-sprite #playerImage {
+    width: 330px !important;
+    height: 330px !important;
+    max-width: 330px !important;
+    max-height: 330px !important;
+  }
+}
+
+
+/* =========================================================
+   RO_WEB V0.9.80R - Town→World Atlas Recovery / Mobile Polish
+   - Town -> world map now re-enables atlas without needing F5.
+   - Non-town maps keep legacy img hidden and atlas visible.
+   - Mobile player canvas uses DPR backing store in JS; CSS avoids extra blur transforms.
+   - Mobile portrait single image moves slightly down.
+   ========================================================= */
+#battle-field:not(.city-mode) #player-sprite #playerImage,
+#battle-field.world-camera-mode #player-sprite #playerImage,
+#battle-field[data-world-camera="true"] #player-sprite #playerImage {
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+#battle-field:not(.city-mode) #player-sprite #playerAtlasCanvas,
+#battle-field.world-camera-mode #player-sprite #playerAtlasCanvas,
+#battle-field[data-world-camera="true"] #player-sprite #playerAtlasCanvas {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  image-rendering: auto !important;
+  transform: none !important;
+}
+@media (max-width: 900px), (pointer: coarse) {
+  #player-info.character-card .portrait-placeholder img#playerPortrait,
+  .character-card .portrait-placeholder img#playerPortrait {
+    transform: translateY(78px) scale(3) !important;
+    transform-origin: 50% 100% !important;
+  }
+  #battle-field:not(.city-mode) #player-sprite #playerAtlasCanvas {
+    image-rendering: auto !important;
+    filter: drop-shadow(0 2px 2px rgba(0,0,0,.85)) !important;
+  }
+}
+
+
+/* =========================================================
+   RO_WEB V0.9.80R - Mobile World Atlas Sharpness / Portrait Y Fix
+   - 手機世界地圖人物模糊修正：避免 canvas DPR backing store 被 CSS 二次縮放。
+   - 南門/世界地圖仍維持新版 atlas；城鎮仍維持 idle 單圖。
+   - 手機左上角色資訊圖再往下微調。
+   ========================================================= */
+#battle-field:not(.city-mode) #player-sprite #playerAtlasCanvas,
+#battle-field.world-camera-mode #player-sprite #playerAtlasCanvas,
+#battle-field[data-world-camera="true"] #player-sprite #playerAtlasCanvas {
+  image-rendering: pixelated !important;
+  image-rendering: crisp-edges !important;
+  transform: none !important;
+  -webkit-font-smoothing: none !important;
+}
+@media (max-width: 900px), (pointer: coarse) {
+  #player-info.character-card .portrait-placeholder img#playerPortrait,
+  .character-card .portrait-placeholder img#playerPortrait {
+    transform: translateY(92px) scale(3) !important;
+    transform-origin: 50% 100% !important;
+  }
+  #battle-field.world-camera-mode #player-sprite #playerAtlasCanvas,
+  #battle-field[data-world-camera="true"] #player-sprite #playerAtlasCanvas,
+  #battle-field:not(.city-mode) #player-sprite #playerAtlasCanvas {
+    image-rendering: pixelated !important;
+    image-rendering: crisp-edges !important;
+    backface-visibility: hidden !important;
+  }
+}
+
+
+/* =========================================================
+   RO_WEB V0.9.80R - SouthGate / World Atlas Size Separation
+   - V80L 問題：#battle-field:not(.city-mode) 規則太廣，南門也吃到 world-player 尺寸。
+   - 修正：只有 world-camera map 使用 world-player 變數；南門/一般野外恢復標準 player atlas 尺寸。
+   - V80N：只調整手機版角色資訊 idle 單圖，再往上 15px；PC 不動。
+   ========================================================= */
+#battle-field:not(.city-mode):not(.world-camera-mode):not([data-world-camera="true"]) #player-sprite.player-sprite {
+  width: 220px !important;
+  height: 250px !important;
+  min-width: 220px !important;
+  min-height: 250px !important;
+  overflow: visible !important;
+}
+#battle-field:not(.city-mode):not(.world-camera-mode):not([data-world-camera="true"]) #player-sprite #playerAtlasCanvas {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  left: 0 !important;
+  top: 16px !important;
+  width: 220px !important;
+  height: 220px !important;
+  max-width: 220px !important;
+  max-height: 220px !important;
+  transform: none !important;
+  image-rendering: auto !important;
+  filter: drop-shadow(0 8px 8px rgba(0,0,0,.6)) !important;
+}
+#battle-field:not(.city-mode):not(.world-camera-mode):not([data-world-camera="true"]) #player-sprite #playerImage {
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+#battle-field.world-camera-mode #player-sprite.player-sprite,
+#battle-field[data-world-camera="true"] #player-sprite.player-sprite {
+  width: var(--world-player-width, 240px) !important;
+  height: var(--world-player-height, 320px) !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  overflow: visible !important;
+}
+#battle-field.world-camera-mode #player-sprite #playerAtlasCanvas,
+#battle-field[data-world-camera="true"] #player-sprite #playerAtlasCanvas {
+  width: var(--world-player-width, 240px) !important;
+  height: var(--world-player-height, 320px) !important;
+  max-width: var(--world-player-width, 240px) !important;
+  max-height: var(--world-player-height, 320px) !important;
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+@media (max-width: 900px), (pointer: coarse) {
+  #player-info.character-card .portrait-placeholder img#playerPortrait,
+  .character-card .portrait-placeholder img#playerPortrait {
+    transform: translateY(47px) scale(3) !important;
+    transform-origin: 50% 100% !important;
+  }
+}
+
+
+/* V0.9.80R Character System V2
+   角色 idle 圖由 JS 依 currentJob + gender 指向 assets/characters/{job}/{gender}/idle.png。
+   這裡禁止 CSS 用 content:url 寫死初學者或舊騎士圖，避免轉職/F5 後吃錯圖。 */
+#player-info.character-card .portrait-placeholder img#playerPortrait,
+.character-card .portrait-placeholder img#playerPortrait,
+#battle-field.city-mode #player-sprite #playerImage {
+  content: unset !important;
 }

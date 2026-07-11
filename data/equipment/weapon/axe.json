@@ -6,7 +6,7 @@
     "type": "equipment",
     "category": "weapon",
     "subCategory": "axe",
-    "sellPrice": 50,
+    "sellPrice": 250,
     "description": [
       "簡單的使用方法,方便任何人使用的斧。",
       "系列 : ^777777單手斧^000000  攻擊 : ^77777738^000000",
@@ -21,7 +21,57 @@
     "handed": 1,
     "slots": 3,
     "slotCount": 3,
-    "ClassNum": 6
+    "ClassNum": 6,
+    "weaponType": "axe",
+    "aegisName": "Axe",
+    "dbType": "Weapon",
+    "dbSubType": "1hAxe",
+    "range": 1,
+    "weaponLevel": 1,
+    "equipLevelMin": 3,
+    "requiredLevel": 3,
+    "equipJobs": {
+      "Alchemist": true,
+      "Assassin": true,
+      "Blacksmith": true,
+      "Crusader": true,
+      "Knight": true,
+      "Merchant": true,
+      "Novice": true,
+      "SuperNovice": true,
+      "Swordman": true
+    },
+    "locations": {
+      "Right_Hand": true
+    },
+    "refineable": true,
+    "dataSource": "itemInfo_UTF8.lub + db/re/item_db_equip.yml",
+    "Id": 1301,
+    "Name": "斧",
+    "Buy": 500,
+    "AegisName": "Axe",
+    "Type": "Weapon",
+    "SubType": "1hAxe",
+    "Attack": 38,
+    "Range": 1,
+    "Slots": 3,
+    "Jobs": {
+      "Alchemist": true,
+      "Assassin": true,
+      "Blacksmith": true,
+      "Crusader": true,
+      "Knight": true,
+      "Merchant": true,
+      "Novice": true,
+      "SuperNovice": true,
+      "Swordman": true
+    },
+    "Locations": {
+      "Right_Hand": true
+    },
+    "WeaponLevel": 1,
+    "EquipLevelMin": 3,
+    "Refineable": true
   },
   "1302": {
     "id": 1302,
@@ -30,7 +80,7 @@
     "type": "equipment",
     "category": "weapon",
     "subCategory": "axe",
-    "sellPrice": 120,
+    "sellPrice": 250,
     "description": [
       "簡單的使用方法,方便任何人使用的斧。",
       "系列 : ^777777單手斧^000000  攻擊 : ^77777738^000000",
@@ -44,7 +94,58 @@
     "handed": 1,
     "slots": 4,
     "slotCount": 4,
-    "ClassNum": 6
+    "ClassNum": 6,
+    "weaponType": "axe",
+    "aegisName": "Axe_",
+    "dbType": "Weapon",
+    "dbSubType": "1hAxe",
+    "buyPrice": 500,
+    "range": 1,
+    "weaponLevel": 1,
+    "equipLevelMin": 3,
+    "requiredLevel": 3,
+    "equipJobs": {
+      "Alchemist": true,
+      "Assassin": true,
+      "Blacksmith": true,
+      "Crusader": true,
+      "Knight": true,
+      "Merchant": true,
+      "Novice": true,
+      "SuperNovice": true,
+      "Swordman": true
+    },
+    "locations": {
+      "Right_Hand": true
+    },
+    "refineable": true,
+    "dataSource": "itemInfo_UTF8.lub + db/re/item_db_equip.yml",
+    "Id": 1302,
+    "Name": "斧",
+    "Buy": 500,
+    "AegisName": "Axe_",
+    "Type": "Weapon",
+    "SubType": "1hAxe",
+    "Attack": 38,
+    "Range": 1,
+    "Slots": 4,
+    "Jobs": {
+      "Alchemist": true,
+      "Assassin": true,
+      "Blacksmith": true,
+      "Crusader": true,
+      "Knight": true,
+      "Merchant": true,
+      "Novice": true,
+      "SuperNovice": true,
+      "Swordman": true
+    },
+    "Locations": {
+      "Right_Hand": true
+    },
+    "WeaponLevel": 1,
+    "EquipLevelMin": 3,
+    "Refineable": true
   },
   "1351": {
     "id": 1351,
@@ -70,7 +171,51 @@
     "requiredLevel": 3,
     "handed": 2,
     "slotCount": 3,
-    "ClassNum": 7
+    "ClassNum": 7,
+    "weaponType": "axe",
+    "aegisName": "Battle_Axe",
+    "dbType": "Weapon",
+    "dbSubType": "2hAxe",
+    "range": 1,
+    "weaponLevel": 1,
+    "equipLevelMin": 3,
+    "equipJobs": {
+      "Alchemist": true,
+      "Blacksmith": true,
+      "Crusader": true,
+      "Knight": true,
+      "Merchant": true,
+      "Swordman": true
+    },
+    "locations": {
+      "Both_Hand": true
+    },
+    "refineable": true,
+    "dataSource": "itemInfo_UTF8.lub + db/re/item_db_equip.yml",
+    "Id": 1351,
+    "Name": "巨斧",
+    "Buy": 5400,
+    "AegisName": "Battle_Axe",
+    "Type": "Weapon",
+    "SubType": "2hAxe",
+    "Attack": 80,
+    "MagicAttack": 0,
+    "Range": 1,
+    "Slots": 3,
+    "Jobs": {
+      "Alchemist": true,
+      "Blacksmith": true,
+      "Crusader": true,
+      "Knight": true,
+      "Merchant": true,
+      "Swordman": true
+    },
+    "Locations": {
+      "Both_Hand": true
+    },
+    "WeaponLevel": 1,
+    "EquipLevelMin": 3,
+    "Refineable": true
   },
   "1354": {
     "id": 1354,
@@ -96,7 +241,51 @@
     "requiredLevel": 16,
     "handed": 2,
     "slotCount": 2,
-    "ClassNum": 58
+    "ClassNum": 58,
+    "weaponType": "axe",
+    "aegisName": "Hammer",
+    "dbType": "Weapon",
+    "dbSubType": "2hAxe",
+    "range": 1,
+    "weaponLevel": 2,
+    "equipLevelMin": 16,
+    "equipJobs": {
+      "Alchemist": true,
+      "Blacksmith": true,
+      "Crusader": true,
+      "Knight": true,
+      "Merchant": true,
+      "Swordman": true
+    },
+    "locations": {
+      "Both_Hand": true
+    },
+    "refineable": true,
+    "dataSource": "itemInfo_UTF8.lub + db/re/item_db_equip.yml",
+    "Id": 1354,
+    "Name": "鋼斧",
+    "Buy": 15500,
+    "AegisName": "Hammer",
+    "Type": "Weapon",
+    "SubType": "2hAxe",
+    "Attack": 120,
+    "MagicAttack": 0,
+    "Range": 1,
+    "Slots": 2,
+    "Jobs": {
+      "Alchemist": true,
+      "Blacksmith": true,
+      "Crusader": true,
+      "Knight": true,
+      "Merchant": true,
+      "Swordman": true
+    },
+    "Locations": {
+      "Both_Hand": true
+    },
+    "WeaponLevel": 2,
+    "EquipLevelMin": 16,
+    "Refineable": true
   },
   "1357": {
     "id": 1357,
@@ -122,7 +311,51 @@
     "requiredLevel": 30,
     "handed": 2,
     "slotCount": 1,
-    "ClassNum": 59
+    "ClassNum": 59,
+    "weaponType": "axe",
+    "aegisName": "Buster",
+    "dbType": "Weapon",
+    "dbSubType": "2hAxe",
+    "range": 1,
+    "weaponLevel": 3,
+    "equipLevelMin": 30,
+    "equipJobs": {
+      "Alchemist": true,
+      "Blacksmith": true,
+      "Crusader": true,
+      "Knight": true,
+      "Merchant": true,
+      "Swordman": true
+    },
+    "locations": {
+      "Both_Hand": true
+    },
+    "refineable": true,
+    "dataSource": "itemInfo_UTF8.lub + db/re/item_db_equip.yml",
+    "Id": 1357,
+    "Name": "毀滅之斧",
+    "Buy": 34000,
+    "AegisName": "Buster",
+    "Type": "Weapon",
+    "SubType": "2hAxe",
+    "Attack": 155,
+    "MagicAttack": 0,
+    "Range": 1,
+    "Slots": 1,
+    "Jobs": {
+      "Alchemist": true,
+      "Blacksmith": true,
+      "Crusader": true,
+      "Knight": true,
+      "Merchant": true,
+      "Swordman": true
+    },
+    "Locations": {
+      "Both_Hand": true
+    },
+    "WeaponLevel": 3,
+    "EquipLevelMin": 30,
+    "Refineable": true
   },
   "1360": {
     "id": 1360,
@@ -148,6 +381,50 @@
     "requiredLevel": 30,
     "handed": 2,
     "slotCount": 1,
-    "ClassNum": 7
+    "ClassNum": 7,
+    "weaponType": "axe",
+    "aegisName": "Two_Handed_Axe",
+    "dbType": "Weapon",
+    "dbSubType": "2hAxe",
+    "range": 1,
+    "weaponLevel": 3,
+    "equipLevelMin": 30,
+    "equipJobs": {
+      "Alchemist": true,
+      "Blacksmith": true,
+      "Crusader": true,
+      "Knight": true,
+      "Merchant": true,
+      "Swordman": true
+    },
+    "locations": {
+      "Both_Hand": true
+    },
+    "refineable": true,
+    "dataSource": "itemInfo_UTF8.lub + db/re/item_db_equip.yml",
+    "Id": 1360,
+    "Name": "雙手斧",
+    "Buy": 55000,
+    "AegisName": "Two_Handed_Axe",
+    "Type": "Weapon",
+    "SubType": "2hAxe",
+    "Attack": 185,
+    "MagicAttack": 0,
+    "Range": 1,
+    "Slots": 1,
+    "Jobs": {
+      "Alchemist": true,
+      "Blacksmith": true,
+      "Crusader": true,
+      "Knight": true,
+      "Merchant": true,
+      "Swordman": true
+    },
+    "Locations": {
+      "Both_Hand": true
+    },
+    "WeaponLevel": 3,
+    "EquipLevelMin": 30,
+    "Refineable": true
   }
 }

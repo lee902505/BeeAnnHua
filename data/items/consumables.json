@@ -16,7 +16,12 @@
     "buyPrice": 10,
     "slots": 0,
     "slotCount": 0,
-    "ClassNum": 0
+    "ClassNum": 0,
+    "dataSource": "itemInfo_UTF8.lub + RO_WEB manual fallback",
+    "Id": 501,
+    "Name": "紅色藥水",
+    "Buy": 10,
+    "Slots": 0
   },
   "502": {
     "id": 502,
@@ -27,7 +32,7 @@
     "subCategory": "hp_potion",
     "hp": 100,
     "sp": 0,
-    "sellPrice": 10,
+    "sellPrice": 25,
     "description": [
       "將紅色藥草與黃色藥草搗碎製成的體力恢復劑, ^000088HP恢復105^000000。"
     ],
@@ -35,7 +40,12 @@
     "buyPrice": 50,
     "slots": 0,
     "slotCount": 0,
-    "ClassNum": 0
+    "ClassNum": 0,
+    "dataSource": "itemInfo_UTF8.lub + RO_WEB manual fallback",
+    "Id": 502,
+    "Name": "赤色藥水",
+    "Buy": 50,
+    "Slots": 0
   },
   "503": {
     "id": 503,
@@ -44,7 +54,7 @@
     "type": "consume",
     "category": "recovery",
     "subCategory": "hp_potion",
-    "sellPrice": 25,
+    "sellPrice": 90,
     "description": [
       "將黃色藥草搗碎製成的體力恢復劑, ^000088HP恢復175^000000。"
     ],
@@ -53,7 +63,12 @@
     "buyPrice": 180,
     "slots": 0,
     "slotCount": 0,
-    "ClassNum": 0
+    "ClassNum": 0,
+    "dataSource": "itemInfo_UTF8.lub + RO_WEB manual fallback",
+    "Id": 503,
+    "Name": "黃色藥水",
+    "Buy": 180,
+    "Slots": 0
   },
   "504": {
     "id": 504,
@@ -62,7 +77,7 @@
     "type": "consume",
     "category": "recovery",
     "subCategory": "hp_potion",
-    "sellPrice": 50,
+    "sellPrice": 600,
     "description": [
       "將白色的藥草搗碎製成的體力恢復劑,^000088約可恢復325點HP。^000000"
     ],
@@ -71,7 +86,12 @@
     "buyPrice": 1200,
     "slots": 0,
     "slotCount": 0,
-    "ClassNum": 0
+    "ClassNum": 0,
+    "dataSource": "itemInfo_UTF8.lub + RO_WEB manual fallback",
+    "Id": 504,
+    "Name": "白色藥水",
+    "Buy": 1200,
+    "Slots": 0
   },
   "505": {
     "id": 505,
@@ -80,7 +100,7 @@
     "type": "consume",
     "category": "recovery",
     "subCategory": "sp_potion",
-    "sellPrice": 60,
+    "sellPrice": 10,
     "description": [
       "將藍色的藥草搗碎製成的精神恢復劑,^000088約可恢復60點SP。^000000"
     ],
@@ -88,7 +108,13 @@
     "sp": 60,
     "slots": 0,
     "slotCount": 0,
-    "ClassNum": 0
+    "ClassNum": 0,
+    "buyPrice": 20,
+    "dataSource": "itemInfo_UTF8.lub + RO_WEB manual fallback",
+    "Id": 505,
+    "Name": "藍色藥水",
+    "Buy": 20,
+    "Slots": 0
   },
   "506": {
     "id": 506,
@@ -106,7 +132,12 @@
     "icon": "images/items/506.webp",
     "slots": 0,
     "slotCount": 0,
-    "ClassNum": 0
+    "ClassNum": 0,
+    "dataSource": "itemInfo_UTF8.lub + RO_WEB manual fallback",
+    "Id": 506,
+    "Name": "綠色藥水",
+    "Buy": 40,
+    "Slots": 0
   },
   "511": {
     "id": 511,
@@ -117,14 +148,20 @@
     "subCategory": "herb",
     "hp": 30,
     "sp": 0,
-    "sellPrice": 3,
+    "sellPrice": 10,
     "description": [
       "可中和所有毒性的珍貴藥草,具有治療的功效^000088解毒^000000。"
     ],
     "icon": "images/items/511.webp",
     "slots": 0,
     "slotCount": 0,
-    "ClassNum": 0
+    "ClassNum": 0,
+    "buyPrice": 20,
+    "dataSource": "itemInfo_UTF8.lub + RO_WEB manual fallback",
+    "Id": 511,
+    "Name": "綠色藥草",
+    "Buy": 20,
+    "Slots": 0
   },
   "601": {
     "id": 601,
@@ -133,7 +170,7 @@
     "type": "consume",
     "category": "wing",
     "subCategory": "fly_wing",
-    "sellPrice": 6,
+    "sellPrice": 125,
     "description": [
       "將蒼蠅的翅膀剪下可以用來製作具有魔法力量的物品,^000088可在地圖上移動至任意的位置上。^000000"
     ],
@@ -141,7 +178,12 @@
     "buyPrice": 250,
     "slots": 0,
     "slotCount": 0,
-    "ClassNum": 0
+    "ClassNum": 0,
+    "dataSource": "itemInfo_UTF8.lub + RO_WEB manual fallback",
+    "Id": 601,
+    "Name": "蒼蠅翅膀",
+    "Buy": 250,
+    "Slots": 0
   },
   "602": {
     "id": 602,
@@ -150,7 +192,7 @@
     "type": "consume",
     "category": "wing",
     "subCategory": "butterfly_wing",
-    "sellPrice": 30,
+    "sellPrice": 500,
     "description": [
       "將蝴蝶的翅膀剪下可以用來製作具有魔法力量的物品,^000088可在地圖上移動至儲存的位置上。^000000",
       "^ff0000※不會受曼陀羅魔花的尖叫影響^000000"
@@ -159,7 +201,12 @@
     "buyPrice": 1000,
     "slots": 0,
     "slotCount": 0,
-    "ClassNum": 0
+    "ClassNum": 0,
+    "dataSource": "itemInfo_UTF8.lub + RO_WEB manual fallback",
+    "Id": 602,
+    "Name": "蝴蝶翅膀",
+    "Buy": 1000,
+    "Slots": 0
   },
   "645": {
     "id": 645,
@@ -177,7 +224,12 @@
     "icon": "images/items/645.webp",
     "slots": 0,
     "slotCount": 0,
-    "ClassNum": 0
+    "ClassNum": 0,
+    "dataSource": "itemInfo_UTF8.lub + RO_WEB manual fallback",
+    "Id": 645,
+    "Name": "集中藥水",
+    "Buy": 1200,
+    "Slots": 0
   },
   "656": {
     "id": 656,
@@ -195,7 +247,12 @@
     "icon": "images/items/656.webp",
     "slots": 0,
     "slotCount": 0,
-    "ClassNum": 0
+    "ClassNum": 0,
+    "dataSource": "itemInfo_UTF8.lub + RO_WEB manual fallback",
+    "Id": 656,
+    "Name": "覺醒藥水",
+    "Buy": 2200,
+    "Slots": 0
   },
   "657": {
     "id": 657,
@@ -216,8 +273,16 @@
     "slotCount": 0,
     "ClassNum": 0,
     "requiredLevel": 85,
-    "weight": 20,
-    "script": "sc_start SC_ASPDPOTION2,1800000,9;"
+    "script": "sc_start SC_ASPDPOTION2,1800000,9;",
+    "dataSource": "itemInfo_UTF8.lub + RO_WEB manual fallback",
+    "Id": 657,
+    "Name": "菠色克藥水",
+    "Buy": 4500,
+    "Slots": 0,
+    "EquipLevelMin": 85,
+    "Script": "sc_start SC_ASPDPOTION2,1800000,9;",
+    "equipLevelMin": 85,
+    "scriptRaw": "sc_start SC_ASPDPOTION2,1800000,9;"
   },
   "1065": {
     "id": 1065,
@@ -227,13 +292,18 @@
     "category": "etc",
     "subCategory": "misc",
     "buyPrice": 50,
-    "sellPrice": 0,
+    "sellPrice": 25,
     "description": [
       "設置陷阱所必備的基本道具。"
     ],
     "icon": "images/items/1065.webp",
     "slots": 0,
     "slotCount": 0,
-    "ClassNum": 0
+    "ClassNum": 0,
+    "dataSource": "itemInfo_UTF8.lub + RO_WEB manual fallback",
+    "Id": 1065,
+    "Name": "設置用陷阱道具",
+    "Buy": 50,
+    "Slots": 0
   }
 }

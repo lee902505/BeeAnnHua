@@ -6,7 +6,7 @@
     "type": "equipment",
     "category": "weapon",
     "subCategory": "bow",
-    "sellPrice": 40,
+    "sellPrice": 500,
     "description": [
       "傷害並不是很高,但使用起來很方便的弓。",
       "系列 : ^777777弓^000000  攻擊 : ^77777715^000000",
@@ -21,7 +21,49 @@
     "handed": 2,
     "slots": 3,
     "slotCount": 3,
-    "ClassNum": 11
+    "ClassNum": 11,
+    "weaponType": "bow",
+    "aegisName": "Bow",
+    "dbType": "Weapon",
+    "dbSubType": "Bow",
+    "range": 5,
+    "weaponLevel": 1,
+    "equipLevelMin": 4,
+    "requiredLevel": 4,
+    "equipJobs": {
+      "Archer": true,
+      "BardDancer": true,
+      "Hunter": true,
+      "Rogue": true,
+      "Thief": true
+    },
+    "locations": {
+      "Both_Hand": true
+    },
+    "refineable": true,
+    "dataSource": "itemInfo_UTF8.lub + db/re/item_db_equip.yml",
+    "Id": 1701,
+    "Name": "弓",
+    "Buy": 1000,
+    "AegisName": "Bow",
+    "Type": "Weapon",
+    "SubType": "Bow",
+    "Attack": 15,
+    "Range": 5,
+    "Slots": 3,
+    "Jobs": {
+      "Archer": true,
+      "BardDancer": true,
+      "Hunter": true,
+      "Rogue": true,
+      "Thief": true
+    },
+    "Locations": {
+      "Both_Hand": true
+    },
+    "WeaponLevel": 1,
+    "EquipLevelMin": 4,
+    "Refineable": true
   },
   "1702": {
     "id": 1702,
@@ -30,7 +72,7 @@
     "type": "equipment",
     "category": "weapon",
     "subCategory": "bow",
-    "sellPrice": 100,
+    "sellPrice": 500,
     "description": [
       "傷害並不是很高,但使用起來很方便的弓。",
       "系列 : ^777777弓^000000  攻擊 : ^77777715^000000",
@@ -44,7 +86,50 @@
     "handed": 2,
     "slots": 4,
     "slotCount": 4,
-    "ClassNum": 11
+    "ClassNum": 11,
+    "weaponType": "bow",
+    "aegisName": "Bow_",
+    "dbType": "Weapon",
+    "dbSubType": "Bow",
+    "buyPrice": 1000,
+    "range": 5,
+    "weaponLevel": 1,
+    "equipLevelMin": 4,
+    "requiredLevel": 4,
+    "equipJobs": {
+      "Archer": true,
+      "BardDancer": true,
+      "Hunter": true,
+      "Rogue": true,
+      "Thief": true
+    },
+    "locations": {
+      "Both_Hand": true
+    },
+    "refineable": true,
+    "dataSource": "itemInfo_UTF8.lub + db/re/item_db_equip.yml",
+    "Id": 1702,
+    "Name": "弓",
+    "Buy": 1000,
+    "AegisName": "Bow_",
+    "Type": "Weapon",
+    "SubType": "Bow",
+    "Attack": 15,
+    "Range": 5,
+    "Slots": 4,
+    "Jobs": {
+      "Archer": true,
+      "BardDancer": true,
+      "Hunter": true,
+      "Rogue": true,
+      "Thief": true
+    },
+    "Locations": {
+      "Both_Hand": true
+    },
+    "WeaponLevel": 1,
+    "EquipLevelMin": 4,
+    "Refineable": true
   },
   "1704": {
     "id": 1704,
@@ -70,7 +155,49 @@
     "requiredLevel": 4,
     "handed": 2,
     "slotCount": 3,
-    "ClassNum": 11
+    "ClassNum": 11,
+    "weaponType": "bow",
+    "aegisName": "Composite_Bow",
+    "dbType": "Weapon",
+    "dbSubType": "Bow",
+    "range": 5,
+    "weaponLevel": 1,
+    "equipLevelMin": 4,
+    "equipJobs": {
+      "Archer": true,
+      "BardDancer": true,
+      "Hunter": true,
+      "Rogue": true,
+      "Thief": true
+    },
+    "locations": {
+      "Both_Hand": true
+    },
+    "refineable": true,
+    "dataSource": "itemInfo_UTF8.lub + db/re/item_db_equip.yml",
+    "Id": 1704,
+    "Name": "坎普茲弓",
+    "Buy": 2500,
+    "AegisName": "Composite_Bow",
+    "Type": "Weapon",
+    "SubType": "Bow",
+    "Attack": 29,
+    "MagicAttack": 0,
+    "Range": 5,
+    "Slots": 3,
+    "Jobs": {
+      "Archer": true,
+      "BardDancer": true,
+      "Hunter": true,
+      "Rogue": true,
+      "Thief": true
+    },
+    "Locations": {
+      "Both_Hand": true
+    },
+    "WeaponLevel": 1,
+    "EquipLevelMin": 4,
+    "Refineable": true
   },
   "1707": {
     "id": 1707,
@@ -96,7 +223,49 @@
     "requiredLevel": 18,
     "handed": 2,
     "slotCount": 2,
-    "ClassNum": 11
+    "ClassNum": 11,
+    "weaponType": "bow",
+    "aegisName": "Great_Bow",
+    "dbType": "Weapon",
+    "dbSubType": "Bow",
+    "range": 5,
+    "weaponLevel": 2,
+    "equipLevelMin": 18,
+    "equipJobs": {
+      "Archer": true,
+      "BardDancer": true,
+      "Hunter": true,
+      "Rogue": true,
+      "Thief": true
+    },
+    "locations": {
+      "Both_Hand": true
+    },
+    "refineable": true,
+    "dataSource": "itemInfo_UTF8.lub + db/re/item_db_equip.yml",
+    "Id": 1707,
+    "Name": "克羅伊特弓",
+    "Buy": 10000,
+    "AegisName": "Great_Bow",
+    "Type": "Weapon",
+    "SubType": "Bow",
+    "Attack": 50,
+    "MagicAttack": 0,
+    "Range": 5,
+    "Slots": 2,
+    "Jobs": {
+      "Archer": true,
+      "BardDancer": true,
+      "Hunter": true,
+      "Rogue": true,
+      "Thief": true
+    },
+    "Locations": {
+      "Both_Hand": true
+    },
+    "WeaponLevel": 2,
+    "EquipLevelMin": 18,
+    "Refineable": true
   },
   "1710": {
     "id": 1710,
@@ -122,7 +291,49 @@
     "requiredLevel": 18,
     "handed": 2,
     "slotCount": 2,
-    "ClassNum": 73
+    "ClassNum": 73,
+    "weaponType": "bow",
+    "aegisName": "CrossBow",
+    "dbType": "Weapon",
+    "dbSubType": "Bow",
+    "range": 5,
+    "weaponLevel": 2,
+    "equipLevelMin": 18,
+    "equipJobs": {
+      "Archer": true,
+      "BardDancer": true,
+      "Hunter": true,
+      "Rogue": true,
+      "Thief": true
+    },
+    "locations": {
+      "Both_Hand": true
+    },
+    "refineable": true,
+    "dataSource": "itemInfo_UTF8.lub + db/re/item_db_equip.yml",
+    "Id": 1710,
+    "Name": "十字弓",
+    "Buy": 17000,
+    "AegisName": "CrossBow",
+    "Type": "Weapon",
+    "SubType": "Bow",
+    "Attack": 65,
+    "MagicAttack": 0,
+    "Range": 5,
+    "Slots": 2,
+    "Jobs": {
+      "Archer": true,
+      "BardDancer": true,
+      "Hunter": true,
+      "Rogue": true,
+      "Thief": true
+    },
+    "Locations": {
+      "Both_Hand": true
+    },
+    "WeaponLevel": 2,
+    "EquipLevelMin": 18,
+    "Refineable": true
   },
   "1713": {
     "id": 1713,
@@ -149,7 +360,51 @@
     "requiredLevel": 33,
     "handed": 2,
     "slotCount": 1,
-    "ClassNum": 74
+    "ClassNum": 74,
+    "weaponType": "bow",
+    "aegisName": "Arbalest",
+    "dbType": "Weapon",
+    "dbSubType": "Bow",
+    "range": 5,
+    "weaponLevel": 3,
+    "equipLevelMin": 33,
+    "equipJobs": {
+      "Archer": true,
+      "BardDancer": true,
+      "Hunter": true,
+      "Rogue": true,
+      "Thief": true
+    },
+    "locations": {
+      "Both_Hand": true
+    },
+    "refineable": true,
+    "scriptRaw": "bonus bDex,2;",
+    "dataSource": "itemInfo_UTF8.lub + db/re/item_db_equip.yml",
+    "Id": 1713,
+    "Name": "亞伯雷弓",
+    "Buy": 48000,
+    "AegisName": "Arbalest",
+    "Type": "Weapon",
+    "SubType": "Bow",
+    "Attack": 90,
+    "MagicAttack": 0,
+    "Range": 5,
+    "Slots": 1,
+    "Jobs": {
+      "Archer": true,
+      "BardDancer": true,
+      "Hunter": true,
+      "Rogue": true,
+      "Thief": true
+    },
+    "Locations": {
+      "Both_Hand": true
+    },
+    "WeaponLevel": 3,
+    "EquipLevelMin": 33,
+    "Refineable": true,
+    "Script": "bonus bDex,2;"
   },
   "1714": {
     "id": 1714,
@@ -175,7 +430,49 @@
     "requiredLevel": 33,
     "handed": 2,
     "slotCount": 1,
-    "ClassNum": 75
+    "ClassNum": 75,
+    "weaponType": "bow",
+    "aegisName": "Kakkung",
+    "dbType": "Weapon",
+    "dbSubType": "Bow",
+    "range": 5,
+    "weaponLevel": 3,
+    "equipLevelMin": 33,
+    "equipJobs": {
+      "Archer": true,
+      "BardDancer": true,
+      "Hunter": true,
+      "Rogue": true,
+      "Thief": true
+    },
+    "locations": {
+      "Both_Hand": true
+    },
+    "refineable": true,
+    "dataSource": "itemInfo_UTF8.lub + db/re/item_db_equip.yml",
+    "Id": 1714,
+    "Name": "角弓",
+    "Buy": 42000,
+    "AegisName": "Kakkung",
+    "Type": "Weapon",
+    "SubType": "Bow",
+    "Attack": 100,
+    "MagicAttack": 0,
+    "Range": 5,
+    "Slots": 1,
+    "Jobs": {
+      "Archer": true,
+      "BardDancer": true,
+      "Hunter": true,
+      "Rogue": true,
+      "Thief": true
+    },
+    "Locations": {
+      "Both_Hand": true
+    },
+    "WeaponLevel": 3,
+    "EquipLevelMin": 33,
+    "Refineable": true
   },
   "1718": {
     "id": 1718,
@@ -201,78 +498,40 @@
     "requiredLevel": 33,
     "handed": 2,
     "slotCount": 0,
-    "ClassNum": 76
-  },
-  "2226": {
-    "id": 2226,
-    "officialId": 2226,
-    "name": "無邊帽",
-    "type": "equipment",
-    "category": "weapon",
-    "subCategory": "bow",
-    "buyPrice": 12000,
-    "sellPrice": 6000,
-    "description": [
-      "簡單的設計,有著活動性和使用性的帽子。",
-      "系列 : ^777777頭具^000000  防禦 :  ^7777777^000000",
-      "位置 : ^777777頭上^000000",
-      "裝備 : ^777777劍士系列/弓箭手系列/商人系列/盜賊系列^000000"
-    ],
-    "icon": "images/items/2226.webp",
-    "slot": "weapon",
-    "def": 7,
-    "slots": 0,
-    "requiredLevel": 1,
-    "slotCount": 0,
-    "ClassNum": 14,
-    "handed": 2
-  },
-  "2330": {
-    "id": 2330,
-    "officialId": 2330,
-    "name": "緊身便衣",
-    "type": "equipment",
-    "category": "weapon",
-    "subCategory": "bow",
-    "buyPrice": 71000,
-    "sellPrice": 35500,
-    "description": [
-      "緊緊伏貼在身上令行動更為方便的衣服。",
-      "DEX+1。",
-      "系列 : ^777777鎧甲^000000  防禦 :  ^77777727^000000",
-      "要求等級 : ^77777745^000000",
-      "裝備 : ^777777弓箭手系列^000000"
-    ],
-    "icon": "images/items/2330.webp",
-    "slot": "weapon",
-    "def": 27,
-    "slots": 0,
-    "requiredLevel": 45,
-    "slotCount": 0,
-    "ClassNum": 0,
-    "handed": 2
-  },
-  "2405": {
-    "id": 2405,
-    "officialId": 2405,
-    "name": "戰士長靴",
-    "type": "equipment",
-    "category": "weapon",
-    "subCategory": "bow",
-    "buyPrice": 18000,
-    "sellPrice": 9000,
-    "description": [
-      "用堅硬的布料做成的長靴。",
-      "系列 : ^777777靴子^000000  防禦 :  ^77777716^000000",
-      "裝備 : ^777777劍士系列/弓箭手系列/商人系列/盜賊系列/跆拳/拳聖/神槍手^000000"
-    ],
-    "icon": "images/items/2405.webp",
-    "slot": "weapon",
-    "def": 16,
-    "slots": 0,
-    "requiredLevel": 1,
-    "slotCount": 0,
-    "ClassNum": 0,
-    "handed": 2
+    "ClassNum": 76,
+    "weaponType": "bow",
+    "aegisName": "Hunter_Bow",
+    "dbType": "Weapon",
+    "dbSubType": "Bow",
+    "range": 5,
+    "weaponLevel": 3,
+    "equipLevelMin": 33,
+    "equipJobs": {
+      "Hunter": true
+    },
+    "locations": {
+      "Both_Hand": true
+    },
+    "refineable": true,
+    "dataSource": "itemInfo_UTF8.lub + db/re/item_db_equip.yml",
+    "Id": 1718,
+    "Name": "獵人之弓",
+    "Buy": 64000,
+    "AegisName": "Hunter_Bow",
+    "Type": "Weapon",
+    "SubType": "Bow",
+    "Attack": 125,
+    "MagicAttack": 0,
+    "Range": 5,
+    "Slots": 0,
+    "Jobs": {
+      "Hunter": true
+    },
+    "Locations": {
+      "Both_Hand": true
+    },
+    "WeaponLevel": 3,
+    "EquipLevelMin": 33,
+    "Refineable": true
   }
 }

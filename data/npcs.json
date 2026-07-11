@@ -190,5 +190,13 @@
     "type": "job_change",
     "jobCategory": "thief",
     "description": "處理對應職業系的轉職。轉職任務先簡化為等級達成後確認。"
+  },
+  {
+    "id": "prontera_job_super_novice",
+    "cityId": "prontera",
+    "name": "超級初學者導師",
+    "type": "job_change",
+    "jobCategory": "super_novice",
+    "description": "處理初學者、超級初學者界限解放與終極初學者轉職。現階段不要求轉職任務，只檢查 Base/Job 等級、基本技能與剩餘技能點。"
   }
 ]

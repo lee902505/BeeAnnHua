@@ -12,7 +12,7 @@ let items = {};
 let expTables = null;
 let currentMap = null;
 
-const RO_WEB_VERSION = "0.9.78j";
+const RO_WEB_VERSION = "0.9.81C";
 
 function normalizeDataPath(path) {
   return String(path || "")
@@ -63,6 +63,7 @@ async function initGame() {
   await loadSkillData();
   if (typeof loadJobConstitutionData === "function") await loadJobConstitutionData();
   if (typeof loadStatusData === "function") await loadStatusData();
+  if (window.CombatFormulaRuntime?.load) await window.CombatFormulaRuntime.load();
   await loadMonsterData();
   await loadMapData();
   await loadTownData();
@@ -73,6 +74,7 @@ async function initGame() {
 
   setInitialMap();
   if (typeof initPositionEngine === "function") initPositionEngine();
+  if (typeof initROStudioPlayerAtlasRuntime === "function") await initROStudioPlayerAtlasRuntime();
   if (player?.currentCity && typeof getCityData === "function" && typeof updateTownBackground === "function") {
     updateTownBackground(getCityData(player.currentCity));
   } else if (typeof updateBattleBackground === "function") {
@@ -93,7 +95,7 @@ async function initGame() {
   if (typeof updateAutoCombatUI === "function") updateAutoCombatUI();
 
   addBattleLog("玩家資料載入完成！");
-  addBattleLog("歡迎來到 RO_WEB Alpha 0.9.78j！");
+  addBattleLog("歡迎來到 RO_WEB Alpha 0.9.81A！");
 }
 
 async function loadMonsterData() {
@@ -129,19 +131,100 @@ async function loadTownData() {
   }
 }
 
-async function loadItemData() {
-  // V0.9.54 Item DB V2：data/items.json 正式退役。
-  // Runtime 僅讀 data/items/ 與 data/equipment/ 細分 JSON，並合併到 ItemManager/getItemById()。
-  const index = await loadJson("./data/items/item_index.json", {});
-  const uniquePaths = Array.from(new Set(Object.values(index || {}))).filter(Boolean);
-  const merged = {};
 
+function normalizeItemRecord(item, fallbackId = 0) {
+  const normalized = { ...(item || {}) };
+  const id = Number(normalized.Id ?? normalized.id ?? normalized.officialId ?? fallbackId);
+  const buy = Number(normalized.Buy ?? normalized.buyPrice ?? 20);
+  const officialSell = normalized.Sell;
+  const sell = Number(officialSell ?? normalized.sellPrice ?? Math.floor(buy / 2));
+
+  normalized.Id = id;
+  normalized.id = id;
+  normalized.officialId = id;
+  normalized.Name = normalized.Name ?? normalized.name ?? String(id);
+  normalized.name = normalized.Name;
+  normalized.Buy = Number.isFinite(buy) ? buy : 20;
+  normalized.buyPrice = normalized.Buy;
+  normalized.sellPrice = Number.isFinite(sell) ? sell : Math.floor(normalized.Buy / 2);
+
+  const aliases = {
+    AegisName: "aegisName", Type: "dbType", SubType: "dbSubType",
+    Attack: "atk", MagicAttack: "matk", Defense: "def", Range: "range",
+    Slots: "slots", Jobs: "equipJobs", Locations: "locations",
+    WeaponLevel: "weaponLevel", ArmorLevel: "armorLevel",
+    EquipLevelMin: "equipLevelMin", Refineable: "refineable",
+    Gradable: "gradable", View: "viewId", Script: "scriptRaw"
+  };
+  Object.entries(aliases).forEach(([canonical, alias]) => {
+    const value = normalized[canonical] ?? normalized[alias];
+    if (value !== undefined && value !== null) {
+      normalized[canonical] = value;
+      normalized[alias] = value;
+    }
+  });
+  if (normalized.EquipLevelMin !== undefined) normalized.requiredLevel = normalized.EquipLevelMin;
+  delete normalized.Weight;
+  delete normalized.weight;
+  delete normalized.Gender;
+  delete normalized.gender;
+  return normalized;
+}
+
+async function loadItemData() {
+  // V0.9.80V Item DB V2 loader fix:
+  // - database_manifest.json / allDataPaths is the authoritative split-file list.
+  // - item_index.json may be either legacy id->path OR compact id->item records.
+  // - file:// mode uses bundled RO_WEB_DATA first, so inventory icons/data still work when double-clicked.
+  const index = await loadJson("./data/items/item_index.json", {});
+  const manifest = await loadJson("./data/items/database_manifest.json", {});
+  const merged = {};
+  const pathSet = new Set();
+
+  function addPath(path) {
+    if (typeof path !== "string") return;
+    const clean = path.replace(/^\.\//, "");
+    if (!clean || !clean.endsWith(".json")) return;
+    if (clean.endsWith("item_index.json") || clean.endsWith("database_manifest.json")) return;
+    pathSet.add(clean);
+  }
+
+  // New manifest path list.
+  (manifest.allDataPaths || []).forEach(addPath);
+
+  // Legacy manifest support.
+  Object.values(manifest.itemPaths || {}).forEach(addPath);
+  Object.values(manifest.equipmentFilePaths || {}).forEach(addPath);
+
+  // Legacy index support: id -> path.
+  Object.values(index || {}).forEach(value => {
+    if (typeof value === "string") addPath(value);
+  });
+
+  // Compact index support: id -> item summary. Use as fallback / quick lookup.
+  Object.entries(index || {}).forEach(([id, item]) => {
+    if (!item || typeof item !== "object" || Array.isArray(item)) return;
+    const key = String(item.id || id);
+    merged[key] = normalizeItemRecord(item, id);
+  });
+
+  // file:// bundled mode can discover split files from RO_WEB_DATA keys.
+  if (window.RO_WEB_DATA) {
+    Object.keys(window.RO_WEB_DATA).forEach(key => {
+      if ((key.startsWith("data/items/") || key.startsWith("data/equipment/")) && key.endsWith(".json")) {
+        addPath(key);
+      }
+    });
+  }
+
+  const uniquePaths = Array.from(pathSet).sort();
   await Promise.all(uniquePaths.map(async path => {
     const data = await loadJson("./" + path, {});
     Object.entries(data || {}).forEach(([id, item]) => {
-      if (!item) return;
+      if (!item || typeof item !== "object" || Array.isArray(item)) return;
       const key = String(item.id || id);
-      merged[key] = { ...item, id: Number(item.id || id), officialId: Number(item.officialId || item.id || id) };
+      // Full split JSON overrides compact index summary.
+      merged[key] = normalizeItemRecord({ ...merged[key], ...item }, id);
     });
   }));
 
@@ -151,7 +234,7 @@ async function loadItemData() {
     getItemById: getItemData,
     getItemName
   };
-  console.log("物品資料載入完成（Item DB V2）：", { count: Object.keys(items).length, sources: uniquePaths });
+  console.log("物品資料載入完成（Item DB V2）：", { count: Object.keys(items).length, sources: uniquePaths.length, paths: uniquePaths });
 }
 
 async function loadExpData() {

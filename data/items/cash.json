@@ -6,7 +6,7 @@
     "type": "cash",
     "category": "cashitem",
     "subCategory": "skill_reset",
-    "sellPrice": 0,
+    "sellPrice": 12500,
     "buyPrice": 25000,
     "description": [
       "點擊後可讓技能重置。",
@@ -18,6 +18,11 @@
     },
     "slots": 0,
     "slotCount": 0,
-    "ClassNum": 0
+    "ClassNum": 0,
+    "dataSource": "itemInfo_UTF8.lub + RO_WEB manual fallback",
+    "Id": 12213,
+    "Name": "技能重置棒",
+    "Buy": 25000,
+    "Slots": 0
   }
 }

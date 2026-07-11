@@ -1,5 +1,5 @@
 {
-  "version": "2.1",
+  "version": "2.2",
   "source": "RO_WEB 決定版 + 專案入口_RA開機檔案英文版20260608(DB_re): db/re/job_exp.yml + npc/custom/jobmaster.txt",
   "policy": {
     "constitutionIsHighestRule": true,
@@ -179,7 +179,7 @@
         "family": "extended",
         "fromJob": "novice",
         "toJob": "super_novice",
-        "baseLevel": 45,
+        "baseLevel": 10,
         "jobLevel": 10,
         "requiredSkills": [
           {
@@ -188,7 +188,8 @@
             "name": "基本技能"
           }
         ],
-        "source": "jobmaster .SNovice = 45 + .Req_First 1/10"
+        "source": "RO_WEB 決定版：Base 10 / Job 10 / 基本技能 Lv9；技能點與暫存配點皆須為 0。",
+        "note": "RA 20260608 jobmaster 原預設 .SNovice=45；本專案覆寫為 Base 10。"
       },
       {
         "id": "super_novice_to_expanded_super_novice",
@@ -199,7 +200,9 @@
         "jobLevel": 99,
         "baseCapAfter": 200,
         "jobCapAfter": 70,
-        "source": "jobmaster .Req_Exp_SNOVI 99/99; job_exp Super_Novice_E MaxJobLevel 70"
+        "source": "jobmaster .Req_Exp_SNOVI 99/99; job_exp Super_Novice_E MaxJobLevel 70",
+        "displayName": "超級初學者界限解放",
+        "assetPolicy": "share:super_novice"
       },
       {
         "id": "expanded_super_novice_to_hyper_novice",

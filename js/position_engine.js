@@ -257,6 +257,32 @@ function applyLargeMapCamera() {
   applyWorldCameraLayerTransform(field, world, camera);
 }
 
+
+// V0.9.80K：城鎮模式固定展示座標。
+// PC 沿用舊城鎮右側綁定位置；手機只放大城鎮人物，不影響世界地圖。
+const RO_TOWN_PLAYER_FIXED = {
+  // V0.9.80K：城鎮展示圖維持右側固定；PC 放大 1.5 倍並右移。
+  pc: { left: 920, top: 205, spriteW: 330, spriteH: 375, imgW: 330, imgH: 330, imgTop: 24 },
+  mobile: { leftPad: 20, top: 132, spriteW: 300, spriteH: 356, imgW: 300, imgH: 300, imgTop: 20 },
+  debugX: 650,
+  debugY: 350
+};
+
+function isROTownMobileView(field = null) {
+  const fw = Number(field?.clientWidth || field?.offsetWidth || window.innerWidth || 1280);
+  return fw < 900 || Boolean(window.matchMedia?.("(pointer: coarse)")?.matches);
+}
+
+function applyTownFixedPlayerPosition() {
+  if (!player) return;
+  player.position = player.position || {};
+  player.position.x = RO_TOWN_PLAYER_FIXED.debugX;
+  player.position.y = RO_TOWN_PLAYER_FIXED.debugY;
+  player.position.targetX = null;
+  player.position.targetY = null;
+  player.state = "Town";
+}
+
 function renderCityPlayerSprite() {
   const field = getBattleFieldElement();
   const playerEl = document.getElementById("player-sprite");
@@ -265,6 +291,8 @@ function renderCityPlayerSprite() {
   if (!field || !playerEl) return;
 
   field.classList.add("city-mode");
+  field.dataset.atlasActive = "false";
+  if (playerEl) playerEl.dataset.atlasActive = "false";
   field.classList.remove("world-camera-mode", "large-map-mode");
   field.dataset.worldCamera = "false";
   removeWorldCameraLayer();
@@ -273,19 +301,25 @@ function renderCityPlayerSprite() {
   field.style.backgroundRepeat = "no-repeat";
 
   if (playerImage) {
-    playerImage.src = "images/player/male/idle/0001.png";
+    // V0.9.80I：城鎮用單張 idle 立繪，不吃動畫 frame / 不吃舊圖。
+    playerImage.src = (typeof getROStudioCharacterIdleImage === "function" ? getROStudioCharacterIdleImage() + "?v=0.9.80U" : "assets/characters/novice/male/idle.png?v=0.9.80U");
+    playerImage.removeAttribute("srcset");
+    playerImage.dataset.roPortraitLock = "town";
   }
 
+  applyTownFixedPlayerPosition();
+
   // 城鎮畫面改成：左側預留 NPC/商店區，玩家固定站在右側。
+  // PC 沿用舊城鎮右側綁定位置；手機城鎮人物 x2。
   const fw = Number(field.clientWidth || field.offsetWidth || 1280);
-  const fh = Number(field.clientHeight || field.offsetHeight || 720);
-  const mobile = fw < 900 || Boolean(window.matchMedia?.("(pointer: coarse)")?.matches);
-  const spriteW = mobile ? 150 : 220;
-  const spriteH = mobile ? 178 : 250;
-  const imgW = mobile ? 150 : 220;
-  const imgH = mobile ? 150 : 220;
-  const left = mobile ? Math.max(160, fw - spriteW - 20) : 820;
-  const top = mobile ? Math.max(132, Math.min(fh * 0.38, fh - spriteH - 96)) : 205;
+  const mobile = isROTownMobileView(field);
+  const cfg = mobile ? RO_TOWN_PLAYER_FIXED.mobile : RO_TOWN_PLAYER_FIXED.pc;
+  const spriteW = cfg.spriteW;
+  const spriteH = cfg.spriteH;
+  const imgW = cfg.imgW;
+  const imgH = cfg.imgH;
+  const left = mobile ? Math.max(160, fw - spriteW - cfg.leftPad) : cfg.left;
+  const top = cfg.top;
 
   playerEl.style.setProperty("left", `${Math.round(left)}px`, "important");
   playerEl.style.setProperty("top", `${Math.round(top)}px`, "important");
@@ -295,11 +329,20 @@ function renderCityPlayerSprite() {
 
   if (playerImage) {
     playerImage.style.setProperty("left", "0px", "important");
-    playerImage.style.setProperty("top", mobile ? "10px" : "16px", "important");
+    playerImage.style.setProperty("top", `${cfg.imgTop}px`, "important");
     playerImage.style.setProperty("width", `${imgW}px`, "important");
     playerImage.style.setProperty("height", `${imgH}px`, "important");
     playerImage.style.setProperty("max-width", `${imgW}px`, "important");
     playerImage.style.setProperty("max-height", `${imgH}px`, "important");
+    playerImage.style.setProperty("visibility", "visible", "important");
+    playerImage.style.setProperty("opacity", "1", "important");
+  }
+
+  const atlasCanvas = document.getElementById("playerAtlasCanvas");
+  if (atlasCanvas) {
+    atlasCanvas.style.setProperty("display", "none", "important");
+    atlasCanvas.style.setProperty("visibility", "hidden", "important");
+    atlasCanvas.style.setProperty("opacity", "0", "important");
   }
 
   if (monsterEl) monsterEl.style.display = "none";
@@ -371,7 +414,7 @@ const DEFAULT_WEAPON_RANGE_CELLS = {
   staff: 1,
   katar: 1,
   spear: 2,
-  bow: 4
+  bow: 5
 };
 
 let weaponRangeConfigCache = null;
@@ -385,7 +428,8 @@ let lastMoveInputSignature = "";
 let lastMoveInputAt = 0;
 let lastPositionDebug = null;
 
-const POSITION_DEBUG_ENABLED = false; // V0.9.78CC: 關閉左下座標測試框與十字 debug
+const POSITION_DEBUG_OVERLAY_ENABLED = false; // V0.9.79D: 文字 overlay 預設關閉，避免遮住遊戲畫面
+const POSITION_DEBUG_CROSS_ENABLED = true;    // V0.9.79D: 開啟綠十字座標對位功能
 const POSITION_AUTO_SAVE_MS = 60 * 1000;
 
 function clampPositionValue(value, min, max) {
@@ -535,7 +579,7 @@ function shouldAcceptMoveInput(event, pos) {
 }
 
 function ensurePositionDebugOverlay() {
-  if (!POSITION_DEBUG_ENABLED) return null;
+  if (!POSITION_DEBUG_OVERLAY_ENABLED) return null;
   const field = getBattleFieldElement();
   if (!field) return null;
   let el = document.getElementById("position-debug-overlay");
@@ -549,7 +593,7 @@ function ensurePositionDebugOverlay() {
 }
 
 function updatePositionDebugOverlay(extra = {}) {
-  if (!POSITION_DEBUG_ENABLED) return;
+  if (!POSITION_DEBUG_OVERLAY_ENABLED) return;
   const el = ensurePositionDebugOverlay();
   const field = getBattleFieldElement();
   if (!el || !field) return;
@@ -575,7 +619,7 @@ function updatePositionDebugOverlay(extra = {}) {
 }
 
 function updatePositionDebugCross(pos = player?.position) {
-  if (!POSITION_DEBUG_ENABLED) return;
+  if (!POSITION_DEBUG_CROSS_ENABLED) return;
   const field = getBattleFieldElement();
   if (!field || !pos) return;
   let cross = document.getElementById("position-debug-cross");
@@ -588,8 +632,23 @@ function updatePositionDebugCross(pos = player?.position) {
   const point = getLogicalPointClientPosition(pos);
   const fieldRect = field.getBoundingClientRect();
   if (!point) return;
-  cross.style.left = `${Math.round(point.x - fieldRect.left)}px`;
-  cross.style.top = `${Math.round(point.y - fieldRect.top)}px`;
+  const x = Math.round(point.x - fieldRect.left);
+  const y = Math.round(point.y - fieldRect.top);
+  cross.style.left = `${x}px`;
+  cross.style.top = `${y}px`;
+
+  // V0.9.79F：十字旁顯示世界座標與 Reference Point，方便對照 RO Studio Anchor Preview。
+  let label = cross.querySelector(".position-debug-cross-label");
+  if (!label) {
+    label = document.createElement("div");
+    label.className = "position-debug-cross-label";
+    cross.appendChild(label);
+  }
+  const wx = Math.round(Number(pos.x || 0));
+  const wy = Math.round(Number(pos.y || 0));
+  const anchor = typeof window.getROStudioPlayerAnchorRatio === "function" ? window.getROStudioPlayerAnchorRatio() : null;
+  const anchorText = anchor ? ` / ref ${Math.round(anchor.rawX ?? 128)},${Math.round(anchor.rawY ?? 220)}` : "";
+  label.textContent = `P ${wx},${wy}${anchorText}`;
 }
 
 
@@ -888,11 +947,19 @@ function cellsToPixels(cells) {
 
 function getPlayerNormalAttackRangeCells() {
   const weapon = getEquippedWeaponData();
+  // V0.9.80U: DB_RE item_db_equip.yml 的每件武器 Range 是第一優先。
+  // data/weapon_types.json 只作為沒有裝備 / 舊資料缺 Range 時的 fallback。
+  const itemRange = weapon?.range ?? weapon?.Range ?? weapon?.attackRangeCells;
+  if (itemRange !== undefined && itemRange !== null && itemRange !== "") {
+    const passive = typeof getPassiveSkillBonusTotals === "function" ? getPassiveSkillBonusTotals() : {};
+    return Math.max(1, Number(itemRange || 1) + Number(passive.attackRangeCells || 0));
+  }
   const config = getWeaponRangeConfig();
-  const type = normalizeWeaponTypeName(weapon?.weaponType || weapon?.subCategory || weapon?.category, weapon);
+  const type = normalizeWeaponTypeName(weapon?.weaponType || weapon?.dbSubType || weapon?.subCategory || weapon?.category, weapon);
   const data = config.types?.[type] ?? config.types?.fist ?? DEFAULT_WEAPON_RANGE_CELLS.fist;
   const cells = typeof data === "object" ? data.attackRangeCells : data;
-  return Math.max(1, Number(cells || 1));
+  const passive = typeof getPassiveSkillBonusTotals === "function" ? getPassiveSkillBonusTotals() : {};
+  return Math.max(1, Number(cells || 1) + Number(passive.attackRangeCells || 0));
 }
 
 function getPlayerNormalAttackRange() {
@@ -908,6 +975,18 @@ function getSkillRangeCells(skill) {
 
 function getSkillRangePx(skill) {
   return cellsToPixels(getSkillRangeCells(skill));
+}
+
+function stopPlayerCombatMovementForAttack(monster = currentMonster) {
+  if (!player?.position) return;
+  player.position.targetX = null;
+  player.position.targetY = null;
+  if (monster?.position) {
+    player.state = "Attacking";
+  } else if (player.state === "Approaching" || player.state === "Moving" || player.state === "Move") {
+    player.state = "Idle";
+  }
+  if (typeof updatePositionCoordinateUi === "function") updatePositionCoordinateUi();
 }
 
 function canAttackMonsterByRange(monster = currentMonster, rangePx = null) {
@@ -951,8 +1030,7 @@ function movePlayerTowardMonster(monster = currentMonster, desiredRange = null) 
   const range = desiredRange ?? getPlayerNormalAttackRange();
   const dist = distanceBetween(playerPos, monsterPos);
   if (dist <= range * 0.86) {
-    player.position.targetX = null;
-    player.position.targetY = null;
+    stopPlayerCombatMovementForAttack(monster);
     return true;
   }
 
@@ -1018,9 +1096,20 @@ function getSpriteAnchorOffset(element, kind = "player") {
   if (!element) return { x: 0, y: 0 };
   const width = Number(element.offsetWidth || (kind === "monster" ? 150 : 220));
   const height = Number(element.offsetHeight || (kind === "monster" ? 170 : 250));
+  let ratio = { x: 0.5, y: kind === "monster" ? 0.82 : 0.86 };
+
+  // V0.9.79F：玩家使用 RO Studio Atlas 時，位置錨點改讀 JSON anchor。
+  // 若舊 V59 JSON 沒有 anchor，Runtime 預設 128,220 / 256，等同官方 Reference Point。
+  if (kind === "player" && typeof window.getROStudioPlayerAnchorRatio === "function") {
+    const atlasRatio = window.getROStudioPlayerAnchorRatio();
+    if (atlasRatio && Number.isFinite(atlasRatio.x) && Number.isFinite(atlasRatio.y)) {
+      ratio = atlasRatio;
+    }
+  }
+
   return {
-    x: width * 0.5,
-    y: height * (kind === "monster" ? 0.82 : 0.86)
+    x: width * ratio.x,
+    y: height * ratio.y
   };
 }
 
@@ -1117,6 +1206,10 @@ function getFieldClientScale() {
 }
 
 function getSpriteAnchorRatio(kind = "player") {
+  if (kind === "player" && typeof window.getROStudioPlayerAnchorRatio === "function") {
+    const atlasRatio = window.getROStudioPlayerAnchorRatio();
+    if (atlasRatio && Number.isFinite(atlasRatio.x) && Number.isFinite(atlasRatio.y)) return atlasRatio;
+  }
   return {
     x: 0.5,
     y: kind === "monster" ? 0.82 : 0.86
@@ -1174,9 +1267,22 @@ function resetFieldPlayerSpriteStyle() {
   const playerImage = document.getElementById("playerImage");
   if (!field || !playerEl) return;
   field.classList.remove("city-mode");
+  if (window.RO_STUDIO_PLAYER_ATLAS?.ready) { field.dataset.atlasActive = "true"; playerEl.dataset.atlasActive = "true"; }
   ["width", "height", "min-width", "min-height", "z-index"].forEach(name => playerEl.style.removeProperty(name));
   if (playerImage) {
-    ["left", "top", "width", "height", "max-width", "max-height"].forEach(name => playerImage.style.removeProperty(name));
+    ["left", "top", "width", "height", "max-width", "max-height", "visibility", "opacity"].forEach(name => playerImage.style.removeProperty(name));
+    playerImage.removeAttribute("data-ro-portrait-lock");
+    // V0.9.80K：離開城鎮後，真正顯示交給 RO Studio atlas canvas，舊 img 只當尺寸參考，避免騎士/舊圖殘影。
+    if (window.RO_STUDIO_PLAYER_ATLAS?.ready) {
+      playerImage.style.setProperty("visibility", "hidden", "important");
+      playerImage.style.setProperty("opacity", "0", "important");
+    }
+  }
+  const atlasCanvas = document.getElementById("playerAtlasCanvas");
+  if (atlasCanvas && window.RO_STUDIO_PLAYER_ATLAS?.ready) {
+    atlasCanvas.style.setProperty("display", "block", "important");
+    atlasCanvas.style.setProperty("visibility", "visible", "important");
+    atlasCanvas.style.setProperty("opacity", "1", "important");
   }
 }
 
@@ -1281,4 +1387,23 @@ function maybeAutoTeleportWhenNoTarget() {
   if (Date.now() - autoNoTargetSince < waitSeconds * 1000) return false;
   autoNoTargetSince = Date.now();
   return useFlyWing({ silent: false });
+}
+
+
+// Runtime physical-skill knockback. Uses the shared world-coordinate state.
+function knockbackMonsterFromPlayer(monster, cells = 1) {
+  if (!monster || !player || monster.knockbackImmune || monster.isBoss || monster.isMvp) return false;
+  // RO_WEB intentionally ignores wall/obstacle collision; world bounds only.
+  const p = getPlayerPosition();
+  const m = getMonsterPosition(monster);
+  const dx = Number(m.x || 0) - Number(p.x || 0);
+  const dy = Number(m.y || 0) - Number(p.y || 0);
+  const length = Math.hypot(dx, dy) || 1;
+  const cellPx = Number(window.RO_WEB_CELL_SIZE || 32);
+  const distance = Math.max(0, Number(cells || 0)) * cellPx;
+  monster.worldX = Number(m.x || 0) + dx / length * distance;
+  monster.worldY = Number(m.y || 0) + dy / length * distance;
+  if (typeof clampMonsterToWorldBounds === "function") clampMonsterToWorldBounds(monster);
+  if (typeof renderPositionEntities === "function") renderPositionEntities();
+  return true;
 }

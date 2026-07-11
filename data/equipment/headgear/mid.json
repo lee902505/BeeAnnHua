@@ -20,7 +20,29 @@
     "slots": 0,
     "requiredLevel": 1,
     "slotCount": 0,
-    "ClassNum": 3
+    "ClassNum": 3,
+    "aegisName": "Glasses",
+    "dbType": "Armor",
+    "armorLevel": 1,
+    "viewId": 3,
+    "locations": {
+      "Head_Mid": true
+    },
+    "dataSource": "itemInfo_UTF8.lub + db/re/item_db_equip.yml",
+    "Id": 2203,
+    "Name": "眼鏡",
+    "Buy": 4000,
+    "AegisName": "Glasses",
+    "Type": "Armor",
+    "Defense": 0,
+    "Slots": 0,
+    "Locations": {
+      "Head_Mid": true
+    },
+    "ArmorLevel": 1,
+    "EquipLevelMin": 1,
+    "View": 3,
+    "equipLevelMin": 1
   },
   "2205": {
     "id": 2205,
@@ -43,7 +65,29 @@
     "slots": 0,
     "requiredLevel": 1,
     "slotCount": 0,
-    "ClassNum": 10
+    "ClassNum": 10,
+    "aegisName": "Diver's_Goggles",
+    "dbType": "Armor",
+    "armorLevel": 1,
+    "viewId": 10,
+    "locations": {
+      "Head_Mid": true
+    },
+    "dataSource": "itemInfo_UTF8.lub + db/re/item_db_equip.yml",
+    "Id": 2205,
+    "Name": "泳鏡",
+    "Buy": 3500,
+    "AegisName": "Diver's_Goggles",
+    "Type": "Armor",
+    "Defense": 0,
+    "Slots": 0,
+    "Locations": {
+      "Head_Mid": true
+    },
+    "ArmorLevel": 1,
+    "EquipLevelMin": 1,
+    "View": 10,
+    "equipLevelMin": 1
   },
   "2212": {
     "id": 2212,
@@ -66,7 +110,29 @@
     "slots": 0,
     "requiredLevel": 1,
     "slotCount": 0,
-    "ClassNum": 13
+    "ClassNum": 13,
+    "aegisName": "Eye_Bandage",
+    "dbType": "Armor",
+    "armorLevel": 1,
+    "viewId": 13,
+    "locations": {
+      "Head_Mid": true
+    },
+    "dataSource": "itemInfo_UTF8.lub + db/re/item_db_equip.yml",
+    "Id": 2212,
+    "Name": "獨眼龍眼罩",
+    "Buy": 1000,
+    "AegisName": "Eye_Bandage",
+    "Type": "Armor",
+    "Defense": 0,
+    "Slots": 0,
+    "Locations": {
+      "Head_Mid": true
+    },
+    "ArmorLevel": 1,
+    "EquipLevelMin": 1,
+    "View": 13,
+    "equipLevelMin": 1
   },
   "2239": {
     "id": 2239,
@@ -89,6 +155,28 @@
     "slots": 0,
     "requiredLevel": 1,
     "slotCount": 0,
-    "ClassNum": 23
+    "ClassNum": 23,
+    "aegisName": "One_Eyed_Glass",
+    "dbType": "Armor",
+    "armorLevel": 1,
+    "viewId": 23,
+    "locations": {
+      "Head_Mid": true
+    },
+    "dataSource": "itemInfo_UTF8.lub + db/re/item_db_equip.yml",
+    "Id": 2239,
+    "Name": "單眼眼鏡",
+    "Buy": 10000,
+    "AegisName": "One_Eyed_Glass",
+    "Type": "Armor",
+    "Defense": 0,
+    "Slots": 0,
+    "Locations": {
+      "Head_Mid": true
+    },
+    "ArmorLevel": 1,
+    "EquipLevelMin": 1,
+    "View": 23,
+    "equipLevelMin": 1
   }
 }

@@ -221,6 +221,10 @@ function changeMap(mapId) {
     player.map = currentMap.id;
     player.lastFieldMap = currentMap.id;
     player.currentCity = null;
+    // V0.9.80K: 從城鎮切回南門/世界圖時，清掉 Town Mode 殘留，避免人物消失到 F5 才回來。
+    if (typeof window.recoverROStudioAtlasAfterTownExit === "function") {
+      window.recoverROStudioAtlasAfterTownExit();
+    }
     if (currentMap.spawnPoint) {
       player.position = player.position || {};
       player.position.x = Number(currentMap.spawnPoint.x || 0);
@@ -258,6 +262,10 @@ function updateBattleBackground(mapData) {
   battleField.classList.remove("city-mode");
   battleField.dataset.worldCamera = isWorldCameraMap ? "true" : "false";
   battleField.classList.toggle("world-camera-mode", isWorldCameraMap);
+  if (isWorldCameraMap && window.RO_STUDIO_PLAYER_ATLAS?.ready) {
+    battleField.dataset.atlasActive = "true";
+    document.getElementById("player-sprite")?.setAttribute("data-atlas-active", "true");
+  }
 
   // V0.9.78e：World Camera 尺寸與世界尺寸集中由 map 資料提供。
   // CSS 使用這些變數，避免之後測 Scale 2 / Scale 3 時到處改 hardcode。
@@ -267,7 +275,11 @@ function updateBattleBackground(mapData) {
     const worldWidth = Number(mapData?.worldWidth || cameraWidth);
     const worldHeight = Number(mapData?.worldHeight || cameraHeight);
     const playerHeight = Number(mapData?.playerWorldHeight || 64);
-    const playerWidth = Number(mapData?.playerWorldWidth || Math.round(playerHeight * 0.47));
+    const basePlayerWidth = Number(mapData?.playerWorldWidth || Math.round(playerHeight * 0.47));
+    const isMobileWorldPlayer = window.matchMedia?.("(max-width: 900px), (pointer: coarse)")?.matches;
+    // V0.9.80I：回退 0.9.80F 的 PC 寬度 x1.5，避免舊展示圖被誤拉成巨大殘影。
+    // 世界地圖一律先使用 mapData 的正式寬度；之後要調整時只改 atlas/canvas，不再拉舊 img。
+    const playerWidth = basePlayerWidth;
     battleField.style.setProperty("--world-camera-width", `${cameraWidth}px`);
     battleField.style.setProperty("--world-camera-height", `${cameraHeight}px`);
     battleField.style.setProperty("--world-width", `${worldWidth}px`);
@@ -286,13 +298,8 @@ function updateBattleBackground(mapData) {
     battleField.style.backgroundImage = "none";
   }
 
-  // 單格地圖 MVP 強制使用小地圖角色；離開測試地圖後還原高解析角色。
-  const playerImage = document.getElementById("playerImage");
-  if (playerImage) {
-    playerImage.src = isWorldCameraMap
-      ? "images/player/world/novice_male_world_tight_64.png"
-      : "images/player/male/idle/0001.png";
-  }
+  // Character System V2：非城鎮使用 atlas canvas；playerImage 僅作為城鎮 idle fallback，不再切舊圖。
+  if (typeof syncROStudioCharacterFromPlayer === "function") syncROStudioCharacterFromPlayer();
 
   if (typeof applyLargeMapCamera === "function") {
     applyLargeMapCamera();

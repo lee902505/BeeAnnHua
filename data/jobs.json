@@ -8,7 +8,8 @@
     "baseMaxLevel": 99,
     "jobMaxLevel": 10,
     "nextJobs": [
-      "swordman"
+      "swordman",
+      "super_novice"
     ],
     "description": "完成冒險者修練後，可選擇第一個正式職業。",
     "classFamily": "normal",
@@ -72,8 +73,8 @@
     "nextJobs": [
       "expanded_super_novice"
     ],
-    "locked": true,
-    "description": "擴充職業資料預留；轉職條件以 data/job_constitution.json 的 extendedJobRoutes 為準。",
+    "locked": false,
+    "description": "超級初學者。Base 10 / Job 10、基本技能 Lv9 且所有技能點已用完後，可由普隆德拉超級初學者導師轉職。",
     "expSource": "RA DB_re job_exp.yml 20260608"
   },
   "expanded_super_novice": {
@@ -87,8 +88,8 @@
     "nextJobs": [
       "hyper_novice"
     ],
-    "locked": true,
-    "description": "擴充職業資料預留；轉職條件以 data/job_constitution.json 的 extendedJobRoutes 為準。",
+    "locked": false,
+    "description": "超級初學者界限解放。Base 99 / Job 99 且所有技能點已用完後轉職；角色動畫與一般超初共用。",
     "expSource": "RA DB_re job_exp.yml 20260608"
   },
   "hyper_novice": {
@@ -100,8 +101,8 @@
     "baseMaxLevel": 275,
     "jobMaxLevel": 60,
     "nextJobs": [],
-    "locked": true,
-    "description": "擴充職業資料預留；轉職條件以 data/job_constitution.json 的 extendedJobRoutes 為準。",
+    "locked": false,
+    "description": "終極初學者。Base 200 / Job 70 且所有技能點已用完後轉職，使用獨立角色動畫。",
     "expSource": "RA DB_re job_exp.yml 20260608"
   },
   "ninja": {

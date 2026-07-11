@@ -207,6 +207,7 @@ function normalizePlayerData() {
 // 儲存遊戲
 //=======================================
 function saveGame() {
+  if (window.RO_WEB_RESETTING_SAVE) return;
   if (!player) return;
 
   if (typeof currentMap !== "undefined" && currentMap) {
@@ -223,8 +224,58 @@ function saveGame() {
 // 刪除存檔
 //=======================================
 function resetGameSave() {
-  localStorage.removeItem(SAVE_KEY);
-  location.reload();
+  const ok = confirm("確定要清除 RO_WEB 存檔、UI 位置與暫存快取嗎？頁面會重新載入。");
+  if (!ok) return;
+
+  // V0.9.79D：清存檔期間禁止任何自動存檔 / 座標存檔把舊角色再寫回去。
+  window.RO_WEB_RESETTING_SAVE = true;
+
+  try {
+    if (typeof clearBattleTimersAndMonster === "function") {
+      clearBattleTimersAndMonster({ clearMonster: true });
+    }
+  } catch (error) {
+    console.warn("停止戰鬥計時器失敗：", error);
+  }
+
+  try {
+    // 之前只清 ro_web_*，但部分舊版或瀏覽器可能留下不同 key；
+    // 測試版直接清空本網域 localStorage，避免 Lv.99 舊角色殘留。
+    localStorage.clear();
+  } catch (error) {
+    console.warn("清除 localStorage 失敗：", error);
+    try {
+      const keysToRemove = [];
+      for (let i = 0; i < localStorage.length; i += 1) {
+        const key = localStorage.key(i);
+        if (key) keysToRemove.push(key);
+      }
+      keysToRemove.forEach(key => localStorage.removeItem(key));
+    } catch (fallbackError) {
+      console.warn("localStorage fallback 清除失敗：", fallbackError);
+    }
+  }
+
+  try { sessionStorage.clear(); } catch (error) { console.warn("清除 sessionStorage 失敗：", error); }
+
+  const reloadClean = () => {
+    const base = location.origin && location.origin !== "null"
+      ? location.origin + location.pathname
+      : location.pathname;
+    location.replace(base + "?v=0.9.79D-reset-" + Date.now());
+  };
+
+  try {
+    const cachePromise = window.caches?.keys
+      ? caches.keys().then(keys => Promise.all(keys.map(key => caches.delete(key))))
+      : Promise.resolve();
+    cachePromise.finally(reloadClean);
+    return;
+  } catch (error) {
+    console.warn("清除 Cache Storage 失敗：", error);
+  }
+
+  reloadClean();
 }
 
 //=======================================
@@ -317,13 +368,23 @@ function getPlayerBasicStat(statKey) {
 function getPlayerHpRecoveryAmount() {
   const vit = getPlayerBasicStat("vit");
   const base = Math.max(1, Math.floor(Number(player.maxHp || 1) / 200));
-  return Math.max(1, Math.floor(base + vit / 5));
+  const passive = typeof getPassiveSkillBonusTotals === "function" ? getPassiveSkillBonusTotals() : {};
+  const recoveryLevel = Math.max(0, Number(passive.hpRecoverySkillLevel || 0));
+  const skillRecovery = recoveryLevel > 0
+    ? Math.floor(recoveryLevel * 5 + recoveryLevel * Number(player.maxHp || 1) / 500)
+    : 0;
+  return Math.max(1, Math.floor(base + vit / 5 + skillRecovery));
 }
 
 function getPlayerSpRecoveryAmount() {
   const intStat = getPlayerBasicStat("int");
   const base = Math.max(1, Math.floor(Number(player.maxSp || 1) / 100));
-  return Math.max(1, Math.floor(base + intStat / 6));
+  const passive = typeof getPassiveSkillBonusTotals === "function" ? getPassiveSkillBonusTotals() : {};
+  const recoveryLevel = Math.max(0, Number(passive.spRecoverySkillLevel || 0));
+  const skillRecovery = recoveryLevel > 0
+    ? Math.floor(recoveryLevel * 3 + recoveryLevel * Number(player.maxSp || 1) / 500)
+    : 0;
+  return Math.max(1, Math.floor(base + intStat / 6 + skillRecovery));
 }
 
 let playerRecoveryTimer = null;
@@ -778,7 +839,10 @@ function decomposeUnlockedInventoryItems() {
     if (count <= 0) return;
     decomposeIds.add(String(item.id));
     removedCount += count;
-    zenyGain += Number(itemData.sellPrice || 0) * count;
+    const passiveTotals = typeof getPassiveSkillBonusTotals === "function" ? getPassiveSkillBonusTotals() : {};
+    const sellBonusRate = Math.max(0, Number(passiveTotals.shopSellBonusRate || 0));
+    const adjustedSellPrice = Math.max(1, Math.floor(Number(itemData.sellPrice || 0) * (100 + sellBonusRate) / 100));
+    zenyGain += adjustedSellPrice * count;
   });
 
   if (!removedCount) {
@@ -1171,10 +1235,50 @@ function useItem(itemId) {
 }
 
 //=======================================
+// RA 裝備限制共用判定（Jobs / Classes / EquipLevelMin）
+//=======================================
+function getCurrentEquipJobProfile() {
+  const map = window.RO_EQUIPMENT_JOB_MAP?.jobs || {};
+  const currentJobId = String(player?.job || "novice");
+  return map[currentJobId] || { jobKey: currentJobId, classKey: "Normal" };
+}
+
+function isAllowedByRaMap(ruleMap, key) {
+  if (!ruleMap || typeof ruleMap !== "object" || Object.keys(ruleMap).length === 0) return true;
+  if (Object.prototype.hasOwnProperty.call(ruleMap, key)) return ruleMap[key] !== false;
+  if (Object.prototype.hasOwnProperty.call(ruleMap, "All")) return ruleMap.All !== false;
+  return false;
+}
+
+function canEquipItem(itemData) {
+  const profile = getCurrentEquipJobProfile();
+  const jobsRule = itemData.Jobs || itemData.equipJobs || null;
+  const classesRule = itemData.Classes || itemData.equipClasses || null;
+  const minLevel = Number(itemData.EquipLevelMin ?? itemData.equipLevelMin ?? itemData.requiredLevel ?? 0);
+
+  if (!isAllowedByRaMap(jobsRule, profile.jobKey)) {
+    return { ok: false, reason: "目前職業無法裝備此物品。" };
+  }
+  if (!isAllowedByRaMap(classesRule, profile.classKey)) {
+    return { ok: false, reason: "目前職業階級無法裝備此物品。" };
+  }
+  if (Number(player?.baseLevel || 1) < minLevel) {
+    return { ok: false, reason: `Base Lv ${minLevel} 以上才可裝備。` };
+  }
+  return { ok: true };
+}
+
+//=======================================
 // 裝備物品判定
 //=======================================
 function equipItem(itemData) {
   if (typeof hideGameTooltip === "function") hideGameTooltip();
+
+  const equipCheck = canEquipItem(itemData);
+  if (!equipCheck.ok) {
+    addBattleLog(`${itemData.name}：${equipCheck.reason}`);
+    return;
+  }
   if (!itemData.slot) {
     addBattleLog(itemData.name + " 沒有設定裝備位置。");
     return;
@@ -1217,6 +1321,7 @@ function equipItem(itemData) {
   player.equipment[slot] = itemData.id;
 
   recalculatePlayerStats();
+  if (slot === "weapon" && typeof syncROStudioWeaponTypeFromEquipment === "function") syncROStudioWeaponTypeFromEquipment();
 
   addBattleLog("裝備了 " + itemData.name);
 
@@ -1379,6 +1484,7 @@ function unequipItem(slot) {
 
   // 重新計算能力
   recalculatePlayerStats();
+  if (slot === "weapon" && typeof setROStudioPlayerWeaponType === "function") setROStudioPlayerWeaponType("fist");
 
   addBattleLog("卸下了 " + itemData.name);
 

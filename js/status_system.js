@@ -189,7 +189,9 @@ function calculateDerivedPlayerStats() {
   hit = Math.floor(hit * (100 + Number(bonuses.hitRate || 0)) / 100) + Number(bonuses.hitFlat || 0);
   flee = Math.floor(flee * (100 + Number(bonuses.fleeRate || 0)) / 100) + Number(bonuses.fleeFlat || 0);
   cri = Math.floor(cri * (100 + Number(bonuses.criRate || 0)) / 100) + Number(bonuses.criFlat || 0);
-  aspd = Math.min(190, Math.floor(aspd * (100 + Number(bonuses.aspdRate || 0)) / 100) + Number(bonuses.aspdFlat || 0));
+  let runtimeAspdRate = Number(bonuses.aspdRate || 0);
+  if (typeof isPlayerMounted === "function" && isPlayerMounted()) runtimeAspdRate += Number(bonuses.mountedAspdPenaltyRate || 0);
+  aspd = Math.min(190, Math.floor(aspd * (100 + runtimeAspdRate) / 100) + Number(bonuses.aspdFlat || 0));
   walkSpeed += Number(bonuses.walkSpeedFlat || 0);
   walkSpeed = Math.floor(walkSpeed * (100 + Number(equip.walkSpeedRate || 0) + Number(bonuses.walkSpeedRate || 0)) / 100);
   walkSpeed = typeof clampRaWalkSpeed === "function" ? clampRaWalkSpeed(walkSpeed) : Math.max(20, Math.min(1000, walkSpeed));

@@ -123,5 +123,50 @@
     ],
     "routeType": "normal",
     "constitution": "required"
+  },
+  {
+    "id": "novice_to_super_novice",
+    "npcId": "prontera_job_super_novice",
+    "fromJob": "novice",
+    "toJob": "super_novice",
+    "requiredBaseLevel": 10,
+    "requiredJobLevel": 10,
+    "requiredSkills": [
+      {
+        "id": 1,
+        "level": 9
+      }
+    ],
+    "enabled": true,
+    "routeType": "extended",
+    "constitution": "required",
+    "questRequired": false,
+    "source": "RO_WEB 決定版"
+  },
+  {
+    "id": "super_novice_to_expanded_super_novice",
+    "npcId": "prontera_job_super_novice",
+    "fromJob": "super_novice",
+    "toJob": "expanded_super_novice",
+    "requiredBaseLevel": 99,
+    "requiredJobLevel": 99,
+    "enabled": true,
+    "routeType": "extended",
+    "constitution": "required",
+    "questRequired": false,
+    "source": "RA jobmaster .Req_Exp_SNOVI 99/99"
+  },
+  {
+    "id": "expanded_super_novice_to_hyper_novice",
+    "npcId": "prontera_job_super_novice",
+    "fromJob": "expanded_super_novice",
+    "toJob": "hyper_novice",
+    "requiredBaseLevel": 200,
+    "requiredJobLevel": 70,
+    "enabled": true,
+    "routeType": "extended",
+    "constitution": "required",
+    "questRequired": false,
+    "source": "RA jobmaster .Req_Fourth 200/70"
   }
 ]

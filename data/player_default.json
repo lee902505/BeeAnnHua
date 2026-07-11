@@ -93,5 +93,7 @@
       "noTargetSeconds": 3
     }
   },
-  "positionEngineStarterFlyWingGranted": true
+  "positionEngineStarterFlyWingGranted": true,
+  "gender": "male",
+  "characterAtlas": "novice_male"
 }

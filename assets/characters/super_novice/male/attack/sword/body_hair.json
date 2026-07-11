@@ -1,0 +1,106 @@
+{
+  "schema": "ro_web_layer_atlas",
+  "schema_version": "1.0",
+  "exporter": "RO Studio V65",
+  "export_mode": "selected_composite",
+  "name": "超級初學者　【初學者】",
+  "gender": "男",
+  "layer": "body_hair_weapon",
+  "layers": [
+    "body",
+    "hair",
+    "weapon"
+  ],
+  "image": "body_hair.png",
+  "anchor_preview": "body_hair_weapon_anchor_preview.png",
+  "cell": {
+    "width": 256,
+    "height": 256
+  },
+  "anchor": {
+    "x": 128,
+    "y": 140
+  },
+  "atlas": {
+    "width": 2048,
+    "height": 6144,
+    "columns": 8,
+    "rows": 24,
+    "used_rows": 8,
+    "truncated": false
+  },
+  "directions": [
+    "南",
+    "西南",
+    "西",
+    "西北",
+    "北",
+    "東北",
+    "東",
+    "東南"
+  ],
+  "direction_ids": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+  ],
+  "direction_engine_names": [
+    "front",
+    "front_left",
+    "left",
+    "back_left",
+    "back",
+    "back_right",
+    "right",
+    "front_right"
+  ],
+  "motions": [
+    {
+      "id": "attack",
+      "display_name": "攻擊",
+      "engine_motion_candidates": [
+        "attack3",
+        "attack2",
+        "attack1"
+      ],
+      "row_start": 0,
+      "frame_count": 8,
+      "directions": [
+        "南",
+        "西南",
+        "西",
+        "西北",
+        "北",
+        "東北",
+        "東",
+        "東南"
+      ],
+      "direction_ids": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "direction_engine_names": [
+        "front",
+        "front_left",
+        "left",
+        "back_left",
+        "back",
+        "back_right",
+        "right",
+        "front_right"
+      ]
+    }
+  ],
+  "replace_body": false
+}

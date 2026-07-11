@@ -1,3 +1,16 @@
+
+### V0.9.80C note
+Use the V64 exported novice male idle atlas with anchor 128,150 for RO_WEB foot/reference-point validation. Only idle was replaced; other motions remain from V0.9.79F.
+
+
+
+## RO_WEB V0.9.79E - RO Studio Atlas Runtime Direction Fix
+- 修正 RO Studio V59 Atlas 左右方向反向問題：左右與斜向攻擊/移動同步修正。
+- Idle 站立改為固定第 1 偵，避免村莊待機時一直擺頭。
+- Walk 播放速度微調為 140ms/幀。
+- 清存檔改為清除 RO_WEB localStorage、sessionStorage，並嘗試清除 Cache Storage 後帶 cache-bust 重新載入。
+- 恢復綠十字座標對位功能，文字 debug overlay 仍保持關閉。
+
 ## V0.9.78CD
 - 回補 CSS UI 透明度顯示層：玩家腳底判定壓到 UI 時，UI 透明度由 100% 降為 80%。
 - 沿用 CC 穩定版 UI，不套用 AA 舊版未修好的視窗版面。
@@ -180,3 +193,65 @@ Retired bottom system dialog and 1~0 quick-slot UI CSS/script remnants were dele
 - 內框視覺底線只往下延伸 5px。
 - 恢復右側捲軸槽與 overflow-y，避免捲軸被內框覆蓋。
 - CSS 快取更新為 0.9.78CB。
+
+
+## V0.9.79F - Reference Point / Attack Lock Debug
+- RO Studio Atlas 玩家錨點改讀 JSON anchor（舊資料預設 128,220）。
+- 綠十字旁加入世界座標與 ref anchor 顯示，方便對照 Anchor Preview。
+- 普攻動畫鎖定完整播放，傷害或 Miss 觸發時不再被 idle/hurt 立即蓋掉。
+- CSS/JS cache key 更新至 0.9.79F。
+
+
+## V0.9.80C Anchor140 All Motions Update
+- 初學者 male atlas 全動作素材改為 Anchor X=128 / Y=140。
+- 更新 idle / walk / hurt / dead / cast / attack(fist)。
+- 預留 dagger / sword / axe / mace / staff 攻擊素材路徑。
+
+
+
+
+## V0.9.80R WeaponType / Motion Constitution Update
+- 所有可裝備武器必須有 `weaponType`。不得只靠 `subCategory`、`ClassNum`、`handed` 或中文說明判斷武器類型。
+- 普通攻擊動畫唯一規則：`currentJob + gender + weaponType -> assets/characters/{job}/{gender}/motions.json.attack[weaponType]`。
+- 例：十幾把單手劍都設定同一個 `weaponType`，裝備後自動套用該職業/性別的單手劍攻擊動畫。
+- 普通攻擊特效可由 `weaponType` 決定；技能特效必須由 SkillID / 技能資料決定。
+- 新增武器時必須同步檢查：`weaponType`、`data/weapon_types.json` 射程、可裝備職業、對應職業 `motions.json` 是否有動畫。
+- 本版已為現有 `data/equipment/weapon/*.json` 寫入 `weaponType` 欄位，避免未來只靠資料夾/中文描述推斷。
+
+## Character System V2 規則
+
+- 玩家角色素材路徑固定為 `assets/characters/{job}/{gender}/`。
+- 城鎮與角色資訊面板一律讀 `idle.png`。
+- 野外/世界地圖一律讀 `motions.json` 指到的 atlas/json。
+- 攻擊動畫查詢順序：`currentJob + gender + weaponType`。
+- 不允許再使用舊 `images/player/male/idle/0001.png` 或舊騎士/劍士大圖當 fallback。
+- 目前已驗證成功的 PC/手機 Profile、城鎮、世界地圖 XY 與倍率不得因新增職業而改動。
+
+
+## V0.9.80W Item / Equipment Constitution V2
+- 中文名稱、說明與圖示來源：`itemInfo_UTF8.lub`。
+- 裝備/武器/防具能力、限制、位置、射程與效果來源：DB_RE `item_db_equip.yml`。
+- 保留欄位：Id、AegisName、Type、SubType、Buy、Attack、MagicAttack、Defense、Range、Slots、Jobs、Classes、Locations、WeaponLevel、ArmorLevel、EquipLevelMin、Refineable、Gradable、View、Script、EquipScript、UnEquipScript。
+- 不使用：Weight、未鑑定、Gender、Trade、Stack、NoUse、Delay、DropEffect。
+- 價格規則：Buy 缺少時預設 20；Sell 優先用官方 Sell，否則 `floor(Buy / 2)`。
+- `weaponType` 改為由 DB_RE `SubType` 自動轉換；普攻射程優先使用每件武器的 `Range`，`data/weapon_types.json` 只作 fallback。
+
+
+## V0.9.80W - Character Attack Weapon Motion Fix
+- 修正 Character V2 攻擊 JSON 指向 `body_hair_weapon.png`，但實際輸出檔名為 `body_hair.png` 造成攻擊 Atlas 載入失敗。
+- 修正 F5 / 讀檔後未從已裝備武器同步 weaponType，導致拿劍、短劍、杖仍播放拳頭攻擊。
+- 裝備切換後會從 `getEquippedWeaponData()` → `weaponType/dbSubType` → `motions.json.attack` 重新載入對應攻擊動畫。
+- CSS/JS cache key 更新為 0.9.80W。
+
+## V0.9.80X - Equipment Job/Class Enforcement
+- 裝備前正式執行 RA DB_RE `Jobs`、`Classes`、`EquipLevelMin`。
+- 初學者無法再裝備弓等未允許裝備。
+- 新增 `data/equipment_job_map.json`，統一 RO_WEB 職業 ID 與 RA Jobs/Classes Key 對照。
+- 裝備限制失敗時不扣背包、不替換原裝備，並顯示原因。
+
+
+## V0.9.80Y 初學者系列素材規則
+- 初學者、超級初學者、終極初學者皆有男女獨立素材。
+- `expanded_super_novice` 共用 `super_novice` 素材，不複製 PNG。
+- Anchor 固定 X=128 / Y=140。
+- 初學者→超級初學者：Base10、Job10、基本技能Lv9，剩餘與暫存技能點皆為0。

@@ -43,7 +43,12 @@
     "Modes": [
       "CanMove",
       "CanAttack"
-    ]
+    ],
+    "size": "Medium",
+    "race": "Plant",
+    "element": "Water",
+    "elementLevel": 1,
+    "combatSource": "RA Renewal mob_db"
   },
   {
     "id": 1063,
@@ -83,7 +88,12 @@
     "Modes": [
       "CanMove",
       "CanAttack"
-    ]
+    ],
+    "size": "Small",
+    "race": "Brute",
+    "element": "Neutral",
+    "elementLevel": 3,
+    "combatSource": "RA Renewal mob_db"
   },
   {
     "id": 1007,
@@ -123,7 +133,12 @@
     "Modes": [
       "CanMove",
       "CanAttack"
-    ]
+    ],
+    "size": "Small",
+    "race": "Insect",
+    "element": "Earth",
+    "elementLevel": 1,
+    "combatSource": "RA Renewal mob_db"
   },
   {
     "id": 1008,
@@ -163,7 +178,12 @@
     "Modes": [
       "CanMove",
       "CanAttack"
-    ]
+    ],
+    "size": "Small",
+    "race": "Insect",
+    "element": "Earth",
+    "elementLevel": 1,
+    "combatSource": "RA Renewal mob_db"
   },
   {
     "id": 1011,
@@ -203,7 +223,12 @@
     "Modes": [
       "CanMove",
       "CanAttack"
-    ]
+    ],
+    "size": "Small",
+    "race": "Insect",
+    "element": "Wind",
+    "elementLevel": 1,
+    "combatSource": "RA Renewal mob_db"
   },
   {
     "id": 1052,
@@ -243,7 +268,12 @@
     "Modes": [
       "CanMove",
       "CanAttack"
-    ]
+    ],
+    "size": "Medium",
+    "race": "Insect",
+    "element": "Earth",
+    "elementLevel": 1,
+    "combatSource": "RA Renewal mob_db"
   },
   {
     "id": 1010,
@@ -283,7 +313,12 @@
     "Modes": [
       "CanMove",
       "CanAttack"
-    ]
+    ],
+    "size": "Medium",
+    "race": "Plant",
+    "element": "Earth",
+    "elementLevel": 1,
+    "combatSource": "RA Renewal mob_db"
   },
   {
     "id": 1014,
@@ -323,7 +358,12 @@
     "Modes": [
       "CanMove",
       "CanAttack"
-    ]
+    ],
+    "size": "Medium",
+    "race": "Plant",
+    "element": "Water",
+    "elementLevel": 1,
+    "combatSource": "RA Renewal mob_db"
   },
   {
     "id": 1020,
@@ -363,7 +403,12 @@
     "Modes": [
       "CanMove",
       "CanAttack"
-    ]
+    ],
+    "size": "Medium",
+    "race": "Plant",
+    "element": "Earth",
+    "elementLevel": 3,
+    "combatSource": "RA Renewal mob_db"
   },
   {
     "id": 1018,
@@ -403,6 +448,11 @@
     "Modes": [
       "CanMove",
       "CanAttack"
-    ]
+    ],
+    "size": "Small",
+    "race": "Insect",
+    "element": "Wind",
+    "elementLevel": 1,
+    "combatSource": "RA Renewal mob_db"
   }
 ]
