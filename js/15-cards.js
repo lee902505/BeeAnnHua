@@ -118,7 +118,7 @@ function ensureCardBook() {
     if (player.inv.some(i => i.id === 'item_card_book')) player.inv = player.inv.filter(i => i.id !== 'item_card_book');
 }
 
-// ---- 掉落（killMob 呼叫）：血盟以外、且該怪屬於某卡片地區才有卡；三階各自獨立、一般＝經典機率（不乘 classicDropMult）----
+// ---- 掉落（killMob 呼叫）：血盟以外、且該怪屬於某卡片地區才有卡；三階各自獨立並套用全域掉寶倍率 ----
 function rollCardDrops(mob) {
     if (!mob || mob.race === '血盟' || mob.race === '建築') return;
     if (!CARD_MOB_INFO[mob.n]) return;
@@ -153,7 +153,8 @@ function acquireCard(name, tier, count) {
     if (typeof _cardBookOpen !== 'undefined' && _cardBookOpen && typeof renderCardBook === 'function') renderCardBook();
 }
 function _cardDropRoll(name, tier, rate) {
-    if (Math.random() >= rate) return;
+    let mult = (typeof classicDropMult === 'function') ? classicDropMult() : 1;
+    if (Math.random() >= Math.min(1, rate * mult)) return;
     acquireCard(name, tier, 1);   // 🎴 未開通→自動登錄(完成退溢出)；已開通→實體卡進背包
 }
 
