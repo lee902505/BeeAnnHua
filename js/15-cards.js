@@ -291,14 +291,14 @@ function _dollBoxOutcome(seq) {
     return pool[Math.floor(_dollRng('boxR', seq) * pool.length)] || pool[0];
 }
 
-// 開啟魔法娃娃的袋子（all=true 一次開完所有）：每袋消耗 1 個 dollSeq → save/load 後 seq 已存、結果固定不可重抽
+// 開啟魔法娃娃的袋子（all=true 最多開 100 個）：每袋消耗 1 個 dollSeq → save/load 後 seq 已存、結果固定不可重抽
 function openDollBag(item, all) {
     let bag = player.inv.find(i => i.id === 'doll_bag');
     if (!bag) { logSys('<span class="text-slate-400">沒有魔法娃娃的袋子可開。</span>'); return; }
     bag.cnt = bag.cnt || 1;
     if (bag.cnt <= 0) { logSys('<span class="text-slate-400">沒有魔法娃娃的袋子可開。</span>'); return; }
     if (player.dollSeq == null) player.dollSeq = 0;
-    let n = all ? bag.cnt : 1, got = {};
+    let n = all ? Math.min(100, bag.cnt) : 1, got = {};
     for (let i = 0; i < n && bag.cnt > 0; i++) {
         let id = _dollBagOutcome(player.dollSeq);
         player.dollSeq++; bag.cnt--;
@@ -315,14 +315,14 @@ function openDollBag(item, all) {
     let _c = document.getElementById('interaction-content'); if (_c) renderCardSynth(_c);
 }
 
-// 🎁 開啟高級魔法娃娃的盒子（all=true 一次開完）：committed RNG（dollSeq），save/load 後結果固定不可重抽
+// 🎁 開啟高級魔法娃娃的盒子（all=true 最多開 100 個）：committed RNG（dollSeq），save/load 後結果固定不可重抽
 function openDollBox(item, all) {
     let box = player.inv.find(i => i.id === 'doll_box_high');
     if (!box) { logSys('<span class="text-slate-400">沒有高級魔法娃娃的盒子可開。</span>'); return; }
     box.cnt = box.cnt || 1;
     if (box.cnt <= 0) { logSys('<span class="text-slate-400">沒有高級魔法娃娃的盒子可開。</span>'); return; }
     if (player.dollSeq == null) player.dollSeq = 0;
-    let n = all ? box.cnt : 1, got = {};
+    let n = all ? Math.min(100, box.cnt) : 1, got = {};
     for (let i = 0; i < n && box.cnt > 0; i++) {
         let id = _dollBoxOutcome(player.dollSeq);
         player.dollSeq++; box.cnt--;
@@ -503,7 +503,7 @@ function renderCardSynth(div) {
             <span class="text-sm">🎁 魔法娃娃的袋子：<span class="${_bagN ? 'text-pink-300' : 'text-slate-500'} font-bold">${_bagN} 個</span></span>
             <div class="flex gap-2">
               <button class="btn px-3 py-1 text-xs font-bold ${_bagN ? 'bg-pink-800 hover:bg-pink-700 border-pink-600' : 'bg-slate-700 border-slate-600 opacity-50 cursor-not-allowed'}" ${_bagN ? '' : 'disabled'} onclick="openDollBag(null,false)">開 1 個</button>
-              <button class="btn px-3 py-1 text-xs font-bold ${_bagN ? 'bg-pink-900 hover:bg-pink-800 border-pink-600' : 'bg-slate-700 border-slate-600 opacity-50 cursor-not-allowed'}" ${_bagN ? '' : 'disabled'} onclick="openDollBag(null,true)">全部開啟</button>
+              <button class="btn px-3 py-1 text-xs font-bold ${_bagN ? 'bg-pink-900 hover:bg-pink-800 border-pink-600' : 'bg-slate-700 border-slate-600 opacity-50 cursor-not-allowed'}" ${_bagN ? '' : 'disabled'} onclick="openDollBag(null,true)">開 100 個</button>
             </div>
         </div></div>`;
     // 🎁 開啟高級盒子
@@ -513,7 +513,7 @@ function renderCardSynth(div) {
             <span class="text-sm">🎁 高級魔法娃娃的盒子：<span class="${_boxN ? 'text-amber-300' : 'text-slate-500'} font-bold">${_boxN} 個</span></span>
             <div class="flex gap-2">
               <button class="btn px-3 py-1 text-xs font-bold ${_boxN ? 'bg-amber-800 hover:bg-amber-700 border-amber-600' : 'bg-slate-700 border-slate-600 opacity-50 cursor-not-allowed'}" ${_boxN ? '' : 'disabled'} onclick="openDollBox(null,false)">開 1 個</button>
-              <button class="btn px-3 py-1 text-xs font-bold ${_boxN ? 'bg-amber-900 hover:bg-amber-800 border-amber-600' : 'bg-slate-700 border-slate-600 opacity-50 cursor-not-allowed'}" ${_boxN ? '' : 'disabled'} onclick="openDollBox(null,true)">全部開啟</button>
+              <button class="btn px-3 py-1 text-xs font-bold ${_boxN ? 'bg-amber-900 hover:bg-amber-800 border-amber-600' : 'bg-slate-700 border-slate-600 opacity-50 cursor-not-allowed'}" ${_boxN ? '' : 'disabled'} onclick="openDollBox(null,true)">開 100 個</button>
             </div>
         </div></div>`;
     // 🪆 魔法娃娃合成（2~4 同階 → 下一階）
