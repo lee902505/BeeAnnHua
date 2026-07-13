@@ -3,8 +3,8 @@
 const GAME_VERSION = 'v3.3.11';
 // ===== 全域遊戲倍率：只需修改這裡即可統一調整 =====
 const GAME_RATES = Object.freeze({
-    exp: 1000,   // 玩家／傭兵／寵物取得經驗倍率
-    drop: 100  // 所有隨機掉落機率倍率（100% 必掉仍維持必掉）
+    exp: 10000,   // 玩家／傭兵／寵物取得經驗倍率
+    drop: 10000  // 所有隨機掉落機率倍率（100% 必掉仍維持必掉）
 });
 // ===== 💾 存檔壓縮（LZString compressToUTF16/decompressFromUTF16·MIT, Pieroxy）：localStorage 內部以 UTF-16 壓縮，省 ~89%，繞過 5MB 上限 =====
 //  ⚠️ 只壓 localStorage（存檔位/倉庫/共用桶/_bak）；匯出檔維持明文 JSON（可攜·importSave 用 JSON.parse 驗證）。_lzGet 相容舊明文存檔（無 'LZ1:' 前綴→原樣回傳）。
