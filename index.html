@@ -8,25 +8,82 @@
     <meta http-equiv="Expires" content="0">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script>
-      // 📱 手機/平板：以固定設計寬度讓整個桌機版面「等比縮小」到螢幕，避免欄位溢出導致按鈕被裁切/點不到。
-      //    桌機瀏覽器會忽略 viewport meta，故此設定僅影響行動裝置，完全不動桌機(1920/1440/4K)顯示。
+      // 📱 手機／平板自適應縮放（2026-07-13）：
+      // 1. 桌機維持 width=device-width，完全沿用目前流動式版面與比例。
+      // 2. 行動裝置建立至少 1600×900 的「桌機版虛擬視窗」，瀏覽器再等比例縮入實際螢幕。
+      // 3. 同時計算可視區寬高；超寬手機橫向時會擴大虛擬寬度，確保 900px 高度完整落在畫面內，不裁掉底部 UI。
+      // 4. 不使用 CSS transform，避免戰鬥特效、提示框與滑鼠／觸控座標發生二次縮放偏移。
       (function () {
-        var DESIGN_W = 1180;   // 三欄(左340+中+右380+間距)的舒適設計寬度；行動裝置會縮放到實際螢幕寬
+        var DESIGN_W = 1600;
+        var DESIGN_H = 900;
+        var resizeTimer = 0;
+        var lastMobileWidth = 0;
+
         function isMobileDevice() {
+          var ua = navigator.userAgent || '';
+          var uaMobile = /Android|iPhone|iPod|iPad|Mobile|Silk|Kindle|BlackBerry|Windows Phone/i.test(ua);
+          var uaDataMobile = !!(navigator.userAgentData && navigator.userAgentData.mobile);
+          var iPadDesktopUA = /Macintosh/i.test(ua) && (navigator.maxTouchPoints || 0) > 1;
           var coarse = !!(window.matchMedia && window.matchMedia('(pointer: coarse)').matches);
           var minSide = Math.min(screen.width || 9999, screen.height || 9999);
-          var uaMobile = /Android|iPhone|iPod|iPad|Mobile|Silk|Kindle|BlackBerry|Windows Phone/i.test(navigator.userAgent || '');
-          return (coarse && minSide <= 1024) || uaMobile;   // 真手機/平板才觸發；桌機(細指標/大螢幕)維持 device-width
+          var smallTouchDevice = coarse && (navigator.maxTouchPoints || 0) > 0 && minSide <= 600;
+          return uaMobile || uaDataMobile || iPadDesktopUA || smallTouchDevice;
         }
+
+        function visibleAspectRatio() {
+          var vv = window.visualViewport;
+          var w = (vv && vv.width) || window.innerWidth || screen.width || DESIGN_W;
+          var h = (vv && vv.height) || window.innerHeight || screen.height || DESIGN_H;
+          if (!isFinite(w) || !isFinite(h) || w <= 0 || h <= 0) return DESIGN_W / DESIGN_H;
+          return w / h;
+        }
+
+        function getMobileViewportWidth() {
+          // width / DESIGN_W 與 height / DESIGN_H 取較小縮放率的等價寫法：
+          // 虛擬寬度至少 DESIGN_W；若螢幕更寬，則依可視比例擴寬，讓 DESIGN_H 也完整顯示。
+          return Math.max(DESIGN_W, Math.ceil(DESIGN_H * visibleAspectRatio()));
+        }
+
         function applyViewport(forceMobile) {
-          var m = document.querySelector('meta[name="viewport"]');
-          if (!m) return null;
+          var meta = document.querySelector('meta[name="viewport"]');
+          if (!meta) return null;
+
           var mobile = (typeof forceMobile === 'boolean') ? forceMobile : isMobileDevice();
-          m.setAttribute('content', mobile ? ('width=' + DESIGN_W) : 'width=device-width, initial-scale=1.0');
-          return m.getAttribute('content');
+          if (!mobile) {
+            lastMobileWidth = 0;
+            meta.setAttribute('content', 'width=device-width, initial-scale=1.0, viewport-fit=cover');
+            document.documentElement.classList.remove('mobile-scaled-layout');
+            return meta.getAttribute('content');
+          }
+
+          var viewportWidth = getMobileViewportWidth();
+          // 不指定 initial-scale：讓行動瀏覽器依裝置寬度自動把整個虛擬桌機版面縮入螢幕。
+          // 只有寬度真的改變才重寫 meta，避免 resize → meta 更新 → resize 的循環抖動。
+          if (viewportWidth !== lastMobileWidth) {
+            lastMobileWidth = viewportWidth;
+            meta.setAttribute('content', 'width=' + viewportWidth + ', minimum-scale=0.1, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover');
+          }
+          document.documentElement.classList.add('mobile-scaled-layout');
+          return meta.getAttribute('content');
         }
-        window.__mobileScaling = { DESIGN_W: DESIGN_W, isMobileDevice: isMobileDevice, apply: applyViewport };
+
+        function scheduleViewportRefresh() {
+          clearTimeout(resizeTimer);
+          resizeTimer = setTimeout(function () { applyViewport(); }, 80);
+        }
+
+        window.__mobileScaling = {
+          DESIGN_W: DESIGN_W,
+          DESIGN_H: DESIGN_H,
+          isMobileDevice: isMobileDevice,
+          getViewportWidth: getMobileViewportWidth,
+          apply: applyViewport
+        };
+
         applyViewport();
+        window.addEventListener('resize', scheduleViewportRefresh, { passive: true });
+        window.addEventListener('orientationchange', scheduleViewportRefresh, { passive: true });
+        if (window.visualViewport) window.visualViewport.addEventListener('resize', scheduleViewportRefresh, { passive: true });
       })();
     </script>
     <title>放置天堂 - 蛇神降世</title>
