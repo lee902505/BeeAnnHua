@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
@@ -8,16 +8,14 @@
     <meta http-equiv="Expires" content="0">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script>
-      // 📱 手機／平板自適應縮放（2026-07-13）：
-      // 1. 桌機維持 width=device-width，完全沿用目前流動式版面與比例。
-      // 2. 行動裝置建立至少 1600×900 的「桌機版虛擬視窗」，瀏覽器再等比例縮入實際螢幕。
-      // 3. 同時計算可視區寬高；超寬手機橫向時會擴大虛擬寬度，確保 900px 高度完整落在畫面內，不裁掉底部 UI。
-      // 4. 不使用 CSS transform，避免戰鬥特效、提示框與滑鼠／觸控座標發生二次縮放偏移。
+      // 📱 手機／平板自由縮放（2026-07-13）：
+      // 1. 桌機維持原本 device-width，不改比例與排版。
+      // 2. 手機首次開啟以 1600px 桌機版寬度完整顯示。
+      // 3. 允許雙指自由放大／縮小與拖曳查看左右內容。
+      // 4. 不監聽 visualViewport.resize，避免玩家縮放時被程式強制重設。
       (function () {
         var DESIGN_W = 1600;
-        var DESIGN_H = 900;
-        var resizeTimer = 0;
-        var lastMobileWidth = 0;
+        var orientationTimer = 0;
 
         function isMobileDevice() {
           var ua = navigator.userAgent || '';
@@ -26,22 +24,8 @@
           var iPadDesktopUA = /Macintosh/i.test(ua) && (navigator.maxTouchPoints || 0) > 1;
           var coarse = !!(window.matchMedia && window.matchMedia('(pointer: coarse)').matches);
           var minSide = Math.min(screen.width || 9999, screen.height || 9999);
-          var smallTouchDevice = coarse && (navigator.maxTouchPoints || 0) > 0 && minSide <= 600;
+          var smallTouchDevice = coarse && (navigator.maxTouchPoints || 0) > 0 && minSide <= 700;
           return uaMobile || uaDataMobile || iPadDesktopUA || smallTouchDevice;
-        }
-
-        function visibleAspectRatio() {
-          var vv = window.visualViewport;
-          var w = (vv && vv.width) || window.innerWidth || screen.width || DESIGN_W;
-          var h = (vv && vv.height) || window.innerHeight || screen.height || DESIGN_H;
-          if (!isFinite(w) || !isFinite(h) || w <= 0 || h <= 0) return DESIGN_W / DESIGN_H;
-          return w / h;
-        }
-
-        function getMobileViewportWidth() {
-          // width / DESIGN_W 與 height / DESIGN_H 取較小縮放率的等價寫法：
-          // 虛擬寬度至少 DESIGN_W；若螢幕更寬，則依可視比例擴寬，讓 DESIGN_H 也完整顯示。
-          return Math.max(DESIGN_W, Math.ceil(DESIGN_H * visibleAspectRatio()));
         }
 
         function applyViewport(forceMobile) {
@@ -50,46 +34,43 @@
 
           var mobile = (typeof forceMobile === 'boolean') ? forceMobile : isMobileDevice();
           if (!mobile) {
-            lastMobileWidth = 0;
             meta.setAttribute('content', 'width=device-width, initial-scale=1.0, viewport-fit=cover');
-            document.documentElement.classList.remove('mobile-scaled-layout');
+            document.documentElement.classList.remove('mobile-pinch-layout');
             return meta.getAttribute('content');
           }
 
-          var viewportWidth = getMobileViewportWidth();
-          // 不指定 initial-scale：讓行動瀏覽器依裝置寬度自動把整個虛擬桌機版面縮入螢幕。
-          // 只有寬度真的改變才重寫 meta，避免 resize → meta 更新 → resize 的循環抖動。
-          if (viewportWidth !== lastMobileWidth) {
-            lastMobileWidth = viewportWidth;
-            meta.setAttribute('content', 'width=' + viewportWidth + ', minimum-scale=0.1, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover');
-          }
-          document.documentElement.classList.add('mobile-scaled-layout');
+          // 不設定 initial-scale，讓瀏覽器第一次自動把 1600px 完整縮入螢幕。
+          // minimum/maximum + user-scalable=yes 允許玩家之後用雙指自由縮放。
+          meta.setAttribute('content',
+            'width=' + DESIGN_W +
+            ', minimum-scale=0.15, maximum-scale=4.0, user-scalable=yes, viewport-fit=cover'
+          );
+          document.documentElement.classList.add('mobile-pinch-layout');
           return meta.getAttribute('content');
         }
 
-        function scheduleViewportRefresh() {
-          clearTimeout(resizeTimer);
-          resizeTimer = setTimeout(function () { applyViewport(); }, 80);
+        function refreshAfterOrientationChange() {
+          clearTimeout(orientationTimer);
+          orientationTimer = setTimeout(function () {
+            // 只在真正旋轉螢幕後重建一次初始 viewport；平常雙指縮放不會觸發重設。
+            applyViewport();
+          }, 250);
         }
 
         window.__mobileScaling = {
           DESIGN_W: DESIGN_W,
-          DESIGN_H: DESIGN_H,
           isMobileDevice: isMobileDevice,
-          getViewportWidth: getMobileViewportWidth,
           apply: applyViewport
         };
 
         applyViewport();
-        window.addEventListener('resize', scheduleViewportRefresh, { passive: true });
-        window.addEventListener('orientationchange', scheduleViewportRefresh, { passive: true });
-        if (window.visualViewport) window.visualViewport.addEventListener('resize', scheduleViewportRefresh, { passive: true });
+        window.addEventListener('orientationchange', refreshAfterOrientationChange, { passive: true });
       })();
     </script>
     <title>放置天堂 - 蛇神降世</title>
     <link rel="icon" type="image/png" href="assets/favicon.png">   <!-- 🖼️ 瀏覽器分頁圖示(favicon)：把你的圖放到 assets/favicon.png 即生效；可改 href 路徑或副檔名(.ico/.svg) -->
 
-    <link rel="stylesheet" href="css/style.css?v=v3.3.8-siegefixed-town-align">
+    <link rel="stylesheet" href="css/style.css?v=20260713-mobile-pinch-zoom">
     <link rel="stylesheet" href="css/floating-ui.css?v=20260702g">
     <link rel="stylesheet" href="css/tailwind-built.css"><!-- 🔧 預編譯 Tailwind（取代執行期 JIT tailwind.js）：只含實際用到的 class，省 407KB runtime + 移除持續掃描 DOM 的成本。置於 style.css 之後以保留原 cascade（utility 平手時勝過自訂 class，與舊 JIT 注入順序一致） -->
 </head>

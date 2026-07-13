@@ -1567,3 +1567,28 @@ button.classic-skill-cell { cursor:pointer; }
     background: #111925fc; border: 3px solid #8b6a2f; border-radius: 13px;
     box-shadow: 0 22px 48px rgba(0,0,0,.85);
 }
+
+/* ===== 📱 手機自由雙指縮放版（2026-07-13） =====
+   手機採 1600px 桌機版虛擬寬度，由瀏覽器原生 pinch zoom 控制。
+   這裡只限制日誌列高度，避免安全區／狩獵區的 :has 規則把日誌拉成超長欄。 */
+html.mobile-pinch-layout #log-row,
+html.mobile-pinch-layout #col-center:has(#battle-view.area-fit:not(.hidden)) #log-row,
+html.mobile-pinch-layout #col-center:has(#town-view:not(.hidden)) #log-row {
+    flex: 0 0 340px;
+    height: 340px;
+    min-height: 340px;
+    max-height: 340px;
+}
+
+html.mobile-pinch-layout #combat-log-panel,
+html.mobile-pinch-layout #syslog-panel {
+    height: 340px;
+    min-height: 0;
+    max-height: 340px;
+}
+
+html.mobile-pinch-layout #combat-log,
+html.mobile-pinch-layout #sys-log {
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+}
