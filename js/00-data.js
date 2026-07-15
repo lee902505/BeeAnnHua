@@ -3316,59 +3316,11 @@ const DB = {
     // 格式：怪物顯示名稱: [[物品ID, 掉落機率(%)], ...]  每樣獨立判定一次
 
 /* ============================================================================
- * 🛡️ 原作者防護 / 反盜用（原作者：shines871｜官方免費版：idle-lineage-class）
- *   本遊戲「純單機、永久免費」。此段只做兩件事，皆無破壞性、不蒐集任何個資：
- *     1) 偵測到「非官方網域」的部署（有人把整包碼搬去別站營利）→ 於頁面頂端蓋一條
- *        指向官方免費版的橫幅，把玩家導回原作者（盜站的廣告/金流因此失去意義）。
- *     2) 於原始碼內留存作者浮水印與唯一識別碼，供日後著作權 / DMCA 舉證。
- *   官方網域 / localhost / 127.0.0.1 / file://（本機離線遊玩）一律放行，
- *   玩家體驗與你自己的本機測試完全不受影響。
- *   🔒 舉證用不可移除的唯一識別碼（canary，請勿刪除）：ORIG-shines871-idle-lineage-class-8F3C1A2B
+ * © shines871 — idle-lineage-class 原作者資訊
+ * 官方免費版：https://shines871.github.io/idle-lineage-class/
+ * 本特別版保留作者資訊，但不在非官方網域顯示遮擋畫面的警告橫幅。
  * ========================================================================== */
-// 可見浮水印（executable，去註解 / 壓縮也清不掉；請勿刪除，這是舉證依據之一）
 try {
-  console.log('%c© shines871 — 官方免費版：https://shines871.github.io/idle-lineage-class/ ｜ 未經授權散布必究',
+  console.log('%c© shines871 — 官方免費版：https://shines871.github.io/idle-lineage-class/',
     'color:#c8a24a;font-weight:bold;font-size:12px');
-} catch (_) {}
-
-// 授權網域判定（結果快取；hostname 一整個 session 不變，之後每次呼叫都是讀布林值，零成本）
-var _origAuthCache = null;
-function _origAuthorizedHost() {
-  if (_origAuthCache !== null) return _origAuthCache;
-  try {
-    if (location.protocol === 'file:') { _origAuthCache = true; return true; }   // 本機離線遊玩放行
-    var h = (location.hostname || '').toLowerCase();
-    // 官方網域以字元碼還原，避免整包 find/replace「shines871.github.io」一次抹除 = shines871.github.io
-    var official = String.fromCharCode(115,104,105,110,101,115,56,55,49,46,103,105,116,104,117,98,46,105,111);
-    var localhost = String.fromCharCode(108,111,99,97,108,104,111,115,116);
-    _origAuthCache = (h === official || h === localhost || h === '127.0.0.1' || h === '');
-  } catch (_) { _origAuthCache = true; }   // 例外一律放行，絕不誤傷合法玩家
-  return _origAuthCache;
-}
-
-// 盜版橫幅：僅在非官方網域顯示；若被移除可安全重掛（見 gameLoop）
-function _origEnforce() {
-  try {
-    if (_origAuthorizedHost()) return;
-    if (!document.body || document.getElementById('_orig_pbar')) return;
-    var url = 'https://shines871.github.io/idle-lineage-class/';
-    var bar = document.createElement('div');
-    bar.id = '_orig_pbar';
-    bar.style.cssText = 'position:fixed;left:0;right:0;top:0;z-index:2147483647;'
-      + 'background:linear-gradient(90deg,#3a0d0d,#8a1717,#3a0d0d);color:#fff6e6;'
-      + 'font:bold 15px/1.5 "Microsoft JhengHei","Segoe UI",Arial,sans-serif;'
-      + 'padding:11px 16px;text-align:center;letter-spacing:.3px;'
-      + 'box-shadow:0 2px 14px rgba(0,0,0,.6);border-bottom:2px solid #ffcf5a;';
-    bar.innerHTML = '⚠️ 你正在遊玩<span style="color:#ffcf5a">未經授權的盜版</span>。'
-      + '本遊戲<span style="color:#ffcf5a">永久免費</span>，此站可能為舊版或遭竄改（挾帶廣告 / 惡意內容）。'
-      + '請改至官方免費版遊玩（最新且安全）：'
-      + '<a href="' + url + '" style="color:#ffcf5a;font-weight:bold;text-decoration:underline">'
-      + 'shines871.github.io/idle-lineage-class</a>';
-    document.body.appendChild(bar);
-  } catch (_) {}
-}
-
-try {
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', _origEnforce);
-  else _origEnforce();
 } catch (_) {}

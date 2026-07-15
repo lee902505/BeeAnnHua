@@ -81,8 +81,6 @@ function _dpsAddAlly(ally, amt) {   // 累加某傭兵輸出（key=存檔槽·�
 }
 
 function gameLoop() {
-    // 🛡️ 反盜用：非官方網域時橫幅若被移除則自動重掛（官方/本機為快取布林值判定，成本可忽略）
-    if (typeof _origEnforce === 'function') _origEnforce();
     let now = (typeof performance !== 'undefined' ? performance.now() : Date.now());
     if(_loopLast == null) _loopLast = now;
     let elapsed = now - _loopLast;
