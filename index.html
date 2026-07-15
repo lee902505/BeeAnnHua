@@ -6,37 +6,71 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=0.25, maximum-scale=4.0, user-scalable=yes, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script>
-      // 📱 手機使用真實裝置寬度，交由手機專用 CSS 重新排列；桌機維持原本流動三欄版面。
+      // 📱 手機／平板自由縮放：
+      // 1. 桌機維持原本 device-width，不改比例與排版。
+      // 2. 手機首次開啟以 1600px 桌機版寬度完整顯示。
+      // 3. 允許雙指自由放大／縮小與拖曳查看左右內容。
+      // 4. 不監聽 visualViewport.resize，避免玩家縮放時被程式強制重設。
       (function () {
-        var DESIGN_W = 1180;   // 保留舊版相容欄位；新版手機不再強制套用此設計寬度。
+        var DESIGN_W = 1600;
+        var orientationTimer = 0;
+
         function isMobileDevice() {
+          var ua = navigator.userAgent || '';
+          var uaMobile = /Android|iPhone|iPod|iPad|Mobile|Silk|Kindle|BlackBerry|Windows Phone/i.test(ua);
+          var uaDataMobile = !!(navigator.userAgentData && navigator.userAgentData.mobile);
+          var iPadDesktopUA = /Macintosh/i.test(ua) && (navigator.maxTouchPoints || 0) > 1;
           var coarse = !!(window.matchMedia && window.matchMedia('(pointer: coarse)').matches);
           var minSide = Math.min(screen.width || 9999, screen.height || 9999);
-          var uaMobile = /Android|iPhone|iPod|iPad|Mobile|Silk|Kindle|BlackBerry|Windows Phone/i.test(navigator.userAgent || '');
-          return (coarse && minSide <= 1024) || uaMobile;   // 真手機/平板才觸發；桌機(細指標/大螢幕)維持 device-width
+          var smallTouchDevice = coarse && (navigator.maxTouchPoints || 0) > 0 && minSide <= 700;
+          return uaMobile || uaDataMobile || iPadDesktopUA || smallTouchDevice;
         }
+
         function applyViewport(forceMobile) {
-          var m = document.querySelector('meta[name="viewport"]');
-          if (!m) return null;
+          var meta = document.querySelector('meta[name="viewport"]');
+          if (!meta) return null;
+
           var mobile = (typeof forceMobile === 'boolean') ? forceMobile : isMobileDevice();
-          m.setAttribute('content', 'width=device-width, initial-scale=1.0, minimum-scale=0.25, maximum-scale=4.0, user-scalable=yes, viewport-fit=cover');
-          return m.getAttribute('content');
+          if (!mobile) {
+            meta.setAttribute('content', 'width=device-width, initial-scale=1.0, viewport-fit=cover');
+            document.documentElement.classList.remove('mobile-pinch-layout');
+            return meta.getAttribute('content');
+          }
+
+          // 不設定 initial-scale，讓瀏覽器第一次自動把 1600px 完整縮入螢幕。
+          // minimum/maximum + user-scalable=yes 允許玩家之後用雙指自由縮放。
+          meta.setAttribute('content',
+            'width=' + DESIGN_W +
+            ', minimum-scale=0.15, maximum-scale=4.0, user-scalable=yes, viewport-fit=cover'
+          );
+          document.documentElement.classList.add('mobile-pinch-layout');
+          return meta.getAttribute('content');
         }
-        window.__mobileScaling = { DESIGN_W: DESIGN_W, isMobileDevice: isMobileDevice, apply: applyViewport };
+
+        function refreshAfterOrientationChange() {
+          clearTimeout(orientationTimer);
+          orientationTimer = setTimeout(function () {
+            // 只在真正旋轉螢幕後重建一次初始 viewport；平常雙指縮放不會觸發重設。
+            applyViewport();
+          }, 250);
+        }
+
+        window.__mobileScaling = {
+          DESIGN_W: DESIGN_W,
+          isMobileDevice: isMobileDevice,
+          apply: applyViewport
+        };
+
         applyViewport();
-        // ⭐ 只在手機旋轉時重新適配；雙指縮放與拖曳期間不重寫 viewport，避免倍率被重設。
-        window.addEventListener('orientationchange', function () {
-          if (!isMobileDevice()) return;
-          setTimeout(function () { applyViewport(true); }, 180);
-        }, { passive: true });
+        window.addEventListener('orientationchange', refreshAfterOrientationChange, { passive: true });
       })();
     </script>
     <title>放置天堂 - 吉爾塔斯降臨</title>
     <link rel="icon" type="image/png" href="assets/favicon.png">   <!-- 🖼️ 瀏覽器分頁圖示(favicon)：把你的圖放到 assets/favicon.png 即生效；可改 href 路徑或副檔名(.ico/.svg) -->
 
-    <link rel="stylesheet" href="css/style.css?v=special-20260715-mobile-doll">
+    <link rel="stylesheet" href="css/style.css?v=special-20260716-mobile-pinch-restore">
     <link rel="stylesheet" href="css/floating-ui.css?v=20260714-weight-colors">
     <link rel="stylesheet" href="css/tailwind-built.css"><!-- 🔧 預編譯 Tailwind（取代執行期 JIT tailwind.js）：只含實際用到的 class，省 407KB runtime + 移除持續掃描 DOM 的成本。置於 style.css 之後以保留原 cascade（utility 平手時勝過自訂 class，與舊 JIT 注入順序一致） -->
 </head>
@@ -550,10 +584,10 @@
     </script>
 
     <script src="js/anim-manifest.js?v=v3.4.40-manifest"></script>
-    <script src="js/00-data.js?v=special-20260716-no-domain-banner"></script>
+    <script src="js/00-data.js?v=special-20260715-rates"></script>
 <script src="js/01-drops-config.js?v=v3.4.62-royal-team"></script>
 <script src="js/02-stats-recompute.js?v=v3.4.55-relic17"></script>
-    <script src="js/03-combat-core.js?v=special-20260716-no-domain-banner"></script>
+    <script src="js/03-combat-core.js?v=v3.4.63-antipiracy"></script>
     <script src="js/04-combat-attack.js?v=v3.4.62-royal-team"></script>
 <script src="js/05-kill-progression.js?v=special-20260715-rates"></script>
     <script src="js/06-status-allies.js?v=v3.4.55-relic17"></script>

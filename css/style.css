@@ -2667,3 +2667,36 @@ html, body, #app-stage { touch-action: pan-x pan-y pinch-zoom; }
         overflow: auto !important;
     }
 }
+
+
+/* ===== 📱 手機自由雙指縮放版（恢復桌機三欄比例） =====
+   手機採 1600px 桌機版虛擬寬度，由瀏覽器原生 pinch zoom 控制。
+   這裡固定日誌列高度，避免安全區／狩獵區的 :has 規則把日誌拉成超長欄。 */
+html.mobile-pinch-layout,
+html.mobile-pinch-layout body,
+html.mobile-pinch-layout #app-stage {
+    touch-action: pan-x pan-y pinch-zoom;
+}
+
+html.mobile-pinch-layout #log-row,
+html.mobile-pinch-layout #col-center:has(#battle-view.area-fit:not(.hidden)) #log-row,
+html.mobile-pinch-layout #col-center:has(#town-view:not(.hidden)) #log-row {
+    flex: 0 0 340px !important;
+    height: 340px !important;
+    min-height: 340px !important;
+    max-height: 340px !important;
+}
+
+html.mobile-pinch-layout #combat-log-panel,
+html.mobile-pinch-layout #syslog-panel {
+    height: 340px !important;
+    min-height: 0 !important;
+    max-height: 340px !important;
+    overflow: hidden;
+}
+
+html.mobile-pinch-layout #combat-log,
+html.mobile-pinch-layout #sys-log {
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+}
