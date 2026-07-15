@@ -4,7 +4,7 @@ const MAP_CATEGORIES = {
         {v:'town_silver_knight',t:'銀騎士村'}, {v:'town_elf',t:'妖精森林'}, {v:'town_talking',t:'說話之島'},
         {v:'town_gludio',t:'燃柳村'}, {v:'town_giran',t:'奇岩'}, {v:'town_heine',t:'海音'},
         {v:'town_oren',t:'歐瑞村莊'}, {v:'town_aden',t:'亞丁',c:'#facc15'}, {v:'town_ivory_tower',t:'象牙塔'}, {v:'town_witon',t:'威頓村'},
-        {v:'town_sherine',t:'席琳神殿',c:'#4ade80',classicHide:true}, {v:'town_silent',t:'沉默洞穴',c:'#a78bfa'}, {v:'town_hyperia',t:'希培利亞村莊',c:'#c084fc'}, {v:'town_behemoth',t:'貝希摩斯',c:'#f59e0b'}, {v:'town_flame_audience',t:'炎魔謁見所',c:'#ff6b35',questReq:'demonTemple',affinityReq:1000}
+        {v:'town_sherine',t:'席琳神殿',c:'#4ade80',classicHide:true}, {v:'town_silent',t:'沉默洞穴',c:'#a78bfa'}, {v:'town_hyperia',t:'希培利亞村莊',c:'#c084fc'}, {v:'town_behemoth',t:'貝希摩斯',c:'#f59e0b'}, {v:'town_flame_audience',t:'炎魔謁見所',c:'#ff6b35',questReq:'demonTemple',affinityReq:1000}, {v:'town_elder_council',t:'長老會議廳',c:'#a5b4fc'}
     ],
     wild: [
         {v:'silver_knight',t:'銀騎士地區'}, {v:'talking_island',t:'說話之島周邊'}, {v:'zone_01',t:'妖精森林周邊'},
@@ -33,6 +33,7 @@ const MAP_CATEGORIES = {
         {v:'dark_magic_lab',t:'黑魔法研究室'},
         {v:'necro_training',t:'冥法軍訓練場'},
         {v:'elder_room',t:'格蘭肯神殿．長老之室'},
+        // 🌑 黑暗妖精聖地／受詛咒聖地／崩壞的長老會議廳＝「無法從地圖選單選擇」（MD 設定·只能由 長老會議廳 NPC 真‧冥皇丹特斯 進入）→不列選單；安全區改 town_elder_council(village 群組)
         {v:'demon_temple',t:'魔族神殿',c:'#9b2c2c',questReq:'demonTemple'},
         {v:'shadow_temple',t:'暗影神殿',c:'#7c3aed',keyHoldReq:'item_shadow_temple_key',affinityReq:1000}
     ],
@@ -143,6 +144,7 @@ const MAP_REGIONS = [
         {v:'rastabad_gate', t:'拉斯塔巴德正門'}, {v:'giant_tomb', t:'古代巨人之墓'},
         {v:'demon_temple', t:'魔族神殿'}, {v:'town_flame_audience', t:'炎魔謁見所'},
         {v:'rastabad_beast', t:'魔獸訓練場'}, {v:'dark_magic_lab', t:'黑魔法研究室'}, {v:'necro_training', t:'冥法軍訓練場'}, {v:'elder_room', t:'格蘭肯神殿．長老之室'},
+        {v:'town_elder_council', t:'長老會議廳'},   // 🌑 三張聖地狩獵/BOSS圖不入選單（NPC 傳送進入）
         {v:'king_baranka_room', t:'魔獸君王之室'}, {v:'law_king_room', t:'法令君王之室'}, {v:'necro_king_room', t:'冥法君王之室'}, {v:'assassin_king_room', t:'暗殺君王之室'}
     ]},
     { key: 'rift', label: '時空裂痕', maps: [
@@ -479,6 +481,8 @@ document.addEventListener('mousedown', function (e) {
 function _cddWinClose() { if (_cddFresh()) return; _cddClose(); }   // 🔧 blur/resize 在「開啟手勢冷卻窗」內不關（打包版 Electron 原生 select 焦點殘響會在開啟瞬間噴 blur）
 window.addEventListener('resize', _cddWinClose);
 window.addEventListener('blur', _cddWinClose);
+// 🌑 v3.4.7 黑暗妖精聖地 3 隱藏圖（NPC 進入·不在任何下拉）→右上角改顯示地名（比照傲慢之塔/遺忘之島）
+const SANCTUARY_MAP_NAMES = { dark_elf_sanctuary: '黑暗妖精聖地', cursed_dark_elf_sanctuary: '受詛咒的黑暗妖精聖地', collapsed_elder_council_hall: '崩壞的長老會議廳' };
 // 🗼 攀登/排名模式：右上角原本空白的地圖選單改顯示「傲慢之塔 X 樓」（與系統日誌的樓層資訊同色 text-rose-200）
 function updatePrideFloorIndicator() {
     let ind = document.getElementById('pride-floor-indicator');
@@ -505,6 +509,11 @@ function updatePrideFloorIndicator() {
         if (cat) cat.classList.add('hidden');   // 🌀 裂痕內鎖定左右選單，只能用「回村」離開
     } else if (isHiddenArea(cur)) {
         ind.textContent = '🏛️ ' + HIDDEN_AREA_NAMES[cur];   // 🏛️ 隱藏狩獵區域：右地圖選單消失、改顯示對應名稱（只能用「回村」離開、或在區內傳送重置怪物）
+        ind.classList.remove('hidden');
+        if (sel) sel.classList.add('hidden');
+        if (cat) cat.classList.add('hidden');
+    } else if (SANCTUARY_MAP_NAMES[cur]) {
+        ind.textContent = SANCTUARY_MAP_NAMES[cur];   // 🌑 v3.4.7 黑暗妖精聖地3隱藏圖：比照傲慢之塔/遺忘之島＝隱藏左右下拉、只顯示地名（只能用「回村」離開）
         ind.classList.remove('hidden');
         if (sel) sel.classList.add('hidden');
         if (cat) cat.classList.add('hidden');
@@ -1137,6 +1146,7 @@ function changeMap(force) {
             }
         }
     }
+    if (typeof giltasKeepOnLeave === 'function' && document.getElementById('map-select').value !== mapState.current) giltasKeepOnLeave();   // 🌑 v3.4.16 離開受詛咒聖地（回村/戰敗復活/切圖統一經此·helper 自帶地圖 gate）→ 吉爾塔斯 HP 保留判定＋提示
     mapState.current = document.getElementById('map-select').value;
     if (!mapState.current.startsWith('town_')) player.lastBattleMap = mapState.current;   // 🔧 記住最後所在的戰鬥地圖，供村莊「出發」按鈕一鍵返回
     { let _c = mapRegionOf(mapState.current); if(_c) { if(!player.lastMapByCat) player.lastMapByCat = {}; player.lastMapByCat[_c] = mapState.current; } }   // 記住各「地區」分類最後到過的地圖（與下拉同鍵）
@@ -1496,6 +1506,59 @@ function renderPrideEntrance(container) {
     container.appendChild(box);
 }
 
+// ===== 🌑 v3.3.33 真‧冥皇丹特斯（長老會議廳·黑暗妖精聖地.md）：三選項入口 =====
+//   進入 黑暗妖精聖地／受詛咒的黑暗妖精聖地＝各消耗 1 本 死亡騎士之書；交出 吉爾塔斯的封印＝消耗 1 個→傳送 崩壞的長老會議廳。
+//   三張圖皆不在地圖選單（隱藏圖）→ 直接設定 mapState 進圖（仿 js/05 enterOblivionMap 的直接進圖流程）。
+function _sanctItemCount(id) { let c = 0; player.inv.forEach(i => { if (i.id === id) c += (i.cnt || 1); }); return c; }
+function _sanctConsume(id) {
+    let i = player.inv.findIndex(x => x.id === id && (x.cnt || 1) >= 1);
+    if (i < 0) return false;
+    let it = player.inv[i];
+    if ((it.cnt || 1) > 1) it.cnt -= 1; else player.inv.splice(i, 1);
+    return true;
+}
+function sanctuaryEnter(mapKey, costId) {
+    let d0 = DB.items[costId];
+    if (!_sanctConsume(costId)) { logSys(`<span class="text-red-400">沒有 ${d0 ? d0.n : costId}，無法進入。</span>`); return; }
+    logSys(`<span class="text-amber-300">你交出了 1 個 ${d0 ? d0.n : costId}，${mapKey === 'collapsed_elder_council_hall' ? '被傳送到了 崩壞的長老會議廳' : '踏入了 ' + (mapKey === 'dark_elf_sanctuary' ? '黑暗妖精聖地' : '受詛咒的黑暗妖精聖地')}……</span>`);
+    closeNpcInteraction();
+    saveSiegeBossHp();
+    mapState.current = mapKey;
+    player.lastBattleMap = mapKey;
+    mapState.mobs = [null, null, null, null, null];
+    mapState.spawnAt = [null, null, null, null, null];
+    mapState._sanctBossSpawned = false;   // 🌑 v3.4.18 重置「首次生成免費」旗標：入場費已付→首隻頭目免費，之後每次復活扣 1 入場道具(js/03 sanctBossRespawnCharge)
+    mapState.targetIdx = -1;
+    mapState.forceBoss = false;
+    state._kbRespawnAt = null; state._kbVictory = false;
+    if (typeof _vfxClearAll === 'function') _vfxClearAll();
+    if (typeof auditReset === 'function') auditReset();
+    let mapPanel = document.getElementById('town-view').parentElement;
+    document.getElementById('battle-view').classList.remove('hidden');
+    document.getElementById('combat-log-panel').classList.remove('hidden');
+    document.getElementById('town-view').classList.add('hidden');
+    document.getElementById('town-view').classList.remove('flex');
+    mapPanel.classList.remove('flex-1', 'overflow-hidden');
+    if (typeof applyAreaBackground === 'function') applyAreaBackground();
+    renderMobs();
+    syncMapSelectors();
+    updateUI();
+    renderTabs(true); saveGame();
+}
+function renderDantesGate(div) {
+    let books = _sanctItemCount('item_dk_book'), seals = _sanctItemCount('item_giltas_seal'), orbs = _sanctItemCount('item_summonorb_full');
+    div.innerHTML = `
+        <div class="text-sm text-slate-300 space-y-2">
+            <p>「嗚！嗚！嗚！……你也為了嘲笑我的愚蠢而來的嗎？<br><br>快離開吧，已經太遲了。」</p>
+            <p class="text-xs text-slate-400">持有：死亡騎士之書 ×${books}．吉爾塔斯的封印 ×${seals}．完整的召喚球 ×${orbs}</p>
+            <div class="space-y-2 pt-2">
+                <button class="w-full text-left px-3 py-2 rounded bg-indigo-900/60 hover:bg-indigo-800 border border-indigo-500/40 ${books < 1 ? 'opacity-50' : ''}" onclick="sanctuaryEnter('dark_elf_sanctuary','item_dk_book')">⚔️ 進入 黑暗妖精聖地</button>
+                <button class="w-full text-left px-3 py-2 rounded bg-rose-900/60 hover:bg-rose-800 border border-rose-500/40 ${books < 1 ? 'opacity-50' : ''}" onclick="sanctuaryEnter('cursed_dark_elf_sanctuary','item_dk_book')">💀 進入 受詛咒的黑暗妖精聖地</button>
+                <button class="w-full text-left px-3 py-2 rounded bg-purple-900/60 hover:bg-purple-800 border border-purple-500/40 ${seals < 1 ? 'opacity-50' : ''}" onclick="sanctuaryEnter('collapsed_elder_council_hall','item_giltas_seal')">👑 交出 吉爾塔斯的封印</button>
+            </div>
+            <p class="text-xs text-slate-500 pt-1">挑戰吉爾塔斯時若身上持有 完整的召喚球：戰敗回村將消耗 1 顆，吉爾塔斯的 HP 會保持不變（暫停回血）直到你再次進入；沒有完整的召喚球則重新進入將是全新的吉爾塔斯。</p>
+        </div>`;
+}
 function interactNPC(npcId, townId) {
     let npc = DB.towns[townId].npcs.find(n => n.id === npcId);
     if(!npc) return;
@@ -1538,8 +1601,10 @@ function interactNPC(npcId, townId) {
         renderJoelCraft(contentDiv, npc.id);
     } else if (npc.id === 'npc_runde' || npc.id === 'npc_kang' || npc.id === 'npc_brudica') {   // 🔧 黑暗妖精限定試煉（仿瑞奇/甘特，而非製作）
         renderDarkTrial(contentDiv, npc.id);
-    } else if (['npc_nalien', 'npc_rekne', 'npc_narupa', 'npc_elfqueen', 'npc_elf', 'npc_ent', 'npc_pan', 'npc_moliya', 'npc_hector', 'npc_herbert', 'npc_lumiel', 'npc_ibelbin', 'npc_tas', 'npc_robinson', 'npc_kupu', 'npc_lentis', 'npc_upni', 'npc_bamut', 'npc_flame_shadow', 'npc_imp', 'npc_flame_smith', 'npc_norse', 'npc_keluya', 'npc_dytite', 'npc_bartel', 'npc_pir', 'npc_zeus_golem', 'npc_rabiani', 'npc_david', 'npc_flame_aide', 'npc_kororanz', 'npc_sebas', 'npc_mystic_mage'].includes(npc.id)) {
+    } else if (['npc_nalien', 'npc_rekne', 'npc_narupa', 'npc_elfqueen', 'npc_elf', 'npc_ent', 'npc_pan', 'npc_moliya', 'npc_hector', 'npc_herbert', 'npc_lumiel', 'npc_ibelbin', 'npc_tas', 'npc_robinson', 'npc_kupu', 'npc_lentis', 'npc_upni', 'npc_bamut', 'npc_flame_shadow', 'npc_imp', 'npc_flame_smith', 'npc_norse', 'npc_keluya', 'npc_dytite', 'npc_bartel', 'npc_pir', 'npc_zeus_golem', 'npc_rabiani', 'npc_david', 'npc_flame_aide', 'npc_kororanz', 'npc_sebas', 'npc_mystic_mage', 'npc_atelier'].includes(npc.id)) {
         renderUniversalCraft(contentDiv, npc.id);
+    } else if (npc.id === 'npc_dantes_lord') {   // 🌑 真‧冥皇丹特斯：聖地入口三選項
+        renderDantesGate(contentDiv);
     } else if (npc.id === 'npc_digallatin') {
         renderDigallatin(contentDiv);
     } else if (npc.id === 'npc_os') {
@@ -1596,6 +1661,7 @@ function interactNPC(npcId, townId) {
     } else if (npc.type === 'warehouse') {
         renderWarehouseNPC(contentDiv);   // 🔧 v2.6.77 正常情況已在 interactNPC 開頭早退開浮動倉庫；此分支僅剩 openWarehouseWindow 不存在時的舊式後備
     } else if (npc.id === 'npc_baowu') {
+        try { if (typeof _petRosterResync === 'function') _petRosterResync(); } catch (e) {}   // 🔄 開啟寵物保管前先與共用桶同步（顯示別角色最新裝備/出戰狀態·防過期鏡像）
         renderPetStorageNPC(contentDiv);
     } else if (npc.id === 'npc_isba') {
         renderIsbaTravel(contentDiv);
@@ -1629,7 +1695,7 @@ function closeNpcInteraction() {
 // sprite 目錄表：key(通常＝gfx) → { g:資料夾, f:幀數, mul?:高度倍率, tint?:CSS filter }
 const NPC_SPR = {
     '1045': { g: '1045', f: 8 }, '51': { g: '51', f: 4 }, '237': { g: '237', f: 6 }, '261': { g: '261', f: 4 },
-    '902': { g: '902', f: 6 }, '866': { g: '866', f: 6 }, '847': { g: '847', f: 6, mul: 1.35 }, '1762': { g: '1762', f: 8, mul: 1.1 },
+    '902': { g: '902', f: 6 }, '866': { g: '866', f: 6 }, '847': { g: '847', f: 6, mul: 1.35 }, '1762': { g: '1762', f: 8, mul: 1.1, w: 8 },   // 🔥 w:8＝火焰武器層 idle_w(宙斯之熔岩高崙燃燒特效)
     '1788': { g: '1788', f: 6 }, '2524': { g: '2524', f: 8 }, '118': { g: '118', f: 4 }, '31': { g: '31', f: 4, mul: 0.8 }, '31b': { g: '31b', f: 3, mul: 0.8 },
     '457': { g: '457', f: 6 }, '54': { g: '54', f: 3 }, '460': { g: '460', f: 6 }, '875': { g: '875', f: 12 },
     '98': { g: '98', f: 6 }, '949': { g: '949', f: 6 }, '100': { g: '100', f: 6 }, '854': { g: '854', f: 16, mul: 0.72 },
@@ -1645,7 +1711,8 @@ const NPC_SPR = {
     // 🆕 v3.3.7 指定名稱 NPC 專屬外型（body＋真實影子 sprite）＋女性外型池新增 6804
     '1839': { g: '1839', f: 9 }, '2813': { g: '2813', f: 9 }, '2794': { g: '2794', f: 9 }, '2829': { g: '2829', f: 11 },
     '2801': { g: '2801', f: 8 }, '2820': { g: '2820', f: 15 }, '6899': { g: '6899', f: 12 }, '6757': { g: '6757', f: 12 },
-    '6690': { g: '6690', f: 12 }, '6804': { g: '6804', f: 12 }
+    '6690': { g: '6690', f: 12 }, '6804': { g: '6804', f: 12 },
+    '5454': { g: '5454', f: 1 }   // 🌑 v3.3.33 真‧冥皇丹特斯＝骸骨王座坐像（NPC/真‧冥皇丹特斯 5454-0＋影子 5455-0·單幀 138×228）
 };
 // 有名字的 NPC → 專屬 sprite（＋依功能固定共用者：魔物追蹤/城堡護衛已於下方 role 邏輯處理）
 const NPC_SPR_FIXED = {
@@ -1658,6 +1725,7 @@ const NPC_SPR_FIXED = {
     // 🆕 v3.3.7 指定名稱 NPC 專屬外型（用戶提供 Downloads/NPC/<名>·避免與通用池撞臉）：
     npc_kupu: '1839', npc_rabiani: '1307', npc_runde: '2813', npc_kang: '2794', npc_brudica: '2829',
     npc_skvati: '2801', npc_saedia: '2820', npc_shenien: '6899', npc_bartel: '6757', npc_sphere: '6690',
+    npc_dantes_lord: '5454', npc_atelier: '1768',   // 🌑 v3.3.33 長老會議廳：真‧冥皇丹特斯＝骸骨王座／亞提利歐＝矮人鐵匠（用戶指定·同炎魔鐵匠外型 1768）
     // 魔物追蹤三兄弟共用 cray；港口/寵物保管等亦可指定
     npc_obel: '1049', npc_hert: '1049', npc_diren: '1049'
 };
@@ -1716,28 +1784,59 @@ function _npcFrames(key) {
     _npcFrameCache[key] = arr;
     return arr;
 }
+let _npcWeaponFrameCache = {};
+function _npcWeaponFrames(key) {   // 🔥 火焰/武器疊層幀(idle_w_N)：僅 NPC_SPR 有 w 的（如宙斯之熔岩高崙）·與本體同幀數同步
+    if (_npcWeaponFrameCache[key]) return _npcWeaponFrameCache[key];
+    let cat = NPC_SPR[key], arr = [];
+    if (cat && cat.w) for (let i = 0; i < cat.w; i++) { let im = new Image(); im.src = 'assets/npc/' + cat.g + '/idle_w_' + i + '.png'; arr.push(im); }
+    _npcWeaponFrameCache[key] = arr;
+    return arr;
+}
 
 // 🏘️ v3.2.90 逐城手工站位表（依 1920×1080 背景圖逐張檢視空地標定·%座標＝腳點·避開建築/牆面/水面/樓梯/柱台）
 //   順序＝由中央往外；NPC 數超過表長時回繞並向右下微移。未列城鎮(3攻城城堡=無專屬圖)走 fallback 置中帶。
+// 🏘️ v3.3.28 逐城依 1920×1080 背景圖重排（用戶要求「站位分開·不站在正常人不該站的地方·各有生活感」）：
+//   每格 index 對應 DB.towns[town].npcs 的順序（vis 過濾後）→ 依 NPC 身分放到地標旁（商人靠攤位/店門、倉庫靠庫房、
+//   鐵匠靠鍛造爐、港口靠碼頭、試煉靠大殿階梯…）；全部落在可行走地面（路面/廣場/沙地/甲板），避開水域/屋頂/岩漿/水晶。
 const TOWN_NPC_SPOTS = {
-    town_silver_knight: [[44, 56], [56, 56], [50, 67], [38, 66], [62, 66], [44, 78], [58, 78], [33, 72], [67, 76], [50, 60]],
-    town_talking: [[36, 45], [46, 48], [30, 56], [40, 58], [50, 60], [34, 68], [44, 70], [52, 74], [38, 82], [48, 84], [28, 78], [52, 52], [30, 38], [42, 36]],
-    town_elf: [[38, 44], [50, 42], [62, 46], [32, 52], [44, 52], [56, 52], [68, 54], [36, 62], [48, 62], [60, 62], [30, 70], [42, 70], [54, 70], [66, 66], [72, 60], [26, 60]],
-    town_giran: [[30, 50], [30, 62], [38, 78], [48, 80], [58, 78], [62, 56], [64, 46], [40, 34], [50, 34], [58, 38], [26, 72], [56, 86]],
-    town_heine: [[36, 40], [46, 42], [56, 42], [30, 52], [42, 54], [54, 56], [64, 40], [36, 62], [48, 62], [26, 38]],
-    town_aden: [[34, 45], [44, 48], [52, 44], [30, 58], [42, 60], [52, 60], [38, 36], [48, 36], [26, 50], [46, 70]],
-    town_oren: [[38, 42], [48, 44], [56, 40], [34, 55], [46, 58], [56, 55], [40, 68], [52, 68], [30, 66], [62, 62]],
-    town_gludio: [[48, 50], [42, 58], [55, 55], [38, 45], [58, 45]],
-    town_witon: [[38, 42], [48, 42], [58, 44], [34, 55], [46, 58], [56, 58], [40, 68], [52, 68], [64, 48], [30, 66]],
-    town_hyperia: [[42, 48], [52, 48], [46, 60], [56, 58], [38, 56], [50, 68], [44, 38], [56, 40]],
-    town_ivory_tower: [[40, 48], [50, 44], [58, 48], [36, 58], [46, 58], [56, 58], [42, 70], [52, 70], [62, 64], [32, 66], [64, 40], [46, 36]],
-    town_sherine: [[62, 40], [70, 38], [66, 50], [48, 62], [40, 66], [56, 62], [34, 70]],
-    town_silent: [[42, 46], [52, 44], [60, 48], [38, 56], [48, 58], [58, 58], [44, 68], [56, 66], [34, 64], [62, 40]],
-    town_behemoth: [[36, 50], [48, 48], [42, 62], [54, 60], [32, 62], [58, 50], [46, 72]],
-    town_flame_audience: [[30, 50], [48, 46], [38, 66], [56, 58], [26, 60], [60, 48], [44, 76]],
-    town_pirate_village: [[42, 42], [52, 40], [46, 54], [56, 52], [38, 56], [50, 66], [58, 64]],
-    town_pride: [[44, 48], [54, 48], [40, 58], [50, 60], [58, 56], [46, 68]],
-    town_rift: [[50, 56], [44, 62], [58, 60], [40, 50], [60, 50]],
+    // 銀騎士村莊：格林=左長屋店門前｜高特=右穀倉貨車旁｜茉莉=左下工作棚｜芬=箭靶訓練場｜喬爾=武器架旁｜瑞奇=大宅門前｜雷德=水井邊
+    town_silver_knight: [[20, 60], [79, 56], [16, 75], [25, 80], [52, 36], [64, 36], [41, 36]],
+    // 說話之島：吉倫=左上大屋門廊｜巴辛=水井邊｜朵琳=左中小屋門前｜潘朵拉=中央大屋遮陽棚攤位｜拉達爾=漁棚前院草地(v3.3.32勿站進棚內)｜法林=曬網架旁｜萊恩=沙灘小船邊｜詹姆/甘特=主路上｜尤麗婭=大屋門前｜拉比安尼=右下茅屋前
+    town_talking: [[24, 40], [48, 40], [14, 57], [51, 82], [82, 41], [67, 34], [60, 23], [38, 62], [45, 75], [62, 89], [80, 88]],
+    // 妖精森林：埃爾頻=左階梯下空地｜艾爾=主殿門前｜琳達=舞台前｜艾利溫=右屋階梯口｜那翰/娜魯帕=林間空地｜精靈女皇(override)｜精靈=花圃間｜安特(override釘右上)｜潘/芮克妮=空地｜布拉伯=右下屋門廊｜羅賓孫=左下樹屋平台｜迷幻森林之母=右中開闊地(巨石像)
+    town_elf: [[30, 48], [42, 33], [57, 30], [76, 42], [22, 60], [69, 49], [48, 62], [44, 74], [84, 43], [55, 70], [30, 72], [84, 74], [12, 82], [63, 63]],
+    // 奇岩城鎮：邁爾/范吉爾/愛弗特=右下市集攤棚各一攤｜溫諾=攤棚上方廣場路面(v3.3.32勿站攤頂)｜莫麗雅/海克特=噴泉兩側｜哈巴特=公會階梯前｜倫提斯=左教堂門廊｜賽巴斯=右上綠籬步道｜蘇瑞耳=圓頂庫房右側街面(v3.3.32勿貼圓頂)
+    town_giran: [[69, 81], [81, 56], [88, 79], [57, 88], [38, 66], [54, 66], [66, 42], [14, 36], [58, 33], [22, 81]],
+    // 海音城鎮(運河水都·v3.3.31 依用戶截圖箭頭校正)：比特=左下屋前空地｜哈金=上排庫房前街面｜傭兵公會=右上建築左側路面｜琉米埃爾=花壇右下路面(勿站上花壇)｜多文=中央廣場｜依詩蒂=橋頭左側廣場(勿站上橋)｜依斯巴=木棧碼頭板上(港口)
+    town_heine: [[19, 85], [41, 26], [56, 29], [22, 41], [50, 50], [62, 45], [28, 88]],
+    // 亞丁城鎮(白石王都)：拉溫=左宅邸前｜恬金=右上宮殿階梯｜烏普尼=噴泉台階旁｜諾斯=中央羅盤地磚｜包武=右下拱廊前
+    town_aden: [[19, 62], [76, 30], [64, 48], [42, 68], [69, 77]],
+    // 歐瑞村莊(雪山村·v3.3.32 依用戶截圖箭頭校正四點全下到路面)：畢伍德=右屋前雪路｜希林=上方倉庫門前地面｜傭兵公會=村中央｜伊貝爾賓=左屋前空地(勿站台階)｜大衛=右屋角前雪路｜特羅斯=左下柴堆路口
+    town_oren: [[72, 54], [53, 29], [45, 55], [33, 49], [77, 59], [22, 72]],
+    // 燃柳村莊：歐斯=鍛造屋前院(火爐鐵砧旁)
+    town_gludio: [[62, 36]],
+    // 威頓村莊(火山村)：馬沙=大宅階梯前｜漢=村中央｜客盧亞=左上屋簷攤棚｜宙斯之熔岩高崙=左下鍛造爐(自家熔爐)｜魔法娃娃商人=右下屋前｜艾斯倫=右側貨箱堆旁
+    town_witon: [[70, 37], [48, 52], [27, 40], [13, 72], [66, 79], [77, 48]],
+    // 希培利亞(天空神殿)：倉管=左上殿門階梯｜史菲爾=上方大殿門前｜巴特爾=右側步道橋頭｜希蓮恩=中央圓形圖紋
+    town_hyperia: [[15, 32], [48, 24], [68, 56], [48, 55]],
+    // 象牙塔：帕羅=左階梯平台｜塔拉斯=上廳地磚(v3.3.32勿站上層平台)｜塔斯=星紋左側｜巴耶斯=右書牆前｜碧恩=右上水晶祭壇階下(賦屬)｜迪嘉勒廷=大階梯底｜迪泰特=中央星紋｜神秘的魔法師=閱讀角書桌右側地磚(v3.3.32勿站桌區)
+    town_ivory_tower: [[20, 60], [35, 31], [38, 55], [78, 50], [76, 28], [62, 32], [52, 58], [89, 76]],
+    // 🌑 長老會議廳(環形議場·v3.3.33)：真‧冥皇丹特斯=上方大門前階台(骸骨王座坐像)｜亞提利歐=中央星紋右側石板
+    town_elder_council: [[50, 38], [63, 60]],
+    // 席琳神殿(圓形劇場遺跡)：席琳=劇場圓台中央(祈禱)｜伊奧=十字路星紋｜菈克希絲=左上拱門前；避開四處水池
+    town_sherine: [[67, 48], [42, 64], [16, 33]],
+    // 沉默洞穴(黑妖地城)：史克瓦提=左圓頂殿門廊｜雷亞斯=右上樓閣門前｜賽帝亞=大階梯底｜庫普=廣場左｜可羅蘭斯=左下禮拜堂前｜倫得=中央星紋｜康=右下高台走道｜布魯迪卡=廣場右；避開水晶簇/吊橋
+    town_silent: [[19, 44], [72, 37], [36, 35], [40, 58], [35, 80], [52, 50], [78, 68], [63, 60]],
+    // 貝希摩斯(熔岩要塞)：倉管=左閘門房｜森帕爾=大階梯底｜皮爾=右走道方尖碑旁｜普洛凱爾=中央紋章
+    town_behemoth: [[28, 44], [55, 32], [66, 62], [44, 56]],
+    // 炎魔謁見所：炎魔之影=中央紋章｜小惡魔=左下台階｜炎魔鐵匠=左壁爐火(鍛造)｜輔佐官=紅毯王座階下；避開岩漿
+    town_flame_audience: [[48, 60], [24, 80], [18, 42], [70, 32]],
+    // 海賊島村莊：波尼=沙灘小屋遮陽棚攤位前｜庫得=左高腳倉庫棧橋樓梯下(木桶堆)｜希米哲=右側水井邊
+    town_pirate_village: [[50, 28], [28, 40], [73, 36]],
+    // 傲慢之塔1樓：雜貨商人=左召喚法陣邊｜巴姆特=右階梯底｜入口告示=中央菱形法陣
+    town_pride: [[24, 62], [72, 48], [49, 58]],
+    // 時空裂痕入口：入口告示=中央圓形石紋
+    town_rift: [[48, 58], [30, 50], [66, 46]],
     // 🏰 v3.3.9 三攻城城堡（用戶新補背景圖·依圖避開牆壁/水池/柱子/王座/側房家具）
     town_kent_castle: [[44, 40], [56, 40], [42, 48], [58, 48], [47, 54], [55, 54], [45, 60], [57, 60]],   // 🏰 v3.3.10 王座在頂端中央→NPC 上移聚集近王座(盟主另由 override 釘王座前地毯)·避兩側房/立柱
     town_windwood_castle: [[40, 42], [56, 42], [43, 50], [55, 50], [48, 48]],   // 🏰 v3.3.10 祭壇在頂端中央→NPC 上移近祭壇(中央十字綠毯上緣)
@@ -1748,8 +1847,7 @@ const TOWN_NPC_SPOTS = {
 const TOWN_NPC_POS_OVERRIDE = {
     // 安特(847·110×145)釘右上角；精靈女皇(854·11×19極小)原站在迷幻森林之母(2725·88×96 石像)正上方被 100% 蓋住→移到安特讓出的中央空位(可點)
     town_elf: { npc_ent: [84, 43], npc_elfqueen: [48, 62] },
-    // 🌲 v3.3.6 海音 琉米埃爾原站位 [30,52] 踩到中央大樹(石花壇)→左移到樹左側空地
-    town_heine: { npc_lumiel: [23, 52] },
+    // 🌲 v3.3.28 移除海音琉米埃爾覆蓋（v3.3.6 針對舊背景中央大樹·新運河圖已改由 TOWN_NPC_SPOTS index 對位＝植樹花壇旁）
     // 🏰 v3.3.10 三城堡盟主(依詩蒂/特羅斯·只顯示其一)釘在王座/祭壇前中央·其餘主要 NPC 由 TOWN_NPC_SPOTS 上移聚集靠近；兩 id 同座標(擇一顯示)
     town_kent_castle: { npc_esti: [50, 35], npc_tros: [50, 35] },      // 肯特城：王座頂端中央(藍地毯上緣)
     town_windwood_castle: { npc_esti: [48, 35], npc_tros: [48, 35] },  // 風木城：祭壇頂端中央(綠十字毯上緣)
@@ -1838,15 +1936,17 @@ function renderTownNPCMap(townId) {
         el.style.left = p.x + '%'; el.style.top = p.y + '%'; el.style.zIndex = Math.round(p.y * 10);
         el.innerHTML =
             '<div class="tn-label"><span class="tn-name">' + npc.n + '</span><span class="tn-title">' + npc.title + '</span></div>' +
-            '<img class="tn-shadow" src="assets/npc/' + cat.g + '/idle_s_0.png" alt="" onerror="this.remove()">' +   // 🌑 v3.3.5 真實影子 sprite(body gfx+1·共畫布疊本體對齊)；無影子 npc(老sprite影子烙進本體/告示)→404 remove→本體自帶影子照顯
-            '<img class="tn-body"' + (cat.tint ? (' style="filter:' + cat.tint + '"') : '') + ' src="assets/npc/' + cat.g + '/idle_0.png" alt="">';
+            '<img class="tn-shadow" src="assets/npc/' + cat.g + '/idle_s_0.png" alt="" onload="this.parentElement.classList.add(\'has-tn-shadow\')" onerror="this.remove()">' +   // 🌑 v3.3.5 真實影子 sprite(body gfx+1·共畫布疊本體對齊)；有影子→onload 標記父層隱藏後備橢圓；無影子(職業動畫/老 gfx/告示)→404 remove→改用 CSS 橢圓後備影子(v3.3.18)
+            '<img class="tn-body"' + (cat.tint ? (' style="filter:' + cat.tint + '"') : '') + ' src="assets/npc/' + cat.g + '/idle_0.png" alt="">' +
+            (cat.w ? '<img class="tn-weapon" src="assets/npc/' + cat.g + '/idle_w_0.png" alt="" onerror="this.remove()">' : '');   // 🔥 v3.3.18 火焰/武器疊層(screen 混合·宙斯之熔岩高崙的燃燒特效)
         if (npc._float === 'pride') el.onclick = () => openTownFloatWindow('傲慢之塔', '排名挑戰', renderPrideEntrance);
         else if (npc._float === 'rift') el.onclick = () => openTownFloatWindow('時空裂痕', '進入', renderRiftEntrance);
         else el.onclick = () => interactNPC(npc.id, townId);
         map.appendChild(el);
         let bodyImg = el.querySelector('.tn-body');
         bodyImg.addEventListener('load', _scheduleTownLabelResolve, { once: true });   // 🏷️ 圖片載入拿到真實高度後再排名牌
-        _townNpcSprites.push({ img: bodyImg, frames: _npcFrames(key), phase: (i * 3) % 8, last: -1 });
+        let wImg = cat.w ? el.querySelector('.tn-weapon') : null;   // 🔥 火焰疊層與本體同步推進
+        _townNpcSprites.push({ img: bodyImg, wimg: wImg, wframes: (cat.w ? _npcWeaponFrames(key) : null), frames: _npcFrames(key), phase: (i * 3) % 8, last: -1 });
     });
     // 🏷️ v3.2.92 名牌常駐開關：跟隨戰鬥日誌「狀態」鈕(_showMobStatus)·開→所有 NPC 名字常駐頭頂；關→僅 hover
     map.classList.toggle('show-labels', (typeof _showMobStatus === 'undefined') ? true : !!_showMobStatus);
@@ -1917,7 +2017,11 @@ function _townNpcAnimTick() {
     for (const s of _townNpcSprites) {
         if (!s.frames || !s.frames.length) continue;
         let fi = (Math.floor(t / 125) + s.phase) % s.frames.length;
-        if (fi !== s.last) { s.last = fi; let fr = s.frames[fi]; if (fr && fr.src) s.img.src = fr.src; }
+        if (fi !== s.last) {
+            s.last = fi;
+            let fr = s.frames[fi]; if (fr && fr.src) s.img.src = fr.src;
+            if (s.wimg && s.wframes && s.wframes.length) { let wf = s.wframes[fi % s.wframes.length]; if (wf && wf.src) s.wimg.src = wf.src; }   // 🔥 火焰疊層同幀
+        }
     }
 }
 setInterval(_townNpcAnimTick, 125);   // 8fps 站立循環

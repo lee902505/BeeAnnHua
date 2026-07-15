@@ -56,6 +56,9 @@ const SPECIAL_AREA_BG = {   // 特殊地圖：逐張對應背景
     necro_king_room: 'assets/area/軍王之室.jpg',    // 👑 冥法軍王之室
     assassin_king_room: 'assets/area/軍王之室.jpg', // 👑 暗殺軍王之室
     elder_room: 'assets/area/軍王之室.jpg',         // 🏛️ 格蘭肯神殿．長老之室（無專屬背景圖·借用軍王之室背景）
+    dark_elf_sanctuary: 'assets/area/1920x1080/黑暗妖精聖地.jpg',
+    cursed_dark_elf_sanctuary: 'assets/area/1920x1080/受詛咒的黑暗妖精聖地.jpg',
+    collapsed_elder_council_hall: 'assets/area/1920x1080/崩壞的長老會議廳.jpg',   // 🌑 v3.3.33 長老會議廳改為安全區 town_elder_council（背景走 TOWN_BG_1920）
     thebes_desert: 'assets/area/底比斯沙漠.jpg',   // 🏛️ 底比斯 沙漠（專屬背景）
     thebes_pyramid: 'assets/area/底比斯.jpg',      // 🏛️ 底比斯 金字塔內部（與祭壇共用底比斯背景）
     thebes_temple: 'assets/area/底比斯.jpg',        // 🏛️ 底比斯 歐西里斯祭壇（純BOSS房）
@@ -86,7 +89,8 @@ const TOWN_BG_1920 = {
     town_elf: '妖精森林村莊', town_talking: '說話之島村莊', town_gludio: '燃柳村莊', town_witon: '威頓村莊',
     town_hyperia: '希培利亞', town_silver_knight: '銀騎士村莊', town_ivory_tower: '象牙塔（1~3樓）',
     town_sherine: '席琳神殿', town_silent: '沉默洞穴', town_behemoth: '貝希摩斯', town_flame_audience: '炎魔謁見所',
-    town_pride: '傲慢之塔1樓', town_rift: '時空裂痕入口', town_pirate_village: '海賊島村莊'
+    town_pride: '傲慢之塔1樓', town_rift: '時空裂痕入口', town_pirate_village: '海賊島村莊',
+    town_elder_council: '長老會議廳'   // 🌑 v3.3.33 黑暗妖精聖地樞紐安全區
 };
 function mapDisplayName(v) { for (let _c in MAP_CATEGORIES) { let _e = MAP_CATEGORIES[_c].find(x => x.v === v); if (_e) return _e.t; } return null; }
 function applyAreaBackground() {
@@ -782,7 +786,8 @@ function setCreationClassAnimation(c){
     function tick(now){
         const panel = document.getElementById('creation-panel');
         const img = document.getElementById('class-preview-img');
-        if(panel && img && !panel.classList.contains('hidden') && !creationClassAnim.static && now - creationClassAnim.lastAt >= creationClassAnim.stepMs){
+        const gs = document.getElementById('game-screen');   // 🔊 v3.4.17 已進遊戲→停創角動畫（防 creation-panel classList 殘留→動畫續跑並每 loop 重觸發創角音效）
+        if(panel && img && !panel.classList.contains('hidden') && (!gs || gs.classList.contains('hidden')) && !creationClassAnim.static && now - creationClassAnim.lastAt >= creationClassAnim.stepMs){
             creationClassAnim.frame = creationClassAnim.frame >= creationClassAnim.last ? creationClassAnim.first : creationClassAnim.frame + 1;
             img.src = `assets/start/${creationClassAnim.key}/${creationClassAnim.frame}.png`;
             if(creationClassAnim.frame === creationClassAnim.first && typeof playCreationFrameSfx === 'function') playCreationFrameSfx(creationClassAnim.key, creationClassAnim.frame);
@@ -911,10 +916,15 @@ function onToggleClassic(el) {
 function startGame() {
     if(!curCreate.cls || !curCreate.rawCls) return;
     if(typeof stopCreationFrameSfx === 'function') stopCreationFrameSfx();
+    // 🔊 v3.4.17 進遊戲：隱藏 creation-panel（原本只隱藏 creation-screen 父層·子面板 classList 無 .hidden 殘留）＋停創角動畫。
+    //    否則 _bgmIsCreateScreen()(js/17) 與創角逐幀動畫 tick(下方 animateCreationClassPreview) 都看 creation-panel→誤判「還在創角」→登入/創角 BGM 一直播、創角音效每 loop 重觸發。
+    { let _cp = document.getElementById('creation-panel'); if(_cp) _cp.classList.add('hidden'); }
+    creationClassAnim.static = true;   // 立即停創角動畫迴圈（免離開畫面仍每幀更新 img＋每 loop 重觸發 SFX）
     document.getElementById('creation-screen').classList.add('hidden');
     document.getElementById('game-screen').classList.remove('hidden');
     document.body.classList.add('game-bg-dim');   // 正式遊戲後：背景淡化
     if (typeof mercLedgerPurgeSlot === 'function') { try { mercLedgerPurgeSlot(currentSlot); } catch (e) {} }   // 🩹 v3.0.108 新角色覆蓋此存檔位→清除前一個角色的待領傭兵經驗（新角色不繼承）
+    if (typeof petReleaseSlotAssignments === 'function') { try { petReleaseSlotAssignments(currentSlot); } catch (e) { console.warn('pet slot ownership cleanup', e); } }   // 🐾 覆蓋角色時，舊角色出戰寵物回保管，避免卡在不存在的角色名下
     
     const avatarMap = {
         'm_royal': '王子', 'f_royal': '公主',
@@ -1090,6 +1100,11 @@ function saveGame() {
     // 死亡狀態不寫檔：避免把 player.dead=true 存進去，導致下次讀檔卡在死亡狀態而不出怪。
     // 死亡期間沒有可保存的進度，保留上一份「存活」存檔即可。
     if (player && player.dead) return false;
+    // 🛡️ v3.3.14 防「空殼玩家覆蓋既有存檔」資料遺失：標題／載入畫面的 player 是 cls:null 的空殼（尚未載入/創建角色）。
+    //    5 分鐘自動存檔計時器（startGameTimers）在「返回主選單」後不會被清除、beforeunload／寵物名冊 dirty 也可能觸發 saveGame，
+    //    這些背景觸發會把空殼 player 寫進 currentSlot（預設 1）→ 毀掉該格真正的角色（顯示為 null／Lv.1／預設王族／資料不完整）。
+    //    無 cls＝不是進行中的遊戲角色 → 一律拒寫，確保空殼永遠不覆蓋既有存檔。（真正的角色必有職業；創角於選職業後才 saveGame，不受影響。）
+    if (!player || !player.cls) return false;
     try {
     if (typeof sanitizeState === 'function') sanitizeState();   // 🛡️ 寫檔前合理性夾擠：把 runtime(Console)改出的不可能數值夾回合法範圍，連同簽章一起固化、不讓作弊值被存檔/匯出
     // 收集目前的自動化設定 UI 狀態（🛡️ 僅在 UI 已同步時重建；否則沿用記憶體中既有 config）
@@ -1106,21 +1121,14 @@ function saveGame() {
         setHpConvert: document.getElementById('set-hp-convert') ? document.getElementById('set-hp-convert').value : '',
         setHpSkill: document.getElementById('set-hp-skill') ? document.getElementById('set-hp-skill').value : '',
         setHaste: document.getElementById('set-haste').checked,
-        setAutoBuyHaste: document.getElementById('set-auto-buy-haste').checked,
         setBrave: document.getElementById('set-brave').checked,
-        setAutoBuyBrave: document.getElementById('set-auto-buy-brave').checked,
         setBlue: document.getElementById('set-blue').checked,
-        setAutoBuyBlue: document.getElementById('set-auto-buy-blue').checked,
         setCautious: document.getElementById('set-cautious').checked,
-        setAutoBuyCautious: document.getElementById('set-auto-buy-cautious').checked,
         setElfcookie: document.getElementById('set-elfcookie').checked,
-        setAutoBuyElfcookie: document.getElementById('set-auto-buy-elfcookie').checked,
         setPoly: document.getElementById('set-poly').checked,
-        setAutoBuyPoly: document.getElementById('set-auto-buy-poly').checked,
         setMagicbarrier: document.getElementById('set-magicbarrier').checked,
         setTeleport: document.getElementById('set-teleport').checked,
-        setAutoBuyTeleport: document.getElementById('set-auto-buy-teleport').checked,
-        setAutoBuyArrow: document.getElementById('set-auto-buy-arrow').checked,
+        setAutoBuyArrow: document.getElementById('set-auto-buy-arrow').checked,   // 🧪 v3.3.15 各藥水/卷軸「自動購買」已併入「自動使用」→移除獨立收集；弓箭自動購買維持
         autoBuffSkills: {} // 用來儲存動態生成的法術 Buff
     };
     
@@ -1203,6 +1211,9 @@ function purgeOrphanItems() {
 
 function loadGame() {
     _uiConfigReady = false;   // 🛡️ 審計#1：載入期間 DOM 仍是上一個畫面/預設值，禁止 saveGame 以它重建 config
+    // 🐾 v3.3.16 換角色前：先把上一角色未存的寵物進度 flush 進共用桶，再失效記憶體快取→新角色 petRoster() 從桶重載（防跨角色髒鏡像互洗裝備/出戰）。
+    try { if (typeof _petRosterDirty !== 'undefined' && _petRosterDirty && player && player.cls && typeof petRosterSave === 'function') petRosterSave(); } catch (e) {}
+    try { if (typeof _petRosterKey !== 'undefined') _petRosterKey = null; } catch (e) {}
     let _u = _saveUnwrap(_lzGet('lineage_idle_save_' + currentSlot));   // 🛡️ 解存檔簽章（舊明文存檔 signed:false 照常載入）
     if (_u.signed && !_u.ok) { alert('此存檔的完整性校驗未通過，可能已被外部修改，無法載入。\n可在載入畫面點「復原備份」還原，或改用未被修改的存檔。'); return; }   // 🛡️ 簽章不符＝被竄改：拒絕載入
     let s = _u.payload;
@@ -1432,21 +1443,14 @@ function loadGame() {
             
             // 藥水與卷軸開關
             if (c.setHaste !== undefined) document.getElementById('set-haste').checked = c.setHaste;
-            if (c.setAutoBuyHaste !== undefined) document.getElementById('set-auto-buy-haste').checked = c.setAutoBuyHaste;
             if (c.setBrave !== undefined) document.getElementById('set-brave').checked = c.setBrave;
-            if (c.setAutoBuyBrave !== undefined) document.getElementById('set-auto-buy-brave').checked = c.setAutoBuyBrave;
             if (c.setBlue !== undefined) document.getElementById('set-blue').checked = c.setBlue;
-            if (c.setAutoBuyBlue !== undefined) document.getElementById('set-auto-buy-blue').checked = c.setAutoBuyBlue;
             if (c.setCautious !== undefined) document.getElementById('set-cautious').checked = c.setCautious;
-            if (c.setAutoBuyCautious !== undefined) document.getElementById('set-auto-buy-cautious').checked = c.setAutoBuyCautious;
             if (c.setElfcookie !== undefined) document.getElementById('set-elfcookie').checked = c.setElfcookie;
-            if (c.setAutoBuyElfcookie !== undefined) document.getElementById('set-auto-buy-elfcookie').checked = c.setAutoBuyElfcookie;
             if (c.setPoly !== undefined) document.getElementById('set-poly').checked = c.setPoly;
-            if (c.setAutoBuyPoly !== undefined) document.getElementById('set-auto-buy-poly').checked = c.setAutoBuyPoly;
             if (c.setMagicbarrier !== undefined) document.getElementById('set-magicbarrier').checked = c.setMagicbarrier;
             if (c.setTeleport !== undefined) document.getElementById('set-teleport').checked = c.setTeleport;
-            if (c.setAutoBuyTeleport !== undefined) document.getElementById('set-auto-buy-teleport').checked = c.setAutoBuyTeleport;
-            if (c.setAutoBuyArrow !== undefined) document.getElementById('set-auto-buy-arrow').checked = c.setAutoBuyArrow;
+            if (c.setAutoBuyArrow !== undefined) document.getElementById('set-auto-buy-arrow').checked = c.setAutoBuyArrow;   // 🧪 v3.3.15 各藥水/卷軸「自動購買」勾選已移除（併入自動使用）→不再還原
             
             // 動態魔法 Buff 設定還原
             if (c.autoBuffSkills) {
@@ -1479,6 +1483,7 @@ function loadGame() {
         // 計時器統一由 startGameTimers() 註冊（內含去重），含每 5 分鐘自動存檔。
         startGameTimers();
         logSys(`===== 歡迎回來 =====`);
+        try { if (typeof purgeReplacedAllies === 'function') purgeReplacedAllies(); } catch (e) {}   // 🤝 v3.4.23 載入後掃描：出戰傭兵的來源存檔位若已換成新角色（enSeed 不同）→ 自動解散
     }
 }
 

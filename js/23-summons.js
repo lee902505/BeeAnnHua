@@ -32,7 +32,7 @@ const SUMMON_TIERS = [
         { n: '狂野之魔', lv: 28, hp: 160, aspd: 16, ring: true, proc: [{ kind: 'magic', p: 0.10, name: '水泡', ele: 'water' }] } ] },
     { reqLv: 40, div: 8,  cap: 5, ringCap: 6, mobs: [
         { n: '食人妖精',   lv: 32, hp: 450, aspd: 13 },
-        { n: '食人妖精王', lv: 32, hp: 270, aspd: 13, ring: true },
+        { n: '食人妖精王', lv: 32, hp: 400, aspd: 13, ring: true },
         { n: '冰人',       lv: 32, hp: 180, aspd: 17, ring: true, proc: [{ kind: 'magic', p: 0.10, name: '冰錐', ele: 'water' }] } ] },
     { reqLv: 44, div: 8,  cap: 5, ringCap: 6, mobs: [
         { n: '狂暴蜥蜴人', lv: 36, hp: 500, aspd: 17 },
@@ -66,31 +66,35 @@ const SUMMON_TIERS = [
 const SUMMON_NO_RING_MAX_LV = 52;   // 無戒指：固定召喚「已解鎖最高階」預設怪，上限 52 魔熊階
 
 function _sumTierOf(name) { for (const t of SUMMON_TIERS) { const m = t.mobs.find(x => x.n === name); if (m) return { tier: t, mob: m }; } return null; }
-function _sumQualified(name) {   // 玩家目前可召喚此怪？（等級＋魅力＋戒指）
+// 🩸 v3.3.23 owner 參數化（預設玩家·傭兵召喚術傳 ally）：選怪/數量/傷害/命中皆依 owner 的等級·魅力·召喚控制戒指。
+function _sumQualified(name, owner) {   // owner 目前可召喚此怪？（等級＋魅力＋戒指）
+    owner = owner || player;
     const e = _sumTierOf(name); if (!e) return false;
-    if ((player.lv || 1) < e.tier.reqLv) return false;
-    if (e.tier.reqCha && (player.d.cha || 0) < e.tier.reqCha) return false;
-    if (e.mob.ring && !hasSummonCtrlRing(player)) return false;
+    if ((owner.lv || 1) < e.tier.reqLv) return false;
+    if (e.tier.reqCha && ((owner.d && owner.d.cha) || 0) < e.tier.reqCha) return false;
+    if (e.mob.ring && !hasSummonCtrlRing(owner)) return false;
     return true;
 }
-function _sumDefaultForm() {   // 無戒指（或未選擇）的預設：已解鎖最高階（≤52）的第一隻
+function _sumDefaultForm(owner) {   // 無戒指（或未選擇）的預設：已解鎖最高階（≤52）的第一隻
+    owner = owner || player;
     let best = null;
     for (const t of SUMMON_TIERS) {
         if (t.reqLv > SUMMON_NO_RING_MAX_LV) continue;
-        if ((player.lv || 1) >= t.reqLv) best = t.mobs[0].n;
+        if ((owner.lv || 1) >= t.reqLv) best = t.mobs[0].n;
     }
     return best;
 }
-function _sumCountFor(name) {   // 數量：floor((魅力+6)/div)·上限 cap（28~48 階有戒指 ringCap=6）；68/72 階固定 1
+function _sumCountFor(name, owner) {   // 數量：floor((魅力+6)/div)·上限 cap（28~48 階有戒指 ringCap=6）；68/72 階固定 1
+    owner = owner || player;
     const e = _sumTierOf(name); if (!e) return 0;
     if (e.tier.fixedCount) return e.tier.fixedCount;
-    const cha = (player.d && player.d.cha) || 0;
+    const cha = (owner.d && owner.d.cha) || 0;
     const n = Math.floor((cha + 6) / e.tier.div);
-    const cap = hasSummonCtrlRing(player) ? e.tier.ringCap : e.tier.cap;
+    const cap = hasSummonCtrlRing(owner) ? e.tier.ringCap : e.tier.cap;
     return Math.max(0, Math.min(cap, n));
 }
 // 傷害設計：整隊基準 DPS 由「魅力×玩家等級」連續成長，再由召喚階級按比例逐階增加。
-//   同階怪物不再因 HP 較低而取得過大的基礎傷害；差異改由 HP、攻速與特殊技能形成。
+//   同階以中位 HP 為基準套用溫和反向曲線：(中位HP/自身HP)^0.35；血越少 DPS 越高、血越多 DPS 越低。
 //   🧙 v3.2.23 混合制（用戶拍板）：每隻單價＝隊伍基準 ÷ 該階數量上限（固定·不隨實際隻數變）
 //   → 多隻＝成倍疊加（5 隻＝單隻的 5 倍·「單隻與多隻有正常倍數差」）；
 //   → 後期階級上限縮小（64 階 2 隻·68/72 階固定 1 隻）→ 單隻天生承載半隊/整隊基準，
@@ -99,34 +103,43 @@ function _sumCountFor(name) {   // 數量：floor((魅力+6)/div)·上限 cap（
 //   → 戒指加召的第 6 隻也是全額單價（總傷 6/5×基準）——隻數只增不稀釋，任何一隻的數值不受其他隻影響。
 //   🧙 v3.2.27 魅力曲線：隊伍基準=(39+0.09×魅力×玩家等級)×(1+階級×6%)。
 //   → 50級滿編無精通召喚略勝無精靈精通的強力精靈；階級倍率同時保證 68級單隻仍高於所有低階滿編（含第6隻）。
-function _sumScaledHit(mobLv, tierIdx, mastery) {
-    const lv = Math.max(1, player.lv || 1);
-    const cha = Math.max(0, (player.d && player.d.cha) || 0);
+function _sumScaledHit(mobLv, tierIdx, mastery, owner) {
+    owner = owner || player;
+    const lv = Math.max(1, owner.lv || 1);
+    const cha = Math.max(0, (owner.d && owner.d.cha) || 0);
     return lv + Math.floor(lv * 0.75 + cha * 0.35)
         + Math.floor((mobLv || 1) / 8) + Math.max(0, tierIdx || 0) + (mastery ? 5 : 0);
 }
-function _sumSkillPower(s) {
+function _sumSkillPower(s, owner) {
+    owner = owner || player;
     const e = _sumTierOf(s && s.form);
     const tierIdx = e ? Math.max(0, SUMMON_TIERS.indexOf(e.tier)) : 0;
-    const cha = Math.max(0, (player.d && player.d.cha) || 0);
-    return Math.max(1, Math.floor((s && s.lv || 1) + (player.lv || 1) * 0.35 + tierIdx * 2 + cha * 0.5));
+    const cha = Math.max(0, (owner.d && owner.d.cha) || 0);
+    return Math.max(1, Math.floor((s && s.lv || 1) + (owner.lv || 1) * 0.35 + tierIdx * 2 + cha * 0.5));
 }
-function _sumDerive(mob) {
+function _sumHpDpsMult(t, m) {   // 同階生存力換輸出：低血較痛、高血較坦；0.35 次方避免血量差距被放大成失衡
+    const hps = ((t && t.mobs) || []).map(x => Math.max(1, x.hp || 1)).sort((a, b) => a - b);
+    if (!hps.length) return 1;
+    const refHp = hps[Math.floor(hps.length / 2)];
+    return Math.pow(refHp / Math.max(1, (m && m.hp) || refHp), 0.35);
+}
+function _sumDerive(mob, owner) {
+    owner = owner || player;
     const e = _sumTierOf(mob.form || mob.n) || _sumTierOf(mob.n);
     if (!e) return { flat: 0, dice: 1, aspd: 20, dmgMult: 1, hit: 0, ac: 10, dr: 0 };   // 🛡️ v3.2.40 防呆：未知 form（改名/殘留實體）回安全預設，不 null-deref（js/04 呼叫端無 try/catch）
     const t = e.tier, m = e.mob;
     const tierIdx = Math.max(0, SUMMON_TIERS.indexOf(t));
-    const cha = Math.max(0, (player.d && player.d.cha) || 0);
-    const squadDps = (39 + 0.09 * cha * (player.lv || 1)) * (1 + tierIdx * 0.06) * (t.premium || 1);
+    const cha = Math.max(0, (owner.d && owner.d.cha) || 0);
+    const squadDps = (39 + 0.09 * cha * (owner.lv || 1)) * (1 + tierIdx * 0.06) * (t.premium || 1) * _sumHpDpsMult(t, m);
     const designCount = Math.max(1, t.cap || 1);   // 🧙 v3.2.24 單價＝基準/上限·恆定（每隻獨立·第 6 隻同為全額不稀釋）
     const mean = (squadDps / designCount) * (m.aspd / 10);
     const flat = Math.round(mean * 0.55);
     const dice = Math.max(1, Math.round((mean - flat) * 2));
-    const mastery = (player.mastery === 'm_summon');   // 🧙 召喚精通沿用：傷害×1.2、命中+5
+    const mastery = (owner.mastery === 'm_summon');   // 🧙 召喚精通沿用：傷害×1.2、命中+5
     return {
         flat, dice, aspd: m.aspd,
-        dmgMult: (mastery ? 1.2 : 1) * (1 + Math.min(12, Math.max(0, (player.d && player.d.magicDmg) || 0)) / 80),
-        hit: _sumScaledHit(m.lv, tierIdx, mastery),
+        dmgMult: (mastery ? 1.2 : 1) * (1 + Math.min(12, Math.max(0, (owner.d && owner.d.magicDmg) || 0)) / 80),
+        hit: _sumScaledHit(m.lv, tierIdx, mastery, owner),
         ac: 10 - Math.floor(m.lv / 4),   // 被打時的防禦（越低越難被命中）
         dr: Math.floor(m.lv / 10)
     };
@@ -144,24 +157,26 @@ const ZOMBIE_TIERS = [
     { reqLv: 52, lv: 20, hp: 800 }
 ];
 const ZOMBIE_ASPD = 12;   // 人形殭屍 attack 4 幀 ×1.25＋7（summon-frames 實測）
-function _zmbTierForPlayer() {
-    if (player.cls === 'elf') return (player.lv || 1) >= 48 ? ZOMBIE_TIERS[0] : null;   // 妖精：48+ 固定 Lv10/HP100
+function _zmbTierForPlayer(owner) {
+    owner = owner || player;   // 🩸 v3.3.24 owner 參數化（傭兵造屍術傳 ally）
+    if (owner.cls === 'elf') return (owner.lv || 1) >= 48 ? ZOMBIE_TIERS[0] : null;   // 妖精：48+ 固定 Lv10/HP100
     let best = null;
-    for (const t of ZOMBIE_TIERS) if ((player.lv || 1) >= t.reqLv) best = t;
+    for (const t of ZOMBIE_TIERS) if ((owner.lv || 1) >= t.reqLv) best = t;
     return best;
 }
-function _zmbDerive(s) {
+function _zmbDerive(s, owner) {
+    owner = owner || player;
     const t = ZOMBIE_TIERS.find(x => x.lv === s.lv) || ZOMBIE_TIERS[0];
     const tierIdx = Math.max(0, ZOMBIE_TIERS.indexOf(t));
-    const dps = 22 + (player.lv || 1) * 0.45 + tierIdx * 5;
+    const dps = 22 + (owner.lv || 1) * 0.45 + tierIdx * 5;
     const mean = dps * (ZOMBIE_ASPD / 10);
     const flat = Math.round(mean * 0.55);
     const dice = Math.max(1, Math.round((mean - flat) * 2));
-    const mastery = (player.mastery === 'm_summon');   // 🧙 召喚精通沿用：造屍術隨從傷害×1.2、命中+5
+    const mastery = (owner.mastery === 'm_summon');   // 🧙 召喚精通沿用：造屍術隨從傷害×1.2、命中+5
     return {
         flat, dice, aspd: ZOMBIE_ASPD,
-        dmgMult: (mastery ? 1.2 : 1) * (1 + Math.min(12, Math.max(0, (player.d && player.d.magicDmg) || 0)) / 80),
-        hit: _sumScaledHit(s.lv, tierIdx, mastery),
+        dmgMult: (mastery ? 1.2 : 1) * (1 + Math.min(12, Math.max(0, (owner.d && owner.d.magicDmg) || 0)) / 80),
+        hit: _sumScaledHit(s.lv, tierIdx, mastery, owner),
         ac: 10 - Math.floor(s.lv / 4),
         dr: Math.floor(s.lv / 10)
     };
@@ -226,17 +241,36 @@ function summonV2ActiveSk() { return (player && player._summonV2Sk) || 'sk_summo
 // 執行期實體：player.summonsV2 = [{ uid, form, lv, hp, mhp, _atkCd, _animAct, _px.. }]（不入存檔；讀檔後 buff 仍在→自動重施）
 // 玩家選擇：player.summonChoice（入存檔·僅有戒指且資格符合時生效）
 function summonV2List() { return (player && player.summonsV2) || []; }
+// 🧱 v3.4.50 傭兵召喚物清單（可被攻擊的抽象實體·無 sprite）：ally.summon 帶 hp/mhp(由 js/06 _mercSummonAttachEntity 附加)→進 js/04 受害者池。
+//   只收「有血量欄位且存活」者（舊存檔未遷移的召喚物自然排除·到期重召後補齊）；玩家迷魅(player.summon)不在此（維持無敵抽象）。
+function mercSummonList() {
+    if (typeof player === 'undefined' || !player || !player.allies || !player.allies.length) return [];
+    let out = [];
+    for (let a of player.allies) { let s = a && !a._downed && a.summon; if (s && (s.mhp || 0) > 0 && !s._downed && (s.hp || 0) > 0) out.push(s); }
+    return out;
+}
 function summonV2Knows(skId) { skId = skId || 'sk_summon'; return ((player.skills || []).includes(skId) || (player.grantedSkills || []).includes(skId)); }   // 已習得（比照 castSkillInner 的 grantedSkills 旁路）
 function summonRenderList() {   // 供 js/22 寵物圖層渲染（含死亡殘影 2 秒）
     if (typeof player === 'undefined' || !player || !player.cls) return [];
     const now = Date.now();
     return summonV2List().filter(s => !s._downed || (now - (s._diedAt || 0)) < 2000);
 }
-function summonV2ActiveForm() {   // 本次施放要召的怪
+function summonV2ActiveForm(owner) {   // 本次施放要召的怪（owner 預設玩家·傭兵召喚術傳 ally）
+    owner = owner || player;
     let form = null;
-    if (hasSummonCtrlRing(player) && player.summonChoice && _sumQualified(player.summonChoice) && _sumCountFor(player.summonChoice) > 0) form = player.summonChoice;   // v3.2.39 稽核修：數量0（魅力不足）的選擇回退預設，避免施放卡死＋每秒紅字
-    if (!form) form = _sumDefaultForm();
+    if (hasSummonCtrlRing(owner) && owner.summonChoice && _sumQualified(owner.summonChoice, owner) && _sumCountFor(owner.summonChoice, owner) > 0) form = owner.summonChoice;   // v3.2.39 稽核修：數量0（魅力不足）的選擇回退預設，避免施放卡死＋每秒紅字
+    if (!form) form = _sumDefaultForm(owner);
     return form;
+}
+// 🧙 v3.3.23 傭兵召喚術 v2 抽象輸出計畫：依傭兵（owner）等級＋召喚控制戒指選怪·回 { form, count, lv }（純供傷害計算·不生成戰場實體/血條/面板）；無法召喚回 null（呼叫端落回舊分階模型）。
+function mercSummonV2Plan(owner) {
+    owner = owner || player;
+    const form = summonV2ActiveForm(owner);
+    if (!form) return null;
+    const cnt = _sumCountFor(form, owner);
+    if (cnt <= 0) return null;
+    const e = _sumTierOf(form);
+    return { form: form, count: cnt, lv: (e && e.mob && e.mob.lv) || 1 };
 }
 function summonV2CastFor(skId, silent) {   // castSkill 分流入口（sk_summon/sk_zombie/sk_elf_summon/sk_elf_summon2）：true=成功（MP 由 castSkillInner 扣）
     if (typeof _petInWild === 'function' && !_petInWild()) { if (!silent) logSys('安全區內無法召喚（請到狩獵區再施放）。'); return false; }
@@ -323,7 +357,7 @@ function summonV2Tick() {
         s._atkCd = d.aspd;
         const t = (typeof _petPickTarget === 'function') ? _petPickTarget(s) : getTarget();
         if (!t) continue;
-        if (s.skId === 'sk_elf_summon' || s.skId === 'sk_elf_summon2') spiritAttackOnce(s, t);   // 🧝 屬性精靈：舊公式攻擊
+        if (s.skId === 'sk_elf_summon' || s.skId === 'sk_elf_summon2') spiritAttackOnce(s, t);   // 🧝 屬性精靈：玩家／傭兵共用公式（傭兵呼叫點見 js/07）
         else summonV2AttackOnce(s, d, t);   // 召喚術/造屍術：flat＋1D骰 模型（殭屍無 proc·由 _sumTierOf 守衛跳過）
     }
     // 死亡殘影過期清理（渲染保留 2 秒）
@@ -332,38 +366,47 @@ function summonV2Tick() {
     player.summonsV2 = (player.summonsV2 || []).filter(s => !s._downed || (now - (s._diedAt || 0)) < 2200);
     if ((player.summonsV2 || []).length !== before) renderSummonPanel(true);
 }
-function summonV2AttackOnce(s, d, t) {
-    const _sgb = (typeof summonGearBonus === 'function') ? summonGearBonus(player) : { dmg: 0, hit: 0 };   // 🏺 喚獸師的訓練鞭等
-    const _ia = (typeof teamIlluAura === 'function') ? teamIlluAura(s) : null;   // 🩹 v3.2.67 幻覺攻擊光環（化身+10傷／歐吉+4傷+4命）全隊生效→注入召喚物普攻（s 非提供者·排除無效果=取全隊）
+function summonV2AttackOnce(s, d, t, owner) {
+    owner = owner || player;   // 🩸 v3.3.23 owner 參數化：傭兵召喚術抽象輸出共用（讀 owner 裝備/精通；killMob 仍歸真隊長·不換身）
+    const _ownerDmgMult = (owner !== player && typeof royalAllyMult === 'function') ? royalAllyMult() : 1;   // 👑 傭兵召喚物比照傭兵本體吃隊長魅力；玩家召喚固定1
+    const _sgb = (typeof summonGearBonus === 'function') ? summonGearBonus(owner) : { dmg: 0, hit: 0 };   // 🏺 喚獸師的訓練鞭等
+    const _ia = (typeof teamIlluAura === 'function') ? teamIlluAura(s, true) : null;   // 🩹 v3.2.67 幻覺攻擊光環（化身+10傷／歐吉+4傷+4命）全隊生效→注入召喚物普攻（s 非提供者·排除無效果=取全隊）
+    const _ownerIa = (owner !== player && !((owner.buffs || {}).sk_illu_lich > 0) && typeof teamIlluAura === 'function') ? teamIlluAura(owner, true) : null;   // 傭兵 d 已含自身光環；補入其他隊員提供的巫妖魔傷。🩹 v3.4.47：owner 自身已持有巫妖(共享會鋪給全隊)→own(+2 在 d)＋others(+2)＝雙算→自身持有時不再補差額
+    const _baseMd = Math.min(12, Math.max(0, (owner.d && owner.d.magicDmg) || 0));
+    const _teamMd = Math.min(12, Math.max(0, _baseMd + ((_ownerIa && _ownerIa.md) || 0)));
+    const _magicAuraRatio = (1 + _teamMd / 80) / (1 + _baseMd / 80);   // _sumDerive/_zmbDerive 已含自身 magicDmg，只補差額避免雙算
+    const _attackMult = d.dmgMult * _magicAuraRatio;
     const hv = stretchHitValue(d.hit + _sgb.hit + (_ia ? _ia.eh : 0) - t.lv + mobEffAC(t));
     const r = roll(1, 20);
     _petAnimAct(s, 'attack', t.uid);   // 🎬 v3.2.73 補跑中不設→回前景不同步爆播
     if (!((r === 20) || (r !== 1 && hv >= r))) { logCombat(`<span class="text-purple-300">${s.form}</span> 的攻擊未命中。`, 'miss'); return; }
-    let dmg = ((r === 20 ? d.dice : roll(1, d.dice)) + d.flat + _sgb.dmg) * d.dmgMult + (_ia ? _ia.ed : 0);
+    let dmg = ((r === 20 ? d.dice : roll(1, d.dice)) + d.flat + _sgb.dmg) * _attackMult + (_ia ? _ia.ed : 0);
     dmg = Math.max(1, Math.floor(dmg) - (t.dr || 0));
+    dmg = Math.max(1, Math.floor(dmg * _ownerDmgMult));
     markBossPhysicalHit(t);
     t.curHp -= dmg; t.justHit = 'normal'; mobWake(t);
     logCombat(`<span class="text-purple-300">${s.form}</span> 攻擊 <span class="${getMobColor(t.lv)}">${t.n}</span>，造成 ${dmg}${r === 20 ? '（重擊）' : ''} 點傷害。`, 'player');
     // 技能觸發（10/15/20%·僅召喚術怪有 proc；造屍術殭屍不在 SUMMON_TIERS → e=null 直接跳過）
     const e = _sumTierOf(s.form);
     if (e && e.mob.proc && t.curHp > 0) {
-        const skillPower = _sumSkillPower(s);
+        const skillPower = _sumSkillPower(s, owner);
         for (const pr of e.mob.proc) {
             if (Math.random() >= pr.p) continue;
             _petAnimAct(s, 'skill');
             if (pr.kind === 'poison') {   // 單體中毒（比照技能類中毒：單層固定 DoT）
                 t.st = t.st || newMobStatus();
-                t.st.poison = 150; t.st.poisonDmg = Math.max(1, Math.floor(skillPower / 2)); t.st.poisonStacks = 1; t.st.poisonUnit = t.st.poisonDmg; t.st.poisonTick = 30;
+                t.st.poison = 150; t.st.poisonDmg = Math.max(1, Math.floor(skillPower / 2 * _ownerDmgMult)); t.st.poisonStacks = 1; t.st.poisonUnit = t.st.poisonDmg; t.st.poisonTick = 30;
                 logCombat(`<span class="text-purple-300">${s.form}</span> 發動 <span class="text-green-300 font-bold">${pr.name}</span>，<span class="${getMobColor(t.lv)}">${t.n}</span> 中毒了！`, 'magic');
             } else if (pr.kind === 'poisonAll') {   // 全體中毒
                 const all = mapState.mobs.filter(m => m && m.curHp > 0);
-                all.forEach(m => { m.st = m.st || newMobStatus(); m.st.poison = 150; m.st.poisonDmg = Math.max(1, Math.floor(skillPower / 2)); m.st.poisonStacks = 1; m.st.poisonUnit = m.st.poisonDmg; m.st.poisonTick = 30; });
+                all.forEach(m => { m.st = m.st || newMobStatus(); m.st.poison = 150; m.st.poisonDmg = Math.max(1, Math.floor(skillPower / 2 * _ownerDmgMult)); m.st.poisonStacks = 1; m.st.poisonUnit = m.st.poisonDmg; m.st.poisonTick = 30; });
                 if (all.length) logCombat(`<span class="text-purple-300">${s.form}</span> 發動 <span class="text-green-300 font-bold">${pr.name}</span>，敵方全體中毒！`, 'magic');
             } else {   // magic / magicAll：屬性魔法傷害（吃魔抗/DR/屬性剋制·summonElementDamage）
                 const targets = (pr.kind === 'magicAll') ? mapState.mobs.filter(m => m && m.curHp > 0) : [t];
                 const texts = [];
                 targets.forEach(m => {
-                    let pd = summonElementDamage([2, Math.max(2, Math.ceil(s.lv * 0.6))], pr.ele || 'none', m, skillPower, d.dmgMult * (pr.heavy || 1), 0);
+                    let pd = summonElementDamage([2, Math.max(2, Math.ceil(s.lv * 0.6))], pr.ele || 'none', m, skillPower, _attackMult * (pr.heavy || 1), 0);
+                    pd = Math.max(1, Math.floor(pd * _ownerDmgMult));
                     m.curHp -= pd; m.justHit = (pr.ele && pr.ele !== 'none') ? pr.ele : 'magic'; mobWake(m);
                     texts.push(`<span class="${getMobColor(m.lv)}">${m.n}</span> ${pd}`);
                     if (pr.slow && Math.random() * 100 < Math.max(0, (100 - (m.mr || 0)) / 2)) { m.st = m.st || newMobStatus(); m.st.slow = Math.max(m.st.slow || 0, 80); }
@@ -377,21 +420,23 @@ function summonV2AttackOnce(s, d, t) {
     if (t.curHp <= 0) { const i = mapState.mobs.findIndex(x => x && x.uid === t.uid); if (i !== -1) killMob(i); }
     else { try { renderMobs(); } catch (e2) {} }
 }
-// 🧝 屬性精靈攻擊（v3.2.21·能力維持舊 summonAttack ranged 分支公式）：
-//   固定值＝魅力×等級/elemScale、魔抗穿透＝mrPenBase＋魅力/10、傷害走 summonElementDamage（吃魔抗/剋制/DR）、命中走 summonHitValue（js/07 共用）
-function spiritAttackOnce(s, t) {
+// 🧝 屬性精靈攻擊（v3.4.11 玩家實體／傭兵無敵抽象召喚共用）：
+//   固定值＝owner魅力×owner等級/elemScale、魔抗穿透＝mrPenBase＋魅力/10；吃 owner 裝備/精通、魔抗/剋制/DR、幻覺光環，傭兵另吃王族隊長倍率。
+function spiritAttackOnce(s, t, owner) {
+    owner = owner || player;   // 🧝 玩家實體／傭兵無敵抽象精靈共用同一傷害公式
     const spec = _spiritSpec(s.skId, s.ele, !!s._king);   // 🧝 v3.2.26 四屬性獨立參數（dice/scale/攻速依屬性·王含 AOE）
-    const cha = (player.d && player.d.cha) || 0;
-    const _sgb = (typeof summonGearBonus === 'function') ? summonGearBonus(player) : { dmg: 0, hit: 0 };
-    const _ia = (typeof teamIlluAura === 'function') ? teamIlluAura(s) : null;   // 🩹 v3.2.67 幻覺攻擊光環全隊生效→注入屬性精靈命中(eh)；⚠️v3.2.68 稽核修：md 不再入 flat——summonDamageMult 已吃 player.d.magicDmg(含巫妖光環)·再加＝雙重計算
+    const cha = (owner.d && owner.d.cha) || 0;
+    const _sgb = (typeof summonGearBonus === 'function') ? summonGearBonus(owner) : { dmg: 0, hit: 0 };
+    const _ia = (typeof teamIlluAura === 'function') ? teamIlluAura(s, true) : null;   // 🩹 幻覺光環：精靈命中吃 eh；md 由 owner.d＋下方其他隊員差額進 summonDamageMult，避免重複計算
+    const _ownerIa = (owner !== player && !((owner.buffs || {}).sk_illu_lich > 0) && typeof teamIlluAura === 'function') ? teamIlluAura(owner, true) : null;   // 傭兵補其他隊員的巫妖魔傷；自身光環已在 owner.d。🩹 v3.4.47：owner 自身已持有巫妖→不再補差額（共享使全隊持有＝原寫法必雙算）
     const smLike = { skId: s.skId, hitLvOff: spec.hitLvOff || 0, dmgMult: spec.dmgMult || 1 };
     _petAnimAct(s, 'attack', t.uid);   // 🎬 v3.2.73 補跑中不設→回前景不同步爆播
-    const hv = summonHitValue(smLike, player, t, _sgb.hit + (_ia ? _ia.eh : 0));
+    const hv = summonHitValue(smLike, owner, t, _sgb.hit + (_ia ? _ia.eh : 0));
     const r = roll(1, 20);
     if (!((r === 20) || (r !== 1 && hv >= r))) { logCombat(`<span class="text-purple-300">${s.form}</span> 的攻擊未命中。`, 'miss'); return; }
-    const flat = Math.floor(cha * (player.lv || 1) / (spec.scale || 20));
+    const flat = Math.floor(cha * (owner.lv || 1) / (spec.scale || 20));
     const mrPen = (spec.mrPenBase || 0) + Math.floor(cha / 10);
-    const mult = summonDamageMult(smLike, player, true);
+    const mult = summonDamageMult(smLike, owner, true, (_ownerIa && _ownerIa.md) || 0);
     const dmg = summonElementDamage(spec.dice || [1, 40], s.ele, t, flat + _sgb.dmg, mult, mrPen);
     t.justHit = (s.ele && s.ele !== 'none') ? s.ele : 'magic';
     t.curHp -= dmg; mobWake(t);
@@ -421,7 +466,7 @@ function enemyAttackSummon(mob, s) {
     const st = mob.st || newMobStatus();
     if (st.terror > 0 && Math.random() < 0.90) return;
     const mobHitBonus = (mob.hit || 0) - (st.blindVal || 0) - (st.weaken > 0 ? 2 : 0) - (st.disease > 0 ? 4 : 0) + tamerAuraHit(mob);
-    const hv = stretchHitValue(mob.lv + mobHitBonus - s.lv + (d.ac - (typeof teamAcBonus === 'function' ? teamAcBonus(s) : 0)));   // 🩹 v3.2.67 大地祝福/高崙 全隊 AC 減免也惠及召喚物（比照寵物）
+    const hv = stretchHitValue(mob.lv + mobHitBonus - s.lv + (d.ac - (typeof teamAcBonus === 'function' ? teamAcBonus(s, true) : 0)));   // 🩹 v3.2.67 大地祝福/高崙 全隊 AC 減免也惠及召喚物（比照寵物）
     const r = roll(1, 20);
     let hit = false, heavy = false;
     if (r === 20) { hit = true; heavy = true; } else if (r !== 1 && hv >= r) hit = true;
@@ -431,7 +476,7 @@ function enemyAttackSummon(mob, s) {
     if (mob._sherine) dmg = Math.floor(dmg * (mob._sherineMad ? 3 : 2));
     if (mob._grace) dmg = Math.floor(dmg * 1.5);
     dmg = Math.max(1, Math.floor(dmg * riftDamageMult()) - d.dr);
-    dmg = Math.max(1, Math.floor(dmg * (typeof teamDmgReduceMult === 'function' ? teamDmgReduceMult() : 1)));   // 🩹 v3.2.67 鋼鐵防護/化身 全隊受傷減免也惠及召喚物（比照寵物）
+    dmg = Math.max(1, Math.floor(dmg * (typeof teamDmgReduceMult === 'function' ? teamDmgReduceMult(true) : 1)));   // 🩹 v3.2.67 鋼鐵防護/化身 全隊受傷減免也惠及召喚物（比照寵物）
     s.hp -= dmg;
     _petAnimAct(s, 'hurt');
     logCombat(`<span class="${getMobColor(mob.lv)}">${mob.n}</span> 攻擊 <span class="text-purple-300">${s.form}</span>，造成 ${dmg} 點傷害。`, 'enemy-attack', 'enemy');
@@ -451,7 +496,7 @@ function applyMobMagicToSummon(mob, sk, s) {
     let baseM = roll(sk.dmg[0], sk.dmg[1]);
     let extra = (sk.db || 0) + (sk.dbLv ? (mob.lv || 0) * (sk.dbLvMult || 1) : 0);
     let dmg = sk.fixedDmg ? (baseM + extra) : (Math.floor((baseM + extra) * mrMult(mr)) - dr);
-    dmg = Math.max(1, Math.floor(Math.max(1, dmg * shMul) * (typeof teamDmgReduceMult === 'function' ? teamDmgReduceMult() : 1)));
+    dmg = Math.max(1, Math.floor(Math.max(1, dmg * shMul) * (typeof teamDmgReduceMult === 'function' ? teamDmgReduceMult(true) : 1)));
     dmg = Math.max(1, Math.floor(dmg * riftDamageMult()));
     s.hp -= dmg;
     _petAnimAct(s, 'hurt');
@@ -469,7 +514,8 @@ function summonTeamSignature() {
         const skId = summonV2ActiveSk();
         const remain = Math.max(0, Math.ceil((player && player.buffs && player.buffs[skId]) || 0));
         return list.map(s => [s.uid, s.form, s.lv || 1, Math.round((s.hp || 0) / Math.max(1, s.mhp || 1) * 20)].join(':')).join('|')
-            + '#' + skId + '#' + (player && player._summonV2On ? 1 : 0) + '#' + remain;   // v3.2.42 稽核修：倒數逐秒刷新（原 /10 分桶＝顯示最多滯後 10 秒）
+            + '#' + skId + '#' + (player && player._summonV2On ? 1 : 0) + '#' + remain   // v3.2.42 稽核修：倒數逐秒刷新（原 /10 分桶＝顯示最多滯後 10 秒）
+            + '#M:' + ((typeof mercSummonList === 'function') ? mercSummonList().map(s => [s.uid, s.form, Math.round((s.hp || 0) / Math.max(1, s.mhp || 1) * 20)].join(':')).join('|') : '');   // 🧱 v3.4.51 傭兵召喚物血量(5%階)入簽章→掉血/死亡/重施 500ms 內刷新 team 分頁
     } catch (e) { return ''; }
 }
 
@@ -497,6 +543,30 @@ function renderSummonTeamHTML() {
             </div>
             ${rows || '<div class="bg-slate-800/80 border border-purple-900 rounded px-2 py-1 text-xs text-slate-400">等待重新召喚</div>'}
             <button onclick="summonV2Recast()" class="btn w-full text-xs font-bold" style="padding:3px 0;background:linear-gradient(135deg,#4c1d95,#6d28d9);border:1px solid #7c3aed;color:#ddd6fe;border-radius:4px;">重新施放</button>`;
+    } catch (e) { return ''; }
+}
+// 🧱 v3.4.51 傭兵召喚物 HP 卡（比照玩家召喚物呈現·接在其後）：v3.4.50 起傭兵召喚物無 sprite 但有血量·此為唯一血量可視化。
+//   標示「協力名·召喚物名」＋同款血條；無「重新施放」鈕（被打死由 allyMaintainBuffs 自動重施·扣該傭兵 MP）、無倒數（到期同樣自動重施）。
+function renderMercSummonTeamHTML() {
+    try {
+        if (typeof player === 'undefined' || !player || !player.allies || !player.allies.length) return '';
+        const rows = [];
+        for (const a of player.allies) {
+            const s = a && !a._downed && a.summon;
+            if (!s || !(s.mhp > 0) || s._downed || !(s.hp > 0)) continue;
+            const hpPct = Math.max(0, Math.min(100, Math.floor((s.hp || 0) / Math.max(1, s.mhp || 1) * 100)));
+            rows.push(`<div class="bg-slate-800/80 border border-purple-800 rounded px-2 py-1 text-xs flex items-center gap-2">
+                <span class="shrink-0 overflow-hidden text-ellipsis whitespace-nowrap" style="width:8rem;" title="${(a._allyName || '協力')} 的召喚物"><span class="text-emerald-300">${a._allyName || '協力'}</span><span class="text-slate-500">·</span><span class="text-purple-300 font-bold">${s.form || s.n || '召喚物'}</span></span>
+                <div class="bar-bg flex-1 !h-3">
+                    <div class="bar-fill bg-red-600" style="width:${hpPct}%;"></div>
+                    <div class="bar-text text-white" style="font-size:10px;line-height:12px;">${s.hp || 0}/${s.mhp || 0}</div>
+                </div>
+            </div>`);
+        }
+        if (!rows.length) return '';
+        return `<div class="flex items-center justify-between gap-2 pt-1 border-t border-purple-900/70">
+                <span class="text-purple-300 font-bold text-xs">傭兵召喚物（${rows.length}）</span>
+            </div>` + rows.join('');
     } catch (e) { return ''; }
 }
 
