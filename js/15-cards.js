@@ -545,7 +545,8 @@ function renderCardSynth(div) {
             <div class="flex items-center gap-2">
               <button class="btn px-3 py-1 text-xs font-bold ${_bagN ? 'bg-pink-800 hover:bg-pink-700 border-pink-600' : 'bg-slate-700 border-slate-600 opacity-50 cursor-not-allowed'}" ${_bagN ? '' : 'disabled'} onclick="openDollBag(null,1)">開 1 個</button>
               <input id="doll-bag-open-count" type="number" min="1" step="1" inputmode="numeric" value="${_dollBagOpenCount}" ${_bagN ? '' : 'disabled'}
-                     class="w-20 bg-slate-950 border border-pink-700 rounded px-2 py-1 text-xs text-center text-pink-100 disabled:opacity-50"
+                     class="w-20 bg-white border border-pink-700 rounded px-2 py-1 text-xs text-center disabled:opacity-50"
+                     style="color:#111827 !important;-webkit-text-fill-color:#111827 !important;background-color:#ffffff !important;caret-color:#111827;"
                      title="輸入要開啟的數量（不設上限）" oninput="_rememberDollOpenCount('bag',this.value)" onkeydown="if(event.key==='Enter'){openDollBagFromInput()}">
               <button class="btn px-3 py-1 text-xs font-bold ${_bagN ? 'bg-pink-900 hover:bg-pink-800 border-pink-600' : 'bg-slate-700 border-slate-600 opacity-50 cursor-not-allowed'}" ${_bagN ? '' : 'disabled'} onclick="openDollBagFromInput()">開啟</button>
             </div>
@@ -558,7 +559,8 @@ function renderCardSynth(div) {
             <div class="flex items-center gap-2">
               <button class="btn px-3 py-1 text-xs font-bold ${_boxN ? 'bg-amber-800 hover:bg-amber-700 border-amber-600' : 'bg-slate-700 border-slate-600 opacity-50 cursor-not-allowed'}" ${_boxN ? '' : 'disabled'} onclick="openDollBox(null,1)">開 1 個</button>
               <input id="doll-box-open-count" type="number" min="1" step="1" inputmode="numeric" value="${_dollBoxOpenCount}" ${_boxN ? '' : 'disabled'}
-                     class="w-20 bg-slate-950 border border-amber-700 rounded px-2 py-1 text-xs text-center text-amber-100 disabled:opacity-50"
+                     class="w-20 bg-white border border-amber-700 rounded px-2 py-1 text-xs text-center disabled:opacity-50"
+                     style="color:#111827 !important;-webkit-text-fill-color:#111827 !important;background-color:#ffffff !important;caret-color:#111827;"
                      title="輸入要開啟的數量（不設上限）" oninput="_rememberDollOpenCount('box',this.value)" onkeydown="if(event.key==='Enter'){openDollBoxFromInput()}">
               <button class="btn px-3 py-1 text-xs font-bold ${_boxN ? 'bg-amber-900 hover:bg-amber-800 border-amber-600' : 'bg-slate-700 border-slate-600 opacity-50 cursor-not-allowed'}" ${_boxN ? '' : 'disabled'} onclick="openDollBoxFromInput()">開啟</button>
             </div>
