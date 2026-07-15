@@ -167,11 +167,11 @@ setInterval(() => { try { renderAuditTab(); } catch(e) {} }, 2000);   // 開著�
 // killMob() 只負責「標記死亡＋發放獎勵/掉落」；原格清空與目標重鎖延後到 settleDeadMobs()（v2.7.47 起不再遞補壓實）。
 // tick 內的擊殺由 gameLoop 在 tick 結束後統一清算；手動操作（點技能/道具）觸發的擊殺立即清算。
 // 好處：怪物迭代過程中陣列不再位移，徹底杜絕「怪物被跳過回合 / 索引指到錯的怪」這類隱性錯誤。
-// ===== 全域掉寶倍率 =====
-// 一般掉落、特殊掉落、試煉隨機掉落與卡片皆讀取 GAME_RATES.drop。
-// 100% 必掉／任務直接發放仍維持一次 1 個，不會因倍率變成一次掉 10 個。
-function classicDropMult() { return GAME_RATES.drop; }
-function trialItemDropMult(id) { return GAME_RATES.drop; }
+// ⚠️v3.0.85 用戶指示：經典模式「掉落率 ×1/10」懲罰移除（歷次：v3.0.82 經驗×0.5／金幣÷2 移除 → v3.0.85 掉落×1/10 移除）。
+//   classicDropMult 恆 1 保留為單一真相掛點（十餘個掉落判定點仍乘它·未來要恢復懲罰只改這裡）；trialItemDropMult（試煉道具豁免）同步恆 1。
+//   經典模式現存差異：死亡損失 5% 經驗、隱藏祝福/精通/席琳、停用武器/盾/騎士特效。
+function classicDropMult() { return getGlobalDropMultiplier(); }   // ⭐ 特別版：所有使用此掛點的隨機掉落套用集中倍率
+function trialItemDropMult(id) { return getGlobalDropMultiplier(); }   // ⭐ 隨機試煉掉落亦套用；100% 必掉／固定獎勵仍只給 1 個
 // 🤝 v3.0.86 組隊經驗改「4 人均分」：分經驗人數＝主玩家 ＋ 未倒地傭兵（例：滿隊 3 傭兵→4 人；怪物經驗÷人數＝每人一份·1000exp→各 250）。倒地傭兵不參與、不稀釋其他人。
 function partyExpShareCount() { return 1 + ((player.allies || []).filter(a => a && !a._downed).length); }
 // 🤝 v3.0.87 組隊經驗「加成」：每名未倒地隊友使怪物經驗 +（王族隊長 8%／非王族 4%）·線性（1/2/3 隊友＝王族 8/16/24%、非王族 4/8/12%·王族因傭兵上限可 >3 隊友則續加）。加成套在怪物經驗上（分配前），再由 partyExpShareCount 均分。單人（0 隊友）無加成。
@@ -206,8 +206,9 @@ function killMob(idx) {
     // 🤝 v3.0.87 組隊經驗＝先加成再均分：怪物經驗 ×(1+partyExpBonusPct%) ÷ partyExpShareCount()（主玩家＋未倒地傭兵）＝每人一份。
     //   例（王族隊長+1 隊友）：1000 ×1.08 ÷2 ＝ 540／人；主玩家僅得一份（單人時＝全額·無加成）。🪆 魔法娃娃 expBonus% 仍加乘於主玩家該份。
     let _expShare = mob.exp * (1 + partyExpBonusPct() / 100) / partyExpShareCount();
-    let _petExpGain = Math.floor(_expShare * (1 + dollFieldVal('expBonus') / 100) * GAME_RATES.exp);   // 🐾 寵物同樣套用全域經驗倍率；不受玩家 Lv100 封頂影響
-    let _playerExpGain = (player.lv >= 100) ? 0 : _petExpGain;   // 玩家套用相同全域倍率；Lv100 自身仍不獲得經驗
+    let _baseExpGain = _expShare * (1 + dollFieldVal('expBonus') / 100);
+    let _petExpGain = Math.floor(_baseExpGain * getGlobalExpMultiplier());   // ⭐ 特別版：寵物也套用集中經驗倍率；不受玩家 Lv100 封頂影響
+    let _playerExpGain = Math.floor(_baseExpGain * getExpGainMult(player.lv));   // ⭐ 玩家套用集中倍率；Lv100 仍不獲得經驗
     player.exp += _playerExpGain;
     checkLvUp();
     // 🐾 寵物經驗：複製玩家本次應得份額後均分給出戰寵物；不受玩家 Lv100 經驗封頂影響（升級需求＝玩家表 1/10）
@@ -276,12 +277,12 @@ function killMob(idx) {
     }
 
     // === 🔥 50級試煉條件掉落 ===
-    if (player.cls === 'knight' && player.trialStage === 1 && mob.n === '黑暗妖精將軍' && !player.inv.some(i => i.id === 'item_dantes_letter') && Math.random() < 0.01 * classicDropMult()) { gainItem('item_dantes_letter', 1); logSys('<span class="text-amber-300 font-bold">✦ 你取得了 丹特斯的召書。</span>'); }
-    if (player.cls === 'elf' && player.trialStage === 1 && mob.n === '巨大兵蟻' && !player.inv.some(i => i.id === 'item_ancient_book') && Math.random() < 0.01 * classicDropMult()) { gainItem('item_ancient_book', 1); logSys('<span class="text-amber-300 font-bold">✦ 你取得了 古代黑妖之秘笈。</span>'); }
-    if (player.cls === 'dark' && player.trialStage === 1 && mob.n === '黑暗棲林者' && !player.inv.some(i => i.id === 'item_chaos_key') && Math.random() < 0.01 * classicDropMult()) { gainItem('item_chaos_key', 1); logSys('<span class="text-amber-300 font-bold">✦ 你取得了 混沌鑰匙。</span>'); }
-    if (player.cls === 'royal' && player.trialStage === 1 && mob.n === '小惡魔' && !player.inv.some(i => i.id === 'item_royal_order') && Math.random() < 0.01 * classicDropMult()) { gainItem('item_royal_order', 1); logSys('<span class="text-amber-300 font-bold">✦ 你取得了 調職命令書。</span>'); }   // 👑 王族 50 級試煉（唯一，不受經典掉率影響，與其他職業一致）
+    if (player.cls === 'knight' && player.trialStage === 1 && mob.n === '黑暗妖精將軍' && !player.inv.some(i => i.id === 'item_dantes_letter') && Math.random() < 0.01 * trialItemDropMult('item_dantes_letter')) { gainItem('item_dantes_letter', 1); logSys('<span class="text-amber-300 font-bold">✦ 你取得了 丹特斯的召書。</span>'); }
+    if (player.cls === 'elf' && player.trialStage === 1 && mob.n === '巨大兵蟻' && !player.inv.some(i => i.id === 'item_ancient_book') && Math.random() < 0.01 * trialItemDropMult('item_ancient_book')) { gainItem('item_ancient_book', 1); logSys('<span class="text-amber-300 font-bold">✦ 你取得了 古代黑妖之秘笈。</span>'); }
+    if (player.cls === 'dark' && player.trialStage === 1 && mob.n === '黑暗棲林者' && !player.inv.some(i => i.id === 'item_chaos_key') && Math.random() < 0.01 * trialItemDropMult('item_chaos_key')) { gainItem('item_chaos_key', 1); logSys('<span class="text-amber-300 font-bold">✦ 你取得了 混沌鑰匙。</span>'); }
+    if (player.cls === 'royal' && player.trialStage === 1 && mob.n === '小惡魔' && !player.inv.some(i => i.id === 'item_royal_order') && Math.random() < 0.01 * trialItemDropMult('item_royal_order')) { gainItem('item_royal_order', 1); logSys('<span class="text-amber-300 font-bold">✦ 你取得了 調職命令書。</span>'); }   // 👑 王族 50 級試煉（唯一，不受經典掉率影響，與其他職業一致）
     if (player.cls === 'royal' && mob.n === '黑騎士搜索隊' && Math.random() < 0.01 * classicDropMult()) { gainItem('new_item_241', 1); logSys('<span class="text-amber-300 font-bold">✦ 黑騎士搜索隊掉落了 王族搜索狀！</span>'); }   // 👑 王族限定：黑騎士搜索隊 1% 掉王族搜索狀（不影響血盟敵人 100% 掉落）
-    if (player.cls === 'knight' && player.trialStage === 2 && mapState.current === 'elf_grave' && questCountId('item_elf_whisper') < 10 && Math.random() < 0.01 * classicDropMult()) { gainItem('item_elf_whisper', 1); logSys('<span class="text-amber-300 font-bold">✦ 你拾起了 精靈的私語。</span>'); }   // 🔧 已持有 10 個則不再掉落（上限）
+    if (player.cls === 'knight' && player.trialStage === 2 && mapState.current === 'elf_grave' && questCountId('item_elf_whisper') < 10 && Math.random() < 0.01 * trialItemDropMult('item_elf_whisper')) { gainItem('item_elf_whisper', 1); logSys('<span class="text-amber-300 font-bold">✦ 你拾起了 精靈的私語。</span>'); }   // 🔧 已持有 10 個則不再掉落（上限）
     if (mob.n === '魔族暗殺團') {
         if (player.cls === 'elf' && player.trialStage === 2 && !player.inv.some(i => i.id === 'item_sealed_intel')) { gainItem('item_sealed_intel', 1); logSys('<span class="text-amber-300 font-bold">✦ 你從魔族暗殺團身上取得了 密封的情報書。</span>'); }
         if (player.cls === 'mage' && player.trialStage === 1 && !player.inv.some(i => i.id === 'item_spy_report')) { gainItem('item_spy_report', 1); logSys('<span class="text-amber-300 font-bold">✦ 你從魔族暗殺團身上取得了 間諜報告書。</span>'); }
@@ -365,7 +366,7 @@ function killMob(idx) {
     { let _drd = (typeof DRAGON_DROPS !== 'undefined') ? DRAGON_DROPS[mob.n] : null;   // 🐉 龍騎士掉落表改為全職可掉（書板/鎖鏈劍·就算不能裝備也掉）；妖魔搜索文件等試煉道具由 trialDropBlocked 限定 dragon＋接取制
       if (_drd) _drd.forEach(e => { if (!DB.items[e[0]] || trialDropBlocked(e[0])) return;
           if (typeof trialForced100 === 'function' && trialForced100(e[0])) { gainItem(e[0], 1); return; }   // 🔥 v3.0.78 接取制試煉道具：100% 掉落
-          if (Math.random() < Math.min(1, (e[1] * _dropBase * trialItemDropMult(e[0])) / 100)) gainItem(e[0], 1); }); }   // 🎮 龍騎士試煉道具不受經典 ×1/10
+          if (Math.random() < (e[1] * _dropBase * trialItemDropMult(e[0])) / 100) gainItem(e[0], 1); }); }   // 🎮 龍騎士試煉道具不受經典 ×1/10
     // === ⚔️ 戰士技能印記掉落（全職可掉·僅戰士可學）===
     { let _wrd = (typeof WARRIOR_DROPS !== 'undefined') ? WARRIOR_DROPS[mob.n] : null;
       if (_wrd) _wrd.forEach(e => { if (!DB.items[e[0]] || trialDropBlocked(e[0])) return;   // 🔥 v3.0.78 戰士試煉道具（若列於此表）同樣吃接取制閘門
@@ -774,7 +775,10 @@ function applySherineBuff(idx) {
         let _mad = sherineMadActive();   // 🔮 瘋狂的席琳世界：更高倍率（值＝[一般/瘋狂]）
         _m.hp = Math.floor(_m.hp * (_mad ? 5 : 3)); _m.curHp = _m.hp;   // HP×[3/5]
         _m.ac = (_m.ac || 0) - (_m.boss ? 20 : 10);                    // 🔮 席琳 AC：頭目 −20、一般怪 −10（2026-07 用戶改：原 ×1.5/1.75 把近戰命中壓到 ~10%·改固定值·瘋狂與一般同值）
-        _m.mr = Math.floor((_m.mr || 0) * (_mad ? 3 : 1.5));            // MR×[1.5/3]
+        let _baseMr = Math.max(0, Number(_m.mr) || 0);
+        _m.mr = Math.floor(_mad
+            ? _baseMr + Math.min(_baseMr, 200)                           // 瘋狂：原始 MR＋min(原始 MR, 200)，避免高 MR 頭目被 ×3 壓到近乎魔法免疫
+            : _baseMr * 1.5);                                           // 一般：MR×1.5
         _m.exp = Math.floor((_m.exp || 0) * (_mad ? 10 : 5));           // 經驗×[5/10]
         _m.goldMin = Math.floor((_m.goldMin || 0) * (_mad ? 10 : 5));   // 金錢×[5/10]
         _m.goldMax = Math.floor((_m.goldMax || 0) * (_mad ? 10 : 5));

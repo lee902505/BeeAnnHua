@@ -66,14 +66,15 @@ function summonAttack(sm, owner) {
     let t = getTarget(); if(!t) return;
     let cha = (owner.d && owner.d.cha) || 0;
     let _sgb = (typeof summonGearBonus === 'function') ? summonGearBonus(owner) : { dmg: 0, hit: 0 };   // 🏺 喚獸師的訓練鞭：召喚物額外傷害/命中（掃 owner 裝備欄）
+    let _teamAtk = (typeof teamIlluAura === 'function') ? teamIlluAura(sm, true) : null;   // 👑 灼熱武器／幻覺攻擊光環：舊式迷魅與抽象召喚也取得全隊一般攻擊加成
     let idx = mapState.mobs.findIndex(m => m && m.uid === t.uid);
 
     // === 迷魅術：被迷魅怪物（單次攻擊，額外獲得 =魅力 的命中與傷害）===
     if(sm.skId === 'sk_charm') {
-        let hv = Math.max(1, Math.min(20, owner.lv + sm.hitBonus + cha - t.lv + mobEffAC(t) + _sgb.hit));   // 🏺 喚獸師鞭 +命中（🚫 v3.2.19 召喚控制戒指命中+5 已移除）
+        let hv = Math.max(1, Math.min(20, owner.lv + sm.hitBonus + cha - t.lv + mobEffAC(t) + _sgb.hit + (_teamAtk ? _teamAtk.eh : 0)));   // 🏺 喚獸師鞭＋👑灼熱武器／幻覺光環命中（🚫 召喚控制戒指命中+5 已移除）
         let r = roll(1, 20);
         if(!((r === 20) || (r !== 1 && hv >= r))) { logCombat(`${sm.n} 的攻擊未命中。`, 'miss'); return; }
-        let dmg = Math.max(1, roll(sm.dmgDice[0], sm.dmgDice[1]) + cha + _sgb.dmg - (t.dr || 0));
+        let dmg = Math.max(1, roll(sm.dmgDice[0], sm.dmgDice[1]) + cha + _sgb.dmg + (_teamAtk ? _teamAtk.ed : 0) - (t.dr || 0));
         markBossPhysicalHit(t);
         t.justHit = 'normal'; t.curHp -= dmg; mobWake(t);
         logCombat(`<span class="text-purple-300">${sm.n}</span> 攻擊 <span class="${getMobColor(t.lv)}">${t.n}</span>，造成 ${dmg} 點傷害。`, 'player');
@@ -86,20 +87,20 @@ function summonAttack(sm, owner) {
     let hits = summonAttackCount(sm, owner);
     for(let i = 0; i < hits; i++) {
         if(t.curHp <= 0) break;
-        let hv = summonHitValue(sm, owner, t, _sgb.hit);
+        let hv = summonHitValue(sm, owner, t, _sgb.hit + (_teamAtk ? _teamAtk.eh : 0));
         let r = roll(1, 20);
         if(!((r === 20) || (r !== 1 && hv >= r))) { logCombat(`${sm.n} 的攻擊未命中。`, 'miss'); continue; }   // 🚫 v3.2.19 戒指「骰19視為命中」已移除
         let dmg;
         if(sm.kind === 'ranged') {
             let flat = Math.floor(cha * owner.lv / (sm.elemScale || 20));   // 屬性精靈：魅力 x (等級/scale)
             let mrPen = (sm.mrPenBase || 0) + Math.floor(cha / 10);
-            dmg = summonElementDamage(sm.dmgDice, sm.ele, t, flat + _sgb.dmg, summonDamageMult(sm, owner, true), mrPen);
+            dmg = summonElementDamage(sm.dmgDice, sm.ele, t, flat + _sgb.dmg + (_teamAtk ? _teamAtk.royalEd || 0 : 0), summonDamageMult(sm, owner, true), mrPen);
             t.justHit = sm.ele !== 'none' ? sm.ele : 'magic';
         } else {
             let flatBase = cha / (sm.dmgDiv || 5);
             let flat = sm.dmgLvDiv ? Math.floor(flatBase * (1 + owner.lv / sm.dmgLvDiv)) : Math.floor(flatBase);   // 造屍術等具 dmgLvDiv：再乘上 (1+召喚者等級/dmgLvDiv)
             let hardSkin = Math.floor(mobHardSkin(t) * (1 - (sm.hardSkinPen || 0)));
-            let raw = (roll(sm.dmgDice[0], sm.dmgDice[1]) + flat + _sgb.dmg) * summonDamageMult(sm, owner, false);
+            let raw = (roll(sm.dmgDice[0], sm.dmgDice[1]) + flat + _sgb.dmg + (_teamAtk ? _teamAtk.ed : 0)) * summonDamageMult(sm, owner, false);
             dmg = Math.max(1, Math.floor(raw) - (t.dr || 0) - hardSkin);
             t.justHit = 'normal';
             markBossPhysicalHit(t);
@@ -340,7 +341,15 @@ function royalMagicFreeCast() {
 }
 let _silenceLogAt = 0;   // ⏱️ 沉默／魔法封印提示節流：自動施法每 tick 會重試→原本每 tick 洗一次頻。共用時間戳，最多每 1 秒顯示 1 次。
 function _logSilenceOnce(msg){ let now = (typeof Date !== 'undefined') ? Date.now() : 0; if(now - _silenceLogAt < 1000) return; _silenceLogAt = now; logSys(msg); }
+// 🏺 遺物 烈焰巫師的正式長袍：裝備者已學會「燃燒的火球」時，其化為「爆裂的火球」。回傳實際要施放的 skId。
+function _fireballMorphId(skId) {
+    if (skId !== 'sk_fireball') return skId;
+    let a = player.eq && player.eq.armor;
+    if (a && DB.items[a.id] && DB.items[a.id].fireballBurst && player.skills && player.skills.includes('sk_fireball')) return 'sk_fireball_burst';
+    return skId;
+}
 function castSkillInner(skId) {
+    skId = _fireballMorphId(skId);   // 🏺 烈焰巫師的正式長袍：燃燒的火球→爆裂的火球
     let sk = DB.skills[skId];
     if(!sk) return false;
     if(inAbsBarrier()) return false;   // 🛡️ 絕對屏障：無法施法（自動/手動皆擋）
@@ -701,6 +710,7 @@ function castSkillInner(skId) {
                     let d = Math.floor((core + extraMagicDmg) * mrFactor);
                     d = Math.max(1, d) + fixed;
                     d = Math.max(1, Math.floor(d * elementCounterMult(sk.ele, t.e)));   // ⚔️ 屬性剋制：魔法剋怪 ×1.4、被剋 ×0.6（無屬性→×1）
+                    if (idx === 0) d = Math.max(1, Math.floor(d * consumeWetMult(t, sk.ele)));   // 🏺 海洋水晶球：潮濕目標受風屬性魔法傷害 ×2 並解除（只在首段骰結算·避免多段各×2）
                     d = Math.floor(d * mageDmgMult);   // 保留流程相容性；目前不再追加舊法師專屬倍率
                     d = Math.max(1, Math.floor(d * rlFuryMult()));   // 🔮 紅獅5/5(×1.2)＋😡狂怒5/5：攻擊技能最終傷害
                     // 🔧 魔導精通同屬性傷害×2 已移除(2026-07 用戶要求)
@@ -902,6 +912,7 @@ function autoActions() {
         let sk = DB.skills[sid];
         if(sk.type === 'buff') {
             if(sk.haste && (player.buffs.haste > 0 || player._equipHaste)) return;  // 已有加速來源（含裝備常駐），不重複施放
+            if(typeof TEAM_AURA_SKILLS !== 'undefined' && TEAM_AURA_SKILLS.includes(sid) && _teamAuraHas(sid, player)) return;   // 團隊光環已有其他隊員維持時不重複施放／扣魔
             // 💨 v3.0.94 強力加速術優先：加速術/強力加速術同時勾選→只施放強力加速術（加速術讓位；原本加速術先施放後 buffs.haste>0 會永遠擋住強力加速術→其 buff 鍵不存在、狀態圖示也不顯示）
             if(sid === 'sk_haste_spell') { let _g = document.getElementById('auto-sk-sk_greater_haste'); if (_g && _g.checked && player.skills.includes('sk_greater_haste')) return; }
             if(sid === 'sk_sunlight' && KING_ROOMS[mapState.current]) return;   // 🔧 軍王之室／底比斯祭壇：日光術無效，跳過自動施放（否則每 tick 被擋下並狂洗系統日誌）

@@ -67,6 +67,7 @@ const SPELL_FX = {
     '火風暴': { dir:'火風暴', prefix:'1819-0', n:14, fps:14, blend:'screen', h:1.3, ax:0.50, ay:0.55 },
     '烈炎術': { dir:'烈炎術', prefix:'1811-0', n:19, fps:16, blend:'screen', h:1.2, ax:0.50, ay:0.55 },
     '燃燒的火球': { dir:'燃燒的火球', dirPrefix:'171-', dirs:8, n:5, fps:12, blend:'screen', proj:true, nw:43, nh:49, ax:0.50, ay:0.50 },
+    '爆裂的火球': { dir:'燃燒的火球', dirPrefix:'171-', dirs:8, n:5, fps:12, blend:'screen', proj:true, nw:43, nh:49, ax:0.50, ay:0.50 },   // 🏺 遺物 爆裂的火球：沿用燃燒的火球 VFX（同 sprite 目錄）
     '疾病術': { dir:'疾病術', prefix:'2230-0', n:11, fps:14, blend:'screen', h:1, ax:0.50, ay:0.55 },
     '究極光裂術': { dir:'究極光裂術', prefix:'1815-0', layers:['1816-0', '1817-0'], n:21, fps:16, blend:'screen', h:1.9, ax:0.50, ay:0.85 },
     '緩速術': { dir:'緩速術', prefix:'752-0', n:8, fps:14, blend:'screen', h:0.85, ax:0.50, ay:0.55 },

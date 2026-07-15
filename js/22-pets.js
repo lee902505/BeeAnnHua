@@ -134,6 +134,19 @@ function petDerive(p) {
     };
 }
 function petExpReq(lv) { return Math.max(1, Math.floor(getExpReq(lv) / 10)); }   // 升級需求＝玩家的 1/10（v3.2.71 用戶調整·原 1/4）
+const PET_EXP_REQ_VERSION = 3;
+function petMigrateExpReqV3(p) {   // Lv70+ 玩家需求改版時，寵物同樣保留當級進度百分比
+    if (!p || (p.expReqV || 0) >= PET_EXP_REQ_VERSION) return false;
+    let lv = Math.max(1, Math.min(100, Math.floor(p.lv || 1)));
+    if (lv >= 100) p.exp = 0;
+    else if (lv >= 70) {
+        let oldReq = Math.max(1, Math.floor(_expReqClassicV2(lv) / 10));
+        let newReq = petExpReq(lv);
+        p.exp = Math.min(Math.floor(Math.max(0, p.exp || 0) / oldReq * newReq), newReq - 1);
+    }
+    p.expReqV = PET_EXP_REQ_VERSION;
+    return true;
+}
 function petCharmCombatBonus() {
     // 🐾 v3.2.24 每一隻獨立計算：移除 /sqrt(出戰隻數) 稀釋——每隻寵物都拿完整魅力加成（隻數多寡不影響個體）
     // 👑 v3.4.28 魅力係數固定 0.10（原「夥伴精通→0.12」已移除·精通效果見下）
@@ -147,6 +160,8 @@ function petMasteryOn()        { return (typeof hasMastery === 'function') && ha
 function petMasteryDmgMult()   { return petMasteryOn() ? 1.5 : 1; }   // 折進 petDerive 的 damageMult＝普攻／傷害技能／extra 技三路徑一次覆蓋
 function petMasteryHitMult()   { return petMasteryOn() ? 1.5 : 1; }   // 折進 petDerive 的 hit＝命中判定（petAttackOnce）與保管清單顯示一次覆蓋
 function petMasteryTakenMult() { return petMasteryOn() ? 0.5 : 1; }   // 受到傷害 −50%：掛怪物普攻／怪物魔法兩處（與 teamDmgReduceMult 同列；DoT 依既有設計為固定真傷·不受任何減免）
+// 🏺 遺物 馴獸師手做寵物專用盔甲：該寵物裝備的護甲（p.eq.arm）帶 petDmgReduce → 受到傷害 ×(1−petDmgReduce)。與 petMasteryTakenMult 同列乘算。
+function petArmorDmgReduceMult(p) { let a = p && p.eq && p.eq.arm; let d = a ? DB.items[a.id] : null; return (d && d.petDmgReduce) ? Math.max(0, 1 - d.petDmgReduce) : 1; }
 // 🎬 v3.2.73 寵物/召喚物 sprite 動作動畫單一設定點：背景補跑(state.ff)期間不設 _animAct→切分頁回來不會全隊寵/召同步爆播（比照 v3.2.72 _mobAnimTrigger 對怪物的處理）。
 //   死亡不需另播——渲染層 _petAnimApply 對 _downed 者以 _animAct.t||0 推算→無 _animAct 時直接 hold 死亡末幀（顯示倒地）。共用於 js/22（寵物）與 js/23（召喚物·同欄位協定）。
 function _petAnimAct(o, k, faceUid) {
@@ -206,6 +221,7 @@ function petRoster() {
         if (arr === null) { try { let bak = _petRosterRead(key + '_bak'); if (bak !== null) arr = bak; } catch (e) {} }
         _petRoster = (arr || []).filter(p => p && PET_BOOK[p.form]);
         _petRoster.forEach(p => {
+            if (petMigrateExpReqV3(p)) _petRosterDirty = true;
             if ((p.hp || 0) <= 0) p.hp = 1;
             p.locked = !!p.locked;
             if (p.eq) {   // 🦴 v3.2.39 稽核修：載入端容錯——物品已不存在或缺 id 的裝備直接剔除
@@ -234,6 +250,7 @@ function _petMergeFromBucket(cur, key) {
     let tombs = _petTombsRead(key);
     Object.keys(_petReleasedUids).forEach(u => tombs[u] = 1);
     _petRoster = _petRoster.filter(p => !tombs[p.uid]);
+    cur.forEach(p => { if (p) petMigrateExpReqV3(p); });   // 其他分頁仍是舊刻度時，先轉換再比較進度
     let mine = {}; _petRoster.forEach(p => mine[p.uid] = true);
     let curBy = {}; cur.forEach(p => { if (p && p.uid) curBy[p.uid] = p; });
     cur.forEach(p => { if (p && p.uid && !mine[p.uid] && !tombs[p.uid] && PET_BOOK[p.form] && _petRoster.length < PET_STORAGE_MAX) _petRoster.push(p); });   // 其他角色/分頁新捕獲併入
@@ -245,12 +262,12 @@ function _petMergeFromBucket(cur, key) {
         if (f.form !== p.form) {
             let ft = (PET_BOOK[f.form] && PET_BOOK[f.form].tier) || 0, pt = (PET_BOOK[p.form] && PET_BOOK[p.form].tier) || 0;
             if (ft > pt && PET_BOOK[f.form]) {
-                p.form = f.form; p.lv = f.lv || 1; p.exp = f.exp || 0;
+                p.form = f.form; p.lv = f.lv || 1; p.exp = f.exp || 0; p.expReqV = f.expReqV || PET_EXP_REQ_VERSION;
                 p.mhp = f.mhp || p.mhp; p.mmp = (f.mmp != null ? f.mmp : p.mmp);
                 p.hp = Math.min(p.hp, p.mhp); p.mp = Math.min(p.mp, p.mmp);
             }
         } else if ((f.lv || 1) > (p.lv || 1) || ((f.lv || 1) === (p.lv || 1) && (f.exp || 0) > (p.exp || 0))) {
-            p.lv = f.lv; p.exp = f.exp || 0;
+            p.lv = f.lv; p.exp = f.exp || 0; p.expReqV = f.expReqV || PET_EXP_REQ_VERSION;
             if ((f.mhp || 0) > (p.mhp || 0)) p.mhp = f.mhp;
             if ((f.mmp || 0) > (p.mmp || 0)) p.mmp = f.mmp;
             p.hp = Math.min(p.hp, p.mhp); p.mp = Math.min(p.mp, p.mmp);
@@ -269,7 +286,7 @@ function _petMergeFromBucket(cur, key) {
         }
         // 其他角色出戰中的寵物，以共用桶為即時狀態來源；本角色不可用過期鏡像覆蓋其 HP/MP/等級。
         if (_petOutStateKey(p) && _petOutStateKey(p) !== _petCurrentOwnerKey() && _petOutStateKey(f) === _petOutStateKey(p) && _fOutV === (Number(p.outV) || 0)) {
-            for (let k of ['form','lv','exp','mhp','mmp','hp','mp','potPct','name','locked']) if (f[k] !== undefined) p[k] = f[k];
+            for (let k of ['form','lv','exp','expReqV','mhp','mmp','hp','mp','potPct','name','locked']) if (f[k] !== undefined) p[k] = f[k];
         }
     });
     return tombs;
@@ -303,7 +320,7 @@ function _petTombsWrite(key, tombs) {   // 只留最近 300 筆（uid 不重複�
     try { let ks = Object.keys(tombs); if (ks.length > 300) ks.slice(0, ks.length - 300).forEach(k => delete tombs[k]); _lzSet(key + '_rm', _saveWrap(JSON.stringify(tombs))); } catch (e) {}
 }
 function _petPersist(p) {   // 只序列化長生欄位（戰鬥暫存 _ 前綴不入桶）
-    let o = { uid: p.uid, form: p.form, lv: p.lv, exp: p.exp, mhp: p.mhp, mmp: p.mmp, hp: p.hp, mp: p.mp, outOwner: p.outOwner ? String(p.outOwner) : null, outSlot: p.outSlot == null ? null : String(p.outSlot), outV: p.outV || 0, eqV: p.eqV || 0, potPct: p.potPct || 0, name: p.name || '', locked: !!p.locked };
+    let o = { uid: p.uid, form: p.form, lv: p.lv, exp: p.exp, expReqV: p.expReqV || PET_EXP_REQ_VERSION, mhp: p.mhp, mmp: p.mmp, hp: p.hp, mp: p.mp, outOwner: p.outOwner ? String(p.outOwner) : null, outSlot: p.outSlot == null ? null : String(p.outSlot), outV: p.outV || 0, eqV: p.eqV || 0, potPct: p.potPct || 0, name: p.name || '', locked: !!p.locked };
     if (p.eq && (p.eq.wpn || p.eq.arm)) {   // 🦴 v3.2.39 稽核修：個別裝備隨寵物入桶（漏存＝重載後裝備蒸發）；v3.2.40 改 _petGearPack 保留祝福/屬性/鎖定
         o.eq = {};
         for (let k of ['wpn', 'arm']) { let g = p.eq[k]; if (g && g.id) o.eq[k] = _petGearPack(g); }
@@ -353,7 +370,7 @@ function petNewInstance(form, lv) {
     let L = lv || def.lv0 || 5;
     let hp = def.hp0 != null ? def.hp0 : 30, mp = def.mp0 != null ? def.mp0 : 0;
     for (let i = (def.lv0 || 1); i < L; i++) { hp += def.hpUp[0]; mp += def.mpUp[0]; }   // 補起始等級前成長（保守取下限）
-    return { uid: uid(), form: form, lv: L, exp: 0, mhp: hp, mmp: mp, hp: hp, mp: mp, outOwner: null, outSlot: null, outV: 0, eqV: 0, potPct: 0, name: '', locked: false };
+    return { uid: uid(), form: form, lv: L, exp: 0, expReqV: PET_EXP_REQ_VERSION, mhp: hp, mmp: mp, hp: hp, mp: mp, outOwner: null, outSlot: null, outV: 0, eqV: 0, potPct: 0, name: '', locked: false };
 }
 // 捕獲/獲得寵物入保管（滿→false）
 function petStoreAdd(form, srcLabel, deferCommit) {
@@ -719,7 +736,7 @@ function petsTick() {
         if (p._downed) {
             if (!wild) { _petReviveDone(p, '安全區'); return; }
             p._reviveCd = (p._reviveCd || 0) - 1;
-            if (p._reviveCd <= 0) {
+            if (p._reviveCd <= 0 || (typeof playerHasAutoReviveEarring === 'function' && playerHasAutoReviveEarring())) {   // 🏺 巨靈的承諾耳環：跳過冷卻立即復活（仍消耗卷軸）
                 let sc = player.inv.find(i => i.id === 'scroll_revive' && (i.cnt || 0) > 0);
                 if (sc) { sc.cnt--; if (sc.cnt <= 0) player.inv = player.inv.filter(i => i.uid !== sc.uid); _petReviveDone(p, '復活卷軸（自動）'); }
             }
@@ -821,6 +838,8 @@ function petAttackOnce(p, d, target, forceCrit, addDmg, skName) {
             if (skName && typeof _relicPetSkillMult === 'function') dmg = Math.max(1, Math.floor(dmg * _relicPetSkillMult()));
             markBossPhysicalHit(target);
             target.curHp -= dmg; target.justHit = 'none'; mobWake(target);
+            let _pw = p && p.eq && p.eq.wpn ? DB.items[p.eq.wpn.id] : null;
+            if (_pw && _pw.petBleed && target.curHp > 0 && typeof applyBleed === 'function') applyBleed(target, dmg, 5);   // 🏺 遺物 仿製小惡魔尖牙套：寵物一般攻擊命中造成出血
             _petAnimAct(p, 'attack', target.uid);
             logCombat(`寵物 [${p.form}] ${skName ? `<span class="text-pink-300 font-bold">${skName}</span> ` : ''}攻擊 <span class="${getMobColor(target.lv)}">${target.n}</span>，造成 ${dmg}${heavy ? '（重擊）' : ''} 點傷害！`, 'player-special');
             _petAfterDamage(target);
@@ -910,7 +929,7 @@ function enemyAttackPet(mob, p) {
     if (mob._sherine) dmg = Math.floor(dmg * (mob._sherineMad ? 3 : 2));
     if (mob._grace) dmg = Math.floor(dmg * 1.5);
     dmg -= d.dr;
-    dmg = Math.floor(Math.max(1, dmg) * (typeof teamDmgReduceMult === 'function' ? teamDmgReduceMult(true) : 1) * petMasteryTakenMult());   // 👑 夥伴精通：受到傷害 −50%
+    dmg = Math.floor(Math.max(1, dmg) * (typeof teamDmgReduceMult === 'function' ? teamDmgReduceMult(true) : 1) * petMasteryTakenMult() * petArmorDmgReduceMult(p));   // 👑 夥伴精通：受到傷害 −50%；🏺 寵物專用盔甲：受傷 ×(1−petDmgReduce)
     dmg = Math.max(1, Math.floor(dmg * riftDamageMult()));
     p.hp -= dmg;
     _petAnimAct(p, 'hurt');
@@ -947,7 +966,7 @@ function applyMobMagicToPet(mob, sk, p) {
     let extra = (sk.db || 0) + (sk.dbLv ? (mob.lv || 0) * (sk.dbLvMult || 1) : 0);
     let dmg = sk.fixedDmg ? (baseM + extra) : (Math.floor((baseM + extra) * mrMult(mr)) - (d.dr || 0));
     if (st.freeze > 0 && sk.ext_freeze) { dmg += sk.ext_freeze; if (sk.extUnfreeze) st.freeze = 0; }
-    dmg = Math.max(1, Math.floor(Math.max(1, dmg * shMul) * (typeof teamDmgReduceMult === 'function' ? teamDmgReduceMult(true) : 1) * petMasteryTakenMult()));   // 👑 夥伴精通：受到傷害 −50%
+    dmg = Math.max(1, Math.floor(Math.max(1, dmg * shMul) * (typeof teamDmgReduceMult === 'function' ? teamDmgReduceMult(true) : 1) * petMasteryTakenMult() * petArmorDmgReduceMult(p)));   // 👑 夥伴精通：受到傷害 −50%；🏺 寵物專用盔甲：受傷 ×(1−petDmgReduce)
     dmg = Math.max(1, Math.floor(dmg * riftDamageMult()));
     p.hp -= dmg; _petAnimAct(p, 'hurt');
     if (!p._stunCycle) { p._atkCd = (p._atkCd || 0) + d.stunTicks; p._stunCycle = true; }

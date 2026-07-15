@@ -153,8 +153,8 @@ function acquireCard(name, tier, count) {
     if (typeof _cardBookOpen !== 'undefined' && _cardBookOpen && typeof renderCardBook === 'function') renderCardBook();
 }
 function _cardDropRoll(name, tier, rate) {
-    let mult = (typeof classicDropMult === 'function') ? classicDropMult() : 1;
-    if (Math.random() >= Math.min(1, rate * mult)) return;
+    let _rate = Math.min(1, Math.max(0, rate * getGlobalDropMultiplier()));   // ⭐ 特別版：卡片機率套用集中掉寶倍率，最高仍為100%
+    if (Math.random() >= _rate) return;
     acquireCard(name, tier, 1);   // 🎴 未開通→自動登錄(完成退溢出)；已開通→實體卡進背包
 }
 
@@ -280,6 +280,30 @@ const DOLL_BY_TIER = { 1:[], 2:[], 3:[], 4:[], 5:[], 6:[] };
 (function(){ for (let id in DB.items) { let d = DB.items[id]; if (d && d.doll && d.dollTier && DOLL_BY_TIER[d.dollTier]) DOLL_BY_TIER[d.dollTier].push(id); } })();
 // 合成成功率表：DOLL_SYNTH_RATES[來源階][放入數量] = %（1→2,2→3,...,5→6）
 const DOLL_SYNTH_RATES = { 1:{2:8,3:23,4:45}, 2:{2:7,3:20,4:40}, 3:{2:4,3:12,4:23}, 4:{2:2,3:6,4:12}, 5:{2:1,3:3,4:6} };
+// ⭐ 特別版：魔法娃娃指定開啟數量。預設值與可選上限集中在 js/00-data.js 的 IDLE_SPECIAL_SETTINGS。
+function _dollOpenSetting(key, fallback) {
+    let n = Number(window.IDLE_SPECIAL_SETTINGS && window.IDLE_SPECIAL_SETTINGS[key]);
+    return Number.isFinite(n) && n >= 0 ? n : fallback;
+}
+function _normalizeDollOpenCount(value) {
+    let n = Math.floor(Number(value));
+    if (!Number.isFinite(n) || n < 1) return 0;
+    let max = Math.floor(_dollOpenSetting('dollMaxOpenCount', 0));
+    return max > 0 ? Math.min(n, max) : n;
+}
+let _dollBagOpenCount = Math.max(1, Math.floor(_dollOpenSetting('dollDefaultOpenCount', 100)) || 100);
+let _dollBoxOpenCount = _dollBagOpenCount;
+function setDollOpenCount(kind, value) {
+    let n = _normalizeDollOpenCount(value);
+    if (n <= 0) return;
+    if (kind === 'box') _dollBoxOpenCount = n; else _dollBagOpenCount = n;
+}
+function _requestedDollOpenCount(requested, have) {
+    if (requested === false || requested == null) return 1;   // 相容道具欄「直接使用」與舊單開按鈕
+    if (requested === true) return have;                      // 相容舊版「全部開啟」呼叫
+    let n = _normalizeDollOpenCount(requested);
+    return n > 0 ? Math.min(n, have) : 0;
+}
 function _dollRng(tag, seq) { return _seededFloat(((player && player.enSeed) || 'x') + '|doll' + tag + '|' + seq); }   // 決定論 [0,1)
 function _dollBagOutcome(seq) { let r = _dollRng('bag', seq) * 10000, acc = 0; for (let p of DOLL_BAG_POOL) { acc += p[1]; if (r < acc) return p[0]; } return DOLL_BAG_POOL[0][0]; }
 // 🎁 高級魔法娃娃的盒子：80% 二階 / 18% 三階 / 2% 四階（總權重 10000）；選定階後該階娃娃「平均」抽一隻。committed RNG（dollSeq·save/load 不變）。
@@ -291,50 +315,16 @@ function _dollBoxOutcome(seq) {
     return pool[Math.floor(_dollRng('boxR', seq) * pool.length)] || pool[0];
 }
 
-// 🪆 指定數量開啟設定：defaultCount＝輸入框預設值；maxCount＝0 代表不限上限（之後想限制時只需改成 100／500／1000 等）。
-const DOLL_OPEN_SETTINGS = { defaultCount: 100, maxCount: 0 };
-let _dollBagOpenCount = DOLL_OPEN_SETTINGS.defaultCount;
-let _dollBoxOpenCount = DOLL_OPEN_SETTINGS.defaultCount;
-function _parseDollOpenCount(value) {
-    let n = Math.floor(Number(value));
-    if (!Number.isFinite(n) || n < 1) return 0;
-    if (DOLL_OPEN_SETTINGS.maxCount > 0) n = Math.min(n, DOLL_OPEN_SETTINGS.maxCount);
-    return n;
-}
-function _rememberDollOpenCount(kind, value) {
-    let n = _parseDollOpenCount(value);
-    if (!n) return;
-    if (kind === 'bag') _dollBagOpenCount = n;
-    else if (kind === 'box') _dollBoxOpenCount = n;
-}
-function openDollBagFromInput() {
-    let el = document.getElementById('doll-bag-open-count');
-    let n = _parseDollOpenCount(el ? el.value : _dollBagOpenCount);
-    if (!n) { logSys('<span class="text-amber-300">請輸入大於 0 的開啟數量。</span>'); return; }
-    _dollBagOpenCount = n;
-    openDollBag(null, n);
-}
-function openDollBoxFromInput() {
-    let el = document.getElementById('doll-box-open-count');
-    let n = _parseDollOpenCount(el ? el.value : _dollBoxOpenCount);
-    if (!n) { logSys('<span class="text-amber-300">請輸入大於 0 的開啟數量。</span>'); return; }
-    _dollBoxOpenCount = n;
-    openDollBox(null, n);
-}
-
-// 開啟魔法娃娃的袋子（requestedCount 可由玩家自行輸入；持有不足時開目前全部持有量）：每袋消耗 1 個 dollSeq → save/load 後 seq 已存、結果固定不可重抽
-function openDollBag(item, requestedCount) {
+// 開啟魔法娃娃的袋子（requested 可為指定數量）：每袋消耗 1 個 dollSeq → save/load 後 seq 已存、結果固定不可重抽
+function openDollBag(item, requested) {
     let bag = player.inv.find(i => i.id === 'doll_bag');
     if (!bag) { logSys('<span class="text-slate-400">沒有魔法娃娃的袋子可開。</span>'); return; }
     bag.cnt = bag.cnt || 1;
     if (bag.cnt <= 0) { logSys('<span class="text-slate-400">沒有魔法娃娃的袋子可開。</span>'); return; }
+    let n = _requestedDollOpenCount(requested, bag.cnt);
+    if (n <= 0) { logSys('<span class="text-amber-300">請輸入至少 1 個的開啟數量。</span>'); return; }
     if (player.dollSeq == null) player.dollSeq = 0;
-    // 相容舊呼叫：true＝100、false/null＝1；新版直接傳入指定數字。
-    if (requestedCount === true) requestedCount = 100;
-    else if (requestedCount === false || requestedCount == null) requestedCount = 1;
-    let requested = _parseDollOpenCount(requestedCount);
-    if (!requested) { logSys('<span class="text-amber-300">請輸入大於 0 的開啟數量。</span>'); return; }
-    let n = Math.min(requested, bag.cnt), got = {};
+    let got = {};
     for (let i = 0; i < n && bag.cnt > 0; i++) {
         let id = _dollBagOutcome(player.dollSeq);
         player.dollSeq++; bag.cnt--;
@@ -351,19 +341,16 @@ function openDollBag(item, requestedCount) {
     let _c = document.getElementById('interaction-content'); if (_c) renderCardSynth(_c);
 }
 
-// 🎁 開啟高級魔法娃娃的盒子（requestedCount 可由玩家自行輸入；持有不足時開目前全部持有量）：committed RNG（dollSeq），save/load 後結果固定不可重抽
-function openDollBox(item, requestedCount) {
+// 🎁 開啟高級魔法娃娃的盒子（requested 可為指定數量）：committed RNG（dollSeq），save/load 後結果固定不可重抽
+function openDollBox(item, requested) {
     let box = player.inv.find(i => i.id === 'doll_box_high');
     if (!box) { logSys('<span class="text-slate-400">沒有高級魔法娃娃的盒子可開。</span>'); return; }
     box.cnt = box.cnt || 1;
     if (box.cnt <= 0) { logSys('<span class="text-slate-400">沒有高級魔法娃娃的盒子可開。</span>'); return; }
+    let n = _requestedDollOpenCount(requested, box.cnt);
+    if (n <= 0) { logSys('<span class="text-amber-300">請輸入至少 1 個的開啟數量。</span>'); return; }
     if (player.dollSeq == null) player.dollSeq = 0;
-    // 相容舊呼叫：true＝100、false/null＝1；新版直接傳入指定數字。
-    if (requestedCount === true) requestedCount = 100;
-    else if (requestedCount === false || requestedCount == null) requestedCount = 1;
-    let requested = _parseDollOpenCount(requestedCount);
-    if (!requested) { logSys('<span class="text-amber-300">請輸入大於 0 的開啟數量。</span>'); return; }
-    let n = Math.min(requested, box.cnt), got = {};
+    let got = {};
     for (let i = 0; i < n && box.cnt > 0; i++) {
         let id = _dollBoxOutcome(player.dollSeq);
         player.dollSeq++; box.cnt--;
@@ -542,13 +529,10 @@ function renderCardSynth(div) {
     h += `<div class="px-4 pb-2">
         <div class="flex items-center justify-between bg-slate-900/50 border border-slate-700 rounded px-3 py-2">
             <span class="text-sm">🎁 魔法娃娃的袋子：<span class="${_bagN ? 'text-pink-300' : 'text-slate-500'} font-bold">${_bagN} 個</span></span>
-            <div class="flex items-center gap-2">
-              <button class="btn px-3 py-1 text-xs font-bold ${_bagN ? 'bg-pink-800 hover:bg-pink-700 border-pink-600' : 'bg-slate-700 border-slate-600 opacity-50 cursor-not-allowed'}" ${_bagN ? '' : 'disabled'} onclick="openDollBag(null,1)">開 1 個</button>
-              <input id="doll-bag-open-count" type="number" min="1" step="1" inputmode="numeric" value="${_dollBagOpenCount}" ${_bagN ? '' : 'disabled'}
-                     class="w-20 bg-white border border-pink-700 rounded px-2 py-1 text-xs text-center disabled:opacity-50"
-                     style="color:#111827 !important;-webkit-text-fill-color:#111827 !important;background-color:#ffffff !important;caret-color:#111827;"
-                     title="輸入要開啟的數量（不設上限）" oninput="_rememberDollOpenCount('bag',this.value)" onkeydown="if(event.key==='Enter'){openDollBagFromInput()}">
-              <button class="btn px-3 py-1 text-xs font-bold ${_bagN ? 'bg-pink-900 hover:bg-pink-800 border-pink-600' : 'bg-slate-700 border-slate-600 opacity-50 cursor-not-allowed'}" ${_bagN ? '' : 'disabled'} onclick="openDollBagFromInput()">開啟</button>
+            <div class="flex items-center gap-2 doll-open-controls">
+              <button class="btn px-3 py-1 text-xs font-bold ${_bagN ? 'bg-pink-800 hover:bg-pink-700 border-pink-600' : 'bg-slate-700 border-slate-600 opacity-50 cursor-not-allowed'}" ${_bagN ? '' : 'disabled'} onclick="openDollBag(null,false)">開 1 個</button>
+              <input id="doll-bag-open-count" class="doll-open-count-input" type="number" min="1" step="1" inputmode="numeric" value="${_dollBagOpenCount}" aria-label="魔法娃娃袋子開啟數量" oninput="setDollOpenCount('bag',this.value)" onkeydown="if(event.key==='Enter'){event.preventDefault();openDollBag(null,this.value)}">
+              <button class="btn px-3 py-1 text-xs font-bold ${_bagN ? 'bg-pink-900 hover:bg-pink-800 border-pink-600' : 'bg-slate-700 border-slate-600 opacity-50 cursor-not-allowed'}" ${_bagN ? '' : 'disabled'} onclick="openDollBag(null,document.getElementById('doll-bag-open-count').value)">開啟</button>
             </div>
         </div></div>`;
     // 🎁 開啟高級盒子
@@ -556,13 +540,10 @@ function renderCardSynth(div) {
     h += `<div class="px-4 pb-2">
         <div class="flex items-center justify-between bg-slate-900/50 border border-slate-700 rounded px-3 py-2">
             <span class="text-sm">🎁 高級魔法娃娃的盒子：<span class="${_boxN ? 'text-amber-300' : 'text-slate-500'} font-bold">${_boxN} 個</span></span>
-            <div class="flex items-center gap-2">
-              <button class="btn px-3 py-1 text-xs font-bold ${_boxN ? 'bg-amber-800 hover:bg-amber-700 border-amber-600' : 'bg-slate-700 border-slate-600 opacity-50 cursor-not-allowed'}" ${_boxN ? '' : 'disabled'} onclick="openDollBox(null,1)">開 1 個</button>
-              <input id="doll-box-open-count" type="number" min="1" step="1" inputmode="numeric" value="${_dollBoxOpenCount}" ${_boxN ? '' : 'disabled'}
-                     class="w-20 bg-white border border-amber-700 rounded px-2 py-1 text-xs text-center disabled:opacity-50"
-                     style="color:#111827 !important;-webkit-text-fill-color:#111827 !important;background-color:#ffffff !important;caret-color:#111827;"
-                     title="輸入要開啟的數量（不設上限）" oninput="_rememberDollOpenCount('box',this.value)" onkeydown="if(event.key==='Enter'){openDollBoxFromInput()}">
-              <button class="btn px-3 py-1 text-xs font-bold ${_boxN ? 'bg-amber-900 hover:bg-amber-800 border-amber-600' : 'bg-slate-700 border-slate-600 opacity-50 cursor-not-allowed'}" ${_boxN ? '' : 'disabled'} onclick="openDollBoxFromInput()">開啟</button>
+            <div class="flex items-center gap-2 doll-open-controls">
+              <button class="btn px-3 py-1 text-xs font-bold ${_boxN ? 'bg-amber-800 hover:bg-amber-700 border-amber-600' : 'bg-slate-700 border-slate-600 opacity-50 cursor-not-allowed'}" ${_boxN ? '' : 'disabled'} onclick="openDollBox(null,false)">開 1 個</button>
+              <input id="doll-box-open-count" class="doll-open-count-input" type="number" min="1" step="1" inputmode="numeric" value="${_dollBoxOpenCount}" aria-label="高級魔法娃娃盒子開啟數量" oninput="setDollOpenCount('box',this.value)" onkeydown="if(event.key==='Enter'){event.preventDefault();openDollBox(null,this.value)}">
+              <button class="btn px-3 py-1 text-xs font-bold ${_boxN ? 'bg-amber-900 hover:bg-amber-800 border-amber-600' : 'bg-slate-700 border-slate-600 opacity-50 cursor-not-allowed'}" ${_boxN ? '' : 'disabled'} onclick="openDollBox(null,document.getElementById('doll-box-open-count').value)">開啟</button>
             </div>
         </div></div>`;
     // 🪆 魔法娃娃合成（2~4 同階 → 下一階）

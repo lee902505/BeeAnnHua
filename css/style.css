@@ -1836,6 +1836,31 @@ button.classic-skill-cell { cursor:pointer; }
 #town-view > #town-npc-container.hidden,
 #town-view > #town-interaction-container.hidden { display: none !important; }
 
+/* ===== ⭐ 特別版：手機雙指縮放與魔法娃娃指定數量輸入 ===== */
+html, body, #app-stage { touch-action: pan-x pan-y pinch-zoom; }
+.doll-open-controls { flex-wrap: nowrap; }
+.doll-open-count-input {
+    width: 92px;
+    min-width: 72px;
+    height: 34px;
+    padding: 4px 8px;
+    border: 2px solid #64748b;
+    border-radius: 7px;
+    background: #ffffff !important;
+    color: #111827 !important;
+    -webkit-text-fill-color: #111827 !important;
+    caret-color: #111827 !important;
+    font-size: 14px;
+    font-weight: 800;
+    line-height: 1;
+    text-align: center;
+    opacity: 1 !important;
+}
+.doll-open-count-input::placeholder {
+    color: #475569 !important;
+    -webkit-text-fill-color: #475569 !important;
+}
+
 /* ===== Mobile game layout (desktop rules remain unchanged) ===== */
 @media (max-width: 768px), (max-height: 520px) and (pointer: coarse) {
     body { overflow: hidden; }
@@ -1919,10 +1944,12 @@ button.classic-skill-cell { cursor:pointer; }
     #town-npc-map { width: 100%; height: 100%; }
 
     #log-row { flex: 0 0 auto !important; min-height: 0; flex-direction: column; gap: 8px !important; }
-    #combat-log-panel, #syslog-panel { flex: 0 0 190px !important; width: 100%; height: 190px !important; min-height: 190px; }
+    #combat-log-panel, #syslog-panel { flex: 0 0 190px !important; width: 100%; height: 190px !important; min-height: 190px; max-height: 190px; overflow: hidden; }
     #log-row .panel-header { padding: 7px 9px; font-size: 14px !important; }
     #combat-log, #sys-log { padding: 9px !important; font-size: 13px !important; }
     #combat-log-panel .cf-pill { min-height: 30px; padding: 3px 7px; }
+    .doll-open-controls { flex-wrap: wrap; justify-content: flex-end; }
+    .doll-open-count-input { width: 86px; height: 38px; font-size: 16px; }
 
     #status-panel .panel-header, #squad-panel .panel-header { padding: 8px 10px; }
     #squad-tab-team, #squad-tab-skill { max-height: none; }
@@ -2105,6 +2132,8 @@ button.classic-skill-cell { cursor:pointer; }
         gap: 10px;
     }
     #load-action-panel button { width: 100%; height: 48px; font-size: 14px; }
+    #load-btn-enter,
+    #load-btn-delete { grid-column: 1 / -1; }
     #load-btn-back { grid-column: 1 / -1; }
 
     /* Character creation: a scrollable portrait composition with no overlapping controls. */
@@ -2637,29 +2666,4 @@ button.classic-skill-cell { cursor:pointer; }
         box-sizing: border-box !important;
         overflow: auto !important;
     }
-}
-
-/* ===== 📱 手機自由雙指縮放版（2026-07-13） =====
-   手機採 1600px 桌機版虛擬寬度，由瀏覽器原生 pinch zoom 控制。
-   這裡只限制日誌列高度，避免安全區／狩獵區的 :has 規則把日誌拉成超長欄。 */
-html.mobile-pinch-layout #log-row,
-html.mobile-pinch-layout #col-center:has(#battle-view.area-fit:not(.hidden)) #log-row,
-html.mobile-pinch-layout #col-center:has(#town-view:not(.hidden)) #log-row {
-    flex: 0 0 340px;
-    height: 340px;
-    min-height: 340px;
-    max-height: 340px;
-}
-
-html.mobile-pinch-layout #combat-log-panel,
-html.mobile-pinch-layout #syslog-panel {
-    height: 340px;
-    min-height: 0;
-    max-height: 340px;
-}
-
-html.mobile-pinch-layout #combat-log,
-html.mobile-pinch-layout #sys-log {
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
 }

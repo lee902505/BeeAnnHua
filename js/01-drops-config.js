@@ -1115,7 +1115,7 @@ function hasMastery(id) { return !!(player && player.mastery === id); }
 function allyHasMastery(ally, id) { return !!(ally && ally.mastery === id); }   // 🔧 傭兵吃「自身存檔」的精通（不吃主玩家精通）
 // 🌟 v3.0.99 隊長團隊光環：任一隊員(玩家或未倒地傭兵)維持該 buff 即全隊生效。清單供「傭兵可維持/隊伍面板可開關/避免重複施放」使用。
 //   ⚠️不含完全免疫類(絕對屏障/大地屏障/魔法屏障·刻意不給傭兵)。golem/ogre/lich 為幻術幻象召喚(illuSummon)·此處僅列其「光環」由玩家提供·傭兵暫不維持(見 _isMercSelfBuff)。
-const TEAM_AURA_SKILLS = ['sk_elf_earthbless', 'sk_elf_steelguard'];   // 傭兵可維持的團隊光環（大地祝福AC-7·鋼鐵防護受傷-5%）。⚠️v3.4.45 水之元氣/化身已改「單體共享」(TEAM_SHARE_BUFFS)→移出此清單（不再全隊生效於玩家/傭兵·僅寵物/召喚仍走 teamXXX(forMinion) 混合制）
+const TEAM_AURA_SKILLS = ['sk_elf_earthbless', 'sk_elf_steelguard', 'sk_royal_burnweapon', 'sk_royal_shield'];   // 傭兵可維持的團隊光環（大地祝福AC-7·鋼鐵防護受傷-5%·灼熱武器傷害/命中+5·閃亮之盾AC-8）。任一來源施放一次即惠及玩家、傭兵、寵物與召喚物，同技能不重複疊加。⚠️v3.4.45 水之元氣/化身已改「單體共享」(TEAM_SHARE_BUFFS)→移出此清單。
 // 🤝 v3.4.45 單體輔助共享清單：施法者(玩家/傭兵)自己有清單內 buff、隊友沒有 → 由 shareTeamBuffs(js/06) 一次補滿所有缺者(逐一扣施法者 MP)。與「自動維持勾選」解耦(只看清單＋是否持有)。
 //   ⚠️其中原為全隊光環者(幻覺歐吉/巫妖/鑽石高崙/化身·水之元氣)已於本版改單體：移出 TEAM_AURA_SKILLS＋teamIlluAura/teamAcBonus/teamDmgReduceMult 只對寵物/召喚保留(forMinion)；玩家/傭兵改各自持有(recompute d)＋此共享逐人補。
 const TEAM_SHARE_BUFFS = new Set(['sk_holy_wpn', 'sk_dex_up', 'sk_haste_spell', 'sk_bless_wpn', 'sk_str_up', 'sk_holy_barrier', 'sk_illu_ogre', 'sk_illu_focus', 'sk_illu_lich', 'sk_illu_golem', 'sk_illu_avatar', 'sk_elf_watervital', 'sk_elf_windshot', 'sk_elf_earthshield', 'sk_elf_preciseshot', 'sk_elf_stormeye']);
@@ -1714,6 +1714,14 @@ Object.assign(ITEM_WEIGHTS, {"魔法娃娃：雪人":1,"魔法娃娃：野狼寶
 Object.assign(ITEM_WEIGHTS, {"與歐林的定情之戒":3,"馴獸師的飼料袋":3,"地元素屏障":50,"水元素屏障":50,"火元素屏障":50,"風元素屏障":50,"兇殘惡鬼的毒牙":40,"殘暴骸骨的破片":40,"屍毒之針":50,"不定形的變幻劍":110,"巨大鱷魚的皮革盔甲":180,"妖鬼王的畸形背瘤":50,"傳說海賊的迷幻雙刀":30,"熔岩灼燒的雙拳":50});
 Object.assign(ITEM_WEIGHTS, {"魔力阻抗襯衫":15,"火精靈王的爆焰":150,"水精靈王的撫摸":40,"風精靈王的狂嘯":30,"地精靈王的抗拒":40,"純潔少女的憐愛":5,"破岩法師的秘術":30,"將軍愛用的握劍護腕":30});   // 🏺 遺物 第十五批重量（依規格）
 [['西瑪','relic_orin_ring'],['拉斯塔巴德馴獸師','relic_tamer_feedbag'],['地元素守護者','relic_earth_barrier'],['水元素守護者','relic_water_barrier'],['火元素守護者','relic_fire_barrier'],['風元素守護者','relic_wind_barrier'],['殘暴的食屍鬼','relic_ghoul_fang'],['殘暴的史巴托','relic_sparto_shard'],['受詛咒的妖魔殭屍','relic_corpse_needle'],['遺忘之島變形怪','relic_morph_blade'],['遺忘之島巨大鱷魚','relic_croc_leather'],['遺忘之島卡司特王','relic_kasta_hump'],['德雷克','relic_pirate_dual'],['熔岩高崙','relic_lava_fists']].forEach(r => (MOB_DROPS[r[0]] = MOB_DROPS[r[0]] || []).push([r[1], 0.0001]));
+// 🏺 遺物 第十六批重量（依規格·寵物防具/武器不計負重故不列）
+Object.assign(ITEM_WEIGHTS, {"奴隸粗布衫":30,"地獄犬三頭釵":30,"巨魔的再生戒指":5,"烈焰巫師的正式長袍":30,"負重的堅忍巨臂":50,"笨重的鋼鐵石盾":250,"魔力泉源長靴":15,"暗黑的金屬棍棒":30,"召喚儀式的魔術布":10,"斷裂的昆蟲巨鉗":120,"魔力塑造的海洋水晶球":30,"燃燒殆盡的灰燼之拳":10,"死神的鐮刀破片":40,"巨靈的承諾":3,"被差遣的迷你闇精靈":10,"復仇者的十字弩弓":40});
+// 🏺 遺物 第十六批掉落（單一怪物 0.0001%；地獄奴隸＝聖地版 sanct_hellslave·同名鍵）
+[['受詛咒的馴獸師','relic_tamer_petarm'],['地獄奴隸','relic_slave_shirt'],['恐怖的地獄犬','relic_cerberus_pin'],['遺忘之島多羅','relic_troll_regen_ring'],['卡士柏','relic_flamemage_robe'],['底比斯 尖碑石奴(黑)','relic_burden_gauntlet'],['小惡魔','relic_imp_fang'],['恐怖的鋼鐵高崙','relic_iron_stone_shield'],['火焰之魔法師','relic_mana_spring_boots'],['暗黑萊肯','relic_dark_metal_club'],['炎魔的小惡魔','relic_summon_cloth'],['巨大守護螞蟻','relic_ant_pincer'],['馬庫爾','relic_ocean_orb'],['阿西塔基奧','relic_ash_fist'],['死神','relic_reaper_scythe'],['伊弗利特','relic_djinn_promise'],['黑暗精靈使','relic_mini_darkelf'],['黑暗復仇者','relic_avenger_crossbow']].forEach(r => (MOB_DROPS[r[0]] = MOB_DROPS[r[0]] || []).push([r[1], 0.0001]));
+// 🏺 遺物 第十七批重量（依規格）
+Object.assign(ITEM_WEIGHTS, {"重戰士的鏈鎖腰帶":150,"殘暴的骸骨意志之弓":40,"鬥士的決戰服裝":50,"幼龍的爪印":50,"滲透紅光的背後靈":5,"法師的護身短刀":30});
+// 🏺 遺物 第十七批掉落（單一怪物 0.0001%）
+[['歐姆戰士','relic_heavy_belt'],['殘暴的骷髏神射手','relic_bone_bow'],['殘暴的骷髏鬥士','relic_fighter_armor'],['幼龍','relic_drake_pawprint'],['火焰之靈魂(紅)','relic_red_wraith'],['受詛咒的艾爾摩法師','relic_mage_dagger']].forEach(r => (MOB_DROPS[r[0]] = MOB_DROPS[r[0]] || []).push([r[1], 0.0001]));
 // ⚖️ 負重顯示色：0～49% 暖白、50～81% 介面金黃、82%以上介面紅（loadTier 0/1/2～3）。
 function getLoadColor(tier){ return Number(tier) >= 2 ? 'load-tone-danger' : (Number(tier) >= 1 ? 'load-tone-warning' : 'load-tone-normal'); }
 // 🪆 取目前裝備之魔法娃娃的某 % 欄位值（expBonus/goldBonus/potionBonus…；未裝娃娃→0）
