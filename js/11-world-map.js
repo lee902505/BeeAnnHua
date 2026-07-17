@@ -67,7 +67,11 @@ const MAP_CATEGORIES = {
         {v:'thebes_temple', t:'底比斯 歐西里斯祭壇', c:'#f87171', needKey:'item_thebes_altar_key'},
         {v:'tikal_area', t:'提卡爾神廟地區', c:'#86efac'},
         {v:'tikal_deep', t:'提卡爾神廟地區深處', c:'#86efac'},
-        {v:'tikal_altar', t:'提卡爾 庫庫爾坎祭壇', c:'#f87171', needKey:'item_tikal_altar_key'}
+        {v:'tikal_altar', t:'提卡爾 庫庫爾坎祭壇', c:'#f87171', needKey:'item_tikal_altar_key'},
+        {v:'sunrise_castle', t:'日出之國城墎', c:'#fbbf24'},
+        {v:'sunrise_east', t:'日出之國東之地', c:'#f9a8d4'},
+        {v:'sunrise_west', t:'日出之國西之地', c:'#d6d3d1'},
+        {v:'sunrise_north', t:'日出之國北之地', c:'#93c5fd'}
     ],
     // 🏴‍☠️ 海賊島：村莊（安全區）＋ 野外（背景＝古魯丁）＋ 地監（背景＝說話之島地監1樓）
     pirate_island: [
@@ -149,7 +153,8 @@ const MAP_REGIONS = [
     ]},
     { key: 'rift', label: '時空裂痕', maps: [
         {v:'town_rift', t:'時空裂痕入口'}, {v:'thebes_desert', t:'底比斯 沙漠'}, {v:'thebes_pyramid', t:'底比斯 金字塔內部'}, {v:'thebes_temple', t:'底比斯 歐西里斯祭壇'},
-        {v:'tikal_area', t:'提卡爾神廟地區'}, {v:'tikal_deep', t:'提卡爾神廟地區深處'}, {v:'tikal_altar', t:'提卡爾 庫庫爾坎祭壇'}
+        {v:'tikal_area', t:'提卡爾神廟地區'}, {v:'tikal_deep', t:'提卡爾神廟地區深處'}, {v:'tikal_altar', t:'提卡爾 庫庫爾坎祭壇'},
+        {v:'sunrise_castle', t:'日出之國城墎'}, {v:'sunrise_east', t:'日出之國東之地'}, {v:'sunrise_west', t:'日出之國西之地'}, {v:'sunrise_north', t:'日出之國北之地'}
     ]},
     { key: 'sherine', label: '席琳神殿', maps: [
         {v:'town_sherine', t:'席琳神殿'}
@@ -1559,10 +1564,63 @@ function renderDantesGate(div) {
             <p class="text-xs text-slate-500 pt-1">挑戰吉爾塔斯時若身上持有 完整的召喚球：戰敗回村將消耗 1 顆，吉爾塔斯的 HP 會保持不變（暫停回血）直到你再次進入；沒有完整的召喚球則重新進入將是全新的吉爾塔斯。</p>
         </div>`;
 }
+// 🕊️ v3.4.73 聖使阿卡塔（亞丁·經典限定）：死亡經驗買回。
+//   ・killPlayer（js/04）只在「實際損失 > 0」時記 player.deathLog:{lv,loss,t}（上限 10 筆·滿了淘汰最舊·逐角色隨存檔）——當級 0% 死亡不建檔，無法買回沒失去的經驗。
+//   ・買回：花費 死亡時等級×等級×1000 金幣 → 取回該筆「實際損失經驗」的 50%（floor），紀錄即銷毀；回灌走 player.exp += n + checkLvUp()（可正常升級）。
+function renderArkataBuyback(el) {
+    let log = Array.isArray(player.deathLog) ? player.deathLog : [];
+    let rows = log.map((r, i) => {
+        let cost = (r.lv || 1) * (r.lv || 1) * 1000;
+        let back = Math.floor((r.loss || 0) * 0.5);
+        let when = r.t ? new Date(r.t).toLocaleString('zh-TW', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '';
+        let ok = (player.gold || 0) >= cost;
+        return `
+            <div class="flex items-center justify-between gap-2 bg-slate-800/60 border border-slate-600 rounded p-3">
+                <div class="text-sm text-slate-200 leading-relaxed">Lv <span class="text-amber-300 font-bold">${r.lv}</span> 陣亡${when ? `<span class="text-xs text-slate-500">（${when}）</span>` : ''}　損失 <span class="text-red-300 font-bold">${(r.loss || 0).toLocaleString()}</span> 經驗<br>
+                    <span class="text-xs text-slate-400">買回 <span class="text-emerald-300 font-bold">${back.toLocaleString()}</span> 經驗（50%）・費用 <span class="text-yellow-300">${cost.toLocaleString()}</span> 金幣</span></div>
+                <button class="btn ${ok ? 'bg-yellow-700 hover:bg-yellow-600 border-yellow-500' : 'bg-slate-600 border-slate-500 opacity-60 cursor-not-allowed'} py-2 px-4 font-bold shrink-0" ${ok ? '' : 'disabled'} onclick="arkataBuyback(${i})">買回</button>
+            </div>`;
+    }).join('');
+    el.innerHTML = `
+        <div class="flex flex-col gap-3 p-1">
+            <div class="text-slate-300 text-sm leading-relaxed">聖使阿卡塔：逝者的經驗不會真正消散——我能以聖光為你凝聚回來。每筆死亡紀錄可花費「死亡時等級×等級×1000」金幣，取回實際損失經驗的一半。</div>
+            <div class="text-xs text-slate-400">死亡紀錄：${log.length} / 10（滿 10 筆後新的死亡會擠掉最舊的一筆）・持有金幣：<span class="text-yellow-300">${(player.gold || 0).toLocaleString()}</span></div>
+            ${rows || '<div class="text-slate-500 text-sm bg-slate-800/40 border border-slate-700 rounded p-4 text-center">目前沒有死亡紀錄。願聖光持續眷顧你。</div>'}
+        </div>`;
+}
+function arkataBuyback(i) {
+    if (!player || !player.classicMode) return;   // 🕊️ 經典限定（縱深防護）
+    let log = Array.isArray(player.deathLog) ? player.deathLog : [];
+    let r = log[i];
+    if (!r) return;
+    let cost = (r.lv || 1) * (r.lv || 1) * 1000;
+    let back = Math.floor((r.loss || 0) * 0.5);
+    if (back <= 0) { log.splice(i, 1); renderArkataBuyback(document.getElementById('interaction-content')); return; }   // 防呆：無效紀錄直接銷毀
+    if ((player.gold || 0) < cost) { logSys('金幣不足，無法買回經驗。'); return; }
+    player.gold -= cost;
+    log.splice(i, 1);   // 先銷毀紀錄再回灌，杜絕重複領取
+    player.exp += back;
+    checkLvUp();
+    logSys(`<span class="text-emerald-300">聖使阿卡塔為你凝聚回 ${back.toLocaleString()} 點經驗（花費 ${cost.toLocaleString()} 金幣）。</span>`);
+    if (typeof calcStats === 'function') calcStats();
+    updateUI(); saveGame();
+    renderArkataBuyback(document.getElementById('interaction-content'));
+}
+
+// 🏴 潘朵拉黑市快捷鍵：不切換地圖，直接沿用村莊 NPC 的同一個浮動視窗與市場狀態。
+// 浮動視窗原本位於 #town-view；狩獵中父層會隱藏，因此首次使用時移至 body，之後所有 NPC 互動仍共用此視窗。
+function openPandoraShortcut() {
+    let panel = document.getElementById('town-interaction-container');
+    if (!panel) return;
+    if (panel.parentElement && panel.parentElement.id === 'town-view') document.body.appendChild(panel);
+    interactNPC('npc_pandora', 'town_talking');
+}
+
 function interactNPC(npcId, townId) {
     let npc = DB.towns[townId].npcs.find(n => n.id === npcId);
     if(!npc) return;
     if (npc.classicHide && player.classicMode) return;   // 🔥 經典模式：漢 不可互動（縱深防護，正常情況卡片已不渲染；v3.0.77 碧恩經典可用）
+    if (npc.classicOnly && !player.classicMode) return;   // 🕊️ 經典限定 NPC（聖使阿卡塔）：一般模式不可互動（縱深防護，渲染層已過濾）
     _activePanel = null;   // 開啟新面板：先清除自動刷新標記，由對應 render 視需要重新設定
 
     // 🔧 v2.6.77 倉庫 NPC：浮動倉庫直接覆蓋在村莊 NPC 清單上，不切入舊式 NPC 互動畫面
@@ -1584,7 +1642,9 @@ function interactNPC(npcId, townId) {
 
     // 根據 NPC 的類型，載入不同的 UI
     if (npc.type === 'shop' || npc.id === 'npc_gilen') {
-        renderTownShop(contentDiv, npc.id);  
+        renderTownShop(contentDiv, npc.id);
+    } else if (npc.id === 'npc_arkata') {   // 🕊️ 聖使阿卡塔：死亡經驗買回（亞丁·經典限定）
+        renderArkataBuyback(contentDiv);
     } else if (npc.id === 'npc_obel' || npc.id === 'npc_hert' || npc.id === 'npc_diren') {   // 🔧 赫特＝風木城、帝倫＝海音城的魔物追蹤（同奧貝勒）
         renderObelNPC(contentDiv);
     } else if (npc.id === 'npc_pandora') { 
@@ -1697,7 +1757,7 @@ const NPC_SPR = {
     '1045': { g: '1045', f: 8 }, '51': { g: '51', f: 4 }, '237': { g: '237', f: 6 }, '261': { g: '261', f: 4 },
     '902': { g: '902', f: 6 }, '866': { g: '866', f: 6 }, '847': { g: '847', f: 6, mul: 1.35 }, '1762': { g: '1762', f: 8, mul: 1.1, w: 8 },   // 🔥 w:8＝火焰武器層 idle_w(宙斯之熔岩高崙燃燒特效)
     '1788': { g: '1788', f: 6 }, '2524': { g: '2524', f: 8 }, '118': { g: '118', f: 4 }, '31': { g: '31', f: 4, mul: 0.8 }, '31b': { g: '31b', f: 3, mul: 0.8 },
-    '457': { g: '457', f: 6 }, '54': { g: '54', f: 3 }, '460': { g: '460', f: 6 }, '875': { g: '875', f: 12 },
+    '457': { g: '457', f: 6 }, '460': { g: '460', f: 6 }, '875': { g: '875', f: 12 },   // 🏦 v3.4.77 '54'（舊倉庫侏儒外觀）定義移除·assets/npc/54 已刪——外觀正式退役（POOL/FALLBACK 已於 v3.4.75 除役）
     '98': { g: '98', f: 6 }, '949': { g: '949', f: 6 }, '100': { g: '100', f: 6 }, '854': { g: '854', f: 16, mul: 0.72 },
     '854q': { g: '854', f: 16, mul: 0.86, tint: 'sepia(.55) saturate(1.7) hue-rotate(-18deg) brightness(1.12) drop-shadow(0 3px 2px rgba(0,0,0,.55))' },
     '916': { g: '916', f: 6 }, '920': { g: '920', f: 7 }, '918': { g: '918', f: 6 }, '864': { g: '864', f: 6, mul: 1.05 },
@@ -1712,7 +1772,9 @@ const NPC_SPR = {
     '1839': { g: '1839', f: 9 }, '2813': { g: '2813', f: 9 }, '2794': { g: '2794', f: 9 }, '2829': { g: '2829', f: 11 },
     '2801': { g: '2801', f: 8 }, '2820': { g: '2820', f: 15 }, '6899': { g: '6899', f: 12 }, '6757': { g: '6757', f: 12 },
     '6690': { g: '6690', f: 12 }, '6804': { g: '6804', f: 12 },
-    '5454': { g: '5454', f: 1 }   // 🌑 v3.3.33 真‧冥皇丹特斯＝骸骨王座坐像（NPC/真‧冥皇丹特斯 5454-0＋影子 5455-0·單幀 138×228）
+    '5454': { g: '5454', f: 1 },   // 🌑 v3.3.33 真‧冥皇丹特斯＝骸骨王座坐像（NPC/真‧冥皇丹特斯 5454-0＋影子 5455-0·單幀 138×228）
+    '2141': { g: '2141', f: 6 },   // 🕊️ v3.4.73 聖使阿卡塔（body 2141＋影 2142·6幀·29×59）
+    '10669': { g: '10669', f: 3 }   // 🏦 v3.4.74 朵琳＝倉庫NPC通用新外型（body 10669＋影 10670·3幀·67×44 帶雙寶箱·取代舊 54）
 };
 // 有名字的 NPC → 專屬 sprite（＋依功能固定共用者：魔物追蹤/城堡護衛已於下方 role 邏輯處理）
 const NPC_SPR_FIXED = {
@@ -1726,6 +1788,7 @@ const NPC_SPR_FIXED = {
     npc_kupu: '1839', npc_rabiani: '1307', npc_runde: '2813', npc_kang: '2794', npc_brudica: '2829',
     npc_skvati: '2801', npc_saedia: '2820', npc_shenien: '6899', npc_bartel: '6757', npc_sphere: '6690',
     npc_dantes_lord: '5454', npc_atelier: '1768',   // 🌑 v3.3.33 長老會議廳：真‧冥皇丹特斯＝骸骨王座／亞提利歐＝矮人鐵匠（用戶指定·同炎魔鐵匠外型 1768）
+    npc_arkata: '2141',   // 🕊️ v3.4.73 聖使阿卡塔（亞丁·經典限定·死亡經驗買回）
     // 魔物追蹤三兄弟共用 cray；港口/寵物保管等亦可指定
     npc_obel: '1049', npc_hert: '1049', npc_diren: '1049'
 };
@@ -1736,14 +1799,14 @@ const NPC_SPR_POOL = {
     quest: ['1254', '1278', '1766', '3858', '1276'],
     exchange: ['1049', '1256'],
     pledge: ['3858', '1766'],
-    bless: ['1788'], pray: ['918'], mastery: ['1222'], synth: ['1307'], skill: ['237'], travel: ['1045'], petstore: ['54']
+    bless: ['1788'], pray: ['918'], mastery: ['1222'], synth: ['1307'], skill: ['237'], travel: ['1045'], petstore: ['100', '727']   // 🐾 v3.4.75 包武(petstore)原池['54']＝舊倉庫寶箱造型·v3.4.74 倉庫改用10669後54被釋出→包武誤拿寶箱圖；改人類外型(甘特/萊恩)·54 全面除役
 };
 // 依 type 的單一固定 sprite（每城鎮至多一個→恆不重複）
-const NPC_SPR_ROLE = { warehouse: '54', ally: '51', castleguard: '1222' };
+const NPC_SPR_ROLE = { warehouse: '10669', ally: '51', castleguard: '1222' };   // 🏦 v3.4.74 倉庫通用外型 54→10669（朵琳新造型·妖精森林倉庫=npc_wh_elf 走 FIXED '918' 不受影響）
 // 全域後備順序（池與 role 都耗盡時取用；人形/商販在前、怪物型在後，避免奇怪配對）
 const NPC_SPR_FALLBACK = ['1256', '1307', '1314', '1768', '1305', '1254', '1278', '1766', '3858', '1276',
-    '237', '261', '902', '1045', '457', '460', '727', '914', '916', '918', '920', '949', '100', '118', '1788', '1222', '1049', '54',
-    '866', '875', '1762', '864', '2524', '2538', '2540', '31', '847', '854'];
+    '237', '261', '902', '1045', '457', '460', '727', '914', '916', '918', '920', '949', '100', '118', '1788', '1222', '1049',
+    '866', '875', '1762', '864', '2524', '2538', '2540', '31', '847', '854'];   // 🐾 v3.4.75 '54'（舊倉庫寶箱造型）自後備清單除役——任何 NPC 不再分到此外型
 // 👩 v3.2.98 依 NPC 名字性別配對外型（用戶指示：女性名套女性外型、男性名套男性外型）
 //   NPC_SPR_FEMALE＝「外型明顯女性」的 sprite key（女角優先取、男角一律跳過）；918 端莊袍＝中性不列入。
 const NPC_SPR_FEMALE = new Set(['98', '949', '1307', '3858', '854q', '3227', '866', '864', '6804']);
@@ -1800,17 +1863,17 @@ function _npcWeaponFrames(key) {   // 🔥 火焰/武器疊層幀(idle_w_N)：�
 //   鐵匠靠鍛造爐、港口靠碼頭、試煉靠大殿階梯…）；全部落在可行走地面（路面/廣場/沙地/甲板），避開水域/屋頂/岩漿/水晶。
 const TOWN_NPC_SPOTS = {
     // 銀騎士村莊：格林=左長屋店門前｜高特=右穀倉貨車旁｜茉莉=左下工作棚｜芬=箭靶訓練場｜喬爾=武器架旁｜瑞奇=大宅門前｜雷德=水井邊
-    town_silver_knight: [[20, 60], [79, 56], [16, 75], [25, 80], [52, 36], [64, 36], [41, 36]],
+    town_silver_knight: [[20, 60], [79, 56], [39, 77], [25, 80], [52, 36], [64, 36], [41, 36]],   // 🎯 v3.4.79 茉莉(製作·第3位)[16,75]→[39,77]：右下移出圍欄工作區到中央廣場（用戶箭頭指示）
     // 說話之島：吉倫=左上大屋門廊｜巴辛=水井邊｜朵琳=左中小屋門前｜潘朵拉=中央大屋遮陽棚攤位｜拉達爾=漁棚前院草地(v3.3.32勿站進棚內)｜法林=曬網架旁｜萊恩=沙灘小船邊｜詹姆/甘特=主路上｜尤麗婭=大屋門前｜拉比安尼=右下茅屋前
-    town_talking: [[24, 40], [48, 40], [14, 57], [51, 82], [82, 41], [67, 34], [60, 23], [38, 62], [45, 75], [62, 89], [80, 88]],
+    town_talking: [[24, 40], [48, 40], [20, 63], [51, 82], [82, 41], [67, 34], [60, 23], [38, 62], [45, 75], [62, 89], [80, 88]],   // 🏦 v3.4.78 朵琳(倉庫·第3位)[14,57]→[20,63]：右下移出屋前台階到空地（用戶箭頭指示）
     // 妖精森林：埃爾頻=左階梯下空地｜艾爾=主殿門前｜琳達=舞台前｜艾利溫=右屋階梯口｜那翰/娜魯帕=林間空地｜精靈女皇(override)｜精靈=花圃間｜安特(override釘右上)｜潘/芮克妮=空地｜布拉伯=右下屋門廊｜羅賓孫=左下樹屋平台｜迷幻森林之母=右中開闊地(巨石像)
-    town_elf: [[30, 48], [42, 33], [57, 30], [76, 42], [22, 60], [69, 49], [48, 62], [44, 74], [84, 43], [55, 70], [30, 72], [84, 74], [12, 82], [63, 63]],
+    town_elf: [[30, 48], [42, 33], [57, 30], [76, 42], [22, 60], [69, 49], [48, 62], [44, 74], [84, 43], [55, 70], [30, 72], [84, 74], [15, 88], [63, 63]],   // 🎯 v3.4.79 羅賓孫(製作·第13位)[12,82]→[15,88]：右下移出樹屋門口到圓形木平台（用戶箭頭指示）
     // 奇岩城鎮：邁爾/范吉爾/愛弗特=右下市集攤棚各一攤｜溫諾=攤棚上方廣場路面(v3.3.32勿站攤頂)｜莫麗雅/海克特=噴泉兩側｜哈巴特=公會階梯前｜倫提斯=左教堂門廊｜賽巴斯=右上綠籬步道｜蘇瑞耳=圓頂庫房右側街面(v3.3.32勿貼圓頂)
-    town_giran: [[69, 81], [81, 56], [88, 79], [57, 88], [38, 66], [54, 66], [66, 42], [14, 36], [58, 33], [22, 81]],
+    town_giran: [[69, 81], [81, 56], [88, 79], [57, 88], [38, 66], [54, 66], [66, 42], [19, 39], [58, 33], [24, 84]],   // 🎯 v3.4.79 倫提斯(製作·第8位)[14,36]→[19,39] 移出教堂門廊到路面＋蘇瑞耳(倉庫·第10位)[22,81]→[24,84] 移出圓頂庫房牆邊（用戶箭頭指示）
     // 海音城鎮(運河水都·v3.3.31 依用戶截圖箭頭校正)：比特=左下屋前空地｜哈金=上排庫房前街面｜傭兵公會=右上建築左側路面｜琉米埃爾=花壇右下路面(勿站上花壇)｜多文=中央廣場｜依詩蒂=橋頭左側廣場(勿站上橋)｜依斯巴=木棧碼頭板上(港口)
     town_heine: [[19, 85], [41, 26], [56, 29], [22, 41], [50, 50], [62, 45], [28, 88]],
-    // 亞丁城鎮(白石王都)：拉溫=左宅邸前｜恬金=右上宮殿階梯｜烏普尼=噴泉台階旁｜諾斯=中央羅盤地磚｜包武=右下拱廊前
-    town_aden: [[19, 62], [76, 30], [64, 48], [42, 68], [69, 77]],
+    // 亞丁城鎮(白石王都)：拉溫=左宅邸前｜恬金=右上宮殿階梯｜烏普尼=噴泉台階旁｜諾斯=中央羅盤地磚｜包武=右下拱廊前｜聖使阿卡塔=左上迴廊前(經典限定)
+    town_aden: [[19, 62], [76, 30], [64, 48], [42, 68], [69, 77], [31, 40]],
     // 歐瑞村莊(雪山村·v3.3.32 依用戶截圖箭頭校正四點全下到路面)：畢伍德=右屋前雪路｜希林=上方倉庫門前地面｜傭兵公會=村中央｜伊貝爾賓=左屋前空地(勿站台階)｜大衛=右屋角前雪路｜特羅斯=左下柴堆路口
     town_oren: [[72, 54], [53, 29], [45, 55], [33, 49], [77, 59], [22, 72]],
     // 燃柳村莊：歐斯=鍛造屋前院(火爐鐵砧旁)
@@ -1914,11 +1977,19 @@ function renderTownNPCMap(townId) {
         }
         if (npc.darkOnly && player.cls !== 'dark') return false;
         if (npc.classicHide && player.classicMode) return false;
+        if (npc.classicOnly && !player.classicMode) return false;   // 🕊️ 經典限定 NPC（聖使阿卡塔）：一般模式不渲染
         return true;
     });
     // 🗼🌀 v3.2.89 傲慢之塔／時空裂痕：入口告示改成地圖上的可點 NPC（_spr 專屬圖·_float 專屬點擊→浮動視窗）
     if (townId === 'town_pride') vis.push({ id: '_pride_entrance', n: '傲慢之塔', title: '入口', _spr: '1148', _float: 'pride' });
     if (townId === 'town_rift') vis.push({ id: '_rift_entrance', n: '時空裂痕', title: '入口', _spr: '1149', _float: 'rift' });
+    // 🏴 潘朵拉玩家 NPC：每個符合條件的安全區各自最多一名，並沿用玩家職業站立動畫。
+    try {
+        if (typeof getWanderingBuyerForTown === 'function') {
+            let wandering = getWanderingBuyerForTown(townId);
+            if (wandering) vis.push(wandering);
+        }
+    } catch (e) {}
     if (!vis.length) return;
     let pos = _townNpcLayout(vis.length, townId);
     let ovr = TOWN_NPC_POS_OVERRIDE[townId] || {};
@@ -1927,10 +1998,37 @@ function renderTownNPCMap(townId) {
     //   （例：肯特城堡 奧貝勒固定 1049，若 伊賽馬利 先抽到 1049 就會撞臉；先預留固定圖 → 池分配自動避開）
     vis.forEach(npc => { let fk = npc._spr || NPC_SPR_FIXED[npc.id] || NPC_SPR_ROLE[npc.type]; if (fk) used.add(fk); });
     vis.forEach((npc, i) => {
-        let key = npc._spr || _npcSpriteKey(npc, used); used.add(key);
-        let cat = NPC_SPR[key] || NPC_SPR['1256'];
         let ov = ovr[npc.id];
         let p = ov ? { x: ov[0], y: ov[1] } : (pos[i] || { x: 50, y: 60 });
+        // 玩家 NPC 使用 classanim 的無武器正面 idle，本體與影子各自同步播放。
+        if (npc._wanderer && typeof wanderingBuyerSpriteData === 'function') {
+            let spr = wanderingBuyerSpriteData(npc);
+            let body0 = spr.frames && spr.frames[0] ? spr.frames[0].src : '';
+            let shadow0 = spr.shadows && spr.shadows[0] ? spr.shadows[0].src : '';
+            let el = document.createElement('div');
+            el.className = 'town-npc wandering-player';
+            el.style.left = p.x + '%'; el.style.top = p.y + '%'; el.style.zIndex = Math.round(p.y * 10);
+            el.innerHTML =
+                '<div class="tn-label"><span class="tn-name">' + npc.n + '</span><span class="tn-title">[玩家收購]</span></div>' +
+                '<img class="tn-shadow" src="' + shadow0 + '" alt="" onload="this.parentElement.classList.add(\'has-tn-shadow\')" onerror="this.remove()">' +
+                '<img class="tn-body" src="' + body0 + '" alt="">';
+            el.onclick = () => openWanderingBuyerDialog(npc.id);
+            map.appendChild(el);
+            let bodyImg = el.querySelector('.tn-body');
+            let shadowImg = el.querySelector('.tn-shadow');
+            bodyImg.addEventListener('load', _scheduleTownLabelResolve, { once: true });
+            _townNpcSprites.push({
+                img: bodyImg,
+                wimg: shadowImg,
+                wframes: spr.shadows || null,
+                frames: spr.frames || [],
+                phase: (i * 3) % 8,
+                last: -1
+            });
+            return;
+        }
+        let key = npc._spr || _npcSpriteKey(npc, used); used.add(key);
+        let cat = NPC_SPR[key] || NPC_SPR['1256'];
         let el = document.createElement('div');
         el.className = 'town-npc';
         el.style.left = p.x + '%'; el.style.top = p.y + '%'; el.style.zIndex = Math.round(p.y * 10);

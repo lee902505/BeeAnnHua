@@ -271,6 +271,33 @@ function getItemFullName(item) {
     return `${segs}<span class="${getItemColor(item)}">${en}${setPrefix}${d.n}${cnt}</span>`;
 }
 
+// 🌅 遺物 鐮鼬的藥壺 potionBonus：掃玩家全裝備欄加總「治癒藥水恢復量 +%」（魔法娃娃的 potionBonus 另走 dollFieldVal·此處掃一般裝備/遺物）
+function playerEquipPotionBonusPct() {
+    let sum = 0;
+    try { for (let _k in player.eq) { let _e = player.eq[_k]; if (!_e || !_e.id || _k === 'doll') continue; let _d = DB.items[_e.id]; if (_d && _d.potionBonus) sum += _d.potionBonus; } } catch (e) {}
+    return sum;
+}
+// 🌅 批量使用（batchUse:true 的可使用道具·現用於 巨大骷髏的妖魂 eff:'expsoul'）：prompt 數量（預設全部）→一次結算經驗＋扣數量
+function batchUseItem(u) {
+    let item = player.inv.find(i => i.uid === u);
+    if (!item) return;
+    let d = DB.items[item.id];
+    if (!d || !d.batchUse || d.eff !== 'expsoul') return;
+    if (player.dead) { logSys(`死亡狀態無法使用道具，請先復活。`); return; }
+    let raw = prompt(`要使用幾個 ${d.n}？（持有 ${item.cnt} 個·每個 +${(d.expGain || 1000000).toLocaleString()} 經驗）`, item.cnt);
+    if (raw === null) return;
+    let n = Math.floor(Number(raw));
+    if (!n || n <= 0) { logSys('已取消批量使用。'); return; }
+    n = Math.min(n, item.cnt);
+    let _xp = (d.expGain || 1000000) * n;
+    player.exp += _xp;
+    checkLvUp();
+    item.cnt -= n;
+    if (item.cnt <= 0) player.inv = player.inv.filter(i => i.uid !== item.uid);
+    logSys(`使用了 <span class="${d.c || 'text-sky-300'} font-bold">${d.n}</span> ×${n}，獲得 <span class="text-yellow-300 font-bold">${_xp.toLocaleString()}</span> 點經驗值！`);
+    renderTabs(); updateUI(); saveGame();
+    if (!document.getElementById('item-modal').classList.contains('hidden')) closeModal();
+}
 function useItem(u, silent = false) {
     let item = player.inv.find(i => i.uid === u);
     if (!item) return;
@@ -280,6 +307,18 @@ function useItem(u, silent = false) {
     let d = DB.items[item.id];
     if (d.noUse) { if(!silent) logSys(`此物品無法直接使用。`); return; }
 
+    // 🌅 巨大骷髏的妖魂（eff:'expsoul'·expGain）：使用後獲得經驗值（批量走 batchUseItem）
+    if (d.eff === 'expsoul') {
+        if (silent) return;   // 不參與任何自動使用
+        let _xp = d.expGain || 1000000;
+        player.exp += _xp;
+        checkLvUp();
+        consume(item);
+        logSys(`使用了 <span class="${d.c || 'text-sky-300'} font-bold">${d.n}</span>，獲得 <span class="text-yellow-300 font-bold">${_xp.toLocaleString()}</span> 點經驗值！`);
+        updateUI(); saveGame();
+        if (!document.getElementById('item-modal').classList.contains('hidden')) closeModal();
+        return;
+    }
     // 🎴 卡片收集冊：翻開全螢幕書頁；卡片：登錄圖鑑（已收錄則改賣出）
     if (d.eff === 'cardbook') { if (silent) return; if (typeof openCardBook === 'function') openCardBook(); return; }
     if (d.eff === 'equipbook') { if (silent) return; if (typeof openEquipBook === 'function') openEquipBook(); return; }   // 🗡️ 裝備收集冊
@@ -359,11 +398,12 @@ function useItem(u, silent = false) {
         }
         if (item.id.includes('potion_heal') || item.id === 'potion_strong' || item.id === 'potion_ult') {
             if (player.cds.pot > 0) return;
-            let h = Math.floor(potionHealBase(d) * (1 + (getConPotionPct(player.d.con) + dollFieldVal('potionBonus') + (player._miscPotionBonus || 0)) / 100));   // 🍶 藥水基準改隨機區間 valMin~valMax（紅10~20/橙30~50/白60~80）；🪆 魔法娃娃 potionBonus%（吸血鬼）；🧰 道具收集冊 材料/其他全收集：藥水恢復%
+            let h = Math.floor(potionHealBase(d) * (1 + (getConPotionPct(player.d.con) + dollFieldVal('potionBonus') + playerEquipPotionBonusPct() + (player._miscPotionBonus || 0)) / 100));   // 🍶 藥水基準改隨機區間 valMin~valMax（紅10~20/橙30~50/白60~80）；🪆 魔法娃娃 potionBonus%（吸血鬼）；🧰 道具收集冊 材料/其他全收集：藥水恢復%
             if (hasMastery('k_survive')) h = Math.floor(h * 1.25);   // 🏅 生存精通：治癒藥水恢復 +25%
             if (hasMastery('k_tough') && player.hp < player.mhp * 0.4) h = Math.floor(h * 1.5);   // ⚔️ 堅韌精通：HP<40% 時藥水治癒量 +50%
             if (hasMastery('k_dragonblood')) h = Math.floor(h * 1.15);   // 🐉 龍血精通：治癒藥水恢復 +15%
             if (player.hp < player.mhp * 0.2) { try { for (let _k in player.eq) { let _e = player.eq[_k]; if (_e && DB.items[_e.id] && DB.items[_e.id].lowHpPotionX2) { h = h * 2; break; } } } catch (e) {} }   // 🏺 v3.2.17 聖伯納的急救酒桶：HP<20% 時治癒藥水恢復量 ×2
+            if (player.statuses && player.statuses.potionFrost > 0) h = Math.max(1, Math.floor(h * 0.5));   // 🌅 藥水霜化（巨大骷髏·枯竭詛咒）：治癒藥水恢復量 −50%
             player.hp = Math.min(player.mhp, player.hp + h);
             player.cds.pot = 1;
             if(!silent) logSys(`飲用 ${d.n}，恢復 ${h} HP。`);
@@ -383,11 +423,11 @@ function useItem(u, silent = false) {
                 openPolySelect(item.uid);
                 return;
             }
-            if (silent && ringOn && player.poly) {
+            if (silent && ringOn && player.poly && polyFormMatchesEquippedWeapon(player.poly)) {
                 // 自動使用 + 持有變形控制戒指：維持上次的變身狀態（不重抽、不跳選單）
                 // 保留 player.poly 不變，僅於下方重置持續時間。
             } else {
-                // 其餘情況（手動且無戒指 / 自動但尚無變身紀錄）：依等級隨機抽取一種
+                // 其餘情況（手動且無戒指／尚無紀錄／換成不同攻擊類型武器）：依等級與武器類型隨機抽取。
                 player.poly = getPolyState();
             }
             player.buffs.poly = d.dur;
@@ -951,7 +991,8 @@ function doEnhance(targetUid, isEq = true) {
 const PLAYER_DEBUFF_NAME = {
     stun: '暈眩', freeze: '冰凍', stone: '石化', paralyze: '麻痺',
     silence: '沉默', magicseal: '魔法封印', poison: '中毒',
-    burn: '灼燒', scald: '燙傷', evilAura: '邪靈之氣'
+    burn: '灼燒', scald: '燙傷', evilAura: '邪靈之氣',
+    weaken: '弱化', disease: '疾病', blind: '目盲', potionFrost: '藥水霜化'   // 🌅 日出之國新異常
 };
 
 // 增益顏色設定：
@@ -980,7 +1021,7 @@ function getBuffColor(k, def) {
 const STATUS_ICON_SKILLS = {
     'sk_sunlight':'日光術','sk_shield':'保護罩','sk_holy_wpn':'神聖武器','sk_ench_wpn':'擬似魔法武器','sk_reveal':'無所遁形術','sk_load_up':'負重強化','sk_shield2':'鎧甲護持',
     'sk_dex_up':'通暢氣脈術','sk_magic_shield':'魔法屏障','sk_meditation':'冥想術','sk_haste_spell':'加速術','sk_str_up':'體魄強健術',
-    'sk_bless_wpn':'祝福魔法武器','sk_greater_haste':'加速術','sk_berserk':'狂暴術','sk_holy_dash':'神聖疾走','sk_blizzard_storm':'冰雪颶風','sk_fire_prison':'火牢','sk_invisible':'隱身術',
+    'sk_bless_wpn':'祝福魔法武器','sk_greater_haste':'加速術','sk_berserk':'狂暴術','sk_holy_dash':'神聖疾走','sk_blizzard_storm':'冰雪颶風','sk_fire_prison':'火牢','sk_invisible':'隱身術','sk_heal_energy_storm':'治癒能量風暴',
     'sk_holy_barrier':'聖結界','sk_soul_up':'靈魂昇華','sk_solid_shield':'堅固防護','sk_reduction_armor':'增幅防禦','sk_spike_armor':'尖刺盔甲',
     'sk_counter_barrier':'反擊屏障','sk_elf_mr':'魔法防禦','sk_elf_purify':'淨化精神','sk_elf_eleres':'屬性防禦','sk_elf_singleres':'單屬性防禦',
     'sk_elf_firewpn':'火焰武器','sk_elf_windshot':'風之神射','sk_elf_winddash':'風之疾走','sk_elf_earthguard':'大地防護','sk_elf_watervital':'水之元氣',
@@ -1099,7 +1140,11 @@ function renderStatusEffects() {
         poison: 'text-green-500',    // 中毒 (毒綠)
         burn: 'text-red-500',        // 灼燒 (火紅)
         scald: 'text-orange-500',    // 燙傷 (橘紅)
-        evilAura: 'text-purple-400'  // 邪靈之氣 (邪紫)
+        evilAura: 'text-purple-400', // 邪靈之氣 (邪紫)
+        weaken: 'text-amber-400',    // 🌅 弱化 (琥珀)
+        disease: 'text-lime-400',    // 🌅 疾病 (病綠)
+        blind: 'text-purple-300',    // 🌅 目盲 (霧紫)
+        potionFrost: 'text-sky-300'  // 🌅 藥水霜化 (霜藍)
     };
 
     let debuffs = [];
@@ -1230,11 +1275,14 @@ function _updateUIImpl() {
 	if(document.getElementById('dt-hpr')) document.getElementById('dt-hpr').innerText = formatBonus(player.d.hpR || 0);
     document.getElementById('dt-er').innerText = `${effResistPct(player.d.er)}%`;   // 🔧 顯示有效迴避率（>50 每+5才+1%）
     document.getElementById('dt-dr').innerText = player.d.dr;
-    document.getElementById('dt-spd').innerText = `${player.d.aspd.toFixed(2)}s`;
+    { let _attackSec = (typeof playerAttackIntervalTicks === 'function')
+            ? playerAttackIntervalTicks(false) / 10
+            : Math.max(0.1, Number(player.d.aspd) || 0.1);
+      document.getElementById('dt-spd').innerText = `${_attackSec.toFixed(2)}s`; }
     { let _potionPct = (typeof getConPotionPct === 'function' ? getConPotionPct(player.d.con || 0) : 0);
       try { _potionPct += (typeof dollFieldVal === 'function' ? dollFieldVal('potionBonus') : 0) + (player._miscPotionBonus || 0); } catch (e) {}
       let _el = document.getElementById('dt-potion'); if (_el) _el.innerText = `${_potionPct}%`;
-      _el = document.getElementById('dt-movespeed'); if (_el) _el.innerText = `${100 + (player.d.moveSpeedPct || 0)}%`;
+      _el = document.getElementById('dt-movespeed'); if (_el) _el.innerText = `${typeof playerEffectiveMoveSpeedPct === 'function' ? playerEffectiveMoveSpeedPct() : 100 + (player.d.moveSpeedPct || 0)}%`;
       _el = document.getElementById('dt-mpkill'); if (_el) _el.innerText = (typeof getWisMpOnKill === 'function' ? getWisMpOnKill(player.d.wis || 0) : 0);
       _el = document.getElementById('dt-mr'); if (_el) _el.innerText = player.d.mr || 0;
       _el = document.getElementById('dt-resnone'); if (_el) _el.innerText = Math.round(player.d.resNone || 0); }

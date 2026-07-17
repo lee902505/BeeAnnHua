@@ -373,6 +373,40 @@ const MOB_SKILL_SFX = {
     MOB_ATTACK_SFX[r[0]] = r[1]; MOB_SKILL_SFX[r[0]] = r[2]; MOB_HURT_SFX[r[0]] = r[3]; MOB_KILL_SFX[r[0]] = r[4];
 });
 MOB_ATTACK_SWING["真‧死亡騎士 冥皇丹特斯"] = 248;
+// 🌑 v3.4.83 冥皇兩「玩家變身」攻擊/技能/受擊/死亡音效借「死亡騎士」（用戶指定）。
+//   ⚠️變身名（js/09 _playerMorphName·**無 ‧**：真死亡騎士 冥皇丹特斯／烈焰的死亡騎士）與怪物名（**有 ‧**：真‧死亡騎士 冥皇丹特斯）不同故須各別註冊。
+//   attack：_morphAtkOverride 走 _mobAtkSfxNum 子字串借用本已命中「死亡騎士」→此處顯式化(精確優先·順帶疊揮刀 248)；
+//   hurt/death：_morphHurtOverride/playMorphDeathSfx 走 MOB_HURT_SFX/MOB_KILL_SFX **精確查表無子字串** → 必須顯式（原本查無→退回本職音＝本次要修的點）；
+//   skill：玩家變身施法原本走 per-法術(playSpellCast)→改由 MORPH_SKILL_SFX opt-in 覆蓋成死亡騎士技能音 91（只此二形態·不動其他變身）。
+const MORPH_SKILL_SFX = {};
+[
+  ["真死亡騎士 冥皇丹特斯", 86, 91, 88, 89],
+  ["烈焰的死亡騎士",       86, 91, 88, 89],
+].forEach(function (r) {
+    MOB_ATTACK_SFX[r[0]] = r[1]; MORPH_SKILL_SFX[r[0]] = r[2]; MOB_HURT_SFX[r[0]] = r[3]; MOB_KILL_SFX[r[0]] = r[4];
+    MOB_ATTACK_SWING[r[0]] = 248;
+});
+// 🌅 v3.4.100 日出之國 17 怪三組戰鬥音（用戶對照表·[名, 攻擊, 受傷, 死亡]·全數無技能音→施法維持靜音）。
+//   玉藻/九尾 無死亡音＝設計正確：transformTo 在 killMob 頂端攔截（js/05）先於 playMobKill·永不觸發死亡音。229/230/231(牛鬼之子)＝本次新補 .wav·其餘 36 編號 .ogg 已在庫。
+[
+  ["嗚釜",               7612, 7611, 7613], ["憤怒的嗚釜",         7612, 7611, 7613],
+  ["鎌鼬",               7621, 7622, 7620], ["鎌鼬長兄",           7621, 7622, 7620],
+  ["轆轤首",             7617, 7615, 7616], ["唐傘小僧",           7402, 7404, 7403],
+  ["牛鬼之子",            231,  229,  230], ["河童",               7607, 7608, 7609],
+  ["赤鬼",               7639, 7640, 7643], ["青鬼",               7639, 7640, 7643],
+  ["天狗",               7686, 7684, 7685], ["阿修羅像",           7646, 7641, 7642],
+  ["牛鬼",               6014, 6016, 5996], ["巨大骷髏",           7680, 7681, 7682],
+  ["白面金毛九尾狐・玉藻", 5943, 5946, null], ["白面金毛九尾狐・九尾", 5636, 5655, null],
+  ["白面金毛九尾狐・殺生石", 5651, 7641, 7136],
+].forEach(function (r) {
+    MOB_ATTACK_SFX[r[0]] = r[1];
+    MOB_HURT_SFX[r[0]] = r[2];
+    if (r[3] != null) MOB_KILL_SFX[r[0]] = r[3];
+});
+// 🐯 v3.4.102 鵺＝借黑虎音（用戶指定）：受擊 168／死亡 173。
+// 🐯 v3.5.0 黑虎/鵺 攻擊音＝老虎揮擊 520（用戶指定「黑虎套用老虎攻擊音效」·來源 list.spr #1310 tiger attack 幀 [520/[521 取首記·520.wav 新補入庫）。
+MOB_HURT_SFX["鵺"] = 168; MOB_KILL_SFX["鵺"] = 173;
+MOB_ATTACK_SFX["黑虎"] = 520; MOB_ATTACK_SFX["鵺"] = 520;
 var _sfxDynTried = {}, _mobHurtLast = 0, _spellCastLast = 0, _killLast = 0, _mobAtkLast = 0, _mobSkillLast = 0;
 var _mobAtkKeysByLen = null, _mobAtkResolveCache = {};
 function _mobAtkSfxNum(name) {   // 解析怪名→攻擊音編號（精確→別名→最長子字串借用）·查無回 undefined
@@ -410,6 +444,13 @@ function playMobHurt(mob) {
 }
 function playSpellCast(skn) {
     if (!_sfxCfg.on) return;
+    var _msk = (typeof _morphSkillOverride === 'function') ? _morphSkillOverride() : null;   // 🌑 v3.4.83 冥皇變身施法音覆蓋（死亡騎士技能音 91·取代 per-法術；其他變身→null 維持原音）
+    if (_msk) {
+        var nowM = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
+        if (nowM - _spellCastLast < 80) return; _spellCastLast = nowM;
+        _sfxPlayPool(_msk, 0.55);   // 首次載入中→pool 空→_sfxPlayPool 回 false 靜音（下次起出聲）
+        return;
+    }
     var n = (skn != null) ? SPELL_SFX[skn] : undefined;
     if (n === undefined) { playSfx('magic'); return; }   // 無專屬→通用魔法音
     var now = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
@@ -465,7 +506,8 @@ function playMobSkill(mob) {
 //   攻擊音維持「武器類型」變體（怪物表無攻擊音）；施法音維持 per-法術（playSpellCast）。
 const MORPH_CLASS_VOICE = { '黃金騎士': 'knight_m', '白金騎士': 'knight_m', '銀光騎士': 'knight_m', '黑暗騎士': 'knight_m',
                             '黃金法師': 'mage_m', '白金法師': 'mage_m', '銀光法師': 'mage_m', '黑暗法師': 'mage_m',
-                            '黃金巡守': 'royal_m', '白金巡守': 'royal_m', '銀光巡守': 'royal_m', '黑暗巡守': 'royal_m' };   // 🧝 v3.0.57 四巡守→王子(王族男)語音
+                            '黃金巡守': 'royal_m', '白金巡守': 'royal_m', '銀光巡守': 'royal_m', '黑暗巡守': 'royal_m',   // 🧝 v3.0.57 四巡守→王子(王族男)語音
+                            '莉絲安': 'elf_m' };   // 🏹 v3.5.16 莉絲安受傷/死亡音套用男妖精語音（hurt_elf_m·用戶指定）
 function _morphSfxName() { return (typeof _playerMorphName === 'function') ? _playerMorphName() : null; }   // js/09 的 15 形態解析（含套裝別名）
 function _morphHurtOverride() {   // 回傳受傷音 pool key（並確保已排載）；無覆蓋→null
     var mn = _morphSfxName(); if (!mn) return null;
@@ -480,6 +522,12 @@ function _morphAtkOverride() {   // 🐲 v3.0.113 變身怪物時攻擊音 pool 
     var n = (typeof _mobAtkSfxNum === 'function') ? _mobAtkSfxNum(mn) : undefined;
     if (n === undefined) return null;
     var k = 'atk_' + n; if (_sfxPool[k] === undefined) _sfxDynLoad(k, '' + n); return k;
+}
+function _morphSkillOverride() {   // 🌑 v3.4.83 變身施法音 pool key（opt-in·僅 MORPH_SKILL_SFX 形態·如冥皇兩變身→死亡騎士技能音）；無→null（維持 per-法術）
+    var mn = _morphSfxName(); if (!mn) return null;
+    var n = (typeof MORPH_SKILL_SFX !== 'undefined') ? MORPH_SKILL_SFX[mn] : undefined;
+    if (n === undefined) return null;
+    var k = 'spell_' + n; if (_sfxPool[k] === undefined) _sfxDynLoad(k, '' + n); return k;
 }
 function playMorphDeathSfx() {   // js/09 玩家變身死亡動作首次觸發時呼叫：播該怪物死亡音（無對應→職業語音·再無→靜默）
     if (!_sfxCfg.on) return;
@@ -525,7 +573,8 @@ Object.keys(CREATE_BGM).forEach(function (cls) { BGM_TRACKS['create_' + cls] = C
 var _TOWN_BGM = {}; TOWN_BGM_LIST.forEach(function (id) { _TOWN_BGM[id] = 1; });
 // 🐍 狩獵區專屬 BGM（地圖 id → 曲目檔名·assets/bgm/<檔>.<ext>）：提卡爾蛇神降世 3 圖。優先於通用 battle/boss，故祭壇(純頭目房)也放自己的曲。
 var HUNT_BGM = { 'tikal_area': 'music122', 'tikal_deep': 'music123', 'tikal_altar': 'music125',
-    'cursed_dark_elf_sanctuary': 'music153', 'collapsed_elder_council_hall': 'music162' };   // 🌑 v3.4.0 黑暗妖精聖地雙 BOSS 房（黑暗妖精聖地.md：music 153／162；一般聖地未指定→維持通用 battle）
+    'cursed_dark_elf_sanctuary': 'music153', 'collapsed_elder_council_hall': 'music162',   // 🌑 v3.4.0 黑暗妖精聖地雙 BOSS 房（黑暗妖精聖地.md：music 153／162；一般聖地未指定→維持通用 battle）
+    'sunrise_castle': 'music161', 'sunrise_east': 'music167', 'sunrise_west': 'music167', 'sunrise_north': 'music167' };   // 🌅 v3.4.98 日出之國：城墎=music161·東/西/北之地=music167
 Object.keys(HUNT_BGM).forEach(function (id) { BGM_TRACKS[HUNT_BGM[id]] = HUNT_BGM[id]; });   // 註冊曲目 scene=檔名，_bgmInit 會預解析 URL
 var _bgmUrl = {}, _bgmEls = [null, null], _bgmActive = -1, _bgmScene = null, _bgmFadeTimer = null, _bgmInited = false;
 
