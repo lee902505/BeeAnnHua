@@ -696,12 +696,15 @@ function openSiegeSelect(faction, targetEl) {
     if (!clan) { alert('你尚未加入血盟，無法宣布攻城戰。'); return; }
     if (typeof clanCanSiege === 'function' && !clanCanSiege(player)) { alert('此模式沒有創立血盟的王族，無法攻城。'); return; }
     if (s.active) { alert('攻城戰正在進行中！'); return; }
-    if (player.lv < 40) { alert('需要等級 40 以上才能宣布攻城戰。'); return; }   // ⚔️ v3.6.01 攻城冷卻取消（用戶拍板）：勝負皆可立即再宣戰
     faction = clan.faction;
     let held = (typeof clanGetCastleCity === 'function') ? clanGetCastleCity(player) : null;
-    let choice = (city, label, style) => held === city
-        ? `<button class="btn flex-1 py-4 text-lg font-bold bg-slate-700 border-slate-500 text-slate-400 opacity-60 cursor-not-allowed" disabled>${label}<span class="block text-xs font-normal mt-1">目前持有</span></button>`
-        : `<button class="btn flex-1 py-4 text-lg font-bold ${style}" onclick="startSiege('${faction}','${city}')">${label}</button>`;
+    let choice = (city, label, style) => {
+        let defender = typeof npcClanCastleDefender === 'function' ? npcClanCastleDefender(city, player) : null;
+        let defenderText = defender ? `<span class="block text-xs font-normal mt-1">守城血盟：${typeof clanEsc === 'function' ? clanEsc(defender.name) : defender.name}</span>` : '';
+        return held === city
+            ? `<button class="btn flex-1 py-4 text-lg font-bold bg-slate-700 border-slate-500 text-slate-400 opacity-60 cursor-not-allowed" disabled>${label}<span class="block text-xs font-normal mt-1">目前持有</span></button>`
+            : `<button class="btn flex-1 py-4 text-lg font-bold ${style}" onclick="startSiege('${faction}','${city}')">${label}${defenderText}</button>`;
+    };
     let el = targetEl || document.getElementById('interaction-content'); if (!el) return;
     el.innerHTML = `
         <div class="flex flex-col gap-4 p-2 items-center text-center">
@@ -726,18 +729,21 @@ function startSiege(faction, city) {
     if (!clan) { alert('你尚未加入血盟，無法宣布攻城戰。'); return; }
     if (typeof clanCanSiege === 'function' && !clanCanSiege(player)) { alert('此模式沒有創立血盟的王族，無法攻城。'); return; }
     if (s.active) { alert('攻城戰正在進行中！'); return; }
-    if (player.lv < 40) { alert('需要等級 40 以上才能宣布攻城戰。'); return; }   // ⚔️ v3.6.01 攻城冷卻取消（用戶拍板）
+    // ⚔️ v3.6.05 等級限制取消（用戶拍板·原 Lv40 門檻）：與 v3.6.01 的冷卻取消一致，攻城不再有任何前置條件
     if (typeof clanGetCastleCity === 'function' && clanGetCastleCity(player) === city) { alert(`你的血盟目前已持有${cfg.name}。`); return; }
     if (!confirm(`確定要對【${cfg.name}】宣戰嗎？限時 30 分鐘。`)) return;
     let accCdUntil = Number(s.accCdUntil) || 0;
-    player.siege = { active:true, city:city, gateKilled:false, towerKilled:false, endTime: Date.now() + 30*60*1000, kills:0, result:null, cooldownUntil:0, accCdUntil:accCdUntil };
-    logSys(`⚔ <span class="text-red-300 font-bold">攻城戰開始！</span>限時 30 分鐘。攻破【${cfg.gate}】後進攻【${cfg.innerName}】，於時限內擊殺【${cfg.tower}】即可獲勝！`);
+    let _defender = typeof npcClanCastleDefender === 'function' ? npcClanCastleDefender(city, player) : null;
+    player.siege = { active:true, city:city, gateKilled:false, towerKilled:false, endTime: Date.now() + 30*60*1000, kills:0, result:null, cooldownUntil:0, accCdUntil:accCdUntil, npcDefenderClanId:_defender ? _defender.id : null };
+    let _defenderMsg = _defender ? `守城方為 NPC 血盟【${typeof clanEsc === 'function' ? clanEsc(_defender.name) : _defender.name}】，敵軍重生速度加倍。` : '';
+    logSys(`⚔ <span class="text-red-300 font-bold">攻城戰開始！</span>限時 30 分鐘。${_defenderMsg}攻破【${cfg.gate}】後進攻【${cfg.innerName}】，於時限內擊殺【${cfg.tower}】即可獲勝！`);
     setMapSelectors(cfg.outer);
     changeMap(true);
     updateUI();
 }
 function endSiege(result) {
     let s = player.siege; if (!s || !s.active) return;
+    let _npcDefenderClanId = s.npcDefenderClanId || null;
     s.active = false; s.result = result;
     s.endTime = Date.now();   // 擊敗守護塔（獲勝）或時間到：攻城時間立即結束
     s.cooldownUntil = 0;   // ⚔️ v3.6.01 攻城冷卻取消（用戶拍板）：欄位保留=0 兼容舊存檔殘值
@@ -748,16 +754,22 @@ function endSiege(result) {
     if (result === 'win') {
         let setResult = (typeof clanSetCastle === 'function') ? clanSetCastle(_cfg.key) : { ok:false };
         if (setResult && setResult.ok) {
+            if (typeof npcClanOnSiegeResult === 'function') npcClanOnSiegeResult(_cfg.key, 'win', _npcDefenderClanId);
             let replaced = setResult.previous && setResult.previous !== _cfg.key && SIEGE_CITY[setResult.previous] ? `，原有的${SIEGE_CITY[setResult.previous].castleName}已放棄` : '';
             logSys(`🏆🏰 <span class="text-yellow-300 font-bold">攻城獲勝！</span>血盟已永久佔領${_cfg.castleName}${replaced}。同模式所有角色可使用城堡、全商店 8 折，回村按鈕改為回城。`);
         } else {
             logSys('<span class="text-red-400 font-bold">攻城獲勝，但城堡共用資料寫入失敗。</span>攻城已無冷卻，可立即再次宣戰重試佔領。');
         }
     } else {
+        if (typeof npcClanOnSiegeResult === 'function') npcClanOnSiegeResult(_cfg.key, 'lose', _npcDefenderClanId);
         logSys(`🏰 <span class="text-slate-300 font-bold">攻城失敗…</span>時間到，未能攻下${_cfg.tower}。`);
     }
     { let timer = document.getElementById('siege-timer'); if (timer) timer.classList.add('hidden'); }   // 結束隱藏倒數
-    setMapSelectors(getHomeTown());
+    // 🏰 v3.6.32 獲勝→直接傳送到「奪下的城堡」（用戶拍板）；敗北或城堡共用資料寫入失敗→照舊回家鄉村莊。
+    //    用 siegeVictoryActive/victoryCityCfg 判定（clanSetCastle 剛寫入·寫入失敗時 victory 不成立自動走 fallback）；
+    //    changeMap 的城堡把關（持有時效）同一組函式，不會被彈回。
+    let _dest = (result === 'win' && siegeVictoryActive() && victoryCityCfg().castle) ? victoryCityCfg().castle : getHomeTown();
+    setMapSelectors(_dest);
     changeMap(true);
     updateUI();
     saveGame();   // 攻城戰結束時自動存檔
@@ -831,8 +843,10 @@ function startPanelRefresh() {
 }
 // 🔍 魔物追蹤可指定地圖：野外/地監/特殊＋底比斯(rift)＋海賊島(pirate_island) 三類掃 MAP_CATEGORIES（濾掉村莊與純BOSS房），
 //    再補上「不在 MAP_CATEGORIES」的遺忘之島(途中/島)＋風木地監。
-//    刻意排除：村莊(town_)、純BOSS房(PURE_BOSS_MAPS)、攻城內外城(siege_* 限時活動)、傲慢之塔攀登樓層(pride_* 攀登模式·非固定地圖)、
+//    刻意排除：村莊(town_)、純BOSS房(PURE_BOSS_MAPS)、攻城內外城(siege_* 限時活動)、傲慢之塔攀登樓層(pride_f* 攀登模式·非固定地圖)、
 //    🚫 隱藏狩獵區域(hidden_*·象牙塔密室/巨蟻女皇·用戶要求不開放追蹤·維持只能由母圖傳送進入)。
+//    🗼 v3.6.25 例外（用戶拍板）：背包持有 傲慢之塔支配符(NF)（僅 dom·傳送符/移動卷軸不算）→ 開放該符對應樓層區間
+//    (pride_N_(N+9)) 的魔物追蹤；賣掉/存倉即從清單消失（追蹤已生效者不中斷·出怪判定只看 tracking.map）。
 const OBEL_EXTRA_MAPS = [
     { v: 'oblivion_travel', t: '遺忘之島途中' }, { v: 'oblivion_island', t: '遺忘之島' },
     { v: 'windwood_dungeon', t: '風木地監' }
@@ -845,6 +859,10 @@ function obelMapList() {
         });
     });
     OBEL_EXTRA_MAPS.forEach(e => { if(DB.maps[e.v]) out.push({ v: e.v, t: e.t }); });
+    [11, 21, 31, 41, 51, 61, 71, 81, 91].forEach(N => {   // 🗼 v3.6.25 支配符樓層
+        let _pv = 'pride_' + N + '_' + (N + 9);
+        if(DB.maps[_pv] && typeof prideHasTalisman === 'function' && prideHasTalisman(N, ['dom'])) out.push({ v: _pv, t: '傲慢之塔' + N + '~' + (N + 9) + '樓' });
+    });
     return out;
 }
 function renderObelNPC(div) {
@@ -998,6 +1016,7 @@ function ismaelCursedExchange(kind) {
 // ===== 🔥 碧恩：屬性強化卷軸「賦予屬性」（v3.0.77 屬性強化系統改版·取代舊「祝福裝備」功能；克里斯特已移除） =====
 //   規則：只能用在「裝備中武器／副手武器(戰士限定)」；每次使用皆為獨立事件，成功率 7%；
 //   無屬性成功→1階、同屬性成功→+1階（最高5階）、不同屬性成功→變成該屬性1階；
+//   第5階同屬性卷軸：原生無攻擊觸發技能的非遺物武器可用 1% 機率附加／重抽屬性魔法；
 //   衝第4階需武器+10以上、第5階需+11以上（不符不消耗卷軸）；失敗僅消耗卷軸，武器不會消失。
 //   🎲 純機率 Math.random（與武器強化同政策·可 save/load 重抽）。經典/一般/傳統模式皆適用。
 const ATTR_SCROLLS = {
@@ -1018,15 +1037,34 @@ function doBianAttr(slotKey, ele) {
     let cur = getAttrAffix(item.attr);
     let same = !!(cur && cur.ele === ele);
     let nextTier = same ? cur.tier + 1 : 1;   // 同屬性→下一階；無屬性/不同屬性→該屬性1階
-    if (same && cur.tier >= 5) { logSys('<span class="text-amber-300">此武器已達該屬性最高階（第5階），無法再提升。</span>'); return; }   // 不消耗
+    if (same && cur.tier >= 5) {
+        if (weaponHasBaseTriggeredSkill(d)) { logSys('<span class="text-amber-300">此武器無法附加魔法。</span>'); return; }   // 原生已有攻擊／命中觸發技能，不消耗
+        let pool = ATTR_MAGIC_SKILLS[ele] || [];
+        if (!pool.length) return;
+        let oldMagic = getAttrMagicProc(item);
+        sc.cnt--; if (sc.cnt <= 0) player.inv = player.inv.filter(i => i.uid !== sc.uid);
+        if (Math.random() < 0.01) {
+            let picked = pool[Math.floor(Math.random() * pool.length)];
+            item.attrMagic = picked.skId;
+            let skName = (DB.skills[picked.skId] && DB.skills[picked.skId].n) || picked.skId;
+            logSys(`<span class="text-yellow-300 font-bold">${oldMagic ? '重抽' : '附加'}魔法成功！</span>${getItemFullName(item)} 獲得「攻擊時 ${picked.rate}% 機率觸發${skName}」。`);
+        } else {
+            logSys(`<span class="text-slate-400">碧恩：魔法刻印沒有回應……${oldMagic ? '原有附加魔法保持不變，' : ''}僅消耗 1 張 ${cfg.n}。</span>`);
+        }
+        calcStats(); updateUI(); renderTabs(true); saveGame();
+        let _e5 = document.getElementById('interaction-content'); if (_e5) renderBianAttr(_e5);
+        return;
+    }
     let en = Number(item.en) || 0;
     if (nextTier === 4 && en < 10) { logSys('<span class="text-amber-300">武器需 +10 以上才能衝屬性第四階。</span>'); return; }   // 不消耗
     if (nextTier === 5 && en < 11) { logSys('<span class="text-amber-300">武器需 +11 以上才能衝屬性第五階。</span>'); return; }   // 不消耗
     sc.cnt--; if (sc.cnt <= 0) player.inv = player.inv.filter(i => i.uid !== sc.uid);
     if (Math.random() < 0.07) {   // 🎲 7% 獨立事件（純機率·可 save/load 重抽·同強化政策）
+        let oldMagic = getAttrMagicProc(item);
         item.attr = ATTR_ELE_PREFIX[ele] + nextTier;
+        if (!same && oldMagic) delete item.attrMagic;   // 不同屬性成功→回到新屬性第1階，原屬性的附加魔法消失
         let aff = getAttrAffix(item.attr);
-        logSys(`<span class="text-yellow-300 font-bold">賦予屬性成功！</span>碧恩將 <span class="c-attr-${attrCanon(item.attr)}">${aff.n}</span> 之力銘刻於武器 → ${getItemFullName(item)}（屬性第${aff.tier}階：額外傷害+${aff.dmg}、額外魔法點數+${aff.mp}）。`);
+        logSys(`<span class="text-yellow-300 font-bold">賦予屬性成功！</span>碧恩將 <span class="c-attr-${attrCanon(item.attr)}">${aff.n}</span> 之力銘刻於武器 → ${getItemFullName(item)}（屬性第${aff.tier}階：額外傷害+${aff.dmg}、額外魔法點數+${aff.mp}）。${!same && oldMagic ? '<span class="text-slate-400"> 原有附加魔法已隨屬性轉換消失。</span>' : ''}`);
     } else {
         logSys(`<span class="text-slate-400">碧恩：元素之力潰散了……賦予屬性失敗（僅消耗 1 張 ${cfg.n}，武器安然無恙）。</span>`);
     }
@@ -1062,6 +1100,8 @@ function renderBianAttr(el) {
         let name = it ? getItemFullName(it) : '<span class="text-slate-500">（未裝備）</span>';
         let cur = it && getAttrAffix(it.attr);
         let curTxt = cur ? `<span class="c-attr-${attrCanon(it.attr)}">${cur.n}（第${cur.tier}階）</span>` : '<span class="text-slate-500">無屬性</span>';
+        let magic = it && getAttrMagicProc(it);
+        if (magic) curTxt += `｜<span class="text-yellow-300">★ ${(DB.skills[magic.skId] && DB.skills[magic.skId].n) || magic.skId} ${magic.rate}%</span>`;
         let btns = it ? Object.keys(ATTR_SCROLLS).map(e2 => {
             let c = ATTR_SCROLLS[e2], have = cnt(c.id);
             return have > 0
@@ -1082,8 +1122,9 @@ function renderBianAttr(el) {
     }).join('');
     el.innerHTML = `
         <div class="flex flex-col gap-2 p-1">
-            <div class="text-slate-300 text-sm leading-relaxed">碧恩：我能將四大元素之力銘刻於你手中的武器。每次賦予皆為獨立事件，<b>成功率 7%</b>；失敗僅消耗卷軸，武器不會消失。</div>
+            <div class="text-slate-300 text-sm leading-relaxed">碧恩：我能將四大元素之力銘刻於你手中的武器。屬性提升成功率為 <b>7%</b>；第5階使用同屬性卷軸附加／重抽魔法的成功率為 <b>1%</b>。失敗僅消耗卷軸，武器不會消失。</div>
             <div class="text-xs text-slate-400">無屬性成功→第1階；同屬性成功→提升1階（最高5階）；<b>不同屬性成功→變成該屬性第1階</b>。衝第4階需武器+10以上、第5階需+11以上。第1~5階：額外傷害/額外魔法點數 +1/+3/+5/+7/+9，一般攻擊轉為該屬性。</div>
+            <div class="text-xs text-slate-400">只有本身沒有攻擊／命中觸發技能的非遺物武器可附加魔法；已成功附加的武器可使用同屬性卷軸繼續重抽。</div>
             <div class="text-xs text-slate-400">持有卷軸：<span class="c-attr-fr3">火 ${cnt('scroll_attr_fire')}</span>｜<span class="c-attr-wa3">水 ${cnt('scroll_attr_water')}</span>｜<span class="c-attr-wi3">風 ${cnt('scroll_attr_wind')}</span>｜<span class="c-attr-ea3">地 ${cnt('scroll_attr_earth')}</span></div>
             ${rows}
             ${cursedRows ? `<div class="text-xs text-slate-400 mt-1">被詛咒的裝備（優先消耗 解除詛咒的卷軸，持有 ${cnt('new_item_uncurse')}；無卷軸時花費 100 萬金幣）：</div>${cursedRows}` : ''}
@@ -1110,6 +1151,7 @@ function changeMap(force) {
         logSys('你目前無法行動（石化／麻痺／冰凍／暈眩），無法切換地圖。');
         return;
     }
+    let _changeTarget = document.getElementById('map-select').value;
     saveSiegeBossHp();   // 切換地圖前，保存攻城塔/門的剩餘血量
     // 🔥 進入閘門前的權限總驗證（業務邏輯層，非僅 UI 下拉禁用）：任何被 mapOptDisabled 擋下的地圖（如未完成試煉的魔族神殿、炎魔友好度不足的炎魔謁見所、潔尼斯門檻、傳送符不足的傲慢之塔）一律不可進入。
     //    僅在「主動切換到不同地圖」時檢查（force 內部流程／原地不動除外）；以「尚未消耗鑰匙/傳送符」的原始狀態判定，故下方各自的鑰匙/卷軸消耗不受影響（持有者此處 mapOptDisabled=false 會放行）。siege/castle 動態地圖不在 MAP_CATEGORIES，_def 為 null 自動略過。
@@ -1159,6 +1201,7 @@ function changeMap(force) {
             }
         }
     }
+    if (_changeTarget !== mapState.current && typeof npcClanOnLeaveBattleArea === 'function') npcClanOnLeaveBattleArea();
     if (typeof giltasKeepOnLeave === 'function' && document.getElementById('map-select').value !== mapState.current) giltasKeepOnLeave();   // 🌑 v3.4.16 離開受詛咒聖地（回村/戰敗復活/切圖統一經此·helper 自帶地圖 gate）→ 吉爾塔斯 HP 保留判定＋提示
     mapState.current = document.getElementById('map-select').value;
     if (!mapState.current.startsWith('town_')) player.lastBattleMap = mapState.current;   // 🔧 記住最後所在的戰鬥地圖，供村莊「出發」按鈕一鍵返回
@@ -1192,6 +1235,7 @@ function changeMap(force) {
         player.hp = player.mhp;
         player.mp = player.mmp;
         try { if (typeof reviveDownedMercsAtTown === 'function') reviveDownedMercsAtTown(); } catch (e) {}   // 🤝 Phase 3：回村/回城免費復活全體倒地傭兵
+        try { if (typeof petsReviveAtTown === 'function') petsReviveAtTown(); } catch (e) {}   // 🐾 v3.6.29 回村：出戰寵物倒地復活＋補滿 HP/MP＋清異常（比照傭兵·js/22）
         try { if (typeof mercBankAlliesAtTown === 'function') mercBankAlliesAtTown(); } catch (e) {}   // 🤝 v2.6.68 隊長回村：上場傭兵各記一筆待領經驗（不解散·不改來源存檔）
         try { if (typeof mercExpClaimPending === 'function') mercExpClaimPending(); } catch (e) {}     // 🤝 v2.6.68 本角色回村/載入（loadGame 一律回家鄉村莊）：自動領取自己的待領經驗
         // 🏰 城堡護衛：回城/回村補滿血並解除力竭
@@ -1989,6 +2033,46 @@ function _townMapBg(townId) {
 }
 
 let _townNpcSprites = [];
+function _townCastleCrownHtml(npc) {
+    if (!npc || typeof siegeVictoryActive !== 'function' || !siegeVictoryActive()) return '';
+    let royalNpc = npc.id === 'npc_esti' || npc.id === 'npc_tros';
+    let royalPlayer = !!npc._wanderer && (npc.avatar === '王子' || npc.avatar === '公主');
+    return (royalNpc || royalPlayer)
+        ? '<img class="tn-castle-crown" src="assets/ui/castle-crown.gif?v=v3.6.22" alt="" aria-hidden="true" draggable="false">'
+        : '';
+}
+// 👑 v3.6.76 城鎮 NPC 王冠錨點（tools/crown-anchor-gen.js 離線掃 idle 幀產出·勿手改）。
+//    值＝[頭頂質心x, 畫布底至頭頂px+2]，與 js/09 的 PM_CROWN_ANCHOR 同語意。3227＝依詩蒂(公主)／3225＝特羅斯(王子)。
+const TN_NPC_CROWN_ANCHOR = { '3227':[19,53], '3225':[18,87] };
+// ⚠️ v3.6.76 本函式**不得**再用 canvas getImageData 找頭頂：file:// 下本地圖片污染 canvas → 擲 SecurityError
+//    被 catch 吃掉 → 靜默落到 {x:寬/2, bottom:高} 粗略後備 → 王冠飄在頭頂正上方好幾十 px（叫賣王族玩家最明顯：
+//    公主畫布 144 高、真實頭頂只有 88 → 高出 56px）。一律查離線錨點表。
+function _townCastleCrownBox(img) {
+    if (!img || !img.complete || !(img.naturalWidth > 0) || !(img.naturalHeight > 0)) return null;
+    let src = img.currentSrc || img.src || '';
+    let srcText = '';
+    try { srcText = decodeURIComponent(String(src || '')).replace(/\\/g, '/'); } catch (e) { srcText = String(src || '').replace(/\\/g, '/'); }
+    // 叫賣王族玩家 NPC：classanim <王子|公主><''|F|2> 的 unarmed_idle_ → 直接沿用 js/09 既有的 PM_CROWN_ANCHOR（同一批 sprite，不另建表）
+    let cm = srcText.match(/\/assets\/classanim\/([^/]+)\/unarmed_idle_/);
+    if (cm && typeof PM_CROWN_ANCHOR === 'object' && PM_CROWN_ANCHOR[cm[1] + ':unarmed']) {
+        let a = PM_CROWN_ANCHOR[cm[1] + ':unarmed'];
+        return { x: a[0], bottom: a[1] };
+    }
+    // 固定 NPC：assets/npc/<gfx>/idle_
+    let nm = srcText.match(/\/assets\/npc\/([^/]+)\//);
+    if (nm && TN_NPC_CROWN_ANCHOR[nm[1]]) {
+        let a = TN_NPC_CROWN_ANCHOR[nm[1]];
+        return { x: a[0], bottom: a[1] };
+    }
+    return { x: Math.round(img.naturalWidth / 2), bottom: img.naturalHeight };   // 表外安全網（正常不會走到：有王冠的 sprite 只有上面兩類）
+}
+function _townCastleCrownAlign(crown, bodyImg) {
+    if (!crown || !bodyImg) return;
+    let box = _townCastleCrownBox(bodyImg);
+    if (!box) return;
+    crown.style.left = box.x + 'px';
+    crown.style.bottom = box.bottom + 'px';
+}
 function renderTownNPCMap(townId) {
     let map = document.getElementById('town-npc-map');
     if (!map) return;
@@ -2057,17 +2141,24 @@ function renderTownNPCMap(townId) {
             el.style.left = p.x + '%'; el.style.top = p.y + '%'; el.style.zIndex = Math.round(p.y * 10);
             let align = (typeof pvpClampAlignment === 'function') ? pvpClampAlignment(npc.alignmentValue) : Math.max(-32767, Math.min(32767, Math.round(Number(npc.alignmentValue) || 0)));
             let nameHtml = (typeof pvpNameHtml === 'function') ? pvpNameHtml(npc.n, align, 'tn-name') : '<span class="tn-name">' + npc.n + '</span>';
+            let crownHtml = _townCastleCrownHtml(npc);
+            if (crownHtml) el.classList.add('has-castle-crown');
             el.innerHTML =
                 '<div class="tn-label">' + nameHtml + '<span class="tn-title">[' + (npc.title || '玩家收購') + ']</span></div>' +
+                crownHtml +
                 '<img class="tn-shadow" src="' + shadow0 + '" alt="" onload="this.parentElement.classList.add(\'has-tn-shadow\')" onerror="this.remove()">' +
                 '<img class="tn-body" src="' + body0 + '" alt="">';
             el.onclick = () => openWanderingBuyerDialog(npc.id);
             map.appendChild(el);
             let bodyImg = el.querySelector('.tn-body');
             let shadowImg = el.querySelector('.tn-shadow');
+            let crownImg = el.querySelector('.tn-castle-crown');
+            if (crownImg) bodyImg.addEventListener('load', () => _townCastleCrownAlign(crownImg, bodyImg));
+            if (crownImg) setTimeout(() => _townCastleCrownAlign(crownImg, bodyImg), 0);
             bodyImg.addEventListener('load', _scheduleTownLabelResolve, { once: true });
             _townNpcSprites.push({
                 img: bodyImg,
+                crown: crownImg,
                 wimg: shadowImg,
                 wframes: spr.shadows || null,
                 frames: spr.frames || [],
@@ -2081,8 +2172,11 @@ function renderTownNPCMap(townId) {
         let el = document.createElement('div');
         el.className = 'town-npc';
         el.style.left = p.x + '%'; el.style.top = p.y + '%'; el.style.zIndex = Math.round(p.y * 10);
+        let crownHtml = _townCastleCrownHtml(npc);
+        if (crownHtml) el.classList.add('has-castle-crown');
         el.innerHTML =
             '<div class="tn-label"><span class="tn-name">' + npc.n + '</span><span class="tn-title">' + npc.title + '</span></div>' +
+            crownHtml +
             '<img class="tn-shadow" src="assets/npc/' + cat.g + '/idle_s_0.png" alt="" onload="this.parentElement.classList.add(\'has-tn-shadow\')" onerror="this.remove()">' +   // 🌑 v3.3.5 真實影子 sprite(body gfx+1·共畫布疊本體對齊)；有影子→onload 標記父層隱藏後備橢圓；無影子(職業動畫/老 gfx/告示)→404 remove→改用 CSS 橢圓後備影子(v3.3.18)
             '<img class="tn-body"' + (cat.tint ? (' style="filter:' + cat.tint + '"') : '') + ' src="assets/npc/' + cat.g + '/idle_0.png" alt="">' +
             (cat.w ? '<img class="tn-weapon" src="assets/npc/' + cat.g + '/idle_w_0.png" alt="" onerror="this.remove()">' : '');   // 🔥 v3.3.18 火焰/武器疊層(screen 混合·宙斯之熔岩高崙的燃燒特效)
@@ -2091,9 +2185,12 @@ function renderTownNPCMap(townId) {
         else el.onclick = () => interactNPC(npc.id, townId);
         map.appendChild(el);
         let bodyImg = el.querySelector('.tn-body');
+        let crownImg = el.querySelector('.tn-castle-crown');
+        if (crownImg) bodyImg.addEventListener('load', () => _townCastleCrownAlign(crownImg, bodyImg));
+        if (crownImg) setTimeout(() => _townCastleCrownAlign(crownImg, bodyImg), 0);
         bodyImg.addEventListener('load', _scheduleTownLabelResolve, { once: true });   // 🏷️ 圖片載入拿到真實高度後再排名牌
         let wImg = cat.w ? el.querySelector('.tn-weapon') : null;   // 🔥 火焰疊層與本體同步推進
-        _townNpcSprites.push({ img: bodyImg, wimg: wImg, wframes: (cat.w ? _npcWeaponFrames(key) : null), frames: _npcFrames(key), phase: (i * 3) % 8, last: -1 });
+        _townNpcSprites.push({ img: bodyImg, crown: crownImg, wimg: wImg, wframes: (cat.w ? _npcWeaponFrames(key) : null), frames: _npcFrames(key), phase: (i * 3) % 8, last: -1 });
     });
     // 🏷️ v3.2.92 名牌常駐開關：跟隨戰鬥日誌「狀態」鈕(_showMobStatus)·開→所有 NPC 名字常駐頭頂；關→僅 hover
     map.classList.toggle('show-labels', (typeof _showMobStatus === 'undefined') ? true : !!_showMobStatus);
@@ -2125,7 +2222,11 @@ function _resolveTownLabelOverlap() {
         let labels = [].slice.call(map.querySelectorAll('.town-npc .tn-label'));
         if (!labels.length) return;
         labels.forEach(l => { l.style.marginBottom = ''; });   // 先歸零(回 CSS 預設 5px)再量測
-        let entries = labels.map(l => ({ l, r: l.getBoundingClientRect() })).filter(e => e.r.width > 0);
+        let entries = labels.map(l => ({
+            l,
+            r: l.getBoundingClientRect(),
+            baseMargin: l.parentElement && l.parentElement.classList.contains('has-castle-crown') ? 17 : 5
+        })).filter(e => e.r.width > 0);
         entries.sort((a, b) => a.r.top - b.r.top);   // 由上而下：越高者當錨點，下方者往上讓
         let placed = [];
         for (let e of entries) {
@@ -2144,7 +2245,7 @@ function _resolveTownLabelOverlap() {
             }
             placed.push({ left, right, top, bottom });
             let shift = r.top - top;
-            if (shift > 0.5) e.l.style.marginBottom = (5 + shift / scale) + 'px';
+            if (shift > 0.5) e.l.style.marginBottom = (e.baseMargin + shift / scale) + 'px';
         }
     } catch (err) {}
 }
@@ -2167,6 +2268,7 @@ function _townNpcAnimTick() {
         if (fi !== s.last) {
             s.last = fi;
             let fr = s.frames[fi]; if (fr && fr.src) s.img.src = fr.src;
+            if (s.crown) _townCastleCrownAlign(s.crown, s.img);
             if (s.wimg && s.wframes && s.wframes.length) { let wf = s.wframes[fi % s.wframes.length]; if (wf && wf.src) s.wimg.src = wf.src; }   // 🔥 火焰疊層同幀
         }
     }

@@ -136,7 +136,7 @@ function ensureCardBook() {
     if (player.inv.some(i => i.id === 'item_card_book')) player.inv = player.inv.filter(i => i.id !== 'item_card_book');
 }
 
-// ---- 掉落（killMob 呼叫）：血盟以外、且該怪屬於某卡片地區才有卡；三階各自獨立、一般＝經典機率（不乘 classicDropMult）----
+// ---- 掉落（killMob 呼叫）：血盟以外、且該怪屬於某卡片地區才有卡；三階各自獨立，特別版由 _cardDropRoll 套用集中掉寶倍率 ----
 // 🦊 v3.5.2 變身鏈卡片規則：中間階（有 transformTo·玉藻/九尾）不掉卡；最終階（殺生石）擲中時從整鏈三張卡隨機選一張。
 const CARD_CHAIN_BY_FINAL = (() => {   // 最終階怪名 -> 整鏈怪名清單（從鏈根走到底·目前僅九尾狐鏈）
     const isTarget = {}; for (const k in DB.mobs) { const t = DB.mobs[k] && DB.mobs[k].transformTo; if (t) isTarget[t] = 1; }
@@ -289,7 +289,7 @@ function magicDollSynth() {   // 一鍵合成：先普→銀(任意湊10·輸出
             for (let it of entries) { if (consume <= 0) break; let cc = it.cnt || 1; if (cc <= consume) { consume -= cc; rm.push(it.uid); } else { it.cnt = cc - consume; consume = 0; } }
             if (rm.length) player.inv = player.inv.filter(i => rm.indexOf(i.uid) === -1);
         }
-        for (let nm in g.out) gainItem(cardId(nm, ft + 1), g.out[nm]);   // 發放每隻輸出怪的高一階卡（堆疊進背包；不觸發掉落自動賣）
+        for (let nm in g.out) gainItem(cardId(nm, ft + 1), g.out[nm], false, false, false, true);   // 發放每隻輸出怪的高一階卡（堆疊進背包；不觸發掉落自動賣）；deferUi＝多隻怪一次合成時不逐筆重建背包（下方統一 renderTabs(true)）
         made[ft + 1] += g.made;
     }
     let tot = made[2] + made[3];
@@ -301,6 +301,7 @@ function magicDollSynth() {   // 一鍵合成：先普→銀(任意湊10·輸出
         if (made[3]) parts.push(`<span class="c-card-gold font-bold">金卡 ×${made[3]}</span>`);
         logSys(`<span class="text-amber-200">魔法娃娃商人為你合成了 ${parts.join('、')}！</span>`);
     }
+    try { if (typeof autoSortInventory === 'function') autoSortInventory(); } catch (e) {}   // deferUi 會略過自動排列→批次結束補一次（函式內建 10 秒節流）
     if (typeof renderTabs === 'function') renderTabs(true);
     if (typeof saveGame === 'function') saveGame();
     let _c = document.getElementById('interaction-content'); if (_c) renderCardSynth(_c);   // 就地重渲染：更新預覽數
@@ -356,16 +357,17 @@ function openDollBag(item, requested) {
     bag.cnt = bag.cnt || 1;
     if (bag.cnt <= 0) { logSys('<span class="text-slate-400">沒有魔法娃娃的袋子可開。</span>'); return; }
     let n = _requestedDollOpenCount(requested, bag.cnt);
-    if (n <= 0) { logSys('<span class=\"text-amber-300\">請輸入至少 1 個的開啟數量。</span>'); return; }
+    if (n <= 0) { logSys('<span class="text-amber-300">請輸入至少 1 個的開啟數量。</span>'); return; }
     if (player.dollSeq == null) player.dollSeq = 0;
     let got = {};
     for (let i = 0; i < n && bag.cnt > 0; i++) {
         let id = _dollBagOutcome(player.dollSeq);
         player.dollSeq++; bag.cnt--;
-        gainItem(id, 1, true, true);   // silent + forceNormal（娃娃不附詞綴）
+        gainItem(id, 1, true, true, false, true);   // silent + forceNormal（娃娃不附詞綴）＋deferUi：⚡ 一次開多袋時逐次 renderTabs 會吃掉 97% 時間（下方迴圈結束已統一重繪一次）
         got[id] = (got[id] || 0) + 1;
     }
     if (bag.cnt <= 0) player.inv = player.inv.filter(i => i.id !== 'doll_bag');
+    try { if (typeof autoSortInventory === 'function') autoSortInventory(); } catch (e) {}   // deferUi 會略過自動排列→批次結束補一次（函式內建 10 秒節流）
     let parts = Object.keys(got).map(id => `<span class="${DB.items[id].c || 'text-pink-300'} font-bold">${DB.items[id].n}</span> ×${got[id]}`);
     logSys(`🪆 打開魔法娃娃的袋子，獲得：${parts.join('、')}。`);
     if (typeof calcStats === 'function') calcStats();
@@ -382,16 +384,17 @@ function openDollBox(item, requested) {
     box.cnt = box.cnt || 1;
     if (box.cnt <= 0) { logSys('<span class="text-slate-400">沒有高級魔法娃娃的盒子可開。</span>'); return; }
     let n = _requestedDollOpenCount(requested, box.cnt);
-    if (n <= 0) { logSys('<span class=\"text-amber-300\">請輸入至少 1 個的開啟數量。</span>'); return; }
+    if (n <= 0) { logSys('<span class="text-amber-300">請輸入至少 1 個的開啟數量。</span>'); return; }
     if (player.dollSeq == null) player.dollSeq = 0;
     let got = {};
     for (let i = 0; i < n && box.cnt > 0; i++) {
         let id = _dollBoxOutcome(player.dollSeq);
         player.dollSeq++; box.cnt--;
-        gainItem(id, 1, true, true);   // silent + forceNormal（娃娃不附詞綴）
+        gainItem(id, 1, true, true, false, true);   // silent + forceNormal（娃娃不附詞綴）＋deferUi：⚡ 同 openDollBag，避免逐盒重建背包 DOM
         got[id] = (got[id] || 0) + 1;
     }
     if (box.cnt <= 0) player.inv = player.inv.filter(i => i.id !== 'doll_box_high');
+    try { if (typeof autoSortInventory === 'function') autoSortInventory(); } catch (e) {}   // deferUi 會略過自動排列→批次結束補一次（函式內建 10 秒節流）
     let parts = Object.keys(got).map(id => `<span class="${DB.items[id].c || 'text-pink-300'} font-bold">${DB.items[id].n}</span> ×${got[id]}`);
     logSys(`🎁 打開高級魔法娃娃的盒子，獲得：${parts.join('、')}。`);
     if (typeof calcStats === 'function') calcStats();

@@ -776,7 +776,7 @@ const BUFF_NAMES = {   // buff 鍵 → 顯示名稱（DB.skills 查不到時使�
 // 遠古變體 true→'A'（其餘 'eternal'/'immortal'/'primordial' 原值）、屬性詞綴 attr。
 // 使用處：gainItem 堆疊、卸裝/換裝退回背包合併、倉庫一鍵存入(whSig)/堆疊(_whStackFind)、
 // 載入合併(consolidateInventory)、分頁重繪記憶簽章(renderTabs)。勿再各自手寫比對條件。
-function itemSig(it) { return it.id + '|' + (it.en || 0) + '|' + (it.bless === true ? 'B' : (it.bless ? 'C' : 0)) + '|' + (it.anc === true ? 'A' : (it.anc || 0)) + '|' + (it.attr || '') + '|' + (it.seteff || ''); }   // 🔮 含席琳套裝效果：帶效果的裝備不可與普通品合併
+function itemSig(it) { return it.id + '|' + (it.en || 0) + '|' + (it.bless === true ? 'B' : (it.bless ? 'C' : 0)) + '|' + (it.anc === true ? 'A' : (it.anc || 0)) + '|' + (it.attr || '') + '|' + (it.seteff || '') + (it.attrMagic ? '|' + it.attrMagic : ''); }   // 🔮 屬性附加魔法採可選尾碼：魔法武器不與普通品合併，普通品既有簽章／廢品偏好維持相容
 function sameItemSig(a, b) { return itemSig(a) === itemSig(b); }
 
 // ===== 🔧 架構#6：存檔版本與集中式預設值 =====
@@ -1714,14 +1714,80 @@ function initSysLogLock() {
     el.addEventListener('touchmove', onScroll, { passive: true });
 }
 
-function logSys(msg) {
+// 📌 v3.6.73 未讀點改為「只有傳說／遺物掉落才亮」（用戶指示：其餘訊息一律不顯示紅點）。
+//    第二參 rare＝'legend'｜'relic'，只有這兩種才點亮並帶對應顏色（傳說橘／遺物藍）。
+//    ⚠️ 既有 471 個呼叫端不傳第二參＝不亮點，無須逐一修改。
+function logSys(msg, rare) {
     if(state.ff) return; // 補跑期間不洗版
     const el = document.getElementById('sys-log');
+    if (!el) return;
     el.insertAdjacentHTML('beforeend', `<div class="log-entry text-slate-100">${msg}</div>`);   // 🚀 同戰鬥日誌：只解析新訊息，避免 innerHTML+= 重建全部
     // 🔒 鎖定捲動時保留更多歷史（150 行）；未鎖定時維持一般上限（50 行）
     let _max = _sysLogLocked ? SYS_LOG_MAX_LOCKED : SYS_LOG_MAX;
     while(el.children.length > _max && el.children.length > 1) el.removeChild(el.firstChild);
     if(!_sysLogLocked) el.scrollTop = el.scrollHeight;   // 鎖定時不自動捲到底，保留玩家檢視位置
+    if (_logTab !== 'sys' && (rare === 'legend' || rare === 'relic')) {   // 🗂️ v3.6.73 只有稀有掉落才亮未讀點（不在系統分頁時）
+        let d = document.getElementById('logtab-dot-sys');
+        if (d) { d.classList.remove('hidden', 'logtab-dot-legend', 'logtab-dot-relic'); d.classList.add('logtab-dot-' + rare); }   // 後到的稀有度覆蓋前一顆（點只有一顆）
+    }
+}
+
+// 🗂️ v3.6.50 戰鬥／系統日誌合併於同一視窗：標題列分頁鈕切換（過濾 pill 只在戰鬥分頁顯示）。
+let _logTab = 'combat';
+function switchLogTab(tab) {
+    _logTab = (tab === 'sys') ? 'sys' : 'combat';
+    let onSys = (_logTab === 'sys');
+    let cl = document.getElementById('combat-log'), sl = document.getElementById('sys-log');
+    if (cl) cl.classList.toggle('hidden', onSys);
+    if (sl) sl.classList.toggle('hidden', !onSys);
+    let bc = document.getElementById('logtab-btn-combat'), bs = document.getElementById('logtab-btn-sys');
+    if (bc) bc.classList.toggle('logtab-on', !onSys);
+    if (bs) bs.classList.toggle('logtab-on', onSys);
+    let pills = document.getElementById('combat-filter-pills'); if (pills) pills.classList.toggle('hidden', onSys);
+    // 兩顆捲動鎖定提示各自只在自己的分頁出現（切走時先收起，避免浮在另一個日誌上）
+    let cu = document.getElementById('combat-log-unlock'); if (cu && onSys) cu.classList.add('hidden');
+    let su = document.getElementById('sys-log-unlock'); if (su && !onSys) su.classList.add('hidden');
+    if (onSys) {
+        let d = document.getElementById('logtab-dot-sys'); if (d) { d.classList.add('hidden'); d.classList.remove('logtab-dot-legend', 'logtab-dot-relic'); }   // 進系統分頁＝已讀（連稀有度顏色一併清掉，下次才不會沿用舊色）
+        if (sl && !_sysLogLocked) sl.scrollTop = sl.scrollHeight;
+        initSysLogLock();
+    } else if (cl && !_combatLogLocked) cl.scrollTop = cl.scrollHeight;
+}
+
+// 🌐 v3.6.50 世界頻道：只放 NPC 對話（叫賣廣播／嗆聲／提問回覆），與系統日誌完全分流。
+let _worldLogLocked = false;
+const WORLD_LOG_MAX = 60;
+const WORLD_LOG_MAX_LOCKED = 200;
+function worldLogToBottom() {
+    let el = document.getElementById('world-log');
+    if (!el) return;
+    _worldLogLocked = false;
+    el.scrollTop = el.scrollHeight;
+    let btn = document.getElementById('world-log-unlock'); if (btn) btn.classList.add('hidden');
+}
+function initWorldLogLock() {
+    let el = document.getElementById('world-log');
+    if (!el || el._lockInit) return;
+    el._lockInit = true;
+    let onScroll = () => {
+        let btn = document.getElementById('world-log-unlock');
+        if ((el.scrollHeight - el.scrollTop - el.clientHeight) < 24) {
+            if (_worldLogLocked) { _worldLogLocked = false; if (btn) btn.classList.add('hidden'); }
+        } else {
+            if (!_worldLogLocked) { _worldLogLocked = true; if (btn) btn.classList.remove('hidden'); }
+        }
+    };
+    el.addEventListener('scroll', onScroll, { passive: true });
+    el.addEventListener('touchmove', onScroll, { passive: true });
+}
+function logWorld(msg, cls) {
+    if (state.ff) return;   // 補跑期間不洗版（與其他日誌一致）
+    const el = document.getElementById('world-log');
+    if (!el) return;
+    el.insertAdjacentHTML('beforeend', `<div class="log-entry ${cls || ''}">${msg}</div>`);
+    let _max = _worldLogLocked ? WORLD_LOG_MAX_LOCKED : WORLD_LOG_MAX;
+    while (el.children.length > _max && el.children.length > 1) el.removeChild(el.firstChild);
+    if (!_worldLogLocked) el.scrollTop = el.scrollHeight;
 }
 
 // 🔧 架構#4：calcStats 職責拆分 ——
@@ -1773,6 +1839,15 @@ Object.assign(ITEM_WEIGHTS, {"滅魔的 金屬盔甲":170,"滅魔的 披肩":20,
 Object.assign(ITEM_WEIGHTS, {"陰陽師的扇子":15,"巨型骷髏之指環":30,"體力戒指":3,"沸騰蒸氣的鍋蓋":30,"鐮鼬的藥壺":5,"長首妖怪的圍巾":3,"老舊的百年唐傘":10,"沸騰蒸氣的巨釜":250,"鐮鼬的尾刃":120,"河童的尻子玉":10,"赤鬼的內褲":10,"青鬼的虎皮衫":100,"毒鵺的黑尾":120,"天狗的羽扇":50,"阿修羅的武神技":15,"九尾妖狐的怒火":15,"牛鬼的斷角":20,"牛鬼之子的黑戒":5,"巨大骷髏的頭骨":150});
 // 🏺 遺物 第十七批掉落（單一怪物 0.0001%）
 [['歐姆戰士','relic_heavy_belt'],['殘暴的骷髏神射手','relic_bone_bow'],['殘暴的骷髏鬥士','relic_fighter_armor'],['幼龍','relic_drake_pawprint'],['火焰之靈魂(紅)','relic_red_wraith'],['受詛咒的艾爾摩法師','relic_mage_dagger']].forEach(r => (MOB_DROPS[r[0]] = MOB_DROPS[r[0]] || []).push([r[1], 0.0001]));
+// 🏺 v3.6.44 遺物 第十九批掉落（15 件·各 0.0001%·「墳墓守護者」拆法師＋騎士兩隻同率）
+[['深淵弓箭手','relic_marksman_corset'],['地靈之主','relic_earthshatter_sword'],['風靈之主','relic_gale_fistblade'],['火靈之主','relic_hellfire_hammer'],['墳墓守護者法師','relic_pet_devotion'],['墳墓守護者騎士','relic_pet_devotion'],['血色術士','relic_blood_ritual_dagger'],['恐怖的伊弗利特','relic_genie_wishes'],['火焰之靈魂(藍)','relic_cold_blueflame'],['火焰烈炎獸','relic_scorch_greatsword'],['底比斯 斯芬克斯','relic_guardian_riddle'],['闇黑君王','relic_mana_array_boots'],['血騎士','relic_bloodknight_dual'],['骨龍','relic_cursed_egg'],['受詛咒的艾爾摩士兵','relic_elmo_spear'],['遺忘之島亞力安','relic_petrify_essence']].forEach(r => (MOB_DROPS[r[0]] = MOB_DROPS[r[0]] || []).push([r[1], 0.0001]));
+Object.assign(ITEM_WEIGHTS, {"精銳射手的戰鬥束衣":50,"大地碎裂劍":120,"疾風拳刃":60,"業火鍛造鎚":120,"珍愛夥伴的執念":5,"血祭儀式短刀":30,"巨靈的三個願望":3,"凜冽的青色火炎":120,"烈炎燒灼的滾燙巨劍":150,"守護獸的難題":10,"魔力凝聚的法陣":15,"嗜血騎士的雙刀":30,"充滿詛咒氣息的蛋":5,"艾爾摩尖頭槍":120,"石化魔法的精髓":60});   // 🏺 遺物重量（依名稱·v3.6.44 +15 件·蛋未給重量暫定 5）
+// 🏺 v3.6.47 遺物 第二十批掉落（3 件·各 0.0001%）
+[['烈炎獸','relic_lava_nozzle'],['飛龍','relic_doom_egg'],['重裝歐姆戰士','relic_crusher_hammer']].forEach(r => (MOB_DROPS[r[0]] = MOB_DROPS[r[0]] || []).push([r[1], 0.0001]));
+Object.assign(ITEM_WEIGHTS, {"火山怪獸的熔岩噴嘴":120,"充滿厄運氣息的蛋":5,"重裝戰士的粉碎鎚":250});   // 🏺 遺物重量（依名稱·v3.6.47 +3 件·蛋未給重量比照詛咒蛋暫定 5）
+// 🥚 v3.6.62 遺物 第二十一批掉落（2 件·各 0.0001%）：破滅蛋／災厄蛋＝補完四蜥蜴取得管道
+[['遺忘之島飛龍','relic_doomsday_egg'],['深淵地靈','relic_calamity_egg']].forEach(r => (MOB_DROPS[r[0]] = MOB_DROPS[r[0]] || []).push([r[1], 0.0001]));
+Object.assign(ITEM_WEIGHTS, {"充滿破滅氣息的蛋":5,"充滿災厄氣息的蛋":5});   // 🏺 遺物重量（依名稱·v3.6.62 +2 件·蛋未給重量比照前兩顆蛋暫定 5）
 // ⚖️ 負重顯示色：0～49% 暖白、50～81% 介面金黃、82%以上介面紅（loadTier 0/1/2～3）。
 function getLoadColor(tier){ return Number(tier) >= 2 ? 'load-tone-danger' : (Number(tier) >= 1 ? 'load-tone-warning' : 'load-tone-normal'); }
 // 🪆 取目前裝備之魔法娃娃的某 % 欄位值（expBonus/goldBonus/potionBonus…；未裝娃娃→0）

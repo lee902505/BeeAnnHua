@@ -678,6 +678,8 @@ function allyAttackOnce(ally, _arrowDelay) {   // 🏹 v3.2.14 _arrowDelay(選�
         if (wpn && wpn.raceFlat && t.race === wpn.raceFlat.race) dmg = dmg + (wpn.raceFlat.add || 0);   // 🏺 遺物 上古蜘蛛之爪：對特定種族（動物）額外固定傷害 +N（傭兵鏡像玩家）
         if (wpn && wpn.eleBonusDmg && t.e === wpn.eleBonusDmg.ele) dmg += (wpn.eleBonusDmg.add || 0);   // 🏺 兇殘惡鬼的毒牙：對特定屬性敵人額外固定傷害 +N（傭兵鏡像玩家）
         if (wpn && wpn.immParalyzeBonusDmg && (t.boss || t.immParalyze || t.immStun)) dmg += wpn.immParalyzeBonusDmg;   // 🏺 屍毒之針：對免疫麻痺目標額外固定傷害 +N（傭兵鏡像玩家）
+        if (wpn && wpn.slowScaleDmg) dmg += Math.max(0, Math.floor((((ally.d && ally.d.aspd) || 0) - 0.10) / 0.05));   // 🏺 v3.6.44 大地碎裂劍（傭兵鏡像）：攻擊間隔每慢 0.05 秒近傷 +1
+        if (wpn && wpn.pierceMainMult) dmg = Math.max(1, Math.floor(dmg * wpn.pierceMainMult));   // 🏺 v3.6.44 艾爾摩尖頭槍（傭兵鏡像）：一般攻擊主目標傷害 ×1.3
         if (wpn && wpn.selfBreakProc && Math.random() < 0.03) { dmg = Math.max(1, Math.floor(dmg * 1.5)); if (!ally.statuses) ally.statuses = {}; ally.statuses.broken = (wpn.selfBreakProc.dur || 5) * 10; }   // 🐍 v3.1.76 特產易碎泥偶（傭兵）：3% 傷害×1.5＋自身壞物術（期間傷害-20%·鏡像玩家 js/04:122）
         if (ally.d && ally.d.instakillFull && t.curHp === t.hp) { let _rif = mapState.mobs.findIndex(m => m && m.uid === t.uid); if (_rif !== -1 && tryInstakill(t, { p: ally.d.instakillFull, tag: null }, `【協力·${ally._allyName}】隱蔽的死亡草葉`, _rif)) return; }   // 🏺 v3.1.76 隱蔽的死亡草葉（傭兵）：命中滿血非BOSS怪機率即死（鏡像玩家 js/04:72）
         markBossPhysicalHit(t);
@@ -695,6 +697,9 @@ function allyAttackOnce(ally, _arrowDelay) {   // 🏹 v3.2.14 _arrowDelay(選�
         if (wpn && wpn.onHitWet && t.curHp > 0) t._wetUntil = state.ticks + 100;   // 🏺 海洋水晶球（傭兵施加端）：命中使目標潮濕 10 秒（鏡像玩家 js/04:158·共用 _wetUntil 標記）
         if (wpn && wpn.procBurn && t.curHp > 0 && (!wpn.procBurn.rate || Math.random() * 100 < wpn.procBurn.rate)) t._burnDot = { left: (wpn.procBurn.dur || 6) * 10, dmg: wpn.procBurn.dmg || 10, tick: (wpn.procBurn.tick || 1) * 10, src: _dpsAllySrc(ally) };   // 🏺 熔岩灼燒的雙拳（傭兵鏡像玩家）：命中附加灼燒 DoT；🎯 DPS 歸該傭兵
         if (wpn && wpn.procPoisonPct && t.curHp > 0 && dmg > 0) { if (!t.st) t.st = newMobStatus(); let _ppd = Math.max(1, Math.floor(dmg * (wpn.procPoisonPct.pct || 50) / 100)); t.st.poison = (wpn.procPoisonPct.dur || 6) * 10; t.st.poisonTick = 10; t.st.poisonStacks = 1; t.st.poisonUnit = _ppd; t.st.poisonDmg = _ppd; t.st.poisonSrc = _dpsAllySrc(ally); }   // 🌅 遺物 毒鵺的黑尾（傭兵鏡像玩家）：命中附加「每秒該次傷害 pct%」中毒（最多 1 層·刷新覆蓋）
+        if (wpn && wpn.windbladeProc && t.curHp > 0 && Math.random() * 100 < wpn.windbladeProc) { t.bleeds = t.bleeds || []; t._bleedCap = Math.max(t._bleedCap || 0, 5); while (t.bleeds.length >= t._bleedCap) t.bleeds.shift(); t.bleeds.push({ dmg: 10, ticksLeft: 60 }); t._bleedSrc = _dpsAllySrc(ally); }   // 🏺 v3.6.44 疾風拳刃（傭兵鏡像）：3% 風刃出血（每秒 10 點·6 秒）
+        if (wpn && wpn.hardskinFireProc && t.curHp > 0 && _hsT > 0) { let _hf = Math.max(1, Math.floor(Math.max(1, t.curHp * 0.01) * elementCounterMult('fire', t.e))); t.curHp -= _hf; if (typeof terrorVisageOnDamage === 'function') terrorVisageOnDamage(t, _hf, 'magic'); t.justHit = 'fire'; t._spellHurt = true; }   // 🏺 v3.6.44 業火鍛造鎚（傭兵鏡像）：命中有硬皮敵人→額外剩餘 HP 1% 火魔傷
+        if (wpn && wpn.hpOnHit && dmg > 0 && !ally._downed) ally.curHp = Math.min(ally.mhp || 1, (ally.curHp || 0) + wpn.hpOnHit);   // 🏺 v3.6.44 嗜血騎士的雙刀（傭兵鏡像）：命中恢復 HP
         if (wpn && wpn.hasteStrike && ally.buffs && ally.buffs.haste > 0) { ally.buffs.haste = 0; try { _allyLevelRecompute(ally); } catch (e) {} }   // 🏺 v3.1.76 殺人蜂的尾刺（傭兵）：一般攻擊命中時失去加速狀態（鏡像玩家 js/04:148）
         if (ally._setDragonblood2 && dmg > 0) ally.curHp = Math.min(ally.mhp || 1, (ally.curHp || 0) + Math.max(1, Math.floor(dmg * ((ally.curHp < (ally.mhp || 1) * 0.5) ? 0.05 : 0.01))));   // 🐉 v2.6.9 #1b 龍血2/5（傭兵）：造成物理傷害吸血1%（自身HP<50%→5%）·回復戰鬥HP(curHp)
         // 🔧 黑暗妖精傭兵：預設攻擊自動維持附加劇毒（學過 sk_dark_poison 即視為常駐增益）；命中 50%／劇毒精通 100% 使目標中毒（與玩家同規則）
@@ -1317,11 +1322,13 @@ function allyProcFreeMagicSkill(ally, t, skId, en, areaHit, sourceItem, illusion
         // 🔧 傭兵魔導精通同屬性傷害×2 已移除(2026-07 用戶要求)
         total += Math.max(1, Math.floor(dd * fragileMult(t)));
     });
-    total = Math.floor(total * enhanceWpnFinalMult(en, ally.eq && ally.eq.wpn && DB.items[ally.eq.wpn.id]));   // 🔧 武器強化 +11~+20：最終傷害倍率（取代舊 (1+強化/20)）
-    total = Math.max(1, Math.floor(total * elementCounterMult(sk.ele, t.e)));   // ⚔️ 屬性剋制倍率（取代舊 +6 固定加值）
-    total = Math.max(1, Math.floor(total * consumeWetMult(t, sk.ele)));   // 🏺 海洋水晶球（傭兵免費施法）：潮濕目標受風屬性魔法傷害 ×2 並解除
-    total = Math.max(1, Math.floor(total * equipSkillDmgMult(sk, skId, ally)));   // 🥕 v3.2.40 稽核修：傭兵武器免費施法也吃技能傷害倍率遺物（冰之女王魔杖冰錐×暴走兔胡蘿蔔1.5 等·鏡像玩家 js/04:500）
-    total = _allyIllusionMagicDmg(ally, total, illusionRecoverMp !== false);   // 🔮 全體免費施法只在第一個目標回MP
+    if (total > 0) {
+        total = Math.floor(total * enhanceWpnFinalMult(en, (sourceItem && sourceItem.type === 'wpn') ? sourceItem : (ally.eq && ally.eq.wpn && DB.items[ally.eq.wpn.id])));   // 🔧 武器強化 +11~+20：使用實際觸發武器（含副手／屬性附加魔法）
+        total = Math.max(1, Math.floor(total * elementCounterMult(sk.ele, t.e)));   // ⚔️ 屬性剋制倍率（取代舊 +6 固定加值）
+        total = Math.max(1, Math.floor(total * consumeWetMult(t, sk.ele)));   // 🏺 海洋水晶球（傭兵免費施法）：潮濕目標受風屬性魔法傷害 ×2 並解除
+        total = Math.max(1, Math.floor(total * equipSkillDmgMult(sk, skId, ally)));   // 🥕 v3.2.40 稽核修：傭兵武器免費施法也吃技能傷害倍率遺物（冰之女王魔杖冰錐×暴走兔胡蘿蔔1.5 等·鏡像玩家 js/04:500）
+        total = _allyIllusionMagicDmg(ally, total, illusionRecoverMp !== false);   // 🔮 全體免費施法只在第一個目標回MP
+    }
     if (total > 0) {
         if (t.st && t.st.mrhalf > 0) t.st.mrhalf = 0;
         logCombat(`<span class="font-bold" style="color:#93c5fd;text-shadow:0 0 6px #2563eb;">【協力·${ally._allyName}·${sk.n}】</span>額外施放，對 <span class="${getMobColor(t.lv)}">${t.n}</span> 造成 <span class="${isCrit ? 'text-yellow-500 font-bold' : 'text-cyan-300'}">${total}</span> 點傷害${isCrit ? '（爆擊!）' : ''}。`, 'player-special');
@@ -1371,6 +1378,15 @@ function allyDollAttackProcs(ally, target) {
         if (_t2) allyProcFreeMagicSkill(ally, _t2, dl.procSkill, 0, false, dl);
     }
 }
+function allyAttrMagicProc(ally, target, inst, wpn) {
+    let proc = (typeof getAttrMagicProc === 'function') ? getAttrMagicProc(inst) : null;
+    if (!proc || Math.random() * 100 >= proc.rate) return;
+    let sk = DB.skills[proc.skId];
+    if (!sk) return;
+    if (sk.type === 'buff') { applyAttrMagicBuff(ally, proc.skId, `協力·${ally._allyName}·${wpn.n}`); return; }
+    let t = _allyProcTarget(target);
+    if (t) allyProcFreeMagicSkill(ally, t, proc.skId, capWpnEn(inst.en), false, wpn);
+}
 // 🔮 傭兵魔擊本體（必中重擊＋魔擊精通擴散）：eff:'magicstrike' proc 與 🏅 v2.6.70「共鳴/魔爆改發魔擊」共用（鏡像玩家 procMagicStrike）
 function _allyMagicStrikeHit(ally, t, wpnInst, wpn) {
     if (!t || t.curHp <= 0) return;
@@ -1395,6 +1411,7 @@ function allyWeaponProcs(ally, target, hitInfo, instOverride) {
     if (!wpnInst) return;
     let wpn = DB.items[wpnInst.id];
     if (!wpn) return;
+    allyAttrMagicProc(ally, target, wpnInst, wpn);   // ★ 屬性卷軸附加魔法：鏡像玩家，命中與否皆可觸發
     if (wpn.procPoison) applyWeaponProcPoison(target, wpn.procPoison, wpnEnFinalMult(wpnInst), _dpsAllySrc(ally));   // 🔧 死亡之指：傭兵攻擊時毒咒（與玩家一致·吃武器強化最終倍率）；🎯 DPS 歸該傭兵
     if (wpn.procBurstPoison) applyWeaponBurstPoison(target, wpn.procBurstPoison, capWpnEn(wpnInst.en), wpnEnFinalMult(wpnInst), _dpsAllySrc(ally));   // 💥 破壞雙刀/鋼爪：傭兵攻擊時猛爆劇毒（與玩家一致·吃武器強化最終倍率）；🎯 DPS 歸該傭兵
     if (wpn.procStatusSkill) { let _sv = player; player = ally; try { applyWeaponProcStatusSkill(target, wpn.procStatusSkill); } finally { player = _sv; } }   // 🌑 惡魔王武器：傭兵攻擊時施放疾病術（以傭兵自身魔法命中判定）
@@ -1494,6 +1511,7 @@ function allyOnHitEffects(ally, t, res) {
             let _allyPierce = allyHasMastery(ally, 'k_pierce');
             let _pT = _allyPierce ? others : [others[Math.floor(Math.random() * others.length)]];
             let _pd = res.dmg;
+            if (wpn.pierceSubMult) _pd = Math.max(1, Math.floor(_pd * wpn.pierceSubMult));   // 🏺 v3.6.44 艾爾摩尖頭槍（傭兵鏡像）：穿透波及目標傷害 −10%（res.dmg 未含主目標 ×1.3 加成）
             if (_allyPierce && (res.hardSkin || 0) > 0) _pd += res.hardSkin;
             _pT.forEach(_ix => {
                 let exT = mapState.mobs[_ix];
@@ -1517,7 +1535,7 @@ function allyOnHitEffects(ally, t, res) {
     if (wpn.procInstakill && t.curHp > 0 && !t._dead) {   // 🏺 遺物武器即死 proc（強韌的大腿骨：傭兵版·比照玩家）
         let _pk = wpn.procInstakill;
         let _thpA = t.hp || 1;   // 🐍 v3.1.76 獻祭 healPct：先取被消滅敵人最大HP（鏡像玩家 js/04）
-        if ((!_pk.maxLv || t.lv <= _pk.maxLv) && (!_pk.hpBelow || (t.curHp + ((res && res.dmg) || 0)) <= Math.max(1, Math.floor((t.hp || 1) * _pk.hpBelow)))) { let ri = mapState.mobs.findIndex(m => m && m.uid === t.uid); if (ri !== -1 && tryInstakill(t, { p: _pk.p, tag: _pk.tag || null }, `【協力·${ally._allyName}】${wpn.n}`, ri) && _pk.healPct) ally.curHp = Math.min(ally.mhp || 1, (ally.curHp || 0) + Math.max(1, Math.floor(_thpA * _pk.healPct))); }   // 🏺 v3.1.80 hpBelow：僅對 HP 低於 N% 目標觸發（來自陰影的刺劍·鏡像玩家）；🩹 v3.2.43 稽核修：用「扣血前」HP 判定（+res.dmg 還原）——對齊玩家 js/04:69 的判定時點
+        if ((!_pk.maxLv || t.lv <= _pk.maxLv) && (!_pk.hardOnly || (t.hardSkinMax || 0) > 0) && (!_pk.hpBelow || (t.curHp + ((res && res.dmg) || 0)) <= Math.max(1, Math.floor((t.hp || 1) * _pk.hpBelow)))) { let ri = mapState.mobs.findIndex(m => m && m.uid === t.uid); if (ri !== -1 && tryInstakill(t, { p: _pk.p, tag: _pk.tag || null }, `【協力·${ally._allyName}】${wpn.n}`, ri)) { if (_pk.healPct) ally.curHp = Math.min(ally.mhp || 1, (ally.curHp || 0) + Math.max(1, Math.floor(_thpA * _pk.healPct))); if (_pk.hasteSec) ally._crushFuryTicks = _pk.hasteSec * 10; } }   // 🏺 v3.1.80 hpBelow：僅對 HP 低於 N% 目標觸發（來自陰影的刺劍·鏡像玩家）；🩹 v3.2.43 稽核修：用「扣血前」HP 判定（+res.dmg 還原）——對齊玩家 js/04:69 的判定時點；🔨 v3.6.47 粉碎鎚：hardOnly 僅硬皮怪＋即死後攻速 +20%（_crushFuryTicks·比照 _cleaveTicks 於攻擊間隔消費/遞減）
     }
     if (wpn.stoneInstakill && t.curHp > 0 && !t._dead && t.st && t.st.stone > 0) {   // 🏺 蛇妖的無慈悲尾刺：命中石化敵人必定即死（傭兵鏡像玩家）
         let ri = mapState.mobs.findIndex(m => m && m.uid === t.uid); if (ri !== -1) tryInstakill(t, { p: 1, tag: null }, `【協力·${ally._allyName}】蛇妖的無慈悲尾刺`, ri);
@@ -2449,7 +2467,7 @@ function allyTryDispel(ally) {
     if (dispelCasterBlocked(st)) return false;   // 🆕 v2.6.28 施法者硬控(石化/冰凍/暈眩/麻痺/沉睡)或沉默/魔封→無法施放（不再自救）
     let has = (sid) => ally.skills.includes(sid) && _mercAutoOn(ally, sid);   // 👑 v2.7.95 淨化(相消/聖潔/解毒)也吃「開啟閘」：來源角色沒勾自動施放→傭兵不耗 MP 淨化（比照玩家 autoActions js/07:818-824）
     let sk = null, kinds = null;
-    if (has('sk_cancel') && teamHasCurableStatus(['freeze', 'stone', 'poison', 'paralyze', 'burn', 'scald', 'weaken', 'disease', 'blind', 'potionFrost'])) { sk = 'sk_cancel'; kinds = ['freeze', 'stone', 'poison', 'paralyze', 'burn', 'scald', 'weaken', 'disease', 'blind', 'potionFrost']; }   // 相消術涵蓋最廣·優先；🌅 審查修：含日出之國四新異常
+    if (has('sk_cancel') && teamHasCurableStatus(['freeze', 'stone', 'poison', 'paralyze', 'burn', 'scald', 'weaken', 'disease', 'blind', 'potionFrost', 'foulWater'])) { sk = 'sk_cancel'; kinds = ['freeze', 'stone', 'poison', 'paralyze', 'burn', 'scald', 'weaken', 'disease', 'blind', 'potionFrost', 'foulWater']; }   // 相消術涵蓋最廣·優先；🌅 審查修：含日出之國四新異常；🌊 v3.6.20 含汙濁之水
     else if (has('sk_holy_light') && teamHasCurableStatus(['stone', 'paralyze'])) { sk = 'sk_holy_light'; kinds = ['stone', 'paralyze']; }
     else if (has('sk_antidote') && teamHasCurableStatus(['poison'])) { sk = 'sk_antidote'; kinds = ['poison']; }
     if (!sk) return false;
@@ -2468,6 +2486,7 @@ function allyTryDispel(ally) {
 function allyAttackIntervalTicks(ally, st) {
     let itv = Math.max(1, ((ally.d && ally.d.aspd) ? ally.d.aspd : atkSpdBaseItv(ally)) * 10);
     if (!ally.classicMode && ally._cleaveTicks > 0 && !allyHasMastery(ally, 'k_cleave')) itv = Math.max(1, itv * (1/1.2));
+    if (ally._crushFuryTicks > 0) itv = Math.max(1, itv * (1/1.2));   // 🔨 v3.6.47 粉碎鎚即死觸發：攻速+20%（經典亦生效·比照即死本體）
     if (st && st.slowAtk > 0) itv *= 2;
     return itv;
 }
@@ -2479,6 +2498,7 @@ function allyOffhandIntervalTicks(ally, st) {
     if (!Number.isFinite(a) || a <= 0) return 0;
     let itv = Math.max(1, a * 10);
     if (!ally.classicMode && ally._cleaveTicks > 0 && !allyHasMastery(ally, 'k_cleave')) itv = Math.max(1, itv * (1/1.2));
+    if (ally._crushFuryTicks > 0) itv = Math.max(1, itv * (1/1.2));   // 🔨 v3.6.47 粉碎鎚即死觸發：副手揮擊同吃攻速+20%（比照切割雙掛點）
     if (st && st.slowAtk > 0) itv *= 2;
     return itv;
 }
@@ -2555,6 +2575,7 @@ function alliesTick() {
             if (_hr > 0) ally.curHp = Math.min(ally.mhp, (ally.curHp||0) + _hr);
         }
         if (ally._cleaveTicks > 0) ally._cleaveTicks--;   // 🔧 切割（雙手劍重擊觸發）：攻速+20% 持續倒數
+        if (ally._crushFuryTicks > 0) ally._crushFuryTicks--;   // 🔨 v3.6.47 粉碎鎚即死觸發攻速buff：持續倒數
         let _atkCdBeforeTick = Number.isFinite(ally._atkCd) ? ally._atkCd : 0;
         if (!_ccBlock && (ally._atkCd = _atkCdBeforeTick - 1) <= 0) {
             // 只承接有效倒數產生的小數超時；新招募的 0 冷卻仍維持立即首擊。
@@ -2694,6 +2715,7 @@ function allyTryPotion(ally) {
     let _dollPot = (ally.eq && ally.eq.doll && DB.items[ally.eq.doll.id]) ? (DB.items[ally.eq.doll.id].potionBonus || 0) : 0;   // 🆕 v2.6.10 #3：魔法娃娃 potionBonus%（吸血鬼娃娃）
     let h = Math.max(1, Math.floor(potionHealBase(pdef) * (1 + (_conPct + _dollPot) / 100)));   // 🍶 藥水基準改隨機區間 valMin~valMax（傭兵比照玩家）
     if (ally.statuses && ally.statuses.potionFrost > 0) h = Math.max(1, Math.floor(h * 0.5));   // 🌅 藥水霜化：只讀該傭兵自己的獨立判定結果
+    if (ally.statuses && ally.statuses.foulWater > 0) h = Math.max(1, Math.floor(h * 0.5));   // 🌊 v3.6.20 汙濁之水（玩家NPC二模板）：治癒藥水也減半
     ally.curHp = Math.min(mhp, cur + h);
     ally._potCd = 10;                                       // ~1 秒冷卻（10 ticks·比照玩家 cds.pot=1 秒）
     logCombat(`<span class="text-emerald-300 font-bold">協力·${ally._allyName}</span> 飲用 ${pdef.n}，恢復 ${h} 點 HP。`, 'heal', 'mercenary');

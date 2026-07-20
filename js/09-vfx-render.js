@@ -1279,13 +1279,22 @@ function _renderMobsImpl() {
             // ⚔️ v2.7.40 第二武器層(_w2·如伊弗利特雙武器/雙火焰)：與 _w 同機制·再疊一層 .mob-anim-weapon2
             let _weaponFx2 = MOB_ANIM_NAMES.has(m.n) && (typeof MOB_ANIM_WEAPON_FX2 !== 'undefined') && MOB_ANIM_WEAPON_FX2.has(m.n);
             let _weaponLayer2 = _weaponFx2 ? `<img class="mob-anim-weapon2 w-24 h-24 p-1 object-contain pointer-events-none" src="assets/anim/${_animDir(m.n)}/idle_w2_0.png" alt="" aria-hidden="true" onload="this.style.display='';this.style.visibility=''" onerror="this.style.visibility='hidden'">` : '';
+            let _npcClanCrown = '';
+            if (m._npcClanLeader && m._npcClanConflict && m._npcClanHasCastle && !m._dead && m.curHp > 0) {
+                let _crownAvatar = m._pvpAvatar === '公主' ? '公主' : '王子';
+                let _crownAnchor = _crownAvatar === '公主' ? [33, 82] : [58, 87];
+                _npcClanCrown = `<img class="npc-clan-castle-crown" src="assets/ui/castle-crown.gif?v=v3.6.22" alt="" aria-hidden="true" draggable="false" style="left:${_crownAnchor[0]}px;bottom:${_crownAnchor[1]}px;">`;
+            }
+            let _npcClanNameTag = m._npcClanName
+                ? `<span class="text-[10px] font-bold text-cyan-200 whitespace-nowrap">［${m._npcClanLeader ? '盟主・' : ''}${m._npcClanName}］</span>`
+                : '';
             _slotHtmls[_k] = `<div class="mob-target ${act}${_rageNow ? ' mob-raging' : ''}${_rowCls}${BOSS_BIG_MAPS.includes(mapState.current) ? ' boss-slot' : (m.boss ? ' boss-zoom' : '')}${_sfCls}" data-uid="${m.uid}"${_scat}>
-                        <div class="flex justify-center items-center text-sm mb-1 mob-name">
-                            <span class="${getMobNameClass(m)}" title="${m.n}"${(typeof pvpNameStyle === 'function') ? pvpNameStyle(m) : ''}>${m.n}</span>
+                        <div class="flex flex-wrap justify-center items-center gap-1 text-sm mb-1 mob-name">
+                            <span class="${getMobNameClass(m)}" title="${m.n}${m._npcClanName ? '・' + m._npcClanName : ''}"${(typeof pvpNameStyle === 'function') ? pvpNameStyle(m) : ''}>${m.n}</span>${_npcClanNameTag}
                         </div>
                         ${badges}
                         <div class="flex justify-center mb-1 mob-img-wrap">
-                            <span class="mob-img-inner${_innerAnimCls}">${_shadowLayer}<img src="${_mi.src}" data-fb="${_mi.fb.concat(['https://placehold.co/100x100/1e293b/ffffff?text=?']).join('|')}" alt="${m.n}" onerror="_mobImgErr(this)" class="w-24 h-24 p-1 object-contain pointer-events-none${m._grace ? ' grace-glow' : ''}">${_weaponLayer}${_weaponLayer2}</span>
+                            <span class="mob-img-inner${_innerAnimCls}">${_shadowLayer}<img src="${_mi.src}" data-fb="${_mi.fb.concat(['https://placehold.co/100x100/1e293b/ffffff?text=?']).join('|')}" alt="${m.n}" onerror="_mobImgErr(this)" class="w-24 h-24 p-1 object-contain pointer-events-none${m._grace ? ' grace-glow' : ''}">${_weaponLayer}${_weaponLayer2}${_npcClanCrown}</span>
                         </div>
                         <div class="flex justify-center items-center gap-2 mb-1" style="height:16px;display:flex;align-items:center;justify-content:center;gap:8px;">${_statRow}</div>
                         ${_hpBar}
@@ -2032,6 +2041,74 @@ function _playerMorphRemove() {
     if (_pmState.el) { try { _pmState.el.remove(); } catch (e) {} }
     _pmState.el = null; _pmState.imgs = null; _pmState.act = null; _pmState.name = null; _pmState.prevHp = null; _pmState.pendAtk = false;
 }
+function _playerCastleCrownOn() {
+    try {
+        if (typeof siegeVictoryActive !== 'function' || !siegeVictoryActive()) return false;
+        return !!(player && (player.cls === 'royal' || player.avatar === '王子' || player.avatar === '公主'));
+    } catch (e) { return false; }
+}
+// 👑 v3.6.33 城主王冠錨點表（tools/crown-anchor-gen.js 離線掃 idle 幀產出·勿手改）。
+//    file:// 下本地圖污染 canvas → 執行期 getImageData 必失敗，只能離線預算。
+//    key＝職業式 <朝向資料夾>:<武器鍵>｜變身 <morphanim資料夾>·值=[頭頂質心x, 畫布底至頭頂px+2]。
+//    v3.6.34 擴到全部 237 個變身資料夾（用戶拍板：所有變身王冠都壓正頭頂）；重部署動畫後重跑產生器。
+const PM_CROWN_ANCHOR = {
+    '王子:blunt':[70,94],'王子:bow':[69,95],'王子:dagger':[68,95],'王子:spear':[71,95],'王子:sword1':[71,94],'王子:sword2':[67,94],'王子:unarmed':[75,95],
+    '王子F:blunt':[73,92],'王子F:bow':[70,93],'王子F:dagger':[69,93],'王子F:spear':[70,93],'王子F:sword1':[74,93],'王子F:sword2':[78,92],'王子F:unarmed':[74,95],
+    '王子2:blunt':[77,92],'王子2:bow':[75,92],'王子2:dagger':[75,92],'王子2:spear':[74,91],'王子2:sword1':[77,92],'王子2:sword2':[79,94],'王子2:unarmed':[76,95],
+    '公主:blunt':[70,87],'公主:bow':[71,87],'公主:dagger':[70,87],'公主:spear':[67,87],'公主:sword1':[70,87],'公主:sword2':[70,87],'公主:unarmed':[69,88],
+    '公主F:blunt':[71,85],'公主F:bow':[72,86],'公主F:dagger':[71,85],'公主F:spear':[71,85],'公主F:sword1':[71,85],'公主F:sword2':[71,85],'公主F:unarmed':[70,87],
+    '公主2:blunt':[71,89],'公主2:bow':[71,89],'公主2:dagger':[71,89],'公主2:spear':[71,89],'公主2:sword1':[71,89],'公主2:sword2':[71,89],'公主2:unarmed':[70,89],
+    '真夏納王子:blunt':[90,119],'真夏納王子:bow':[88,120],'真夏納王子:dagger':[87,120],'真夏納王子:spear':[89,119],'真夏納王子:sword1':[91,119],'真夏納王子:sword2':[80,121],'真夏納王子:unarmed':[91,119],
+    '真夏納王子F:blunt':[92,118],'真夏納王子F:bow':[88,118],'真夏納王子F:dagger':[88,119],'真夏納王子F:spear':[88,117],'真夏納王子F:sword1':[92,118],'真夏納王子F:sword2':[92,119],'真夏納王子F:unarmed':[92,118],
+    '真夏納王子2:blunt':[91,118],'真夏納王子2:bow':[90,117],'真夏納王子2:dagger':[90,117],'真夏納王子2:spear':[89,116],'真夏納王子2:sword1':[91,118],'真夏納王子2:sword2':[93,121],'真夏納王子2:unarmed':[91,118],
+    '真夏納公主:blunt':[65,85],'真夏納公主:bow':[64,84],'真夏納公主:dagger':[65,85],'真夏納公主:spear':[70,85],'真夏納公主:sword1':[65,85],'真夏納公主:sword2':[66,85],'真夏納公主:unarmed':[65,85],
+    '真夏納公主F:blunt':[67,84],'真夏納公主F:bow':[66,83],'真夏納公主F:dagger':[67,84],'真夏納公主F:spear':[68,84],'真夏納公主F:sword1':[67,84],'真夏納公主F:sword2':[68,84],'真夏納公主F:unarmed':[67,84],
+    '真夏納公主2:blunt':[70,85],'真夏納公主2:bow':[70,85],'真夏納公主2:dagger':[70,85],'真夏納公主2:spear':[65,85],'真夏納公主2:sword1':[70,85],'真夏納公主2:sword2':[69,85],'真夏納公主2:unarmed':[70,85],
+    '亞力安':[94,94],'亞力安2':[45,96],'亞力安F':[94,94],'人形殭屍':[72,91],'人形殭屍2':[65,87],'人形殭屍F':[69,90],'侏儒':[57,73],'侏儒2':[52,76],
+    '侏儒F':[55,73],'克特':[95,91],'克特2':[95,88],'克特F':[93,92],'卡司特王':[82,47],'卡司特王2':[69,46],'卡司特王F':[75,49],'卡士柏':[93,92],
+    '卡士柏2':[55,97],'卡士柏F':[75,95],'反王肯恩':[68,84],'反王肯恩2':[72,84],'反王肯恩F':[68,83],'史巴托':[98,83],'史巴托2':[92,84],'史巴托F':[92,77],
+    '吸血鬼':[40,76],'吸血鬼2':[43,76],'吸血鬼F':[43,76],'哥布林':[57,63],'哥布林2':[51,63],'哥布林F':[52,66],'地靈':[49,63],'地靈2':[44,63],
+    '地靈F':[47,63],'多羅':[98,86],'多羅2':[95,88],'多羅F':[97,87],'妖魔':[63,80],'妖魔2':[56,82],'妖魔F':[58,82],'妖魔巡守':[62,98],
+    '妖魔巡守2':[53,98],'妖魔巡守F':[56,99],'妖魔弓箭手':[69,82],'妖魔弓箭手2':[68,79],'妖魔弓箭手F':[67,80],'妖魔鬥士':[56,72],'妖魔鬥士2':[54,71],'妖魔鬥士F':[53,67],
+    '小惡魔':[64,79],'小惡魔2':[79,80],'小惡魔F':[72,78],'巨人':[80,110],'巨人2':[88,110],'巨人F':[87,111],'巨大牛人':[100,147],'巨大牛人2':[104,156],
+    '巨大牛人F':[113,153],'巴列斯':[79,121],'巴列斯2':[76,120],'巴列斯F':[79,119],'巴土瑟':[93,92],'巴土瑟2':[55,97],'巴土瑟F':[75,95],'巴風特':[107,141],
+    '巴風特2':[105,141],'巴風特F':[106,139],'思克巴':[73,114],'思克巴2':[96,112],'思克巴F':[80,110],'思克巴女皇':[73,115],'思克巴女皇2':[96,113],'思克巴女皇F':[80,111],
+    '惡魔':[78,109],'惡魔2':[109,108],'惡魔F':[94,104],'暴走兔':[41,29],'暴走兔2':[40,29],'暴走兔F':[41,29],'果凍怪':[67,80],'果凍怪2':[67,81],
+    '果凍怪F':[67,78],'格利芬':[82,72],'格利芬2':[76,72],'格利芬F':[79,72],'歐吉':[94,140],'歐吉2':[99,140],'歐吉F':[96,141],'歐姆民兵':[70,53],
+    '歐姆民兵2':[65,53],'歐姆民兵F':[67,54],'死亡':[80,133],'死亡2':[64,123],'死亡F':[77,129],'死亡騎士':[100,113],'死亡騎士2':[90,115],'死亡騎士F':[96,115],
+    '炎魔':[102,138],'炎魔2':[156,139],'炎魔F':[129,136],'烈焰的死亡騎士':[101,112],'烈焰的死亡騎士2':[90,114],'烈焰的死亡騎士F':[95,115],'狼人':[95,112],'狼人2':[96,111],
+    '狼人F':[96,112],'獨眼巨人':[101,109],'獨眼巨人2':[111,109],'獨眼巨人F':[107,108],'甘地妖魔':[59,98],'甘地妖魔2':[59,98],'甘地妖魔F':[59,98],'白金巡守':[65,109],
+    '白金巡守2':[69,110],'白金巡守F':[66,110],'白金法師':[63,100],'白金法師2':[69,98],'白金法師F':[63,98],'白金騎士':[91,114],'白金騎士2':[85,113],'白金騎士F':[87,115],
+    '真死亡騎士 冥皇丹特斯':[101,112],'真死亡騎士 冥皇丹特斯2':[90,114],'真死亡騎士 冥皇丹特斯F':[95,115],'石頭高崙':[77,93],'石頭高崙2':[74,93],'石頭高崙F':[76,89],'紙人':[58,72],'紙人2':[54,73],
+    '紙人F':[56,77],'羅孚妖魔':[60,98],'羅孚妖魔2':[50,98],'羅孚妖魔F':[56,99],'艾莉絲':[92,114],'艾莉絲2':[92,115],'艾莉絲F':[92,114],'莉絲安':[97,108],
+    '莉絲安2':[101,108],'莉絲安F':[98,106],'萊肯':[95,112],'萊肯2':[96,111],'萊肯F':[96,112],'西瑪':[93,92],'西瑪2':[55,97],'西瑪F':[75,95],
+    '賽尼斯':[73,114],'賽尼斯2':[77,114],'賽尼斯F':[75,113],'那魯加妖魔':[94,105],'那魯加妖魔2':[78,118],'那魯加妖魔F':[96,114],'都達瑪拉妖魔':[94,105],'都達瑪拉妖魔2':[78,118],
+    '都達瑪拉妖魔F':[96,114],'重裝歐姆':[117,122],'重裝歐姆2':[109,125],'重裝歐姆F':[114,125],'銀光巡守':[62,103],'銀光巡守2':[66,104],'銀光巡守F':[63,104],'銀光法師':[64,97],
+    '銀光法師2':[69,95],'銀光法師F':[65,94],'銀光騎士':[68,96],'銀光騎士2':[66,96],'銀光騎士F':[67,95],'長老':[78,88],'長老2':[45,87],'長老F':[69,68],
+    '阿吐巴妖魔':[60,98],'阿吐巴妖魔2':[50,98],'阿吐巴妖魔F':[56,99],'阿魯巴':[88,122],'阿魯巴2':[84,125],'阿魯巴F':[87,124],'雪怪':[67,81],'雪怪2':[67,81],
+    '雪怪F':[67,82],'食人妖精':[93,118],'食人妖精2':[90,118],'食人妖精F':[92,119],'食人妖精王':[93,112],'食人妖精王2':[90,112],'食人妖精王F':[92,111],'食屍鬼':[72,91],
+    '食屍鬼2':[65,87],'食屍鬼F':[69,90],'馬庫爾':[93,92],'馬庫爾2':[55,97],'馬庫爾F':[75,95],'騎士范德':[117,109],'騎士范德2':[114,111],'騎士范德F':[116,111],
+    '骷髏':[98,83],'骷髏2':[92,84],'骷髏F':[92,77],'骷髏弓箭手':[57,76],'骷髏弓箭手2':[40,80],'骷髏弓箭手F':[50,79],'骷髏斧手':[54,76],'骷髏斧手2':[40,78],
+    '骷髏斧手F':[48,77],'骷髏槍兵':[68,81],'骷髏槍兵2':[67,82],'骷髏槍兵F':[64,82],'黃金巡守':[66,104],'黃金巡守2':[70,105],'黃金巡守F':[67,105],'黃金法師':[64,97],
+    '黃金法師2':[69,95],'黃金法師F':[65,94],'黃金騎士':[90,113],'黃金騎士2':[86,113],'黃金騎士F':[88,112],'黑暗妖精刺客':[64,103],'黑暗妖精刺客2':[66,103],'黑暗妖精刺客F':[65,101],
+    '黑暗妖精運送員':[70,73],'黑暗妖精運送員2':[67,71],'黑暗妖精運送員F':[68,73],'黑暗巡守':[62,103],'黑暗巡守2':[66,104],'黑暗巡守F':[63,104],'黑暗法師':[59,97],'黑暗法師2':[65,95],
+    '黑暗法師F':[61,94],'黑暗精靈':[94,115],'黑暗精靈2':[94,114],'黑暗精靈F':[93,115],'黑暗騎士':[62,93],'黑暗騎士2':[59,93],'黑暗騎士F':[61,92],'黑長者':[93,92],
+    '黑長者2':[55,97],'黑長者F':[75,95],'黑騎士':[113,129],'黑騎士2':[104,127],'黑騎士F':[107,129],
+};
+function _playerBattleCrownApply(crown, form, act) {
+    if (!crown) return;
+    if (!_playerCastleCrownOn()) { crown.style.visibility = 'hidden'; return; }
+    let k = (form && form.key) || '', mk = /^class:([^:]+):([^:]+)$/.exec(k), mm = mk ? null : /^morph:(.+)$/.exec(k);
+    let a = mk ? PM_CROWN_ANCHOR[mk[1] + ':' + mk[2]] : (mm && PM_CROWN_ANCHOR[mm[1]]);
+    if (!a || act === 'death') { crown.style.visibility = 'hidden'; return; }   // 表外形態隱藏（安全網）·倒地屍體上不懸浮王冠
+    if (crown.style.visibility === 'hidden') crown.style.visibility = '';
+    crown.style.left = a[0] + 'px';
+    crown.style.bottom = a[1] + 'px';
+}
+function _playerMorphYOffset(form) {
+    let k = (form && form.key) || '';
+    return /^morph:萊肯(?:F|2)?$/.test(k) ? 18 : 0;
+}
 // ⚔️ v3.0.91 攻擊動畫播放速度隨攻速：攻擊動作每幀時長＝攻擊間隔(秒)÷幀數→整段動畫恰在一次攻擊間隔內播完（「播完對上攻速」）。
 //   只加速不放慢：慢攻取 min(base,…)＝維持預設 8fps（早播完後待機·不拖成慢動作）；下限 45ms/幀(≈22fps)防過快閃爍。
 //   intervalSec 來源＝各消費者實際攻擊排程用值：玩家＝player.d.aspd(js/03:290·已含加速/勇敢/精通/切割/變身所有倍率)、傭兵＝atkSpdBaseItv(ally)(js/06:1833)。僅套用於 attack 動作·idle/skill/hurt/death 維持 8fps。
@@ -2070,16 +2147,17 @@ function _playerMorphApply() {   // 8fps ticker 驅動（🗡️ v3.0.67 形態�
         let sh = document.createElement('img'); sh.className = 'pm-shadow';
         let bd = document.createElement('img'); bd.className = 'pm-body';
         let wp = document.createElement('img'); wp.className = 'pm-weapon';
-        [sh, bd, wp].forEach(i => { i.alt = ''; i.draggable = false; });
-        el.append(sh, bd, wp);
+        let cr = document.createElement('img'); cr.className = 'pm-castle-crown'; cr.src = 'assets/ui/castle-crown.gif?v=v3.6.22'; cr.style.visibility = 'hidden';
+        [sh, bd, wp, cr].forEach(i => { i.alt = ''; i.draggable = false; });
+        el.append(sh, bd, wp, cr);
         bv.appendChild(el);
-        _pmState.el = el; _pmState.imgs = { sh: sh, bd: bd, wp: wp };
+        _pmState.el = el; _pmState.imgs = { sh: sh, bd: bd, wp: wp, cr: cr };
         let w = (a.idle && a.idle[0]) ? a.idle[0].naturalWidth : 100;
         el.style.width = w + 'px';
     } else if (_pmState.el.parentElement !== bv) bv.appendChild(_pmState.el);
     { let _pw = (a.idle && a.idle[0]) ? a.idle[0].naturalWidth : 100; _pmState.el.style.left = 'calc(' + _partySpriteXs().P + ' - ' + Math.round(_pw / 2) + 'px)'; }   // 🗡️ v3.0.71 每輪更新：站怪物格縫隙(依 5格/3格版面動態)·免 transform
     // 🗡️ v3.0.70 權重站位：依 aggro 權重排前後（_partyBottoms 由 _allySpritesApply 每輪先算·權重高=前=bottom小·z 高）
-    if (typeof _partyBottoms !== 'undefined' && _partyBottoms && _partyBottoms.P != null) { _pmState.el.style.bottom = _partyBottoms.P + 'px'; _pmState.el.style.zIndex = String(30 - _partyBottoms.P); }
+    if (typeof _partyBottoms !== 'undefined' && _partyBottoms && _partyBottoms.P != null) { _pmState.el.style.bottom = (_partyBottoms.P - _playerMorphYOffset(form)) + 'px'; _pmState.el.style.zIndex = String(30 - _partyBottoms.P); }
     if (CLASS_ANIM_3DIR.has(player.avatar) || MORPH_ANIM_3DIR.has(_playerMorphName() || '')) _class3Facing(player, _pmState.el);   // 🧭 v3.2.12 依攻擊目標更新朝向（寫 player._face3·下一幀 _classForm/_playerBattleForm 生效）·v3.5.10 三方向變身亦更新
     // 動作＋幀（比照 _mobAnimApply：單次動作播一輪回待機·death 凍結最後一幀）
     let act = null, f = 0, _useW = false;
@@ -2105,7 +2183,12 @@ function _playerMorphApply() {   // 8fps ticker 驅動（🗡️ v3.0.67 形態�
     if (act === null) return;
     let seq = (act === 'skill' && _useW) ? a.wskill : a[act]; if (!seq || !seq[f]) return;
     let I = _pmState.imgs;
+    if (!I.cr && _pmState.el) {
+        let cr = document.createElement('img'); cr.className = 'pm-castle-crown'; cr.src = 'assets/ui/castle-crown.gif?v=v3.6.22'; cr.alt = ''; cr.draggable = false; cr.style.visibility = 'hidden';
+        _pmState.el.appendChild(cr); I.cr = cr;
+    }
     if (I.bd.src !== seq[f].src) I.bd.src = seq[f].src;
+    _playerBattleCrownApply(I.cr, form, act);
     let ss = (act === 'skill' && _useW) ? a.shadow.wskill : a.shadow[act];   // 影子：寬容（幀數不足取模·缺動作隱藏）
     if (ss && ss.length) { let sf = f < ss.length ? f : (f % ss.length); if (I.sh.style.visibility === 'hidden') I.sh.style.visibility = ''; if (I.sh.src !== ss[sf].src) I.sh.src = ss[sf].src; }
     else if (I.sh.style.visibility !== 'hidden') I.sh.style.visibility = 'hidden';
