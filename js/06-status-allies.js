@@ -11,6 +11,9 @@ function mobActDisabled(m) {
 function mobWake(m) {
     if(m.st && m.st.sleep > 0) { m.st.sleep = 0; logCombat(`<span class="${getMobColor(m.lv)}">${m.n}</span> 從沉睡中醒來。`, 'magic'); }
 }
+function traumaPhysicalBonus(target) {
+    return (target && target._trauma && target._trauma.until > state.ticks) ? (target._trauma.dmg || 5) * (target._trauma.s || 1) : 0;
+}
 const STATUS_NAME = { freeze:'冰凍', stun:'暈眩', stone:'石化', sleep:'沉睡', poison:'中毒',
     blind:'目盲', weaken:'弱化', disease:'疾病', vacuum:'真空', broken:'損壞', slow:'緩速', mrhalf:'魔抗減半', magicseal:'魔法封印', armorbreak:'破甲', fragile:'脆弱', confuse:'混亂', panic:'恐慌', guardbreak:'護衛毀滅', terror:'恐懼', doom:'死神', muddywater:'污濁' };   // 🔮 脆弱（白鳥5）：受所有傷害+20%；🐉 護衛毀滅/恐懼/死神；🌊 污濁（污濁之水·頭目回血減半）
 // 特定狀態的專屬套用訊息（接於怪物名稱後）
@@ -30,6 +33,7 @@ function abnormalMagicHit(m, maxHv, hitOff) {
 function applyMobStatus(m, st, skillName, damageCoef) {
     if(!m.st) m.st = newMobStatus();
     if(BOSS_IMMUNE.includes(st.kind) && m.boss) return;
+    if(st.pct != null && Math.random() * 100 >= st.pct) return;   // 🏺 v3.7.20 st.pct：固定機率擲骰（寒冰尖刺 50% 冰凍·搭配 force 跳過魔抗判定；未附 pct 者行為不變）
     // 異常狀態魔法命中（玩家對怪物）：見 abnormalMagicHit；st.hitOff＝命中加值（🏛️ 真．冥皇執行劍 衝擊之暈 +4≈命中率+20%）
     // ⚡ st.force：跳過魔抗命中判定，由呼叫端自行擲固定機率（雷神之鎚電光衝擊／伊娃的責罵水之矛的 5% 固定附加）；BOSS 免疫仍上方先擋
     if(!st.force && !abnormalMagicHit(m, undefined, st.hitOff)) {
@@ -633,6 +637,7 @@ function allyAttackOnce(ally, _arrowDelay) {   // 🏹 v3.2.14 _arrowDelay(選�
         let _hsSub = (wpn && wpn.ignHardSkin) ? 0 : _hsT;   // 🗡️ 貫穿（暗黑十字弓）：傭兵攻擊無視硬皮額外減傷（_hsT 仍保留供穿透精通加回）
         let dmg = Math.max(1, Math.floor((wpnRoll + dmgB) * critMult) + (d.extraDmg||0) - (t.dr||0) - _hsSub);   // 🔧 硬皮：額外物理減傷（貫穿時不扣）
         { let _unb = allyUnbonusBonus(ally, t); if (_unb) dmg += _unb; }   // 🔧 對不死/狼人加成 +1D20（與玩家一致；在看破/殺戮倍率前加入）
+        if (t._trauma && t._trauma.until > state.ticks) dmg += (t._trauma.dmg || 5) * (t._trauma.s || 1);   // 🏺 v3.7.20 創傷（傭兵物理·鏡像玩家 getPhysicalDmg）：目標受物理傷害 +5×層數
         if (ally._giltasFuryUntil > state.ticks && ally.eq && ally.eq.wpn && ally.eq.wpn.id === 'wpn_giltas_sword') dmg += (typeof pvpEvilBonus === 'function' ? pvpEvilBonus(10) : 0);   // 🗡️ 吉爾塔斯之劍（傭兵）：擊殺後 10 秒內依主玩家邪惡值提高額外傷害（滿邪惡 +10）
         // 騎士被動（依協力者等級，僅近戰）：看破 Lv1起5%/每10等+1%上限15%→×2；殺戮 Lv20起1%/每20等+1%上限5%→×3；兩者同時=屠殺→×6
         let kp = '';
@@ -651,7 +656,7 @@ function allyAttackOnce(ally, _arrowDelay) {   // 🏹 v3.2.14 _arrowDelay(選�
         if (heavy && wpn && wpn.heavyMult) dmg = Math.max(1, Math.floor(dmg * wpn.heavyMult));   // 🏺 v3.1.76 鎧甲守衛的笨重巨劍（傭兵）：重擊傷害 ×heavyMult（鏡像玩家 js/03:903）
         if (heavy && wpn && wpn.heavyBonusDmg) dmg += wpn.heavyBonusDmg;   // 🌅 牛鬼的斷角（傭兵）：重擊時額外傷害 +N（固定值·倍率後加算·鏡像玩家 js/03）
         if (ally.statuses && ally.statuses.broken > 0) dmg = Math.max(1, Math.floor(dmg * 0.8));   // 🐍 v3.1.76 壞物術（易碎泥偶自傷·傭兵）：期間物理傷害 -20%（鏡像玩家 js/03:904）
-        if (_grazeA) dmg = Math.max(1, Math.floor(dmg * 0.5));   // 🥊 v2.6.20 擦傷：最終傷害剩 50%（鏡像玩家 833·置於脆弱前）
+        if (_grazeA) dmg = Math.max(1, Math.floor(dmg * (((wpn && wpn.grazeDmgPct) || 50) / 100)));   // 🥊 v2.6.20 擦傷：最終傷害剩 50%（鏡像玩家 833·置於脆弱前）；🏺 v3.7.20 瞥視 grazeDmgPct:30 → 挫傷剩 30%
         dmg = Math.max(1, Math.floor(dmg * fragileMult(t)));   // 🔮 脆弱（白鳥5）
         dmg = _allyAtkBuffProcs(ally, dmg, isRanged);   // 🆕 v2.6.9 #1b：攻擊 buff proc（燃燒鬥志/屬性之火/雙重破壞/狂暴/勇猛意志/燃燒擊砍）·狂暴已併入此
         dmg = Math.max(1, Math.floor(dmg * wpnEnFinalMult(ally.eq && ally.eq.wpn)));   // 🔧 武器強化 +11~+20：最終傷害倍率（傭兵物理普攻·與玩家普攻 getPhysicalDmg 一致）
@@ -668,6 +673,7 @@ function allyAttackOnce(ally, _arrowDelay) {   // 🏹 v3.2.14 _arrowDelay(選�
         dmg = Math.max(1, Math.floor(dmg * royalAllyMult()));   // 👑 王族魅力加成：傭兵造成傷害 ×(1+魅力/200)
         let _dualX2A = false;   // ⚔️ 雙刀內建特性（傭兵·鏡像玩家）：一般攻擊命中(非擦傷) 5% 機率最終傷害×2·經典停用
         if (!_grazeA && !ally.classicMode && ally.eq && ally.eq.wpn && getWeaponTags(ally.eq.wpn.id).includes('雙刀') && Math.random() < 0.05) { _dualX2A = true; dmg = Math.max(1, dmg * 2); }
+        if (!_grazeA && wpn && wpn.dblStrikeRate && Math.random() * 100 < wpn.dblStrikeRate) { _dualX2A = true; dmg = Math.max(1, dmg * 2); }   // 🏺 v3.7.20 艾爾摩古戰場巨劍（傭兵）：3% 機率 2 倍傷害
         if (wpn && wpn.hardSkinMult && _hsT > 0) dmg = Math.max(1, Math.floor(dmg * wpn.hardSkinMult));   // 🦀 目標有硬皮→一般攻擊傷害×1.5（傭兵鏡像玩家）
         if (wpn && wpn.softMult && _hsT <= 0) dmg = Math.max(1, Math.floor(dmg * wpn.softMult));   // 🏺 不死將軍的珍愛巨劍：對「無硬皮」敵人傷害×1.3（傭兵鏡像玩家）
         { let _fhmA = wpn && (_allyInTriple ? (!_allyTripleFhmUsed ? wpn.fullHpMultTriple : null) : wpn.fullHpMult); if (_fhmA && t.curHp === t.hp) { dmg = Math.max(1, Math.floor(dmg * _fhmA)); if (_allyInTriple) _allyTripleFhmUsed = true; } }   // 🏺 遺忘者的狙擊弓：三重矢對滿血×2（每次施放最多 1 箭·對齊玩家「僅第一箭」·防第1箭擊殺滿血怪後轉目標再吃×2）／一般攻擊對滿血×3（傭兵鏡像玩家·_allyInTriple 區分兩者）
@@ -736,6 +742,22 @@ function allyAttackOnce(ally, _arrowDelay) {   // 🏹 v3.2.14 _arrowDelay(選�
         if (t.curHp > 0 && wpn && wpn.onHitEleDmg && (!wpn.onHitEleDmg.rate || Math.random() * 100 < wpn.onHitEleDmg.rate)) { let _oh = wpn.onHitEleDmg; t.curHp -= _oh.dmg; t.justHit = _oh.ele; mobWake(t); logCombat(`<span class="font-bold" style="color:${RELIC_ELE_COLOR[_oh.ele] || '#e2e8f0'};">【協力·${ally._allyName}】附加 ${_oh.dmg} 點${RELIC_ELE_LABEL[_oh.ele] || ''}屬性傷害。</span>`, 'player'); }   // 🏺 rate：火焰長劍 3%（傭兵鏡像玩家）
         if (t.curHp > 0 && wpn && wpn.frozenBonusDmg && t.st && t.st.freeze > 0) { t.curHp -= wpn.frozenBonusDmg; t.justHit = 'water'; mobWake(t); logCombat(`<span class="font-bold text-sky-300">【協力·${ally._allyName}·${wpn.n}】</span>對冰凍目標追加 ${wpn.frozenBonusDmg} 點傷害。`, 'player'); }   // 🏺 v3.5.27 水靈的魔力珠（傭兵鏡像玩家 js/04）
         if (t.curHp > 0) { let _whb = _relicWeakHitBonus(ally); if (_whb > 0) { let _we = getWpnEle(ally.eq ? ally.eq.wpn : null, wpn); if (_we && _we !== 'none' && elementCounterMult(_we, t.e) > 1) { t.curHp -= _whb; t.justHit = _we; mobWake(t); logCombat(`<span class="font-bold text-amber-300">【協力·${ally._allyName}·弱點洞察】</span>額外造成 ${_whb} 點傷害。`, 'player'); } } }
+        // 🏺 v3.7.20 無限火藥爆裂矢（傭兵箭矢·鏡像玩家 js/04）：遠距離命中 10% 追加 50 點火屬性固定傷害
+        if (t.curHp > 0 && isRanged && ally.eq && ally.eq.arrow) { let _aad = DB.items[ally.eq.arrow.id]; if (_aad && _aad.onHitEleDmg && (!_aad.onHitEleDmg.rate || Math.random() * 100 < _aad.onHitEleDmg.rate)) { let _ah = _aad.onHitEleDmg; t.curHp -= _ah.dmg; t.justHit = _ah.ele; mobWake(t); logCombat(`<span class="font-bold" style="color:${RELIC_ELE_COLOR[_ah.ele] || '#e2e8f0'};">【協力·${ally._allyName}·${_aad.n}】</span>火藥炸裂，追加 ${_ah.dmg} 點${RELIC_ELE_LABEL[_ah.ele] || ''}屬性傷害。`, 'player'); } }
+        // 🏺 v3.7.20 戰士的漆黑之劍（傭兵 traumaProc·鏡像玩家 js/04）：命中 5% 附加創傷（+5/層·6 秒·最多 2 層）
+        if (t.curHp > 0 && wpn && wpn.traumaProc && Math.random() * 100 < wpn.traumaProc.pct) {
+            let _tp = wpn.traumaProc, _tc = (t._trauma && t._trauma.until > state.ticks) ? t._trauma.s : 0;
+            t._trauma = { s: Math.min(_tp.maxStacks || 2, _tc + 1), dmg: _tp.dmg || 5, until: state.ticks + (_tp.dur || 6) * 10 };
+            logCombat(`<span class="font-bold" style="color:#f87171;">【協力·${ally._allyName}·${wpn.n}】</span><span class="${getMobColor(t.lv)}">${t.n}</span> 陷入創傷！（${t._trauma.s} 層）`, 'player');
+        }
+        // 🏺 v3.7.20 斬首的巨大鐮刀（傭兵 crushInstakill·鏡像玩家 js/04）：重擊即死等級較低的非頭目（逐傭兵獨立 3 秒冷卻·回復 30 HP）
+        if (t.curHp > 0 && wpn && wpn.crushInstakill && heavy && (t.lv || 0) < (ally.lv || 1) && !t.boss && !t.trollPlayer && (ally._scytheIkAt || 0) <= state.ticks) {
+            let _ci = wpn.crushInstakill, _ri3 = mapState.mobs.findIndex(m => m && m.uid === t.uid);
+            if (_ri3 !== -1 && tryInstakill(t, { p: 1, tag: null }, `【協力·${ally._allyName}】${wpn.n}`, _ri3)) {
+                ally._scytheIkAt = state.ticks + (_ci.cdSec || 3) * 10;
+                if (_ci.healHp) ally.curHp = Math.min(ally.mhp || 1, (ally.curHp || 0) + _ci.healHp);
+            }
+        }
     }
     let ri = mapState.mobs.findIndex(m => m && m.uid === t.uid);
     if (t.curHp <= 0) { if (ri !== -1) killMob(ri); } else renderMobs();
@@ -1355,6 +1377,7 @@ function allyLaiaWandHitProc(ally, t) {
     dd = Math.max(1, Math.floor(dd * enhanceWpnFinalMult(en, w)));   // 🔧 武器強化 +11~+20：最終傷害倍率（取代舊 (1+強化/10)）
     dd = Math.max(1, Math.floor(dd * elementCounterMult(sp.ele, t.e)));   // ⚔️ 屬性剋制倍率（取代舊 +6 固定加值）
     if (t.st && t.st.mrhalf > 0) t.st.mrhalf = 0;
+    if (typeof playSpellFx === 'function') { try { playSpellFx(sp.skn || '冰裂術', t); } catch (e) {} }   // ❄️ v3.7.43 鏡像玩家側(js/04)：傭兵觸發也要疊法術特效（未註冊者自動略過）
     logCombat(`<span class="font-bold" style="color:#93c5fd;text-shadow:0 0 6px #2563eb;">【協力·${ally._allyName}·${sp.skn || '冰裂術'}】</span>對 <span class="${getMobColor(t.lv)}">${t.n}</span> 造成 ${dd} 點水屬性魔法傷害${wasFrozen ? '（冰碎!）' : ''}。`, 'player-special');
     _allyDamageMob(ally, t, dd, sp.ele, 'magic');
     if (t.curHp > 0) applyMobStatus(t, { kind: 'freeze', pbase: sp.freezePbase, dur: 6 }, sp.skn || '冰裂術');   // 機率冰凍
@@ -1415,6 +1438,42 @@ function allyWeaponProcs(ally, target, hitInfo, instOverride) {
     if (wpn.procPoison) applyWeaponProcPoison(target, wpn.procPoison, wpnEnFinalMult(wpnInst), _dpsAllySrc(ally));   // 🔧 死亡之指：傭兵攻擊時毒咒（與玩家一致·吃武器強化最終倍率）；🎯 DPS 歸該傭兵
     if (wpn.procBurstPoison) applyWeaponBurstPoison(target, wpn.procBurstPoison, capWpnEn(wpnInst.en), wpnEnFinalMult(wpnInst), _dpsAllySrc(ally));   // 💥 破壞雙刀/鋼爪：傭兵攻擊時猛爆劇毒（與玩家一致·吃武器強化最終倍率）；🎯 DPS 歸該傭兵
     if (wpn.procStatusSkill) { let _sv = player; player = ally; try { applyWeaponProcStatusSkill(target, wpn.procStatusSkill); } finally { player = _sv; } }   // 🌑 惡魔王武器：傭兵攻擊時施放疾病術（以傭兵自身魔法命中判定）
+    // 🏺 鋼鐵僧侶的錫杖（傭兵）：命中後觸發體力回復術，使用傭兵能力治癒全隊。
+    if (wpn.procHealSkill && hitInfo && hitInfo.hit && Math.random() * 100 < (wpn.procHealSkill.rate || 5)) {
+        let _hs = DB.skills[wpn.procHealSkill.skId];
+        if (_hs && typeof rollHealingSpell === 'function') {
+            let _hc = (typeof healBeneficiaries === 'function') ? healBeneficiaries() : [ally];
+            let _ht = 0, _hn = 0;
+            _hc.forEach(c => {
+                let _b = (typeof _supHp === 'function') ? _supHp(c) : (c === player ? player.hp : (c.curHp != null ? c.curHp : c.hp));
+                let _h = 0; try { _h = rollHealingSpell(_hs, ally.d || {}, ally, c); } catch (e) { _h = 30; }
+                _h = Math.max(1, _h);
+                if (typeof _supHeal === 'function') _supHeal(c, _h); else if (c === player) player.hp = Math.min(player.mhp, player.hp + _h); else if (c.curHp != null) c.curHp = Math.min(c.mhp, (c.curHp || 0) + _h); else c.hp = Math.min(c.mhp, (c.hp || 0) + _h);
+                let _a = (typeof _supHp === 'function') ? _supHp(c) : (c === player ? player.hp : (c.curHp != null ? c.curHp : c.hp));
+                _ht += Math.max(0, _a - _b); _hn++;
+            });
+            logCombat(`<span class="font-bold text-emerald-300">【協力·${ally._allyName}·${wpn.n}】</span>錫杖鳴響，觸發 ${_hs.n}！治癒全隊 ${_hn} 名成員，共恢復 ${_ht} 點 HP。`, 'heal', 'mercenary');
+            updateUI();
+            if (typeof renderSquadPanel === 'function') renderSquadPanel();
+        }
+    }
+    // 🏺 v3.7.20 解除封印的巴風特魔杖（傭兵 procDualSkill·鏡像玩家）：攻擊時 rate% 熾焰地裂術（地+火各擲 dice·以傭兵衍生值結算）
+    if (wpn.procDualSkill && Math.random() * 100 < (wpn.procDualSkill.rate || 25)) {
+        let _dt = _allyProcTarget(target);
+        if (_dt) {
+            let _pd = wpn.procDualSkill, _tot = 0;
+            let _effMr = (_dt.st && _dt.st.mrhalf > 0) ? (_dt.mr / 2) : _dt.mr;
+            let _mrF = mrMult(_effMr);
+            _pd.parts.forEach(pt => {
+                let _co = weaponMagicDamageCoef(ally.d || {}, wpn, _dt, pt[2] || 'none');
+                let _dd = Math.max(1, Math.floor(roll(pt[0], pt[1]) * _co * _mrF));
+                _dd = Math.max(1, Math.floor(_dd * elementCounterMult(pt[2] || 'none', _dt.e)));
+                _tot += _dd;
+            });
+            logCombat(`<span class="font-bold" style="color:#fb923c;text-shadow:0 0 6px #ea580c;">【協力·${ally._allyName}·${_pd.skn}】</span>地火同崩，對 <span class="${getMobColor(_dt.lv)}">${_dt.n}</span> 造成 ${_tot} 點傷害。`, 'player');
+            _allyDamageMob(ally, _dt, _tot, 'fire');
+        }
+    }
     // 🏺 v3.1.80 思克巴女皇的熱情魔杖（傭兵）：攻擊時 10% 機率隨機觸發一個火屬性傷害法術（鏡像玩家 weaponSpellProc）
     if (wpn.procFireSkillRate && Math.random() * 100 < wpn.procFireSkillRate) {
         let _ft = _allyProcTarget(target);
@@ -2201,7 +2260,7 @@ function healBeneficiaries() {   // 全部「能被治癒/HoT 惠及」的存活
     return arr;
 }
 function _supHp(m) { return (m === player) ? (m.hp || 0) : (m && m.curHp != null ? (m.curHp || 0) : (m ? (m.hp || 0) : 0)); }   // 傭兵=curHp·其餘=hp
-function _supMhp(m) { return (m && m.mhp) || 1; }
+function _supMhp(m) { if (m && m !== player && m.curHp == null && m.form && typeof PET_BOOK !== 'undefined' && PET_BOOK[m.form] && typeof petMhpEff === 'function') return petMhpEff(m); return (m && m.mhp) || 1; }   // 🏺 v3.7.20 寵物治癒上限含 petHpAll 光環（蜥蜴領主的王冠 +100）
 function _supHeal(m, amt) { let mx = _supMhp(m), v = Math.min(mx, _supHp(m) + amt); if (m === player) m.hp = v; else if (m.curHp != null) m.curHp = v; else m.hp = v; }
 function _supName(m) { if (m === player) return (player && player.name) || '你'; if (m && m.curHp != null) return '協力·' + (m._allyName || '傭兵'); if (m && m.skId) return '召喚·' + (m.form || '召喚物'); return '寵物·' + ((m && m.form) || '夥伴'); }
 function _supStatuses(m) { return (m && m.statuses) ? m.statuses : ((m && m._statuses) ? m._statuses : null); }   // 玩家/傭兵=statuses·寵物=_statuses
@@ -2265,6 +2324,14 @@ function _mercAutoOn(ally, sid) {
     return !!(ally && ally.config && ally.config.autoBuffSkills && ally.config.autoBuffSkills[sid]);   // 否則沿用來源角色存檔的自動施放勾選快照
 }
 // 🔮 v2.7.96 幻術士傭兵立方屬性抗性 rider（補 parity）：玩家立方 buff 給 d:{resFire/resEarth/resWind:+30}(recompute 讀 player.buffs)；傭兵立方走 allyCubeTick 不寫 ally.buffs→抗性原本拿不到。改在重算後(buildAlly/_allyLevelRecompute)直接補「已學會＋來源有勾自動施放」的立方抗性到 ally.d（與 allyCubeTick 傷害的勾選閘一致；受屬性攻擊時 js/04:891-894/1007-1010 讀 ally.d.res*）。
+// Helmet-granted and learned versions are the same buff. Prefer the helmet version when both are enabled.
+const _MERC_HELM_BUFF_PRIORITY = { sk_ench_wpn: 'sk_helm_str1', sk_dex_up: 'sk_helm_dex1', sk_reveal: 'sk_helm_str2' };
+function _mercPreferredHelmBuffCovers(ally, sid) {
+    let preferred = _MERC_HELM_BUFF_PRIORITY[sid];
+    if (!preferred || !ally) return false;
+    if (ally.buffs && (ally.buffs[preferred] || 0) > 0) return true;
+    return !!(ally.skills && ally.skills.includes(preferred) && _mercAutoOn(ally, preferred));
+}
 function _applyMercCubeRes(ally) {
     if (!ally || ally.cls !== 'illusion' || !ally.d || !ally.skills) return;
     ['sk_illu_cube_burn', 'sk_illu_cube_quake', 'sk_illu_cube_shock'].forEach(function(sid) {
@@ -2357,6 +2424,7 @@ function allyMaintainBuffs(ally) {
             //    存於 config.autoBuffSkills（buildAlly 深拷貝已帶入傭兵快照）。傭兵原本無條件維持「所有已學 buff」→會維持玩家根本沒開的 buff 白扣 MP（王族/龍騎士尤其明顯：MP 只出不進）。
             //    改為：只維持「來源角色有勾選自動施放」的 buff（沒有 config 或未勾＝不維持·與該角色親自遊玩時完全一致）。⚠️summon/HoT 走各自區塊·此閘只管 _isMercSelfBuff 自我增益。
             if (!_mercAutoOn(ally, sid)) continue;
+            if (_mercPreferredHelmBuffCovers(ally, sid)) continue;   // Equivalent helmet buff is active/enabled; do not spend MP on the learned duplicate.
             if (typeof TEAM_AURA_SKILLS !== 'undefined' && TEAM_AURA_SKILLS.includes(sid) && _teamAuraHas(sid, ally)) continue;   // 🌟 v3.0.99 團隊光環：隊上其他隊員已維持中→不重複施放（全隊只需一個來源·免白耗MP）
             // 🩹 v3.0.107 移除「以主要玩家 buff 為判斷依據」閘（原 v2.6.50）：_isMercSelfBuff 全是「自我增益」——靈魂昇華(自身 mHP/mMP×1.2)、力量/敏捷/防禦/武器附魔/加速…都只加持「施法者本人」，主玩家身上有不代表傭兵有。原閘害「主角(法師)也放同一 buff 時，傭兵法師永遠不自我增益」（用戶回報：傭兵法師點亮靈魂昇華卻不施放）。MP 浪費已由 opt-in 開關(_mercAutoOn)把關；團隊光環(TEAM_AURA)另由上方 _teamAuraHas 閘控制·不受此改動影響。
             if ((ally.buffs[sid] || 0) > 0) continue;   // 已生效（含 noRefresh 語意）；保留「自身」守衛避免同一秒重複施放/MP 空轉
@@ -2685,6 +2753,7 @@ function allyTryHeal(ally) {
 //   ・安全線=0／無設定＝關閉；隊長無該藥水：若勾「自動購買藥水」→ 傭兵喝藥水也會觸發自動補貨（v2.6.43·補到 100 瓶）、否則略過。只認 val 型治癒藥水（紅/橙/白），加速/勇敢等無 val 藥水不喝。
 function allyTryPotion(ally) {
     if (!ally || ally._downed) return;
+    if (typeof pvpArenaPotionBlocked === 'function' && pvpArenaPotionBlocked()) return;   // 🚫 v3.7.17 決鬥中禁治癒藥水（傭兵決鬥時本來就在場邊·此閘為保險）
     let thr = allyPotHpPct(ally);   // 🍶 v2.6.4：喝藥水門檻(獨立·回退舊 _hpSafePct)
     if (thr <= 0) return;                                   // 門檻=0＝關閉
     if ((ally._potCd || 0) > 0) return;                     // 冷卻中
@@ -2880,7 +2949,7 @@ const MERC_LEDGER_KEY = 'fb5_merc_exp_ledger';
 const MERC_LEDGER_LOCK_KEY = 'fb5_merc_exp_ledger_lock';
 const MERC_LEDGER_LOCK_TTL = 5000;                         // 鎖逾時：持鎖分頁當機/被關 → 5 秒後他人可搶（正常操作持鎖僅數毫秒）
 const MERC_LEDGER_KEEP_CLAIMED = 7 * 24 * 3600 * 1000;     // 已領紀錄保留 7 天供查帳後清除
-const MERC_LEDGER_KEEP_UNCLAIMED = 90 * 24 * 3600 * 1000;  // 未領紀錄保留 90 天（角色被刪除/改名則永遠領不到→到期清除）
+const MERC_LEDGER_KEEP_UNCLAIMED = 90 * 24 * 3600 * 1000;  // 未領紀錄保留 90 天（角色被刪除/同位重創則永遠領不到→到期清除；🪪 v3.7.32 起「改名」可領＝enSeed 相符即放行）
 let _mercLockToken = null;   // 🛡️ v2.6.69 審計#18：臨界區期間的持鎖 token（寫入前再驗一次·縮小 TOCTOU 窗口＋TTL 被奪鎖時中止續寫）
 function _mercLedgerLocked(fn) {   // 跨分頁鎖：搶到→執行 fn 回 true；搶不到→回 false（呼叫端排程重試）。set 後回讀驗 token＝雙寫競態後寫者勝、自己沒搶到就讓出。
     let token = 'T' + Date.now().toString(36) + '_' + Math.floor(Math.random() * 1e9).toString(36);
@@ -2976,8 +3045,14 @@ function mercExpClaimPending(_retry) {
             let led = _mercLedgerRead(), hit = false;
             led.forEach(r => {
                 if (!r || r.claimed) return;
-                if (String(r.slot) !== String(currentSlot) || r.cls !== player.cls || (r.name || '') !== (player.name || '')) return;   // 🛡️ 三重守衛：防換角/刪角誤領
-                if (r.enSeed && player.enSeed && r.enSeed !== player.enSeed) return;   // 🩹 v3.0.108 enSeed 唯一角色識別：同存檔位+同名+同職業但實為「重新創角的不同角色」→enSeed 不同→不誤領（舊紀錄無 enSeed 則沿用三重守衛）
+                if (String(r.slot) !== String(currentSlot) || r.cls !== player.cls) return;   // 🛡️ 基本守衛：存檔位＋職業
+                // 🪪 v3.7.32 改名安全（用戶指示）：enSeed＝創角時固定的唯一角色識別，改名不會變——
+                //    兩邊都有且相符＝同一角色→放行（名字不同也可領，改名後不再永遠領不到）；
+                //    兩邊都有但不同＝同存檔位重新創角的「別人」→擋（v3.0.108 防誤領不變）；
+                //    紀錄無 enSeed（舊帳）→退回名字守衛當後備。
+                let _seedSame = !!(r.enSeed && player.enSeed && r.enSeed === player.enSeed);
+                if (r.enSeed && player.enSeed && !_seedSame) return;
+                if (!_seedSame && (r.name || '') !== (player.name || '')) return;
                 total += Math.max(0, Math.floor(r.exp || 0));
                 r.claimed = true; r.claimedAt = Date.now(); hit = true;   // 標記已結算：同一筆只能領一次（跨分頁由鎖保證）
             });

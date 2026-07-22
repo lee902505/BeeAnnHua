@@ -81,11 +81,10 @@ function auditReset() {
 }
 function auditTrackKill(mob) {
     if (!mob || typeof getExpGainMult !== 'function') return;
-    // 🪆 必須乘上魔法娃娃 expBonus%（與經驗條實際入帳的 :318-319 同口徑），否則統計頁的「累積經驗／經驗每10分」會系統性低報最多 10%。
-    // 📊 v3.6.58 不直接使用 getExpGainMult(player.lv)，避免 Lv100 因回傳 0 讓統計整片歸零。
+    // 🪆 必須乘上魔法娃娃 expBonus%（與經驗條實際入帳同口徑），否則統計頁會低報。
+    // 📊 不直接使用 getExpGainMult(player.lv)，避免 Lv100 因回傳 0 讓統計整片歸零。
     //    ⭐ 特別版改乘 getGlobalExpMultiplier()：滿等仍可查看目前倍率下的地圖練功效率，實際 Lv100 仍不入帳。
-    //    ⚠️ 實際入帳仍在 killMob 下方；此處只記錄效率統計。
-    let g = Math.floor((mob.exp || 0) * (1 + partyExpBonusPct() / 100) / partyExpShareCount() * (1 + (typeof dollFieldVal === 'function' ? dollFieldVal('expBonus') : 0) / 100) * getGlobalExpMultiplier());   // 🤝 v3.0.87 效率統計記主玩家該份經驗
+    let g = Math.floor((mob.exp || 0) * (1 + partyExpBonusPct() / 100) / partyExpShareCount() * (1 + (typeof dollFieldVal === 'function' ? dollFieldVal('expBonus') : 0) / 100) * getGlobalExpMultiplier());   // 🤝 效率統計記主玩家該份經驗
     if (g > 0) _audit.exp += g;
     _audit.kills++;
 }
@@ -240,7 +239,7 @@ setInterval(() => { try { renderAuditTab(); } catch(e) {} }, 2000);   // 開著�
 // tick 內的擊殺由 gameLoop 在 tick 結束後統一清算；手動操作（點技能/道具）觸發的擊殺立即清算。
 // 好處：怪物迭代過程中陣列不再位移，徹底杜絕「怪物被跳過回合 / 索引指到錯的怪」這類隱性錯誤。
 // ⚠️v3.0.85 用戶指示：經典模式「掉落率 ×1/10」懲罰移除（歷次：v3.0.82 經驗×0.5／金幣÷2 移除 → v3.0.85 掉落×1/10 移除）。
-//   ⭐ BeeAnnHua 特別版：classicDropMult / trialItemDropMult 統一讀取集中掉寶倍率；固定必掉獎勵仍只發放一次。
+//   classicDropMult 恆 1 保留為單一真相掛點（十餘個掉落判定點仍乘它·未來要恢復懲罰只改這裡）；trialItemDropMult（試煉道具豁免）同步恆 1。
 //   經典模式現存差異：死亡損失 5% 經驗（時空裂痕/攻城區除外）、隱藏祝福/精通/席琳、停用武器/盾/騎士特效。
 function classicDropMult() { return getGlobalDropMultiplier(); }
 function trialItemDropMult(id) { return getGlobalDropMultiplier(); }
@@ -412,6 +411,7 @@ function killMob(idx) {
     if (mob.siegeEnemy && !mob.trollPlayer) pledgeBonusDrop(mob);
     if (mob.trollPlayer) {   // 😤 v3.5.59 白目玩家：擊殺→仇恨解除；10% 裝備掉落（經驗/金幣 0）
         if (!mob._siegePlayer && player.trollPlayers) player.trollPlayers = player.trollPlayers.filter(t => t && t.n !== mob.n);
+        if (!mob._siegePlayer && typeof pvpReleaseAlignLock === 'function') pvpReleaseAlignLock(mob.n);
         logSys(`<span class="text-amber-300 font-bold">你擊敗了 ${_trollDefeatNameHtml(mob)}，${_trollDefeatEnding()}</span>`);
         pledgeBonusDrop(mob, (typeof playerNpcDropRate === 'function') ? playerNpcDropRate(mob) : 0.10);   // ⚖️ v3.6.16 噴裝率依該 NPC 性向值 10%~3%（越邪惡越高·js/04 playerNpcDropRate）
         if (typeof playerNpcRelicDrop === 'function') playerNpcRelicDrop(mob);   // 🏺 v3.6.11 玩家 NPC 額外 0.001% 掉落隨機遺物（獨立判定·不排擠上方 10% 攜帶物）
@@ -426,14 +426,14 @@ function killMob(idx) {
     // === 怪物專屬掉落（依「怪物掉落資料.md」）：每樣物品各自獨立判定一次 ===
     let dropList = _kbNoReward ? [] : (MOB_DROPS[mob.n] || []);   // 🔧 魔獸軍王之室：除頭目外不掉落物品
     let _dropBase = (mob._grace ? 10 : (mob._sherine ? (mob._sherineMad ? 5 : 3) : 1));   // 🔮 席琳的世界 ×3（瘋狂×5）／恩賜怪 ×10
-    let _dropMult = _dropBase * classicDropMult();   // 涵蓋怪物掉落表／黑暗武器／黑精靈水晶／祝福卷軸／區域額外掉落（特別版倍率由集中設定控制）
+    let _dropMult = _dropBase * classicDropMult();   // 涵蓋怪物掉落表／黑暗武器／黑精靈水晶／祝福卷軸／區域額外掉落（classicDropMult 恆 1＝經典與一般同掉率·見上方 v3.0.85 說明）
     dropList.forEach(entry => {
         let itemId = entry[0];
         let ratePct = entry[1];               // 機率(%)
         if(!DB.items[itemId]) return;          // 該物品不存在於資料庫則略過
         if(trialDropBlocked(itemId)) return;   // 🔒 試煉兌換道具：僅本職擊殺才掉＋🔥 v3.0.78 須已接取對應試煉且未達需求數量
         if (typeof trialForced100 === 'function' && trialForced100(itemId)) { gainItem(itemId, 1); return; }   // 🔥 接取制試煉道具：通過閘門後 100% 掉落
-        let _clMult = (mob.n === '卡瑞' && itemId === 'wpn_dragonslayer') ? 1 : trialItemDropMult(itemId);   // 🔧 卡瑞·屠龍劍固定 100%；其餘隨機掉落讀取特別版集中倍率
+        let _clMult = (mob.n === '卡瑞' && itemId === 'wpn_dragonslayer') ? 1 : trialItemDropMult(itemId);   // 🔧 v2.6.75 卡瑞·屠龍劍固定 100%（獎勵已綁「擊殺消耗四任務道具」的成本）；trialItemDropMult 現恆 1
         let _relicX2 = 1;   // 🏺 v3.2.17 幸運暴走兔腳（遺物·需裝備）：遺物掉落機率 ×2
         if (DB.items[itemId].relic) { try { for (let _k in player.eq) { let _e = player.eq[_k]; if (_e && DB.items[_e.id] && DB.items[_e.id].relicDropX2) { _relicX2 = 2; break; } } } catch (e) {} }
         if(Math.random() < (ratePct * _dropBase * _clMult * _relicX2) / 100) gainItem(itemId, 1);
@@ -556,6 +556,8 @@ function settleDeadMobs() {
     if (_tgtDied) mapState.targetIdx = -1;
     if (typeof npcClanGroupBattleActive === 'function' && npcClanGroupBattleActive() &&
         typeof npcClanGroupBattleFill === 'function') npcClanGroupBattleFill();
+    if (typeof wcMassTauntGroupBattleActive === 'function' && wcMassTauntGroupBattleActive() &&
+        typeof wcMassTauntGroupBattleFill === 'function') wcMassTauntGroupBattleFill();
     if (changed) renderMobs();
     // 🔧 軍王之室：擊敗頭目（掉落已於 killMob 發放）後處理；補跑期間延後到回到即時再執行。
     //   身上仍有「軍王的鑰匙」→ 留在室內，清空全部怪物，5 秒後消耗 1 把鑰匙從頭復活軍王；
@@ -880,6 +882,7 @@ function drawRiftReward(stayMin) {   // 潘朵拉權重抽 1 件：<30分排除�
     let w1w = includeW1 ? Math.max(1, stayMin - 30) : 0;   // 30分→1、1小時(60分)→30
     let total = 0, pool = [];
     for (let id in DB.items) {
+        if (DB.items[id].eff === 'card') continue;   // 怪物卡只進黑市／收購 NPC，不加入裂痕獎勵池
         let w = DB.items[id].gachaWeight;
         if (w === undefined) w = 100;
         if (w <= 0) continue;

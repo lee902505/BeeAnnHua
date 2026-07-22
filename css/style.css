@@ -511,6 +511,9 @@
         #battle-view.area-fit .mob-target:not(.boss-slot) .mob-img-inner.mob-anim.mob-anim-big img { max-height: 185px !important; }
         /* 🏰 v3.3.8 攻城建築(城門/守護塔)固定站位：脫離站立帶 flex 流·絕對定位於整個 800×450 背景框(#battle-view 已 position:relative→容器塊＝整個框而非底部 242px 站立帶)。left/top 由 SIEGE_BUILD_POS inline 提供·translate(-50%,-50%) 卡片置中錨定；height 242 維持頭目 sprite 尺寸(justify-content:center→sprite 落在卡片中心≈錨點)。城門對齊背景城門處、守護塔置中。 */
         #battle-view.area-fit .mob-target.siege-fixed { position: absolute; height: 242px; width: auto; min-width: 96px; transform: translate(-50%, -50%); z-index: 4; }
+        /* ⚔️ v3.7.14 決鬥對手固定站位：幾何與 .siege-fixed 相同（絕對定位於 800×450 框·卡片中心錨點），
+           唯一差別是 z-index 1 < #player-morph-sprite 的 2 —— 對手站得比玩家遠(偏上)，重疊時必須被玩家擋住景深才對。 */
+        #battle-view.area-fit .mob-target.duel-fixed { position: absolute; height: 242px; width: auto; min-width: 96px; transform: translate(-50%, -50%); z-index: 1; }
         /* 🔻 v3.1.65 溢框動畫怪(MOB_ANIM_SMALL·js/09 加 .mob-anim-small·如希爾黛斯)：整體 max-height 降至 85%(較上方 100% 多一個 class → 特異性勝出)。本體+_s+_w 三層同吃此上限→等比縮小逐幀對齊；技能特效(anchored)依本體 rect 縮放→亦同步縮小。腳底對齊(object-position bottom)不變。修 v3.0.68 裁畫布過緊致 attack/death 撐到頂緣「超出圖片框」。 */
         #battle-view.area-fit .mob-target:not(.boss-slot):not(.boss-zoom) .mob-img-inner.mob-anim.mob-anim-small img { max-height: 85% !important; }
         /* 🧝 v3.0.46 玩家變身戰鬥 sprite（js/09 _playerMorphApply 懶建）：狩獵區最下方中間偏左·原生像素三層(影子 multiply/本體/武器 screen)。
@@ -518,7 +521,7 @@
         #player-morph-sprite { position: absolute; bottom: 4px; height: 1px; z-index: 2; pointer-events: none; overflow: visible; }
         #player-morph-sprite img { position: absolute; left: 0; bottom: 0; image-rendering: crisp-edges; image-rendering: pixelated; }
         #player-morph-sprite .pm-shadow { mix-blend-mode: multiply; }
-        /* 🤝 v3.0.70 隊員戰場 sprite（隊員1~3·結構同 #player-morph-sprite·bottom/z-index 由 JS 依 aggro 權重排前後） */
+        /* 🤝 v3.0.70 隊員戰場 sprite（結構同 #player-morph-sprite·bottom/z-index 由 JS 依招募順序固定站位·v3.6.89 取消權重排位） */
         .party-sprite { position: absolute; bottom: 4px; height: 1px; z-index: 2; pointer-events: none; overflow: visible; }
         .party-sprite img { position: absolute; left: 0; bottom: 0; image-rendering: crisp-edges; image-rendering: pixelated; }
         .party-sprite .pm-shadow { mix-blend-mode: multiply; }
@@ -1686,6 +1689,91 @@ button.classic-skill-cell { cursor:pointer; }
     opacity:.72;
     filter:drop-shadow(0 0 14px rgba(235,207,130,.28)) brightness(.86);
 }
+.load-offline-status {
+    position:absolute;
+    z-index:2;
+    inset:0;
+    pointer-events:none;
+    font-family:"Microsoft JhengHei", sans-serif;
+    letter-spacing:0;
+}
+.load-offline-badge {
+    position:absolute;
+    left:50%;
+    top:2.2%;
+    transform:translateX(-50%);
+    white-space:nowrap;
+    min-width:72px;
+    padding:4px 8px 3px;
+    border:1px solid rgba(74,222,128,.72);
+    border-radius:3px;
+    background:rgba(3,18,12,.88);
+    color:#86efac;
+    box-shadow:0 2px 5px rgba(0,0,0,.82), inset 0 1px 0 rgba(255,255,255,.08);
+    text-shadow:0 1px 2px #000, 0 0 5px rgba(34,197,94,.48);
+    font-size:14px;
+    font-weight:700;
+    line-height:1.2;
+    letter-spacing:0;
+    text-align:center;
+}
+.load-offline-badge strong,
+.load-offline-badge small {
+    display:block;
+    font:inherit;
+}
+.load-offline-badge small {
+    margin-top:2px;
+    color:#d9f99d;
+    font-size:11px;
+    font-weight:600;
+}
+.load-offline-detail {
+    position:absolute;
+    left:4%;
+    right:4%;
+    bottom:2.5%;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    min-width:0;
+    padding:7px 8px 6px;
+    border-top:1px solid rgba(148,163,184,.3);
+    background:linear-gradient(180deg, rgba(2,6,23,0), rgba(2,6,23,.86) 24%, rgba(2,6,23,.94));
+    color:#e2e8f0;
+    text-shadow:0 1px 3px #000;
+    font-size:12px;
+    line-height:1.25;
+}
+.load-offline-detail > small {
+    color:#cbd5e1;
+    font-size:11px;
+}
+.load-offline-detail > strong {
+    display:flex;
+    justify-content:center;
+    gap:10px;
+    width:100%;
+    margin-top:2px;
+    white-space:nowrap;
+    font-size:14px;
+}
+.load-offline-detail b {
+    font-weight:800;
+}
+.load-offline-exp { color:#86efac; }
+.load-offline-gold { color:#fde047; }
+.load-offline-detail > em {
+    display:block;
+    max-width:100%;
+    margin-top:2px;
+    overflow:hidden;
+    color:#cbd5e1;
+    font-size:11px;
+    font-style:normal;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+}
 .load-slot-card.selected::after {
     display:none;
 }
@@ -2067,6 +2155,12 @@ button.classic-skill-cell { cursor:pointer; }
         box-shadow: inset 0 0 20px rgba(0,0,0,.72);
     }
     .load-slot-card img { transform: scale(1.02); }
+    .load-offline-badge { top:6px; min-width:64px; padding:3px 6px 2px; font-size:12px; }
+    .load-offline-badge small { font-size:10px; }
+    .load-offline-detail { left:3px; right:3px; bottom:3px; padding:5px 3px 4px; font-size:10px; }
+    .load-offline-detail > small,
+    .load-offline-detail > em { font-size:9px; }
+    .load-offline-detail > strong { gap:5px; font-size:11px; }
     .load-slot-card[data-key="m_warrior"] img,
     .load-slot-card[data-key="f_warrior"] img { transform: scale(1.16); }
     #load-page-tabs {
@@ -2252,8 +2346,11 @@ button.classic-skill-cell { cursor:pointer; }
 }
 
 /* ===== Unified floating-window palette ===== */
+/* ⚔️ v3.7.12 決鬥競技場的兩個視窗(#pvp-arena-modal 挑戰面板／#pvp-result-modal 勝負結果)一併納入
+   這套皮膚——原本 js/28 自帶深藍＋紅框的 inline 配色，與全遊戲的炭黑＋暗銅浮動視窗格格不入。 */
 :is(#autosell-rule-modal, #autosell-preview-modal, #poly-modal, #osiris-box-modal,
     #summon-select-overlay, #pet-evo-overlay, #pet-gear-overlay,
+    #pvp-arena-modal, #pvp-result-modal,
     #card-book, #equip-book, #misc-book, #relic-book, #collection-panel) {
     background: rgba(12, 11, 15, .80) !important;
     backdrop-filter: blur(3px);
@@ -2262,6 +2359,7 @@ button.classic-skill-cell { cursor:pointer; }
 :is(#autosell-rule-modal .as-box, #autosell-preview-modal > div,
     #poly-modal > div, #osiris-box-modal > div,
     #summon-select-overlay > div, #pet-evo-overlay > div, #pet-gear-overlay > div,
+    #pvp-arena-modal > div, #pvp-result-modal > div,
     #card-book > div, #equip-book > div, #misc-book > div, #relic-book > div,
     #collection-panel > div, #modal-compare, #item-modal > div:not(#modal-compare)) {
     color: #e5e1dc !important;
@@ -2287,6 +2385,7 @@ button.classic-skill-cell { cursor:pointer; }
 #autosell-rule-modal .as-head,
 #autosell-preview-modal strong,
 :is(#poly-modal, #osiris-box-modal, #summon-select-overlay, #pet-evo-overlay, #pet-gear-overlay) h2,
+#pvp-arena-modal h3,
 #town-interaction-container h3 {
     color: #e7d2a7 !important;
     text-shadow: 1px 1px 0 #000, 0 0 5px rgba(177,132,84,.30) !important;
@@ -2298,12 +2397,14 @@ button.classic-skill-cell { cursor:pointer; }
 }
 :is(#card-book-body, #equip-book-body, #misc-book-body, #relic-book-body) [class*="bg-slate-"],
 #warehouse-window-content [class*="bg-slate-"],
+:is(#pvp-arena-modal, #pvp-result-modal) [class*="bg-slate-"],
 #tab-audit [class*="bg-slate-"],
 #tab-clan [class*="bg-slate-"] {
     background-color: #292832 !important;
 }
 :is(#card-book-body, #equip-book-body, #misc-book-body, #relic-book-body) [class*="border-slate-"],
 #warehouse-window-content [class*="border-slate-"],
+:is(#pvp-arena-modal, #pvp-result-modal) [class*="border-slate-"],
 #tab-audit [class*="border-slate-"],
 #tab-clan [class*="border-slate-"] {
     border-color: #594638 !important;
@@ -2312,6 +2413,7 @@ button.classic-skill-cell { cursor:pointer; }
 :is(#card-book, #equip-book, #misc-book, #relic-book, #collection-panel,
     #autosell-rule-modal, #autosell-preview-modal,
     #poly-modal, #osiris-box-modal, #summon-select-overlay,
+    #pvp-arena-modal, #pvp-result-modal,
     #pet-evo-overlay, #pet-gear-overlay, #town-interaction-container) button {
     color: #eee7dc !important;
     border-color: #765036 !important;
@@ -2321,6 +2423,7 @@ button.classic-skill-cell { cursor:pointer; }
 :is(#card-book, #equip-book, #misc-book, #relic-book, #collection-panel,
     #autosell-rule-modal, #autosell-preview-modal,
     #poly-modal, #osiris-box-modal, #summon-select-overlay,
+    #pvp-arena-modal, #pvp-result-modal,
     #pet-evo-overlay, #pet-gear-overlay, #town-interaction-container) button:hover:not(:disabled) {
     color: #fff0d8 !important;
     border-color: #ad8052 !important;
@@ -2394,16 +2497,20 @@ button.classic-skill-cell { cursor:pointer; }
 #autosell-rule-modal select,
 #town-interaction-container input,
 #town-interaction-container select,
+#town-interaction-container textarea,
+:is(#pvp-arena-modal, #pvp-result-modal) :is(input, select, textarea),
 #tab-audit input,
 #tab-clan input {
     color: #eee9e1 !important;
-    border-color: #665449 !important;
+    border: 1px solid #665449 !important;
     background: #19181e !important;
 }
 #autosell-rule-modal input:focus,
 #autosell-rule-modal select:focus,
 #town-interaction-container input:focus,
 #town-interaction-container select:focus,
+#town-interaction-container textarea:focus,
+:is(#pvp-arena-modal, #pvp-result-modal) :is(input, select, textarea):focus,
 #tab-audit input:focus,
 #tab-clan input:focus { border-color: #b18454 !important; outline: none; }
 
@@ -2524,7 +2631,26 @@ button.classic-skill-cell { cursor:pointer; }
 .pandora-buy-cancel { flex: none; color: #d6a5a5; text-decoration: underline; font-size: 11px !important; }
 .pandora-market-grid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 6px; }
 .pandora-market-card { min-width: 0; min-height: 39px; gap: 7px; padding: 4px 6px; }
+.pandora-collection-icon { position: relative; width: 29px; height: 29px; flex: 0 0 29px; overflow: visible; }
 .pandora-card-icon { width: 29px; height: 29px; }
+.pandora-collection-badge {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    z-index: 2;
+    padding: 1px 2px;
+    border: 1px solid #d75a5a;
+    border-radius: 2px;
+    background: #5f2020;
+    color: #ffd4d4;
+    font-size: 8px;
+    font-weight: 700;
+    line-height: 10px;
+    letter-spacing: 0;
+    white-space: nowrap;
+    box-shadow: 0 1px 3px rgba(0,0,0,.65);
+    pointer-events: none;
+}
 .pandora-card-name { font-size: 12px; line-height: 1.15; }
 .pandora-card-price { margin-top: 3px; font-size: 11px; }
 .pandora-card-price span { font-size: 9px; }
@@ -2618,6 +2744,7 @@ button.classic-skill-cell { cursor:pointer; }
     min-width: 0;
     margin: 13px 0 6px;
 }
+.pandora-relic-target .pandora-collection-icon { width: 31px; height: 31px; flex-basis: 31px; }
 .pandora-relic-target img { width: 31px; height: 31px; flex: none; object-fit: contain; }
 .pandora-relic-target b { min-width: 0; overflow: hidden; font-size: 11px; line-height: 1.2; text-overflow: ellipsis; white-space: nowrap; }
 .pandora-relic-reqs { display: grid; gap: 3px; }
@@ -2819,6 +2946,12 @@ button.classic-skill-cell { cursor:pointer; }
     color: #f4df9e;
 }
 .wandering-shout-menu .wandering-taunt-entry { color: #f3b5a9; }
+/* 🛡️ v3.6.77 世界頻道點名字時的血盟標頭（無盟不輸出這個元素→不佔位） */
+.wandering-shout-menu .wc-menu-clan {
+    padding: 5px 14px 6px; margin-bottom: 3px;
+    border-bottom: 1px solid rgba(183, 146, 62, .35);
+    color: #a5f3fc; font-size: 12px; font-weight: bold; white-space: nowrap; text-align: left;
+}
 .wandering-shout-menu .wandering-taunt-entry:hover {
     background: rgba(153, 63, 51, .24);
     color: #ffd2c8;
@@ -3224,3 +3357,4 @@ html.mobile-pinch-layout #sys-log {
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
 }
+

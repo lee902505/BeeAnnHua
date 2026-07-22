@@ -1,6 +1,6 @@
-/** 遊戲核心資料庫 */
+﻿/** 遊戲核心資料庫 */
 // 🏷️ 遊戲版本號（顯示於登入頁面下方·單一真相來源）：更新版本時只改這一行，登入頁面自動同步。
-const GAME_VERSION = 'v3.6.76';
+const GAME_VERSION = 'v3.7.43';   // 🏷️ 版本號：末段 0~99 線性遞增，達 100 進位（中位 +1、末段歸 0）
 
 // ===== ⭐ BeeAnnHua 特別版集中設定（之後要調整只改這裡） =====
 // expMultiplier：整體經驗倍率（玩家／傭兵／寵物）
@@ -20,6 +20,7 @@ function specialEditionNumber(key, fallback) {
 }
 function getGlobalExpMultiplier() { return specialEditionNumber('expMultiplier', 1); }
 function getGlobalDropMultiplier() { return specialEditionNumber('dropMultiplier', 1); }
+
 // ===== 💾 存檔壓縮（LZString compressToUTF16/decompressFromUTF16·MIT, Pieroxy）：localStorage 內部以 UTF-16 壓縮，省 ~89%，繞過 5MB 上限 =====
 //  ⚠️ 只壓 localStorage（存檔位/倉庫/共用桶/_bak）；匯出檔維持明文 JSON（可攜·importSave 用 JSON.parse 驗證）。_lzGet 相容舊明文存檔（無 'LZ1:' 前綴→原樣回傳）。
 var LZString = (function () {
@@ -909,6 +910,25 @@ const DB = {
         // 🥚 v3.6.62 遺物第二十一批（2 件·0.0001% 單怪掉落）：破滅蛋／災厄蛋＝補完四蜥蜴的取得管道（PET_BOOK 早已定義·此前只有詛咒/厄運兩顆蛋有來源）。分派見 js/08 RELIC_EGG_PETS 表
         "relic_doomsday_egg":      { n: "充滿破滅氣息的蛋", type: "etc", relic: true, eff: "doomsdayegg", req: "all", p: 10000, c: "text-purple-300", gachaWeight: 0, d: "【遺物】遺忘之島飛龍守著的蛋，殼上翻湧著揮之不去的破滅氣息。使用後獲得 破滅蜥蜴（自動存入寵物保管；寵物保管已滿時無法使用、蛋不會消失）。" },
         "relic_calamity_egg":      { n: "充滿災厄氣息的蛋", type: "etc", relic: true, eff: "calamityegg", req: "all", p: 10000, c: "text-purple-300", gachaWeight: 0, d: "【遺物】深淵地靈周身塵土凝成的蛋，殼上沉積著揮之不去的災厄氣息。使用後獲得 災厄蜥蜴（自動存入寵物保管；寵物保管已滿時無法使用、蛋不會消失）。" },
+        // 🏺 v3.7.20 遺物第二十二批（18 件·各 0.0001% 單怪掉落）
+        "relic_maze_demon_glare":  { n: "迷宮惡魔的瞥視",     type: "wpn", w2h: true, relic: true, noEnhance: true, dmgS: 22, dmgL: 24, hit: 14, dmgBonus: 14, eff: "crush", ignHardSkin: true, atkSpdPct: 30, missGrazeRate: 100, grazeDmgPct: 30, req: "royal,knight,illusion,dragon,warrior", p: 10000, gachaWeight: 0, d: "【遺物】迷宮深處惡魔的瞥視凝成的雙手鈍器，被盯上的獵物無處可逃。重擊（一般限定）；貫穿；攻擊速度增加 30%；一般攻擊未命中時改為挫傷，造成 30% 傷害（挫傷不會爆擊）。" },
+        "relic_lining_chainshirt": { n: "盔甲內襯鎖鏈衣",     type: "arm", slot: "tshirt", relic: true, noEnhance: true, ac: 6, liningChain: true, req: "all", p: 10000, gachaWeight: 0, d: "【遺物】穿在盔甲底下的細密鎖鏈衣，替輕便的護甲補上第二層防線。若裝備防禦 6 以下的盔甲（含未強化 AC-0～AC-6），額外獲得 AC-10 與 MR+10。" },
+        "relic_icefang_armguard":  { n: "冰牙虎臂甲",         type: "arm", slot: "shield", armguard: { stat: "none", base: 0, th: [0, 0, 0] }, relic: true, noEnhance: true, ac: 0, dex: 2, extraHit: 5, req: "all", p: 10000, gachaWeight: 0, d: "【遺物】冷酷冰原老虎的獠牙磨成的臂甲，握武器的手穩得像結了冰。敏捷 +2、額外命中 +5。臂甲（裝於副手，可與雙手武器並用）。" },
+        "relic_powder_arrow":      { n: "無限火藥爆裂矢",     type: "wpn", isArrow: true, noConsume: true, relic: true, noEnhance: true, dmgS: 8, dmgL: 14, onHitEleDmg: { dmg: 50, ele: "fire", rate: 10 }, req: "royal,knight,elf,mage,dark,illusion,dragon", p: 10000, gachaWeight: 0, d: "【遺物】填滿火藥的爆裂箭矢，射出後總會自己回到箭筒。裝備在箭矢欄位，視同箭矢但不會被消耗；裝備遠距離武器時，一般攻擊命中有 10% 機率追加 50 點火屬性傷害（固定值，不受魔法傷害影響）。" },
+        "relic_lizardlord_crown":  { n: "蜥蜴領主的王冠",     type: "arm", slot: "helm", relic: true, noEnhance: true, ac: 7, cha: 1, petHpAll: 100, petMpRAll: 5, petMdmgAll: 3, req: "all", p: 10000, gachaWeight: 0, d: "【遺物】統領蜥蜴的王冠，戴上後所有寵物都對你俯首聽命。寵物 HP+100、MP 自然恢復量 +5、魔法傷害 +3；魅力 +1。" },
+        "relic_steelmonk_staff":   { n: "鋼鐵僧侶的錫杖",     type: "wpn", w2h: true, isWand: true, relic: true, noEnhance: true, dmgS: 18, dmgL: 18, hit: 15, dmgBonus: 16, eff: "magicstrike", ignHardSkin: true, atkSpdPct: 30, str: 5, procHealSkill: { skId: "sk_regen", rate: 5 }, req: "mage", p: 10000, gachaWeight: 0, d: "【遺物】鋼鐵僧侶隨身的錫杖，環音每一響都同時是祝禱與重擊。魔擊（一般限定）；貫穿；攻擊速度增加 30%；一般攻擊命中時 5% 機率觸發體力回復術；力量 +5。" },
+        "relic_elder_obsidian_orb":{ n: "長老的黑曜水晶球",   type: "arm", slot: "shield", relic: true, noEnhance: true, ac: 8, block: 10, int: 3, mr: 10, mpR: 10, crushTornado: true, req: "mage,illusion", p: 10000, gachaWeight: 0, d: "【遺物】黑長者懷中的黑曜水晶球，球心封存著一整場風暴。格檔 10（一般限定）；智力 +3、MR+10、MP 自然恢復量 +10；被重擊時，對敵方全體施放龍捲風。" },
+        "relic_myriad_avatar":     { n: "百變化身",           type: "arm", slot: "gloves", relic: true, noEnhance: true, ac: 8, polyAtkSpdPct: 20, polyAllStats: 2, req: "all", p: 10000, gachaWeight: 0, d: "【遺物】變形怪首領蛻下的表皮製成的手套，戴上的人連骨相都跟著改變。變身時：攻擊速度增加 20%、全屬性 +2。" },
+        "relic_unsealed_baphomet_wand": { n: "解除封印的巴風特魔杖", type: "wpn", isWand: true, relic: true, noEnhance: true, dmgS: 7, dmgL: 6, hit: 20, dmgBonus: 17, ignHardSkin: true, mdmg: 3, extraMp: 3, procDualSkill: { skn: "熾焰地裂術", rate: 25, parts: [[4, 20, "earth"], [4, 20, "fire"]] }, req: "mage,illusion", p: 10000, gachaWeight: 0, d: "【遺物】掙脫封印的巴風特魔杖，杖中的魔神之力再無拘束。共鳴（一般限定）；貫穿；魔法傷害 +3、額外魔法點數 +3；攻擊時 25% 機率觸發熾焰地裂術（必定命中，對目標同時造成地屬性與火屬性魔法傷害，受魔法傷害影響）。" },
+        "relic_sphinx_black_wing": { n: "人面獅身的漆黑羽翼", type: "arm", slot: "cloak", relic: true, noEnhance: true, ac: 7, er: 5, drPerEr: 5, req: "all", p: 10000, gachaWeight: 0, d: "【遺物】黑斯芬克斯的漆黑羽翼，展開便讓謎語與刀鋒都失了準頭。ER+5；傷害減免+（ER÷5）。" },
+        "relic_overlook_thunder":  { n: "俯瞰大地的雷電",     type: "acc", slot: "amulet", relic: true, noEnhance: true, ac: 2, auraSkill: { skId: "sk_thunder_storm", interval: 100 }, req: "all", p: 10000, gachaWeight: 0, d: "【遺物】尼荷斯俯瞰大地的目光化作項鍊，雷雲永遠跟在配戴者頭頂。每 10 秒觸發一次雷霆風暴。" },
+        "relic_elmore_greatsword": { n: "艾爾摩古戰場巨劍",   type: "wpn", w2h: true, relic: true, noEnhance: true, dmgS: 20, dmgL: 17, hit: 14, dmgBonus: 17, eff: "cleave", dblStrikeRate: 3, req: "royal,knight,dragon", p: 10000, gachaWeight: 0, d: "【遺物】自艾爾摩古戰場出土的巨劍，劍身還記得千軍萬馬的殺伐。切割（一般限定）；一般攻擊有 3% 機率造成 2 倍傷害。" },
+        "relic_warrior_blackblade":{ n: "戰士的漆黑之劍",     type: "wpn", relic: true, noEnhance: true, dmgS: 16, dmgL: 10, hit: 19, dmgBonus: 14, traumaProc: { pct: 5, dur: 6, maxStacks: 2, dmg: 5 }, req: "knight,dragon", p: 10000, gachaWeight: 0, d: "【遺物】暗黑火焰戰士的漆黑之劍，每道劍痕都久久無法癒合。反擊（一般限定）；居合（一般限定）；一般攻擊命中有 5% 機率使目標陷入創傷：受到的所有物理傷害 +5，持續 6 秒，最多 2 層。" },
+        "relic_cyclops_dollsuit":  { n: "獨眼巨人的手製娃娃裝", type: "arm", slot: "armor", relic: true, noEnhance: true, ac: 5, mr: 7, mpR: 7, dr: 7, req: "all", p: 10000, gachaWeight: 0, d: "【遺物】獨眼巨人笨拙縫製的娃娃裝，針腳歪斜卻縫進了滿滿的守護。MR+7、MP 自然恢復量 +7、傷害減免 +7。" },
+        "relic_beheading_scythe":  { n: "斬首的巨大鐮刀",     type: "wpn", w2h: true, relic: true, noEnhance: true, dmgS: 21, dmgL: 26, hit: 13, dmgBonus: 13, eff: "cleave", crushInstakill: { cdSec: 3, healHp: 30 }, req: "royal,knight,dragon", p: 10000, gachaWeight: 0, d: "【遺物】死神西斯的巨大鐮刀，刀刃劃過之處連呼吸都被收割。切割（一般限定）；重擊時，若目標等級比自己低且非頭目怪物則觸發即死（每 3 秒最多 1 次）；觸發即死時自身恢復 30 HP。" },
+        "relic_treasured_carrot":  { n: "珍藏的巨大胡蘿蔔",   type: "arm", slot: "cloak", relic: true, noEnhance: true, ac: 1, cha: 3, petDmgAll: 5, petHitAll: 5, petMdmgAll: 1, summonDmg: 5, summonHit: 5, summonMdmg: 1, req: "all", p: 10000, gachaWeight: 0, d: "【遺物】曼波兔珍藏多年的巨大胡蘿蔔，背在身上就是所有夥伴的精神支柱。魅力 +3；寵物與召喚物額外傷害 +5、額外命中 +5、魔法傷害 +1。" },
+        "relic_cross_tombshield":  { n: "十字墓碑盾",         type: "arm", slot: "shield", relic: true, noEnhance: true, ac: 12, dr: 5, undeadImmune: { cdSec: 5 }, req: "royal,knight", p: 10000, gachaWeight: 0, d: "【遺物】墳墓守護者騎士扛著的十字墓碑，亡者的爪牙無法傷及碑後之人。傷害減免 +5；免疫不死族的傷害（每 5 秒最多觸發 1 次）。" },
+        "relic_mage_scrap_note":   { n: "古代法師的隨手小抄", type: "acc", slot: "ring", relic: true, noEnhance: true, ac: 0, grantSkills: ["sk_frost_spike"], grantSkillsEquipOnly: true, req: "mage,illusion", p: 10000, gachaWeight: 0, d: "【遺物】古代法師隨手寫下的咒文小抄，紙上寒氣至今未散。裝備者可在自動技能施展 寒冰尖刺（水屬性單體魔法傷害，對非頭目怪物 50% 機率冰凍，視為 10 級法師法術）。" },
         "clk_elf": { n: "精靈斗篷", type: "arm", slot: "cloak", ac: 1, req: "all", safe: 6, p: 900, gachaWeight: 100 },
         "clk_oasis": { n: "歐西斯斗篷", type: "arm", slot: "cloak", ac: 0, req: "all", safe: 4, p: 15, gachaWeight: 100 },
         "arm_86": { n: "侏儒斗篷", type: "arm", slot: "cloak", ac: 0, req: "all", safe: 4, p: 18, gachaWeight: 100 },
@@ -1541,8 +1561,8 @@ const DB = {
         // ===== 🏛️ 古代/古老裝備（威頓村 客盧亞 製作）=====
         "armguard_archer": { n: "古代神射臂甲", type: "arm", slot: "shield", ac: 0, mhp: 80, req: "all", safe: 0, p: 100000, gachaWeight: 0, armguard: { stat: "rangedDmg", base: 1, th: [1, 2, 3] }, d: "古代神射手綁縛拉弦之臂的護甲，仍留有他百步穿楊的氣度（裝於副手，可與雙手武器並用）。" },
         "armguard_fighter": { n: "古代鬥士臂甲", type: "arm", slot: "shield", ac: 0, resFire: 5, resWater: 5, resEarth: 5, resWind: 5, req: "all", safe: 0, p: 100000, gachaWeight: 0, armguard: { stat: "meleeDmg", base: 1, th: [1, 2, 3] }, d: "古代競技場鬥士磨礪近身搏殺的臂甲，刻滿了無數場生死搏鬥的痕跡（裝於副手，可與雙手武器並用）。" },
-        "wpn_old_sword": { n: "古老的劍", type: "wpn", dmgS: 35, dmgL: 20, hit: 5, dmgBonus: 0, spd: 0.8, req: "knight,elf,dark", safe: 0, p: 15000, gachaWeight: 0, noEnhance: true, d: "塵封已久的古代單手劍，劍身雖舊，鋒芒卻不減當年。反擊、居合；無法強化。" },
-        "wpn_old_greatsword": { n: "古老的巨劍", type: "wpn", w2h: true, dmgS: 27, dmgL: 45, hit: 3, dmgBonus: 3, spd: 0.9, req: "knight", safe: 0, p: 15000, gachaWeight: 0, eff: "cleave", noEnhance: true, d: "古老戰場上遺落的雙手巨劍，沉甸甸的劍身仍能一掃千軍。切割；無法強化。" },
+        "wpn_old_sword": { n: "古老的劍", type: "wpn", dmgS: 35, dmgL: 20, hit: 5, dmgBonus: 0, spd: 0.8, req: "knight,elf,dark", safe: 0, p: 15000, gachaWeight: 0, noEnhance: true, d: "塵封已久的古代單手劍，劍身雖舊，鋒芒卻不減當年。反擊、居合；無法強化，但可請象牙塔的碧恩賦予屬性（免 +10/+11 門檻，可直上第五階）。" },
+        "wpn_old_greatsword": { n: "古老的巨劍", type: "wpn", w2h: true, dmgS: 27, dmgL: 45, hit: 3, dmgBonus: 3, spd: 0.9, req: "knight", safe: 0, p: 15000, gachaWeight: 0, eff: "cleave", noEnhance: true, d: "古老戰場上遺落的雙手巨劍，沉甸甸的劍身仍能一掃千軍。切割；無法強化，但可請象牙塔的碧恩賦予屬性（免 +10/+11 門檻，可直上第五階）。" },
         "wpn_old_xbow": { n: "古老的弩槍", type: "wpn", isBow: true, ranged: true, oneHand: true, rapidfire: 90, dmgS: 3, dmgL: 3, hit: 5, dmgBonus: 2, spd: 0.9, req: "elf,dark", safe: 6, p: 15000, gachaWeight: 0, d: "古代工匠巧製的單手弩槍，是有史以來第一把可單手持握的弓。" },
         "wpn_ancient_spear": { n: "古代神之槍", type: "wpn", w2h: true, legend: true, dmgS: 27, dmgL: 30, hit: 3, dmgBonus: 5, spd: 1.1, req: "knight", safe: 6, p: 465000, gachaWeight: 0, eff: "pierce", pierceChance: 90, d: "傳說由古代神祇親手持握的雙手神槍，槍尖所向無可阻擋。" },
         "wpn_ancient_axe": { n: "古代神之斧", type: "wpn", legend: true, dmgS: 25, dmgL: 28, hit: 3, dmgBonus: 8, spd: 1, req: "warrior", safe: 6, p: 465000, gachaWeight: 0, d: "古代神祇腰間配掛的單手神斧，劈下時連神明也為之低首。鈍擊。" },
@@ -2512,6 +2532,16 @@ const DB = {
 				{ id: "npc_mother", n: "迷幻森林之母", title: "試煉", type: "quest", d: "迷幻森林的守護之母，她的恩賜只賜予能洗淨黑暗之人。主持妖精的 30 級試煉：達等級後接取任務，淨化受詛咒的書，一次完成領取全部恩賜。" }
             ]
         },
+		"town_gludin": {
+            n: "古魯丁村莊",
+            npcs: [
+                { id: "npc_arena", n: "巴魯特", title: "鬥技場管理者", type: "arena", d: "古魯丁港口的退役鬥士，如今替往來的冒險者安排決鬥。可產生你的「對戰名片」交給其他玩家，或貼上對方的名片後由他安排場地——決鬥不給經驗與金幣，只記錄勝負戰績；落敗方完全無損失——不扣經驗、不掉裝備、不影響性向值，也無須祈求復活。任一方倒下即分出勝負，接著可自行選擇留在競技場再戰，或回古魯丁村莊。" },
+                { id: "npc_wh_gludin", n: "凱倫", title: "倉庫", type: "warehouse", d: "凱倫在港邊的庫房裡清點著往來的貨物，替你存放物品與金幣，四個存檔角色共用。" },
+                { id: "npc_lucy", n: "露西", title: "雜貨商人", type: "shop", d: "露西的攤子就擺在通往碼頭的路上，出海遠行前該備的東西一樣不缺。販售各種日常消耗品。" },
+                { id: "npc_ally_gludin", n: "傭兵公會", title: "協力", type: "ally", d: "傭兵公會替你牽起命運的絲線，召喚其他存檔位的角色一起作戰。" },
+                { id: "npc_austin", n: "奧斯丁", title: "寵物保管", type: "petstore", d: "看慣了碼頭來去的旅人，奧斯丁願替他們照看捕獲的寵物。最多保管 32 隻（同模式角色共通）；可在此讓寵物出戰、鎖定、放生，或讓等級 30 以上「一般型態」的寵物進化——用進化果實→對應高等，或用勝利果實→黃金龍（兩種果實都帶著時可自選）；高等型態與黃金龍皆為最終型態。" }
+            ]
+        },
 		"town_gludio": {
             n: "燃柳村",
             npcs: [
@@ -2564,7 +2594,7 @@ const DB = {
                 { id: "npc_upni", n: "烏普尼", title: "製作", type: "craft", d: "通曉禁忌符文的烏普尼，能將塔之力封入一紙。以 傲慢之塔傳送符 與 移動卷軸 製作 傲慢之塔支配符。" },
                 { id: "npc_norse", n: "諾斯", title: "寵物裝備製作", type: "craft", d: "獸語匠人諾斯，懂得讓忠犬之牙更加銳利。鍛造寵物裝備，強化你的寵物。" },
                 { id: "npc_baowu", n: "包武", title: "寵物保管", type: "petstore", d: "和善的看護人包武，願替遠行的旅人照看捕獲的寵物。最多保管 32 隻（同模式角色共通）；可在此讓寵物出戰、鎖定、放生，或讓等級 30 以上「一般型態」的寵物進化——用進化果實→對應高等，或用勝利果實→黃金龍（兩種果實都帶著時可自選）；高等型態與黃金龍皆為最終型態。" },
-                { id: "npc_arkata", n: "聖使阿卡塔", title: "死亡經驗買回", type: "pray", classicOnly: true, d: "聖使阿卡塔能以聖光凝聚你死亡時散逸的經驗。每次死亡的實際經驗損失都會被記錄（最多 10 筆），可花費「死亡時等級×等級×1000」金幣，買回該筆損失經驗的 50%。" }   // 🕊️ v3.4.73 經典限定（classicOnly·一般模式死亡不損失經驗故不顯示）
+                { id: "npc_arkata", n: "聖使阿卡塔", title: "經驗買回・裝備贖回", type: "pray", d: "聖使阿卡塔能以聖光凝聚你死亡時散逸的事物。【裝備贖回】邪惡（紅名）狀態下死亡遺失的裝備會被記錄（最多 5 件），可花費 1000 龍之鑽石指定贖回其中一件。【死亡經驗買回】經典模式限定：每次死亡的實際經驗損失都會被記錄（最多 10 筆），可花費「死亡時等級×等級×1000」金幣，買回該筆損失經驗的 50%。" }   // 🕊️ v3.4.73 起經驗買回；v3.6.84 加裝備贖回並取消 classicOnly（紅名噴裝兩模式皆會發生·經驗買回段落內部仍限經典）
             ]
         },
         "town_elder_council": {   // 🌑 黑暗妖精聖地樞紐（依《黑暗妖精聖地.md》·v3.3.33）
@@ -2768,6 +2798,9 @@ const DB = {
         "sk_sleep_mist": { n: "沉睡之霧", type: "atk", tier: 9, reqM: 36, mp: 40, dmgType: "magic", target: "all", status: { kind: "sleep", pbase: 100, dur: 8 } },
         "sk_thunder_storm": { n: "雷霆風暴", type: "atk", tier: 9, reqM: 36, mp: 48, dmgType: "magic", ele: "wind", target: "all", multiDmg: [[2, 10], [2, 10], [2, 10], [2, 10], [2, 10], [2, 10], [2, 10], [2, 10]] },
         "sk_fire_storm": { n: "火風暴", type: "atk", tier: 9, reqM: 36, mp: 48, dmgType: "magic", ele: "fire", target: "all", multiDmg: [[4, 10], [4, 10], [4, 10], [4, 10]] },
+        // 🏺 v3.7.20 寒冰尖刺（遺物 古代法師的隨手小抄 grantSkills 專屬·無魔法書=不可自然學會）：單體水屬性，
+        //    對非頭目 50% 固定機率冰凍（status.pct=固定機率擲骰·頭目由 BOSS_IMMUNE 擋·見 applyMobStatus）；視為 10 級法師法術（tier:10 吃階級係數）
+        "sk_frost_spike": { n: "寒冰尖刺", type: "atk", tier: 10, reqM: 40, mp: 30, dmgType: "magic", ele: "water", dmgDice: [4, 20], status: { kind: "freeze", force: true, pct: 50, dur: 4 } },
 
         // 十階魔法 (Lv 40)
         "sk_meteor": { n: "流星雨", type: "atk", tier: 10, reqM: 40, mp: 60, dmgType: "magic", ele: "fire", target: "all", multiDmg: [[2, 9], [2, 9], [2, 9], [2, 9], [2, 9], [2, 9], [2, 9], [2, 9], [2, 9], [2, 9], [2, 9], [2, 9]] },
@@ -2927,6 +2960,9 @@ const DB = {
     },
 
     maps: {
+        // ⚔️ 決鬥競技場（js/28 存檔 PvP）：出怪池刻意留空＝不會自動出怪，只有按下「挑戰」才由 pvpArenaStart 生成對手。
+        //    spawn 路徑取到 undefined base 會在 js/03 早退（if(!base) return;），故空池安全無副作用。
+        "arena_pvp": [],
         "pirate_wild": ["nm_035", "nm_003", "doberman", "pirate_wildpoison", "pirate_lizardrage", "pirate_wildfang", "pirate_wilddemon", "pirate_lizardhigh", "pirate_bluetail", "pirate_parrot", "pirate_chest", "wild_tiger", "wild_koreapup", "wild_raccoon"],
         "pirate_dungeon": ["pirate_lizardrage", "pirate_lizardhigh", "pirate_skeleton", "pirate_lizardheavy", "pirate_skelsoldier", "pirate_skelblade", "pirate_skelchief", "pirate_drake"],
         "training": ["orc", "goblin", "orc_archer", "gremlin"],
@@ -3433,12 +3469,61 @@ const DB = {
     // 格式：怪物顯示名稱: [[物品ID, 掉落機率(%)], ...]  每樣獨立判定一次
 
 /* ============================================================================
- * © shines871 — idle-lineage-class 原作者資訊
- * 官方免費版：https://shines871.github.io/idle-lineage-class/
- * 本特別版保留作者資訊，但不在非官方網域顯示遮擋遊戲畫面的警告橫幅。
- * 原始識別碼：ORIG-shines871-idle-lineage-class-8F3C1A2B
+ * 🛡️ 原作者標記 / 官方版指引（原作者：shines871｜官方免費版：idle-lineage-class）
+ *   授權立場：本作**開放非商業轉載**（須標示原作者出處），**僅禁止商業營利**。
+ *   故此段刻意「中性、無指控」，只做兩件事，皆無破壞性、不蒐集任何個資：
+ *     1) 於「非官方網域」的部署頂端蓋一條**中性**橫幅：告知這是非官方轉載、
+ *        並提供官方最新免費版連結（把玩家導回原作者·對合法非商業轉載與商業盜用皆為真陳述）。
+ *        ⚠️措辭嚴禁出現「盜版 / 未授權 / 廣告 / 惡意」等指控字眼——因授權允許非商業轉載，
+ *        對合法轉載者作此指控＝不實/毀謗，風險落在原作者身上。
+ *     2) 於原始碼留存作者浮水印與唯一識別碼，供「商業營利」侵權時著作權 / DMCA 舉證。
+ *   官方網域 / localhost / 127.0.0.1 / file://（本機離線遊玩）/ 官方打包版（WebView2 桌面版）一律放行。
+ *   🔒 舉證用不可移除的唯一識別碼（canary，請勿刪除）：ORIG-shines871-idle-lineage-class-8F3C1A2B
  * ========================================================================== */
+// 可見浮水印（executable，去註解 / 壓縮也清不掉；請勿刪除，這是舉證依據之一）
 try {
-  console.log('%c© shines871 — 官方免費版：https://shines871.github.io/idle-lineage-class/',
+  console.log('%c© shines871 · 官方最新免費版：https://shines871.github.io/idle-lineage-class/ ｜ 本作開放非商業轉載（須標示出處）· 禁止商業營利',
     'color:#c8a24a;font-weight:bold;font-size:12px');
 } catch (_) {}
+
+// 🖥️ v3.7.38 官方打包版（.NET + WebView2 桌面版）例外：桌面殼以 AddScriptToExecuteOnDocumentCreated
+//    在任何頁面腳本之前注入 window.idleLineageDesktop = {host:'webview2'} 與 window.fableStore
+//    （見 desktop-dotnet/MainWindow.xaml.cs）。打包版經虛擬網域 https://idle-lineage.test/ 載入，
+//    不在下方網域白名單內 → 若不獨立放行，官方自家安裝版會被自己的「非官方轉載」橫幅蓋住。
+//    ⚠️刻意「不快取 false」：橋接物件若因故延後注入，快取 false 會讓橫幅在官方版永久掛著
+//       （gameLoop 每輪重掛，無法自癒）；只有偵測成立才快取 true（物件已凍結不會消失）。
+//       未命中時的成本＝兩次屬性讀取，可忽略。
+var _origDesktopCache = false;
+function _origOfficialDesktop() {
+  if (_origDesktopCache) return true;
+  try {
+    if (typeof window === 'undefined') return false;
+    var d = window.idleLineageDesktop;
+    if ((d && d.host === 'webview2') || window.fableStore) { _origDesktopCache = true; return true; }
+  } catch (_) {}
+  return false;
+}
+
+// 授權網域判定（結果快取；hostname 一整個 session 不變，之後每次呼叫都是讀布林值，零成本）
+var _origAuthCache = null;
+function _origAuthorizedHost() {
+  if (_origOfficialDesktop()) return true;   // 官方打包版先於網域判定放行；不寫入 _origAuthCache，避免污染網域快取
+  if (_origAuthCache !== null) return _origAuthCache;
+  try {
+    if (location.protocol === 'file:') { _origAuthCache = true; return true; }   // 本機離線遊玩放行
+    var h = (location.hostname || '').toLowerCase();
+    // 官方網域以字元碼還原，避免整包 find/replace「shines871.github.io」一次抹除 = shines871.github.io
+    var official = String.fromCharCode(115,104,105,110,101,115,56,55,49,46,103,105,116,104,117,98,46,105,111);
+    var localhost = String.fromCharCode(108,111,99,97,108,104,111,115,116);
+    _origAuthCache = (h === official || h === localhost || h === '127.0.0.1' || h === '');
+  } catch (_) { _origAuthCache = true; }   // 例外一律放行，絕不誤傷合法玩家
+  return _origAuthCache;
+}
+
+// ⭐ BeeAnnHua 特別版：朋友私用版本不顯示頂端網域橫幅；保留上方作者資訊與官方網址於主控台。
+function _origEnforce() {
+  try {
+    var bar = document.getElementById('_orig_pbar');
+    if (bar) bar.remove();
+  } catch (_) {}
+}

@@ -418,10 +418,13 @@
         if (!w || typeof player === 'undefined' || !player || !player.cls) return false;
         if (!Array.isArray(player.trollPlayers)) player.trollPlayers = [];
         let old = player.trollPlayers.find(t => t && t.n === w.name);
+        let alignmentValue = (typeof pvpLockAlignment === 'function')
+            ? pvpLockAlignment(w.name, w.alignmentValue, old && old.clanId)
+            : _normalizeAlignmentValue(w.alignmentValue);
         let chase = {
             n: w.name,
             avatar: w.avatar || '男戰士',
-            alignmentValue: _normalizeAlignmentValue(w.alignmentValue),
+            alignmentValue: alignmentValue,
             until: Date.now() + 2 * 60 * 60 * 1000
         };
         if (old && Number.isFinite(Number(old.levelOffset))) chase.levelOffset = old.levelOffset;
@@ -431,6 +434,22 @@
         if (quietResult && !quietResult.gone) _lastBroadcastCycles[w.id] = 'quiet';
         try { if (typeof saveGame === 'function') saveGame(); } catch (e) {}
         return true;
+    }
+
+    function pandoraUpdateWandererAlignment(name, alignmentValue) {
+        name = String(name || '').slice(0, 24);
+        if (!name) return false;
+        let value = _normalizeAlignmentValue(alignmentValue);
+        let result = _withStateLock(st => {
+            let changed = false;
+            (st.wanderers || []).forEach(w => {
+                if (!w || String(w.name || '').slice(0, 24) !== name || w.alignmentValue === value) return;
+                w.alignmentValue = value;
+                changed = true;
+            });
+            return changed ? { alignmentValue:value } : { commit:false, unchanged:true };
+        });
+        return !!(result && result.ok);
     }
 
     function _blockPlayerForWanderer(wandererId) {
@@ -446,6 +465,40 @@
 
     function _makeAlignmentValue(st) {
         return _normalizeAlignmentValue(Math.floor(-32767 + _rand(st, 'wander-alignment') * 65535));
+    }
+
+    // 🛡️ v3.6.80 叫賣收購 NPC 也接血盟世界（比照 js/26 世界頻道）：50% 隨機入 20 個 NPC 血盟之一，無盟者不顯示。
+    //   ⚠️ 採「懶指派」而非建立時寫入：血盟成員資格是**以名字為 key** 存在血盟共用桶（world.memberships），
+    //      第一次查會擲骰並寫入、之後同名一律回傳同一個盟 → 不必動 wanderer 存檔結構，既有的叫賣 NPC 也一起涵蓋。
+    //   ⚠️ 必須傳 noLeader:true：npcClanAssignOpponent 有 8% 機率把對象換成盟主「連名字一起換」，
+    //      而叫賣 NPC 的名字已寫進交易紀錄與已發出的廣播，改名會前後對不上。
+    //   ⚠️ _readState() 每次都回傳新物件 → 不能把結果快取在 w 上，改用名字為鍵的模組層快取（省下每次重繪的共用桶鎖）。
+    let _wandererClanCache = Object.create(null);
+    function _wandererClanName(w) {
+        let n = w && w.name ? String(w.name) : '';
+        if (!n) return '';
+        if (Object.prototype.hasOwnProperty.call(_wandererClanCache, n)) return _wandererClanCache[n];
+        let clan = '';
+        if (typeof npcClanAssignOpponent === 'function' && typeof player !== 'undefined' && player && player.cls) {
+            try {
+                let res = npcClanAssignOpponent({
+                    n: n,
+                    avatar: w.avatar || '男戰士',
+                    alignmentValue: _normalizeAlignmentValue(w.alignmentValue),
+                    levelOffset: 0,
+                    pvpRandom: true
+                }, { noLeader: true });
+                if (res && res.n === n) clan = res.clanName || '';   // 名字被改掉＝非預期，寧可不顯示也不要張冠李戴
+            } catch (e) {}
+        } else {
+            return '';   // 尚未載入角色（血盟世界還沒建立）→ 不快取，等進遊戲後再查
+        }
+        _wandererClanCache[n] = clan;
+        return clan;
+    }
+    function _wandererClanRowHtml(w) {
+        let clan = _wandererClanName(w);
+        return clan ? `<div class="wc-menu-clan">［${_esc(clan)}］</div>` : '';   // 無盟＝整條不輸出
     }
 
     function _wandererNameHtml(w) {
@@ -1082,6 +1135,7 @@
         menu.id = 'wandering-shout-menu';
         menu.className = 'wandering-shout-menu';
         menu.innerHTML =
+            _wandererClanRowHtml(w) +   // 🛡️ v3.6.80 點名字時一併顯示血盟（無盟不出現這條）
             `<button type="button" class="wandering-taunt-entry" onclick="openWanderingTauntMenu('${_esc(w.id)}',event)">嘲諷</button>` +
             (w.broadcastStopped ? '' : `<button type="button" onclick="silenceWanderingBuyer('${_esc(w.id)}')">吵死了</button>`) +   // 已靜音者不再顯示「吵死了」
             `<button type="button" onclick="hurryToWanderingBuyer('${_esc(w.id)}')">馬上到</button>`;
@@ -1336,7 +1390,7 @@
                     <div class="wandering-buyer-avatar">${_esc(w.avatar || '')}</div>
                     <div>
                         <div class="wandering-buyer-line">${_wandererNameHtml(w)}：${buyerVerb} <b>${_esc(_requirementText(w.itemId, w.en))}</b>${buyerAmount}</div>
-                        <div class="wandering-buyer-meta">位於 ${_esc(_townName(w.townId))}・剩餘 ${_remainingText(w.expiresAt - Date.now())}</div>
+                        <div class="wandering-buyer-meta">位於 ${_esc(_townName(w.townId))}・剩餘 ${_remainingText(w.expiresAt - Date.now())}${_wandererClanName(w) ? '・血盟 ' + _esc(_wandererClanName(w)) : ''}</div>
                     </div>
                 </div>
                 <div class="wandering-buyer-offer">
@@ -1517,7 +1571,7 @@
         let base = Object.keys(DB.items).filter(id => {
             let d = DB.items[id];
             let w = Math.floor(Number(d && d.gachaWeight) || 0);
-            return !!(d && d.n && !d.relic && id !== relicId && ((w >= 1 && w <= 50) || craftable.has(id)));
+            return !!(d && d.n && !d.relic && d.eff !== 'card' && id !== relicId && ((w >= 1 && w <= 50) || craftable.has(id)));
         });
         let p1 = base.filter(id => Math.floor(Number(DB.items[id].gachaWeight) || 0) === 1);
         let p2 = base.filter(id => {
@@ -1690,7 +1744,10 @@
                 return `<div class="pandora-relic-slot active">
                     <div class="pandora-relic-slot-no">布告 ${i + 1}・${category.short}</div>
                     <div class="pandora-relic-target" onmouseenter="pandoraRelicTipShow(event,'${_esc(c.relicId)}')" onmousemove="pandoraTipMove(event)" onmouseleave="pandoraTipHide()">
-                        <img src="${d ? _esc(getIconUrl(d)) : ''}" alt="">
+                        <div class="pandora-collection-icon pandora-relic-icon-wrap">
+                            <img src="${d ? _esc(getIconUrl(d)) : ''}" alt="">
+                            ${typeof pandoraUncollectedBadgeHTML === 'function' ? pandoraUncollectedBadgeHTML(c.relicId) : ''}
+                        </div>
                         <b class="${d ? getItemColor({ id: c.relicId }) : ''}">${_esc(d ? d.n : c.relicId)}</b>
                     </div>
                     <div class="pandora-relic-reqs">${reqHtml}</div>
@@ -1850,6 +1907,7 @@
     }
 
     window.wanderingBuyerSystemTick = wanderingBuyerSystemTick;
+    window.pandoraUpdateWandererAlignment = pandoraUpdateWandererAlignment;
     window.renderWanderBroadcastPins = renderWanderBroadcastPins;
     window.getWanderingBuyersForTown = getWanderingBuyersForTown;
     window.getWanderingBuyerForTown = getWanderingBuyerForTown;

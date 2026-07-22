@@ -79,6 +79,15 @@ function playerAttack() {
         // 🏺 遺物 隱蔽的死亡草葉：一般攻擊命中「滿血」非BOSS怪，instakillFull 機率即死（斗篷授予·此處 target.curHp 為命中前值）
         if (player.d.instakillFull && target.curHp === target.hp && tryInstakill(target, { p: player.d.instakillFull, tag: null }, '隱蔽的死亡草葉', mapState.targetIdx)) return;
         if (wpn && wpn.stoneInstakill && target.st && target.st.stone > 0 && tryInstakill(target, { p: 1, tag: null }, '蛇妖的無慈悲尾刺', mapState.targetIdx)) return;   // 🏺 蛇妖的無慈悲尾刺：命中石化敵人必定即死（tryInstakill 內建頭目免疫）
+        // 🏺 v3.7.20 斬首的巨大鐮刀（crushInstakill）：重擊時對「等級低於自己且非頭目」的目標必定即死（每 cdSec 秒最多 1 次·觸發後回復 healHp）
+        if (wpn && wpn.crushInstakill && result.heavy && (target.lv || 0) < (player.lv || 1) && !target.boss && !target.trollPlayer && (player._scytheIkAt || 0) <= state.ticks) {
+            let _ci = wpn.crushInstakill;
+            if (tryInstakill(target, { p: 1, tag: null }, wpn.n, mapState.targetIdx)) {
+                player._scytheIkAt = state.ticks + (_ci.cdSec || 3) * 10;
+                if (_ci.healHp) { player.hp = Math.min(player.mhp, player.hp + _ci.healHp); logCombat(`<span class="text-emerald-300 font-bold">【${wpn.n}】</span>收割的生命回流，恢復 ${_ci.healHp} 點 HP。`, 'heal'); updateUI(); }
+                return;
+            }
+        }
         // === 騎士被動：看破 / 殺戮 / 屠殺（僅對近距離普攻生效，兩者獨立判定，可同時觸發）===
         let killPrefix = '';
         if (player.cls === 'knight' && !result.ranged && !player.classicMode) {   // 🎮 經典模式：騎士無看破/殺戮被動
@@ -260,6 +269,14 @@ function playerAttack() {
         if (target.curHp > 0 && wpn && wpn.frozenBonusDmg && target.st && target.st.freeze > 0) { target.curHp -= wpn.frozenBonusDmg; target.justHit = 'water'; mobWake(target); logCombat(`<span class="font-bold text-sky-300">【${wpn.n}】</span>寒氣共鳴，對冰凍目標追加 ${wpn.frozenBonusDmg} 點傷害。`, 'player-special'); }
         // 🏺 遺物 弱點洞察（巨大螞蟻的複眼）：以剋制目標屬性的武器屬性命中→額外固定傷害
         if (target.curHp > 0) { let _whb = _relicWeakHitBonus(player); if (_whb > 0) { let _we = getWpnEle(player.eq.wpn, wpn); if (_we && _we !== 'none' && elementCounterMult(_we, target.e) > 1) { target.curHp -= _whb; target.justHit = _we; mobWake(target); logCombat(`<span class="font-bold text-amber-300">【弱點洞察】</span>擊中屬性弱點，額外造成 ${_whb} 點傷害。`, 'player-special'); } } }
+        // 🏺 v3.7.20 無限火藥爆裂矢（箭矢 onHitEleDmg）：裝備遠距離武器一般攻擊命中 10% → 追加 50 點火屬性固定傷害（不吃魔傷·同 onHitEleDmg 口徑）
+        if (target.curHp > 0 && arrowData && arrowData.onHitEleDmg && (!arrowData.onHitEleDmg.rate || Math.random() * 100 < arrowData.onHitEleDmg.rate)) { let _ah = arrowData.onHitEleDmg; target.curHp -= _ah.dmg; target.justHit = _ah.ele; mobWake(target); logCombat(`<span class="font-bold" style="color:${RELIC_ELE_COLOR[_ah.ele] || '#e2e8f0'};">【${arrowData.n}】</span>火藥炸裂，追加 ${_ah.dmg} 點${RELIC_ELE_LABEL[_ah.ele] || ''}屬性傷害。`, 'player-special'); }
+        // 🏺 v3.7.20 戰士的漆黑之劍（traumaProc）：一般攻擊命中 5% → 目標陷入創傷（受所有物理傷害 +5/層·6 秒·最多 2 層·消費點=js/03 getPhysicalDmg＋js/06 傭兵）
+        if (target.curHp > 0 && wpn && wpn.traumaProc && Math.random() * 100 < wpn.traumaProc.pct) {
+            let _tp = wpn.traumaProc, _cur = (target._trauma && target._trauma.until > state.ticks) ? target._trauma.s : 0;
+            target._trauma = { s: Math.min(_tp.maxStacks || 2, _cur + 1), dmg: _tp.dmg || 5, until: state.ticks + (_tp.dur || 6) * 10 };
+            logCombat(`<span class="font-bold" style="color:#f87171;">【${wpn.n}】</span><span class="${getMobColor(target.lv)}">${target.n}</span> 陷入創傷！（受物理傷害 +${(_tp.dmg || 5) * target._trauma.s}·${_tp.dur || 6} 秒·${target._trauma.s} 層）`, 'player-special');
+        }
         if (target.curHp <= 0) killMob(mapState.targetIdx);
         else renderMobs();
     } else {
@@ -509,6 +526,43 @@ function weaponSpellProc(target, attackHit, instOverride) {
     if (wpn.procPoison) applyWeaponProcPoison(target, wpn.procPoison, wpnEnFinalMult(inst));   // 🔧 死亡之指：攻擊時毒咒（吃武器強化最終倍率）
     if (wpn.procBurstPoison) applyWeaponBurstPoison(target, wpn.procBurstPoison, capWpnEn(inst.en), wpnEnFinalMult(inst));   // 💥 破壞雙刀/鋼爪：攻擊時猛爆劇毒（吃武器強化最終倍率）
     if (wpn.procStatusSkill) applyWeaponProcStatusSkill(target, wpn.procStatusSkill);   // 🌑 惡魔王武器：攻擊時 10% 施放疾病術
+    // 🏺 v3.7.20 鋼鐵僧侶的錫杖（procHealSkill）：一般攻擊命中 rate% → 免費觸發指定治癒技能（sk_regen 全隊瞬間治癒·同施法公式吃 spCoef/魔棒倍率）
+    if (wpn.procHealSkill && attackHit && Math.random() * 100 < (wpn.procHealSkill.rate || 5)) {
+        let _hs = DB.skills[wpn.procHealSkill.skId];
+        if (_hs && typeof rollHealingSpell === 'function') {
+            let _hc = (typeof healBeneficiaries === 'function') ? healBeneficiaries() : [player];
+            let _ht = 0, _hn = 0;
+            _hc.forEach(c => {
+                let _b = (typeof _supHp === 'function') ? _supHp(c) : (c === player ? player.hp : (c.curHp != null ? c.curHp : c.hp));
+                let _h = rollHealingSpell(_hs, player.d, player, c);
+                if (typeof _supHeal === 'function') _supHeal(c, _h); else if (c === player) player.hp = Math.min(player.mhp, player.hp + _h); else if (c.curHp != null) c.curHp = Math.min(c.mhp, (c.curHp || 0) + _h); else c.hp = Math.min(c.mhp, (c.hp || 0) + _h);
+                let _a = (typeof _supHp === 'function') ? _supHp(c) : (c === player ? player.hp : (c.curHp != null ? c.curHp : c.hp));
+                _ht += Math.max(0, _a - _b); _hn++;
+            });
+            logCombat(`<span class="font-bold text-emerald-300">【${wpn.n}】</span>錫杖鳴響，觸發 ${_hs.n}！治癒全隊 ${_hn} 名成員，共恢復 ${_ht} 點 HP。`, 'heal');
+            updateUI();
+        }
+    }
+    // 🏺 v3.7.20 解除封印的巴風特魔杖（procDualSkill）：攻擊時 rate% → 熾焰地裂術（雙屬性各自結算：地+火各擲 dice·必定命中·吃魔傷係數/魔抗/剋制）
+    if (wpn.procDualSkill && Math.random() * 100 < (wpn.procDualSkill.rate || 25)) {
+        let _dt = (target && target.curHp > 0) ? target : null;
+        if (!_dt) { let _da = mapState.mobs.filter(m => m && m.curHp > 0); if (_da.length) _dt = _da[Math.floor(Math.random() * _da.length)]; }
+        if (_dt) {
+            let _pd = wpn.procDualSkill, _tot = 0;
+            let _effMr = (_dt.st && _dt.st.mrhalf > 0) ? (_dt.mr / 2) : _dt.mr;
+            let _mrF = mrMult(_effMr);
+            _pd.parts.forEach(pt => {
+                let _co = weaponMagicDamageCoef(player.d, wpn, _dt, pt[2] || 'none');   // 武器 proc 口徑：不吃法師階級加成（mage-tier 規則）
+                let _dd = Math.max(1, Math.floor(roll(pt[0], pt[1]) * _co * _mrF));
+                _dd = Math.max(1, Math.floor(_dd * elementCounterMult(pt[2] || 'none', _dt.e)));
+                _tot += _dd;
+            });
+            _dt.curHp -= _tot; _dt.justHit = 'fire'; mobWake(_dt); if (typeof playSpellFx === 'function') { try { playSpellFx('地獄火', _dt); } catch (e) {} }
+            logCombat(`<span class="font-bold" style="color:#fb923c;text-shadow:0 0 6px #ea580c;">【${_pd.skn}】</span>地火同崩，對 <span class="${getMobColor(_dt.lv)}">${_dt.n}</span> 造成 ${_tot} 點傷害。`, 'player-special');
+            let _di2 = mapState.mobs.findIndex(m => m && m.uid === _dt.uid);
+            if (_dt.curHp <= 0) { if (_di2 !== -1) killMob(_di2); } else if (!state.ff) renderMobs();
+        }
+    }
     // 🏺 v3.1.80 思克巴女皇的熱情魔杖：攻擊時 10% 機率隨機觸發一個火屬性傷害法術（免費施放·同 procSkill 公式·主目標死亡轉隨機敵人）
     if (wpn.procFireSkillRate && Math.random() * 100 < wpn.procFireSkillRate) {
         let _ft = (target && target.curHp > 0) ? target : null;
@@ -916,7 +970,6 @@ function _enemyPhysicalAttackInner(mob, idx, stunChance = 0, atkDmg = null, atkD
     if (typeof _mobAnimTrigger === 'function') _mobAnimTrigger(mob, 'attack');   // 🎞️ 序列幀：攻擊動作（有 attack_*.png 幀才會播·登場/技能鎖定播放中會被忽略·見 js/09）
     mob._facePartyKey = 'P';   // 🧭 只記錄隊伍位置鍵；避免 mob→player 與 player→mob 形成循環參照
     delete mob._faceTgt;
-
     // 🗼 沉睡：必定被命中、無法迴避，受擊後立即清醒
     let _asleep = !!(player.statuses && player.statuses.sleep > 0);
     // 🔧 暗隱術：100% 迴避一次物理攻擊（迴避後失效並進入 5 秒冷卻）；否則依 ER 有效迴避率判定
@@ -956,6 +1009,15 @@ function _enemyPhysicalAttackInner(mob, idx, stunChance = 0, atkDmg = null, atkD
     if (_asleep) hit = true;   // 🗼 沉睡：必定命中
 
     if (hit) {
+        // 🏺 十字墓碑盾：僅在不死族物理攻擊實際命中後觸發，未命中不消耗冷卻。
+        if (mob.un && player.eq && player.eq.shield) {
+            let _tsd = DB.items[player.eq.shield.id];
+            if (_tsd && _tsd.undeadImmune && (player._tombImmuneAt || 0) <= state.ticks) {
+                player._tombImmuneAt = state.ticks + (_tsd.undeadImmune.cdSec || 5) * 10;
+                logCombat(`<span class="font-bold" style="color:#e7d2a7;">【${_tsd.n}】</span>十字聖印閃耀，<span class="${getMobColor(mob.lv)}">${mob.n}</span> 的攻擊被完全無效化！`, 'player-special');
+                return;
+            }
+        }
         // 大地屏障：免疫一般攻擊傷害
         if(player.buffs.sk_elf_earthshield > 0) {
             logCombat(`大地屏障 抵擋了 <span class="${getMobColor(mob.lv)}">${mob.n}</span> 的攻擊！`, 'magic');
@@ -1072,6 +1134,15 @@ function _enemyPhysicalAttackInner(mob, idx, stunChance = 0, atkDmg = null, atkD
             return;
         }
         player.hp -= totalDmg;
+        // 🏺 v3.7.20 長老的黑曜水晶球（crushTornado）：被重擊時 → 對敵方全體施放龍捲風（procFreeMagicSkill target:'all' 自動掃全場·免費施放）
+        if (heavy && player.hp > 0 && player.eq && player.eq.shield) {
+            let _ctd = DB.items[player.eq.shield.id];
+            if (_ctd && _ctd.crushTornado) {
+                logCombat(`<span class="font-bold" style="color:#86efac;text-shadow:0 0 6px #16a34a;">【${_ctd.n}】</span>球心風暴掙脫束縛，龍捲風席捲敵陣！`, 'player-special');
+                let _ctm = mapState.mobs.find(m => m && m.curHp > 0 && !m._dead);
+                if (_ctm) procFreeMagicSkill(_ctm, 'sk_tornado', 0, false, _ctd);
+            }
+        }
         if (totalDmg > 0 && typeof applyPlayerHitstun === 'function') applyPlayerHitstun();   // ⚔️ 天堂職業硬直：被物理直接命中→延遲下次攻擊
         if (totalDmg > 0) { try { playSfx('hurt'); } catch(e){} }   // 🔊 音效：玩家受到物理傷害
         if (player._setIron5 && totalDmg > 0 && player.hp > 0) ironGuardSweep();   // 🔮 鐵衛 5/5：受到（物理）傷害時，對全體必中反擊（每 tick 節流）
@@ -1281,6 +1352,15 @@ function _enemyAttackAllyInner(mob, ally) {
     if (rollHit === 20) { hit = true; heavy = true; }
     else if (rollHit !== 1 && hitValue >= rollHit) hit = true;
     if (!hit) { logCombat(`<span class="${getMobColor(mob.lv)}">${mob.n}</span> 對 <span class="text-sky-300 font-bold">協力·${ally._allyName}</span> 的攻擊未命中。`, 'miss', 'enemy'); return; }
+    // 🏺 十字墓碑盾（傭兵）：與玩家相同，僅在不死族物理攻擊命中後觸發。
+    if (mob.un && ally.eq && ally.eq.shield) {
+        let _tsd = DB.items[ally.eq.shield.id];
+        if (_tsd && _tsd.undeadImmune && (ally._tombImmuneAt || 0) <= state.ticks) {
+            ally._tombImmuneAt = state.ticks + (_tsd.undeadImmune.cdSec || 5) * 10;
+            logCombat(`<span class="font-bold" style="color:#e7d2a7;">【協力·${ally._allyName}·${_tsd.n}】</span>十字聖印閃耀，<span class="${getMobColor(mob.lv)}">${mob.n}</span> 的攻擊被完全無效化！`, 'player-special', 'mercenary');
+            return;
+        }
+    }
     // 🌍 v3.4.47 大地屏障（傭兵鏡像·物理）：v3.4.45 共享機制可把大地屏障分享給傭兵，但原本只有玩家路徑(js/04:824)讀此 buff→傭兵收到＝白耗 MP 零效果。鏡像玩家：hit 判定後、傷害計算前完全免疫一般攻擊（順序同玩家：屏障先於火熱愛意）
     if ((ally.buffs && ally.buffs.sk_elf_earthshield > 0)) {
         logCombat(`大地屏障 抵擋了 <span class="${getMobColor(mob.lv)}">${mob.n}</span> 對 協力·${ally._allyName} 的攻擊！`, 'magic');
@@ -1331,6 +1411,15 @@ function _enemyAttackAllyInner(mob, ally) {
         return;
     }
     ally.curHp -= totalDmg;
+    // 🏺 長老的黑曜水晶球（傭兵）：承受重擊後免費對敵方全體施放龍捲風。
+    if (heavy && ally.curHp > 0 && ally.eq && ally.eq.shield) {
+        let _ctd = DB.items[ally.eq.shield.id];
+        if (_ctd && _ctd.crushTornado) {
+            logCombat(`<span class="font-bold" style="color:#86efac;text-shadow:0 0 6px #16a34a;">【協力·${ally._allyName}·${_ctd.n}】</span>球心風暴掙脫束縛，龍捲風席捲敵陣！`, 'player-special', 'mercenary');
+            let _ctm = mapState.mobs.find(m => m && m.curHp > 0 && !m._dead);
+            if (_ctm && typeof allyProcFreeMagicSkill === 'function') allyProcFreeMagicSkill(ally, _ctm, 'sk_tornado', 0, false, _ctd);
+        }
+    }
     if (totalDmg > 0 && !ally._stunCycle) { ally._atkCd = (ally._atkCd || 0) + ((ally.d && ally.d.hitstun) || 0); ally._stunCycle = true; }   // ⚔️ 天堂職業硬直（傭兵·物理）：延遲下次攻擊·每週期一次
     logCombat(`<span class="${getMobColor(mob.lv)}">${mob.n}</span> 攻擊 <span class="text-sky-300 font-bold">協力·${ally._allyName}</span>，造成 ${totalDmg} 點傷害。`, 'enemy', 'enemy');
     allyReflectOnHit(ally, mob, totalDmg, false);   // 🆕 v2.6.14 #5c：受物理反射（疼痛歡愉/致命身軀/泰坦岩石）
@@ -1381,11 +1470,12 @@ function pvpChaoticDeathItemLoss() {
     if (!candidates.length) return;
     let pick = candidates[Math.floor(Math.random() * candidates.length)];
     let name = (typeof getItemFullName === 'function') ? getItemFullName(pick.item) : (DB.items[pick.item.id] ? DB.items[pick.item.id].n : pick.item.id);
-    // 🗃️ v3.5.74 遺失紀錄（用戶拍板）：系統背後保存完整物品快照 player.pvpLostItems（含強化/詞綴/屬性·上限 50 筆·目前無 UI·供未來復原機制使用）
+    // 🗃️ v3.5.74 遺失紀錄：保存完整物品快照 player.pvpLostItems（含強化/詞綴/屬性）
+    //    🕊️ v3.6.84 接上聖使阿卡塔「裝備贖回」（1000 龍鑽指定贖回一件）→ 上限依用戶規格改為 **5 件**，滿了淘汰最舊。
     try {
         if (!Array.isArray(player.pvpLostItems)) player.pvpLostItems = [];
         player.pvpLostItems.push({ t: Date.now(), from: pick.kind, slot: pick.kind === 'eq' ? pick.slot : null, item: JSON.parse(JSON.stringify(Object.assign({}, pick.item, { cnt: 1 }))) });
-        if (player.pvpLostItems.length > 50) player.pvpLostItems = player.pvpLostItems.slice(-50);
+        if (player.pvpLostItems.length > 5) player.pvpLostItems = player.pvpLostItems.slice(-5);
     } catch (e) {}
     if (pick.kind === 'eq') {
         if ((pick.item.cnt || 1) > 1) pick.item.cnt -= 1;
@@ -1405,14 +1495,21 @@ function pvpChaoticDeathItemLoss() {
 function killPlayer() {
     player.hp = 0;
     player.dead = true; // 保持死亡狀態，停止遊戲計時
-    let _pvpKillers = mapState.mobs.filter(m => m && m.trollPlayer);
-    if (_pvpKillers.length && typeof pvpOnPlayerDeath === 'function') pvpOnPlayerDeath(_pvpKillers);
-    if (player.trollPlayers && player.trollPlayers.length) {   // 😤 被白目玩家擊殺(場上有白目即視為其戰果)：仇恨解除·離場；🐛 v3.5.74 稽核修#3：付費復仇追殺(pvpRevenge/noExpire)不因死亡解除（10 萬不蒸發·之後仍會遭遇）
-        let _tn = mapState.mobs.filter(m => m && m.trollPlayer).map(m => m.n);
-        if (_tn.length) {
-            let _n0 = player.trollPlayers.length;
-            player.trollPlayers = player.trollPlayers.filter(t => t && (t.pvpRevenge || t.noExpire || !_tn.includes(t.n)));
-            if (player.trollPlayers.length !== _n0) logSys("<span class=\"text-rose-300\">白目玩家心滿意足地離開了……</span>");
+    // ⚔️ v3.7.9 決鬥落敗＝完全無損失（用戶拍板）：決鬥贏沒有獎勵，輸也不該有真實損失。
+    //    以下全部跳過——性向/復仇名單結算、紅名噴裝、經典經驗損失、復活按鈕（結束後由 js/28 自動送回古魯丁）。
+    //    ⚠️ 決鬥對手帶 trollPlayer 標記，不擋的話會被當成一次真的白目玩家擊殺來結算。
+    //    ⚠️ 閘門單一真相＝js/28 `pvpArenaDeathExempt()`（決鬥進行中 ＋ 人在競技場，兩者同時成立才豁免）。
+    let _duelDeath = (typeof pvpArenaDeathExempt === 'function') && pvpArenaDeathExempt();
+    if (!_duelDeath) {
+        let _pvpKillers = mapState.mobs.filter(m => m && m.trollPlayer);
+        if (_pvpKillers.length && typeof pvpOnPlayerDeath === 'function') pvpOnPlayerDeath(_pvpKillers);
+        if (player.trollPlayers && player.trollPlayers.length) {   // 😤 被白目玩家擊殺(場上有白目即視為其戰果)：仇恨解除·離場；🐛 v3.5.74 稽核修#3：付費復仇追殺(pvpRevenge/noExpire)不因死亡解除（10 萬不蒸發·之後仍會遭遇）
+            let _tn = mapState.mobs.filter(m => m && m.trollPlayer).map(m => m.n);
+            if (_tn.length) {
+                let _n0 = player.trollPlayers.length;
+                player.trollPlayers = player.trollPlayers.filter(t => t && (t.pvpRevenge || t.noExpire || !_tn.includes(t.n)));
+                if (player.trollPlayers.length !== _n0) logSys("<span class=\"text-rose-300\">白目玩家心滿意足地離開了……</span>");
+            }
         }
     }
     // 死亡時清除所有召喚物與召喚 buff（迷魅術/造屍術/召喚屬性精靈/召喚強力屬性精靈一致處理），
@@ -1441,11 +1538,13 @@ function killPlayer() {
         saveGame();
         return;
     }
-    pvpChaoticDeathItemLoss();
+    if (!_duelDeath) pvpChaoticDeathItemLoss();   // ⚔️ 決鬥落敗不噴裝（即使是紅名）
     let msg = "你的角色已經死亡。（死亡不損失經驗值。）";
     let _siegeDeath = (typeof isSiegeArea === 'function' && typeof mapState !== 'undefined' && mapState && isSiegeArea(mapState.current));
     // 🎮 經典模式：死亡損失「該等級最大經驗」的 5%（v3.0.15 由 10% 調降·per-level 進度，最多扣到該等級 0% → 不會降等）
-    if (player.classicMode && !_siegeDeath) {
+    if (_duelDeath) {
+        msg = '你在決鬥中倒下了。<span class="text-emerald-300">（決鬥落敗：不損失經驗、不掉落裝備、不影響性向值）</span>';
+    } else if (player.classicMode && !_siegeDeath) {
         let _lossCap = Math.floor((getExpReq(player.lv) || 0) * 0.05);
         let _before = player.exp;
         player.exp = Math.max(0, player.exp - _lossCap);
@@ -1465,9 +1564,11 @@ function killPlayer() {
     logSys(`<span class="text-red-500 font-bold text-lg">${msg}</span>`);
     logCombat(`你的角色已經死亡。`, 'enemy');
     
-    // 重新顯示「祈求復活」按鈕
-    document.getElementById('btn-revive').classList.remove('hidden');
-    updateReviveInPlaceBtn();   // 視條件顯示「原地復活」按鈕
+    // 重新顯示「祈求復活」按鈕（⚔️ 決鬥落敗除外：改由 js/28 的決鬥結果視窗處理——選「繼續」就地整備、選「回村莊」送回古魯丁，兩條路都會解除死亡，不必也不該手動復活）
+    if (!_duelDeath) {
+        document.getElementById('btn-revive').classList.remove('hidden');
+        updateReviveInPlaceBtn();   // 視條件顯示「原地復活」按鈕
+    }
     updateUI();
 }
 
@@ -1601,6 +1702,15 @@ function _applyMobMagicToAllyInner(mob, sk, ally) {
     let d = ally.d || {};
     if (!ally.statuses) ally.statuses = {};
     let st = ally.statuses, mr = d.mr || 0, nm = '協力·' + ally._allyName;
+    // 🏺 十字墓碑盾（傭兵魔法入口）：與玩家共用規則，每名傭兵各自計算冷卻。
+    if (mob.un && ally.eq && ally.eq.shield) {
+        let _tsd = DB.items[ally.eq.shield.id];
+        if (_tsd && _tsd.undeadImmune && (ally._tombImmuneAt || 0) <= state.ticks) {
+            ally._tombImmuneAt = state.ticks + (_tsd.undeadImmune.cdSec || 5) * 10;
+            logCombat(`<span class="font-bold" style="color:#e7d2a7;">【協力·${ally._allyName}·${_tsd.n}】</span>十字聖印閃耀，<span class="${getMobColor(mob.lv)}">${mob.n}</span> 的${sk.skn || '法術'}被完全無效化！`, 'player-special', 'mercenary');
+            return;
+        }
+    }
     let _shMul = (mob._sherine ? (mob._sherineMad ? 3 : 2) : 1) * (mob._grace ? 2 : 1);   // 🔮 席琳：傷害/持續傷害倍率
     let _ch = (base) => Math.max(0, ((sk.pbase !== undefined ? sk.pbase : base) - mr) / 2);
     { let _rk = { freeze: 'freeze', stun: 'stun', paralyze: 'paralyze', slowatk: 'slow', poison: 'poison' }[sk.type]; if (_rk && allyStatusResisted(ally, _rk)) return; }   // 🆕 v2.6.11 #4：裝備型異常抵抗/免疫（主 CC 型入口·純狀態技無傷害→抵抗即整個略過）
@@ -1721,6 +1831,15 @@ function applyMobMagic(mob, sk) {   // 🌅 statusHealHp 包裝：進入前快�
 }
 function _applyMobMagicInner(mob, sk) {
     if(!sk) return;
+    // 🏺 v3.7.20 十字墓碑盾（undeadImmune·魔法入口）：不死族的魔法/狀態技完全免疫（與物理入口共用同一個冷卻計時）
+    if (mob && mob.un && player.eq && player.eq.shield) {
+        let _tsd = DB.items[player.eq.shield.id];
+        if (_tsd && _tsd.undeadImmune && (player._tombImmuneAt || 0) <= state.ticks) {
+            player._tombImmuneAt = state.ticks + (_tsd.undeadImmune.cdSec || 5) * 10;
+            logCombat(`<span class="font-bold" style="color:#e7d2a7;">【${_tsd.n}】</span>十字聖印閃耀，<span class="${getMobColor(mob.lv)}">${mob.n}</span> 的${sk.skn || '法術'}被完全無效化！`, 'player-special');
+            return;
+        }
+    }
     // 🌑 v3.3.33 血壁空間（吉爾塔斯）：自我增益·隨機獲得 近距離/遠距離/魔法 反射之一（持續 dur 秒），期間受該類型傷害→反彈同等傷害給攻擊方（不受絕對屏障影響·置於屏障檢查前）
     if(sk.type === 'reflectwall') {
         if(!mob || mob.curHp <= 0) return;

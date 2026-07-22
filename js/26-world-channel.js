@@ -29,11 +29,37 @@ function _wcSpawnNpc() {
     let alignmentValue = (typeof pvpRandomAlignment === 'function')
         ? pvpRandomAlignment()
         : Math.floor(-32767 + Math.random() * 65535);
+    // 🛡️ v3.6.77 世界頻道 NPC 也接血盟世界（原本只有野外遭遇的玩家 NPC 有）：50% 隨機入盟、其餘為無盟散人。
+    //   ⚠️ 成員資格是**以名字為 key** 存在血盟共用桶（world.memberships），而 _wcMakeName 與野外遭遇同樣走 pvpRandomName()
+    //      → 同一個名字在世界頻道／叫賣／野外遇到都是同一個盟，世界觀自動一致，不需要另外同步。
+    //   ⚠️ npcClanAssignOpponent 有 8% 機率把這位換成該盟盟主（連名字一起換）→ **必須用回傳的 n**，不能沿用原本產的名字。
+    //      沒有 player.cls（登入畫面）時它原樣返回，clanName 留空＝不顯示，安全。
+    let entry = {
+        n: _wcMakeName(),
+        avatar: (typeof PVP_AVATARS !== 'undefined' && PVP_AVATARS.length) ? PVP_AVATARS[Math.floor(Math.random() * PVP_AVATARS.length)] : '男戰士',
+        alignmentValue: alignmentValue,
+        levelOffset: (typeof pvpRandomLevelOffset === 'function') ? pvpRandomLevelOffset() : 0,
+        pvpRandom: true
+    };
+    if (typeof npcClanAssignOpponent === 'function') {
+        try {
+            entry = npcClanAssignOpponent(entry, { onFieldNames: Object.keys(_wcNpcs).map(k => _wcNpcs[k] && _wcNpcs[k].name).filter(Boolean) }) || entry;
+        } catch (e) {}
+    }
+    // 🔒 v3.6.81 初次在頻道發言＝記錄該名字的性向值（已有鎖則沿用舊值）→ 之後記仇／野外遭遇全程同一個顏色
+    let _lockedAlign = (typeof pvpLockAlignment === 'function')
+        ? pvpLockAlignment(entry.n, entry.alignmentValue, entry.clanId)
+        : _wcAlignmentValue(entry.alignmentValue);
     _wcNpcs[id] = {
-        name: _wcMakeName(),
+        name: entry.n,
         persona: _wcPick(WC_PERSONAS),
         cls: _wcPick(clsKeys),
-        alignmentValue: alignmentValue,
+        avatar: entry.avatar,
+        levelOffset: Number.isFinite(Number(entry.levelOffset)) ? Number(entry.levelOffset) : 0,
+        alignmentValue: _lockedAlign,
+        clanId: entry.clanId || null,
+        clanName: entry.clanName || '',
+        clanLeader: !!entry.clanLeader,
         thanked: false,
         taunted: false,
         blocked: false
@@ -198,15 +224,27 @@ function _wcBuildKnowledge() {
     let itemDrops = Object.create(null), mobDrops = Object.create(null), shopItems = new Set();
     try {
         if (typeof MAP_REGIONS !== 'undefined') MAP_REGIONS.forEach(r => (r.maps || []).forEach(m => { mapNames[m.v] = m.t; }));
+        let addMobMap = function(mobName, mapKey, mapName) {
+            if (!mobName) return;
+            let rows = mobMaps[mobName] = mobMaps[mobName] || [];
+            if (!rows.some(row => row.key === mapKey)) rows.push({ key: mapKey, name: mapName });
+        };
         for (let mapKey in DB.maps) {
             let mapName = mapNames[mapKey];
             if (!mapName || !Array.isArray(DB.maps[mapKey])) continue;
             let seen = new Set();
             DB.maps[mapKey].forEach(mobId => {
                 let mob = DB.mobs[mobId];
-                if (!mob || !mob.n || seen.has(mob.n)) return;
-                seen.add(mob.n);
-                (mobMaps[mob.n] = mobMaps[mob.n] || []).push({ key: mapKey, name: mapName });
+                if (!mob || !mob.n) return;
+                if (!seen.has(mob.n)) seen.add(mob.n);
+                let chainId = mobId, chainSeen = new Set();
+                while (chainId && !chainSeen.has(chainId)) {
+                    chainSeen.add(chainId);
+                    let form = DB.mobs[chainId];
+                    if (!form || !form.n) break;
+                    addMobMap(form.n, mapKey, mapName);
+                    chainId = form.transformTo;
+                }
             });
             mapMobs[mapName] = Array.from(seen);
         }
@@ -256,7 +294,7 @@ function _wcBuildKnowledge() {
             };
         });
     } catch (e) {}
-    _wcKnowledge = { itemNames: itemNames, mobNames: mobNames, mapEntries: mapEntries, itemDrops: itemDrops, mobDrops: mobDrops, shopItems: shopItems, craftBy: craftBy };
+    _wcKnowledge = { itemNames: itemNames, mobNames: mobNames, mapEntries: mapEntries, mobMaps: mobMaps, itemDrops: itemDrops, mobDrops: mobDrops, shopItems: shopItems, craftBy: craftBy };
     return _wcKnowledge;
 }
 function _wcCompactItemText(s) {
@@ -473,6 +511,21 @@ function _wcMobDropAnswers(mobName) {
         `${mobName}我印象中有 ${parts.join('、')}${more}，詳細的自己開統計的掉落物頁看。${relicTxt}`
     ];
 }
+function _wcMobLocationAnswers(mobName) {
+    let rows = ((_wcBuildKnowledge().mobMaps || {})[mobName] || []).filter((row, index, all) =>
+        row && row.name && all.findIndex(other => other && other.name === row.name) === index);
+    if (!rows.length) return [
+        `${mobName}目前查不到固定出沒地圖，可能是特殊事件、召喚或階段型怪物。`,
+        `我查不到${mobName}的固定怪物池，先看統計的怪物資料或特殊區域規則。`
+    ];
+    let shown = rows.slice(0, 6).map(row => row.name);
+    let more = rows.length > shown.length ? `，另外還有 ${rows.length - shown.length} 張地圖` : '';
+    return [
+        `${mobName}會出現在 ${shown.join('、')}${more}。`,
+        `要找${mobName}就去 ${shown.join('、')}${more}。`,
+        `${mobName}的出沒地圖是 ${shown.join('、')}${more}。`
+    ];
+}
 function _wcMapMobAnswers(map) {
     let mobs = (map && map.mobs) || [];
     if (!mobs.length) return [`${map ? map.name : '這張圖'}目前查不到固定怪物池。`];
@@ -588,20 +641,26 @@ function _wcDynamicTopic(q) {
     }
     // ⚠️ v3.6.61 補「學／買／做／弄／獲得」動詞：技能書「哪裡學」、藥水「哪裡買」原本全落空只會被嘲笑
     let sourceAsked = /[哪那]裡打|[哪那]邊打|在[哪那]打|[哪那]打|打[哪那]|誰掉|[哪那]掉|會掉|掉落|出處|來源|怎麼拿|怎麼取得|怎取得|如何取得|[哪那]裡出|刷什麼|去[哪那]刷|取得|[哪那]裡學|去[哪那]學|[哪那]學|怎麼學|[哪那]裡買|去[哪那]買|[哪那]買|怎麼買|[哪那]裡拿|去[哪那]拿|[哪那]拿|[哪那]裡找|去[哪那]找|怎麼做|[哪那]裡做|怎麼獲得|如何獲得|如何入手|入手|怎麼弄|[哪那]裡弄|去[哪那]弄/.test(q);
-    let item = _wcFindItem(q, sourceAsked);
+    let exactItem = _wcFindItem(q, false);
+    let mob = _wcFindMob(q);
+    let mobIntentText = mob ? String(q).replace(mob, '') : '';
+    let mobDropAsked = /掉|掉落|噴|物品|道具|裝備|寶物|掉寶|出寶|有什麼寶|戰利品|出什麼|出啥|出貨|出處|來源/.test(mobIntentText);
+    // 怪物名成立時不做兩字物品模糊搜尋，避免「死亡騎士哪裡打」被含死亡騎士字樣的裝備搶走。
+    let item = exactItem || (!mob ? _wcFindItem(q, sourceAsked) : null);
+    let sameMobItemName = !!(exactItem && mob && _wcCompactItemText(exactItem.name) === _wcCompactItemText(mob));
     // ⚠️ 「龍之鑽石」不是背包物品（會被物品「鑽石」substring 誤中）→ 交給 blackmarket 主題
-    if (item && sourceAsked && !/龍之鑽石|龍鑽/.test(q)) return { key: 'item-source', gen: function () { return _wcItemSourceAnswers(item.id); } };
+    if (item && sourceAsked && (!sameMobItemName || mobDropAsked) && !/龍之鑽石|龍鑽/.test(q)) return { key: 'item-source', gen: function () { return _wcItemSourceAnswers(item.id); } };
     // 🐾 v3.6.63 寵物取得：問句點名某隻寵物 → 講該隻的實際管道（蛋／誘捕／進化），別再回制式寵物說明。
     //    ⚠️ 必須排在 _wcFindMob 之前：多數寵物名同時是怪物名（誘捕來源），否則會被 mob-drop 搶走。
     let petName = _wcFindPet(q);
     if (petName && /怎麼拿|怎麼抓|哪裡抓|去哪抓|哪裡拿|去哪拿|怎麼獲得|如何獲得|怎麼取得|如何取得|怎麼弄|哪來的|怎麼來|抓得到|哪裡有|怎麼養|怎麼孵/.test(q)) {
         return { key: 'pet-source', gen: function () { return _wcPetSourceAnswers(petName); } };
     }
-    let mob = _wcFindMob(q);
-    if (mob && /掉什麼|會掉|掉落物|出什麼|噴什麼|有什麼寶/.test(q)) return { key: 'mob-drop', gen: function () { return _wcMobDropAnswers(mob); } };
+    if (mob && mobDropAsked) return { key: 'mob-drop', gen: function () { return _wcMobDropAnswers(mob); } };
     let map = _wcFindMap(q);
     if (map && /什麼怪|哪些怪|出怪|怪物|有什麼/.test(q)) return { key: 'map-mobs', gen: function () { return _wcMapMobAnswers(map); } };
     if (item && /有什麼用|幹嘛的|做什麼|用途|效果|能力|說明|好用嗎/.test(q)) return { key: 'item-info', gen: function () { return _wcItemInfoAnswers(item.id); } };
+    if (mob) return { key: 'mob-location', gen: function () { return _wcMobLocationAnswers(mob); } };
     return null;
 }
 
@@ -693,7 +752,8 @@ const WC_TOPICS = [
                 '現行掉落、製作、潘朵拉與血盟管道只會隨機出現「祝福的」詞綴，機率 1%；屬性與遠古詞綴要去象牙塔找碧恩處理。',
                 '別再照舊攻略 SL 三詞綴了，現在隨機來源只有 1% 祝福；武器屬性跟遠古能力是碧恩那條系統。',
                 '祝福是取得裝備時的隨機驚喜，屬性和遠古不是同一個抽法。想洗那兩種就去象牙塔，別在掉落畫面跟自己過不去。',
-                '五階屬性武器還能拿同屬性卷軸找碧恩附加或重抽屬性魔法；遺物武器、本身就有非屬性卷觸發技能的武器不能附加。'
+                '五階屬性武器還能拿同屬性卷軸找碧恩附加或重抽屬性魔法；遺物武器、本身就有非屬性卷觸發技能的武器不能附加。',
+                '古老的劍跟古老的巨劍雖然無法強化，但碧恩照樣能賦予屬性，而且免 +10/+11 門檻、可以直接衝到第五階。'
             ];
         }
     },
@@ -717,7 +777,8 @@ const WC_TOPICS = [
                 '寵物也能裝武器防具，諾斯那邊可以做，別讓牠白板上場。',
                 '寵物保管上限 32 隻，出戰、收回、裝備後會維持原本捲動位置，不用每次從頂端重找。',
                 '寵物也有隨機傷害減免：物理型看 AC/3、特殊型 AC/4、魔法型 AC/5；袋鼠跟高等袋鼠普攻還會穿透怪物減傷。',
-                '魔法娃娃商人那邊有合成／重組，也有全部合成／全部重組；鎖定的娃娃不會被動到。'
+                '魔法娃娃商人那邊有合成／重組，也有全部合成／全部重組；鎖定的娃娃不會被動到。',
+                '古魯丁村莊的奧斯丁也能保管寵物，跟亞丁包武是同一批，哪邊開都看得到同樣的寵物。'
             ];
         }
     },
@@ -730,7 +791,8 @@ const WC_TOPICS = [
                 '非王族可帶 3 名傭兵；王族也是從 3 名起算，每 15 點魅力多 1 名，60 魅時最多 7 名。',
                 '召喚物走另一套，召喚控制戒指可以指定要召什麼，別用預設的。',
                 '傭兵攻擊技能如果 MP/HP 不夠或條件不符，現在會回普攻節奏，不會假裝施法成功又吃冷卻卡住。',
-                '王族魅力夠可以帶到 7 名傭兵，場上都會顯示外觀；傭兵吃來源角色的等級、裝備、自動技能與變身能力快照。'
+                '王族魅力夠可以帶到 7 名傭兵，場上都會顯示外觀；傭兵吃來源角色的等級、裝備、自動技能與變身能力快照。',
+                '古魯丁村莊也開了傭兵公會，港口那邊就能招人，不用特地跑回海音或歐瑞。'
             ];
         }
     },
@@ -765,7 +827,9 @@ const WC_TOPICS = [
                 '遺物非常稀有，別特地去farm，掛久了自然會遇到。',
                 '想指定拿就去潘朵拉黑市搜索，100 顆龍鑽一次，未知遺物那個選項還保證是你圖鑑沒有的。',
                 '遺物不能強化也不能祝福，拿到什麼就是什麼。',
-                '別看遺物就以為一定強，有幾件是負面效果，看清楚說明再穿。'
+                '別看遺物就以為一定強，有幾件是負面效果，看清楚說明再穿。',
+                '最近又傳出一批新遺物：迷宮惡魔的瞥視、斬首的巨大鐮刀、十字墓碑盾、古代法師的隨手小抄那些，散在巴風特、西斯、墳墓守護者、遺忘之島跟底比斯的怪身上，機率低到別抱期待。',
+                '新遺物裡有幾件很妙：鎖鏈衣要配輕盔甲才有加成、百變化身要變身才生效、隨手小抄戴著就多一招寒冰尖刺可以自動施放。'
             ];
         }
     },
@@ -861,7 +925,9 @@ const WC_TOPICS = [
                 '經典模式死掉的經驗可以去亞丁找聖使阿卡塔花金幣買回一半，紀錄筆數有限，別拖太久。',
                 '一直死就是等級或裝備跟不上：退一張圖練、把自動喝水的門檻調高，比原地送頭有效。',
                 '攻城區不管是邪惡玩家還是敵人死亡，都不會噴裝備；經典模式在攻城區死亡也不扣經驗。',
-                '紅名低於很深的邪惡值才有死亡掉物品風險，攻城區不吃這條。'
+                '紅名低於很深的邪惡值才有死亡掉物品風險，攻城區不吃這條。',
+                '邪惡狀態噴掉的裝備別放棄：亞丁的聖使阿卡塔會記錄最近遺失的幾件，花龍之鑽石就能指定贖回其中一件，強化值跟詞綴都照原樣回來。',   // 🕊️ v3.6.86 裝備贖回
+                '阿卡塔的裝備贖回一般模式也能用，不用經典；只有「死亡經驗買回」那段才是經典限定。'
             ];
         }
     },
@@ -877,6 +943,28 @@ const WC_TOPICS = [
                 '復仇現在不用花金幣，按「嗆他」選一句話就會讓對方加入追殺；打贏才會從名單消失。',
                 '嘲諷玩家 NPC 時，中立 50%、正義 20%、邪惡 100% 會追殺；沒追殺也可能把你封鎖。',
                 '野外、黑市收購、世界頻道這些假玩家名字都走同一個名字池，顏色只看該 NPC 性向。'
+            ];
+        }
+    },
+    {
+        // ⚔️ v3.7.5 存檔 PvP 決鬥競技場（js/28）。⚠️關鍵字刻意避開 'PVP'／'紅名' 等 pvp 性向題的詞，
+        //    避免搶走上一則的題目；'對戰名片'(4字) 比 'PVP'(3字) 長，同時命中時本則會贏。
+        // ⚠️ 複合長詞是必要的：_wcMatchTopic 比「命中關鍵字長度加總」，'決鬥'(2) 會輸給 class 主題的 '怎麼玩'(3)、
+        //    'strong 嗎' 類問法同理 → 對每種常見問法補一個更長的專用詞，實測確認歸位後才算數。
+        key: 'arena', kw: ['決鬥', '競技場', '鬥技場', '對戰名片', '名片', '巴魯特', '單挑', '切磋', '跟朋友打', '玩家對打',
+                           '決鬥怎麼玩', '怎麼決鬥', '決鬥系統', '決鬥強嗎', '決鬥好玩嗎', '決鬥推薦', '決鬥獎勵'],
+        gen: function () {
+            return [
+                '古魯丁村莊那個叫巴魯特的鬥技場管理者，可以幫你產生「對戰名片」——把那串字丟給朋友，他就能挑戰你。',
+                '決鬥要找古魯丁村莊的巴魯特，他會直接把你送進競技場。名片貼上去就開打，不用自己找地圖。',
+                '名片只帶職業、等級、六維、裝備跟技能，背包倉庫金幣都不會外流，放心給人。',
+                '決鬥不給經驗金幣，就只是純比劃；輸了也完全沒損失，不扣經驗不掉裝備連性向值都不動，頂多面子掛不住。',
+                '對手的血量、AC、魔防是照他名片的真實練度算的，攻擊力則走等級平衡曲線，所以裝備有用但不會一拳秒人。',
+                '同一台電腦想試打，巴魯特那邊可以直接選自己其他存檔位的角色來對打，連名片都不用交換。',
+                '有人把名片改成滿等滿裝也沒用，進來會被夾回遊戲上限，而且贏了也沒獎勵可以撈。',
+                '一分出勝負就會跳結果視窗，自己選要「繼續」留在競技場再打一場，還是「回村莊」回古魯丁；輸的那邊也不用按祈求復活，兩個選項都會幫你把狀態補滿。',
+                '對手是法師的話要小心，他不會亂丟小法術——冷卻一好就先挑手上傷害最高的那招往你身上砸，被龍捲風、流星雨開場很痛。',
+                '決鬥場禁藥：進去以後治癒藥水一律喝不了，自動喝、手動點、連寵物都一樣，兩邊同一條規則，所以是真的比裝備跟操作。'
             ];
         }
     },
@@ -922,11 +1010,12 @@ const WC_TOPICS = [
             return [
                 '角色管理在登入畫面：要先刪除角色才能創新或匯入，匯出進度也在那邊，記得定期備份。',
                 '版本更新後畫面怪怪的、圖沒換新，就按 Ctrl+Shift+R 硬重載，把快取的舊檔清掉。',
-                '這遊戲要開著分頁才會跑，沒有離線掛機；怕進度不見就常按匯出進度留一份檔。',
+                '分頁切到背景後，回到遊戲會逐 tick 真實補跑戰鬥；真正關閉網頁則在累積實戰樣本、離線滿 1 分鐘後結算，最多 12 小時，可取得裝備、卡片與曾實際擊敗過的隨機頭目獎勵，但不模擬 PVP 或活動事件。',
                 '存檔會自動進行，也可以手動點儲存；角色突然不見先確認瀏覽器沒清除網站資料，有匯出檔就能救回來。',
                 '倉庫搜尋輸入兩個字以上就會做模糊搜尋，名字記不完整也找得到。',
                 '匯出會帶角色、倉庫跟龍之鑽石；匯入時照選項還原倉庫與寵物資料，隊伍狀態會整理避免跨角色出戰錯亂。',
-                '多開很吃記憶體，正常單分頁不該一直膨脹到十幾 GB；遇到那種狀況先硬重載、關插件，再看是不是瀏覽器或快取問題。'
+                '多開很吃記憶體，正常單分頁不該一直膨脹到十幾 GB；遇到那種狀況先硬重載、關插件，再看是不是瀏覽器或快取問題。',
+                '古魯丁村莊現在有倉庫凱倫跟雜貨商人露西，倉庫本來就是四個存檔角色共用的，哪個村存都一樣。'
             ];
         }
     },
@@ -1298,7 +1387,7 @@ function _wcBuildExtraChatLines() {
 const WC_EXTRA_CHAT_LINES = _wcBuildExtraChatLines();
 const WC_ALL_CHAT_LINES = WC_CHAT_LINES.concat(WC_EXTRA_CHAT_LINES);
 
-// 🔥 v3.6.74 玩家互嗆對話（250 組 × 2 句＝500 條全新台詞）。
+// 🔥 玩家互嗆對話（301 組 × 2 句＝602 條台詞）。
 //   取材自台版天堂／天堂M／天堂W／楓之谷的頻道文化：衝裝爆裝、搶王卡點、盟戰攻城、課長零課、
 //   掛機外掛工作室、嘴砲跑路、喊價殺價、職業互嘲。
 //   ⚠️ 刻意成對（[開嗆, 回嗆]）而非單句池：由 _wcPostTrashTalk 派兩位不同 NPC 一來一往，
@@ -1480,6 +1569,7 @@ const WC_TRASH_TALK_PAIRS = [
     ['你昨天說不課了，今天又在抽。', '人是會變的。'],
     ['課金排行有你的名字嗎，沒有就閉嘴。', '那種榜有什麼好上的。'],
     ['免費仔的意見我通常直接跳過。', '那你繼續跳，反正你也贏不了。'],
+    ['免費遊戲福利這麼少，還不准人抱怨喔。', '又沒人逼你玩，免費的是在哭喔。'],
     ['抽到神裝也是運氣，別講得像實力。', '實力包含運氣管理，懂？'],
     ['我看你儲值紀錄比戰績漂亮。', '兩個都比你漂亮。'],
     ['錢燒完了就會退坑，我看多了。', '那你等著看。'],
@@ -1720,6 +1810,214 @@ function _wcMatchTopic(q) {
     return best;
 }
 
+// 世界頻道群嘲採片段組合判定：允許中間插字、英文大小寫與空白差異，但不讓單一「PK／垃圾」誤觸發。
+const WC_MASS_TAUNT_PATTERNS = [
+    { all:['在座', '各位', '垃圾'] },
+    { all:['有種'], any:['來pk', 'pk啊', 'pk阿', '來單挑', '出來單挑', '出來打', '來戰'] },
+    { all:['有膽'], any:['來pk', '來單挑', '出來單挑', '出來打', '來戰'] },
+    { all:['不服'], any:['來pk', '來單挑', '出來單挑', '出來打', '來戰'] },
+    { all:['一群'], any:['沒用', '廢物', '垃圾', '孬種', '嫩咖'] },
+    { all:['見一個'], any:['殺一個', '砍一個', '打一個'] },
+    { all:['看到一個'], any:['殺一個', '砍一個', '打一個'] },
+    { all:['來一個'], any:['殺一個', '砍一個', '打一個'] },
+    { all:['我要打'], any:['10個', '十個'] },
+    { all:['你們'], any:['都是垃圾', '都是廢物', '全是垃圾', '全是廢物', '都沒用'] },
+    { all:['全部'], any:['一起上', '都來', '都是垃圾', '都是廢物', '都沒用'] },
+    { all:['全頻'], any:['垃圾', '廢物', '沒用', '來pk', '來戰'] }
+];
+const WC_MASS_TAUNT_REPLIES = [
+    '你很勇喔，等等別躲安全區。', '一次點名整個頻道，你今天是不想好好練功了。', '嘴這麼大，裝備最好也有這麼硬。',
+    '報座標，我想看看你本人有沒有這麼秋。', '這句我記下來了，出村記得看背後。', '先把回卷放快捷鍵，你等等會需要。',
+    '你是嫌仇家太少，特地來頻道補名單？', '講完別下線，我等等親自問候。', '全頻都敢嗆，看來你很有自信。',
+    '希望你的血條跟嘴一樣耐打。', '等一下躺地上時也要維持這個氣勢。', '你這句話成功讓我今天有事做了。',
+    '很好，我正愁找不到人試刀。', '頻道我看到了，接下來看你能跑幾張圖。', '別急著道歉，先把藥水補滿。',
+    '敢講就別龜村，外面見。', '你最好真的有本事，不然這句會很貴。', '我本來在掛機，現在有新目標了。',
+    '這麼想出名，我幫你把名字記牢。', '你不是在聊天，你是在替自己發懸賞。', '等等被堵別說人多欺負人少。',
+    '我就喜歡你這種主動報名的。', '放心，我會讓你知道誰才是垃圾。', '你先站著別動，我很快就到。',
+    '這句有種，等等看你本人有沒有種。', '紅水多帶一點，別第一下就回村。', '全頻一起得罪，效率確實很高。',
+    '我沒惹你，你倒先把戰帖送來了。', '有膽再說一次，最好順便報練功點。', '今天不找你聊聊，這頻道都要看不起我。',
+    '嘴砲先算你贏，實戰等等再結算。', '我已經截到了，你想裝沒說過也來不及。', '村口等你，別突然說要睡了。',
+    '好大的口氣，希望不是靠復活撐出來的。', '你成功把和平頻道變成約戰頻道了。', '等我看到你，希望你還笑得出來。'
+];
+const WC_MASS_TAUNT_WINDOW_MS = 30 * 60 * 1000;
+const WC_MASS_TAUNT_BATTLE_CHANCE = 0.10;
+function _wcIsMassTaunt(q) {
+    q = String(q || '').toLowerCase().replace(/[\s　，。！？!?、,.；;：:「」『』（）()]/g, '');
+    return WC_MASS_TAUNT_PATTERNS.some(pattern => {
+        let allHit = !pattern.all || pattern.all.every(key => q.indexOf(key) >= 0);
+        let anyHit = !pattern.any || pattern.any.some(key => q.indexOf(key) >= 0);
+        return allHit && anyHit;
+    });
+}
+function _wcMassTauntRosterEntry(raw) {
+    if (!raw || !raw.n) return null;
+    let avatar = (typeof TROLL_CLASS_BY_AVATAR !== 'undefined' && TROLL_CLASS_BY_AVATAR[raw.avatar]) ? raw.avatar : '男戰士';
+    let alignmentValue = (typeof pvpClampAlignment === 'function')
+        ? pvpClampAlignment(raw.alignmentValue)
+        : Math.max(-32767, Math.min(32767, Math.round(Number(raw.alignmentValue) || 0)));
+    return {
+        n: String(raw.n).slice(0, 24),
+        avatar: avatar,
+        source: 'worldChannel',
+        wcGrudge: true,
+        alignmentValue: alignmentValue,
+        levelOffset: Math.max(-10, Math.min(10, Math.round(Number(raw.levelOffset) || 0))),
+        clanId: raw.clanId || null,
+        clanName: raw.clanName || '',
+        clanLeader: !!raw.clanLeader,
+        until: Math.max(0, Number(raw.until) || 0)
+    };
+}
+function _wcMassTauntState() {
+    if (typeof player === 'undefined' || !player || !player.cls) return null;
+    let st = player.wcMassTaunt;
+    let now = Date.now();
+    if (!st || Math.max(0, Number(st.expiresAt) || 0) <= now || !Array.isArray(st.roster)) {
+        if (st) delete player.wcMassTaunt;
+        return null;
+    }
+    let seen = new Set();
+    st.roster = st.roster.map(_wcMassTauntRosterEntry).filter(entry => {
+        if (!entry || seen.has(entry.n)) return false;
+        seen.add(entry.n);
+        return true;
+    }).slice(0, 20);
+    if (!st.roster.length) { delete player.wcMassTaunt; return null; }
+    return st;
+}
+function wcMassTauntGroupBattleActive() {
+    let battle = typeof mapState !== 'undefined' && mapState ? mapState.wcMassTauntBattle : null;
+    return !!(battle && battle.map === mapState.current && Array.isArray(battle.roster));
+}
+function wcMassTauntMaybeStartGroupBattle(encounter) {
+    if (!encounter || encounter._wcMassTauntBattle || wcMassTauntGroupBattleActive()) return false;
+    if (typeof mapState === 'undefined' || !mapState || !mapState.current || mapState.current.startsWith('town_')) return false;
+    if ((typeof isSiegeArea === 'function' && isSiegeArea(mapState.current)) ||
+        (typeof KING_ROOMS !== 'undefined' && KING_ROOMS[mapState.current]) ||
+        (typeof PURE_BOSS_MAPS !== 'undefined' && PURE_BOSS_MAPS.includes(mapState.current)) ||
+        (typeof npcClanGroupBattleActive === 'function' && npcClanGroupBattleActive())) return false;
+    if (typeof MAP_CATEGORIES === 'undefined' || !MAP_CATEGORIES.wild || !MAP_CATEGORIES.wild.some(m => m.v === mapState.current)) return false;
+    let st = _wcMassTauntState();
+    if (!st || !Array.isArray(player.trollPlayers)) return false;
+    let grudges = new Map();
+    player.trollPlayers.forEach(entry => {
+        if (entry && entry.n && (entry.source === 'worldChannel' || entry.wcGrudge)) grudges.set(entry.n, entry);
+    });
+    let roster = st.roster.map(entry => _wcMassTauntRosterEntry(grudges.get(entry.n))).filter(Boolean);
+    if (!roster.length) { delete player.wcMassTaunt; return false; }
+    if (Math.random() >= WC_MASS_TAUNT_BATTLE_CHANCE) return false;
+    for (let i = roster.length - 1; i > 0; i--) {
+        let j = Math.floor(Math.random() * (i + 1));
+        [roster[i], roster[j]] = [roster[j], roster[i]];
+    }
+    mapState.wcMassTauntBattle = {
+        map: mapState.current,
+        roster: roster,
+        next: 0,
+        kills: 0,
+        defeated: [],
+        total: roster.length,
+        startedAt: Date.now()
+    };
+    for (let i = 0; i < mapState.mobs.length; i++) {
+        let live = mapState.mobs[i];
+        if (live && !live.boss) mapState.mobs[i] = null;
+    }
+    mapState.spawnAt = [null, null, null, null, null];
+    mapState.targetIdx = -1;
+    if (typeof logSys === 'function') {
+        logSys('<span class="text-red-400 font-bold">你先前挑釁的玩家們在狩獵區包圍了你！</span>');
+    }
+    return true;
+}
+function wcMassTauntGroupBattleNextOpponent() {
+    let battle = wcMassTauntGroupBattleActive() ? mapState.wcMassTauntBattle : null;
+    if (!battle) return null;
+    while (battle.next < battle.roster.length) {
+        let rosterIndex = battle.next++;
+        let entry = _wcMassTauntRosterEntry(battle.roster[rosterIndex]);
+        if (entry) {
+            entry._wcMassTauntBattle = true;
+            entry._wcMassTauntBattleKey = rosterIndex + ':' + entry.n;
+            return entry;
+        }
+    }
+    return null;
+}
+function wcMassTauntGroupBattleFill() {
+    if (!wcMassTauntGroupBattleActive() || mapState._wcMassTauntBattleFilling) return;
+    mapState._wcMassTauntBattleFilling = true;
+    try {
+        let slots = typeof backSlotsActive === 'function' && backSlotsActive() ? 5 : 3;
+        for (let i = 0; i < slots; i++) {
+            if (!mapState.mobs[i] && mapState.wcMassTauntBattle.next < mapState.wcMassTauntBattle.roster.length) spawnMob(i);
+        }
+    } finally {
+        mapState._wcMassTauntBattleFilling = false;
+    }
+}
+function wcMassTauntGroupBattleEnd(reason) {
+    let battle = typeof mapState !== 'undefined' && mapState ? mapState.wcMassTauntBattle : null;
+    if (!battle) return;
+    mapState.wcMassTauntBattle = null;
+    for (let i = 0; i < mapState.mobs.length; i++) {
+        if (mapState.mobs[i] && mapState.mobs[i]._wcMassTauntBattle) mapState.mobs[i] = null;
+    }
+    let nowT = typeof state !== 'undefined' ? state.ticks : 0;
+    mapState.spawnAt = mapState.mobs.map(m => m ? null : nowT + 50);
+    mapState.targetIdx = -1;
+    if (reason === 'victory') {
+        delete player.wcMassTaunt;
+        if (typeof logSys === 'function') logSys('<span class="text-emerald-300 font-bold">你擊退了前來圍堵的玩家們。</span>');
+    }
+    if (typeof renderMobs === 'function') renderMobs();
+}
+function wcMassTauntGroupBattleOnKill(mob) {
+    if (!mob || !mob._wcMassTauntBattle || !wcMassTauntGroupBattleActive()) return;
+    let battle = mapState.wcMassTauntBattle;
+    if (!Array.isArray(battle.defeated)) battle.defeated = [];
+    let battleKey = String(mob._wcMassTauntBattleKey || mob.n || '');
+    if (!battleKey || battle.defeated.includes(battleKey)) return;
+    battle.defeated.push(battleKey);
+    battle.kills = battle.defeated.length;
+    if (battle.kills >= battle.total) wcMassTauntGroupBattleEnd('victory');
+}
+function wcMassTauntOnLeaveBattleArea() {
+    if (typeof mapState !== 'undefined' && mapState && mapState.wcMassTauntBattle) wcMassTauntGroupBattleEnd('leave');
+}
+function _wcTriggerMassTaunt() {
+    let count = 10 + Math.floor(Math.random() * 11);   // 10~20 人
+    let replies = WC_MASS_TAUNT_REPLIES.slice();
+    for (let i = replies.length - 1; i > 0; i--) {
+        let j = Math.floor(Math.random() * (i + 1));
+        [replies[i], replies[j]] = [replies[j], replies[i]];
+    }
+    let chaseChanged = false;
+    let clanHatred = Object.create(null);
+    let roster = [];
+    let attempts = 0;
+    while (roster.length < count && attempts++ < count * 12) {
+        let id = _wcSpawnNpc();
+        let npc = _wcNpcs[id];
+        if (!npc || roster.some(entry => entry.n === npc.name)) continue;
+        if (!_wcAddGrudge(npc, { silent:true, deferSave:true })) continue;
+        let grudge = Array.isArray(player.trollPlayers) ? player.trollPlayers.find(entry => entry && entry.n === npc.name) : null;
+        let saved = _wcMassTauntRosterEntry(grudge);
+        if (!saved) continue;
+        logWorld(`<span class="wc-mock">${_wcNameHtml(id)}：${_wcEsc(replies[roster.length % replies.length])}</span>`);
+        roster.push(saved);
+        chaseChanged = true;
+        if (npc.clanId) clanHatred[npc.clanId] = (clanHatred[npc.clanId] || 0) + 1;
+    }
+    if (roster.length) {
+        player.wcMassTaunt = { v:1, expiresAt:Date.now() + WC_MASS_TAUNT_WINDOW_MS, roster:roster };
+    }
+    if (typeof npcClanAdjustHatred === 'function') {
+        Object.keys(clanHatred).forEach(clanId => npcClanAdjustHatred(clanId, clanHatred[clanId]));
+    }
+    if (chaseChanged && typeof saveGame === 'function') saveGame();
+}
+
 // ================= 💬 發問主流程 =================
 function worldChannelAsk() {
     let input = document.getElementById('world-input');
@@ -1735,7 +2033,11 @@ function worldChannelAsk() {
     input.value = '';
     let myName = (typeof player !== 'undefined' && player && player.name) ? player.name : '你';
     let myAlignment = (typeof player !== 'undefined' && player) ? player.alignmentValue : 0;
-    logWorld(`<span class="wc-ask">[${_wcStaticNameHtml(myName, myAlignment)}] ${_wcEsc(q)}</span>`);
+    logWorld(`<span class="wc-ask">${_wcStaticNameHtml(myName, myAlignment)}：${_wcEsc(q)}</span>`);
+    if (_wcIsMassTaunt(q)) {
+        _wcTriggerMassTaunt();
+        return;
+    }
 
     let topic = _wcMatchTopic(q);
     let n = 1 + Math.floor(Math.random() * 3);             // 每次隨機 1~3 人回覆
@@ -1785,7 +2087,12 @@ function worldChannelNpcMenu(id, ev) {
     menu.id = 'world-channel-npc-menu';
     menu.className = 'wandering-shout-menu';
     menu.dataset.npc = id;
+    // 🛡️ v3.6.77 點名字時一併顯示血盟（用戶要求）：無盟＝整條不出現，不留空行也不寫「無血盟」。
+    let clanRow = npc.clanName
+        ? `<div class="wc-menu-clan">［${npc.clanLeader ? '盟主・' : ''}${_wcEsc(npc.clanName)}］</div>`
+        : '';
     menu.innerHTML =
+        clanRow +
         `<button type="button" class="wandering-taunt-entry" onclick="worldChannelTaunt('${id}')">嘲諷</button>` +
         `<button type="button" onclick="worldChannelThank('${id}')">感謝</button>` +
         `<button type="button" onclick="worldChannelCloseMenu()">算了</button>`;
@@ -1874,32 +2181,42 @@ function worldChannelThank(id) {
                 return !isWorldGrudge;
             });
             if (!removed) return;
+            if (typeof pvpReleaseAlignLock === 'function') pvpReleaseAlignLock(npc.name);   // 🔒 v3.6.81 消氣＝判定不會再追殺 → 解除性向值鎖（宣戰凍結者不解）
             logWorld(`<span class="wc-sys">${nameHtml} 好像沒那麼氣了。</span>`);
             if (typeof saveGame === 'function') saveGame();
         }
     } catch (e) {}
 }
 // 記仇：寫進白目玩家名單（結構比照 js/24 _startWandererChase：n／avatar／alignmentValue／until）
-function _wcAddGrudge(npc) {
+function _wcAddGrudge(npc, opts) {
+    opts = opts || {};
     try {
-        if (typeof player === 'undefined' || !player || !player.cls) return;
+        if (typeof player === 'undefined' || !player || !player.cls) return false;
         if (!Array.isArray(player.trollPlayers)) player.trollPlayers = [];
-        if (player.trollPlayers.some(t => t && t.n === npc.name)) return;
+        if (player.trollPlayers.some(t => t && t.n === npc.name)) return false;
         let male = Math.random() < 0.5;
         let avatarByCls = { royal: male ? '王子' : '公主', knight: male ? '男騎士' : '女騎士', mage: male ? '男法師' : '女法師',
             elf: male ? '男妖精' : '女妖精', dark: male ? '男黑暗妖精' : '女黑暗妖精', dragon: male ? '男龍騎士' : '女龍騎士',
             warrior: male ? '男戰士' : '女戰士', illusion: male ? '男幻術士' : '女幻術士' };
+        let avatar = (typeof TROLL_CLASS_BY_AVATAR !== 'undefined' && TROLL_CLASS_BY_AVATAR[npc.avatar])
+            ? npc.avatar
+            : (avatarByCls[npc.cls] || (male ? '男戰士' : '女戰士'));
         player.trollPlayers.push({
             n: npc.name,
-            avatar: avatarByCls[npc.cls] || (male ? '男戰士' : '女戰士'),
+            avatar: avatar,
             source: 'worldChannel',
             wcGrudge: true,
-            alignmentValue: _wcAlignmentValue(npc.alignmentValue),
+            alignmentValue: (typeof pvpLockedAlignment === 'function') ? pvpLockedAlignment(npc.name, npc.alignmentValue) : _wcAlignmentValue(npc.alignmentValue),   // 🔒 v3.6.81 沿用初次發言鎖住的值
+            levelOffset: Number.isFinite(Number(npc.levelOffset)) ? Number(npc.levelOffset) : 0,
+            clanId: npc.clanId || null,
+            clanName: npc.clanName || '',
+            clanLeader: !!npc.clanLeader,
             until: Date.now() + 2 * 60 * 60 * 1000
         });
-        logWorld(`<span class="text-rose-400 font-bold">[${_wcStaticNameHtml(npc.name, npc.alignmentValue)}] 惡狠狠地記住了你……</span>`);
-        if (typeof saveGame === 'function') saveGame();
-    } catch (e) {}
+        if (!opts.silent) logWorld(`<span class="text-rose-400 font-bold">[${_wcStaticNameHtml(npc.name, npc.alignmentValue)}] 惡狠狠地記住了你……</span>`);
+        if (!opts.deferSave && typeof saveGame === 'function') saveGame();
+        return true;
+    } catch (e) { return false; }
 }
 
 // ---- 輸入列：Enter 送出（⚠️ 中文注音組字中的 Enter 是「選字」，必須用 isComposing 擋掉，否則打不出中文）----

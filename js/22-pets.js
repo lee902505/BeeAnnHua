@@ -1,4 +1,4 @@
-// ============================================================
+﻿// ============================================================
 // js/22-pets.js — 🐾 夥伴系統 v2（v3.2.17 依「夥伴更新.md」全面取代舊項圈系統）
 //   ・寵物＝獨立實體（等級/經驗/HP/MP/技能），非道具；捕捉入「寵物保管」（同模式全角色共通、上限＝PET_STORAGE_MAX·v3.6.37 用戶調整為 32）
 //   ・出戰上限 4 隻＋魅力門檻（6/12/15/20）；經驗＝玩家實得複製一份均分給出戰寵物；升級需求＝玩家表 1/10
@@ -56,14 +56,14 @@ const PET_BOOK = {
     // ===== 黃金龍（v3.2.63：任一「一般型態」＋勝利果實可直接進化取得·與高等型態並列·Lv1 起·最終型態不可再進化）=====
     '黃金龍':       { kind:'spec', tier:2, lv0:1, hpUp:[8,12],  mpUp:[2,4], hpReg:8,  mpReg:4,  apm:72,    capm:45,    stun:0.58, cha:20, evo:null, sk:[{ n:'火焰噴射', mp:15, kind:'magic', d:[1,15], ele:'fire', aoe:true, w:50 }, { n:'火球', mp:10, kind:'magic', d:[2,10], ele:'fire', w:50 }] },
     // ===== 蜥蜴四型態（🦎 v3.6.43 用戶規格·獲得管道待補·tier0＋evo:null＝無法進化·魅力 15 比照龍系〔規格未給·暫定〕）=====
-    '厄運蜥蜴': { kind:'spec', tier:0, lv0:5, hp0:150, mp0:40, hpUp:[12,24], mpUp:[5,8],  hpReg:15, mpReg:10, apm:72, capm:48, stun:0.58, cha:15, evo:null, sk:[{ n:'火焰噴射', mp:20, kind:'magic', d:[1,25], ele:'fire',  aoe:true, w:90 }, { n:'炎爪', mp:0, kind:'dot', dot:'burn',   dps:10, dur:6, w:10 }] },
-    '災厄蜥蜴': { kind:'spec', tier:0, lv0:5, hp0:160, mp0:20, hpUp:[12,26], mpUp:[5,7],  hpReg:15, mpReg:10, apm:60, capm:48, stun:0.50, cha:15, evo:null, sk:[{ n:'大地震裂', mp:20, kind:'magic', d:[1,25], ele:'earth', aoe:true, w:90 }, { n:'堅硬', mp:0, kind:'selfbuff', dr:10, dur:6, w:10 }] },
-    '破滅蜥蜴': { kind:'spec', tier:0, lv0:5, hp0:150, mp0:40, hpUp:[12,22], mpUp:[5,7],  hpReg:15, mpReg:10, apm:90, capm:48, stun:0.58, cha:15, evo:null, sk:[{ n:'龍捲風', mp:20, kind:'magic', d:[1,25], ele:'wind',  aoe:true, w:90 }, { n:'風刃', mp:0, kind:'dot', dot:'bleed',  dps:10, dur:6, w:10 }] },
-    '詛咒蜥蜴': { kind:'spec', tier:0, lv0:5, hp0:120, mp0:60, hpUp:[10,20], mpUp:[6,10], hpReg:10, mpReg:15, apm:60, capm:48, stun:0.58, cha:15, evo:null, sk:[{ n:'冰雪暴', mp:20, kind:'magic', d:[1,25], ele:'water', aoe:true, freezeCh:3, w:90 }, { n:'汙濁', mp:0, kind:'dot', dot:'poison', dps:10, dur:6, w:10 }] }
+    '厄運蜥蜴': { kind:'spec', tier:0, goldenAtk:1.60, goldenMagic:1.60, lv0:5, hp0:150, mp0:40, hpUp:[12,24], mpUp:[5,8],  hpReg:15, mpReg:10, apm:72, capm:48, stun:0.58, cha:15, evo:null, sk:[{ n:'火焰噴射', mp:20, kind:'magic', d:[1,25], ele:'fire',  aoe:true, w:90 }, { n:'炎爪', mp:0, kind:'dot', dot:'burn',   dps:10, dur:6, w:10 }] },
+    '災厄蜥蜴': { kind:'spec', tier:0, goldenAtk:2.05, goldenMagic:2.05, acMod:-5, mrBonus:20, lv0:5, hp0:160, mp0:20, hpUp:[12,26], mpUp:[5,7],  hpReg:15, mpReg:10, apm:60, capm:48, stun:0.50, cha:15, evo:null, sk:[{ n:'大地震裂', mp:20, kind:'magic', d:[1,25], ele:'earth', aoe:true, w:90 }, { n:'堅硬', mp:0, kind:'selfbuff', dr:10, dur:6, w:10 }] },
+    '破滅蜥蜴': { kind:'spec', tier:0, goldenAtk:2.10, goldenMagic:1.05, drPierce:0.35, lv0:5, hp0:150, mp0:40, hpUp:[12,22], mpUp:[5,7],  hpReg:15, mpReg:10, apm:90, capm:48, stun:0.58, cha:15, evo:null, sk:[{ n:'龍捲風', mp:20, kind:'magic', d:[1,25], ele:'wind',  aoe:true, w:90 }, { n:'風刃', mp:0, kind:'dot', dot:'bleed',  dps:10, dur:6, w:10 }] },
+    '詛咒蜥蜴': { kind:'spec', tier:0, goldenAtk:1.35, goldenMagic:2.60, lv0:5, hp0:120, mp0:60, hpUp:[10,20], mpUp:[6,10], hpReg:10, mpReg:15, apm:60, capm:48, stun:0.58, cha:15, evo:null, sk:[{ n:'冰雪暴', mp:20, kind:'magic', d:[1,25], ele:'water', aoe:true, freezeCh:3, w:90 }, { n:'汙濁', mp:0, kind:'dot', dot:'poison', dps:10, dur:6, w:10 }] }
 };
 const PET_KIND_WEIGHT = { phys: 4, spec: 3, mag: 2 };   // 受擊權重（怪物一般攻擊選目標）
 const PET_KIND_LABEL = { phys: '物理型', spec: '特殊型', mag: '魔法型' };
-const PET_STORAGE_MAX = 32;   // 亞丁包武保管上限（含出戰中·v3.6.37 用戶調整 20→32）
+const PET_STORAGE_MAX = 32;   // 寵物保管上限（含出戰中·v3.6.37 用戶調整 20→32；v3.7.7 保管人＝亞丁 包武／古魯丁 奧斯丁·同一個桶）
 const PET_CARRY_MAX = 4;      // 同時出戰上限
 
 // 誘捕 buff（player.buffs 鍵·值=秒）→ 可捕捉怪（key=怪物名精確比對·value=獲得的寵物型態）
@@ -91,28 +91,41 @@ const PET_DMG_TUNE = { basic: 1.20, skill: 1.10 };
 const PET_TIER_DMG_MULT = [1.14, 1.46, 1.00];   // 🐾 與下方生存力曲線合併後：一般平均總傷約+20%、高等約+50%；黃金龍維持原值
 const PET_HIT_TUNE = 5;                         // 🐾 全寵物命中補強（仍受等級差、目標 AC 與骰 1 必失影響）
 function _petClamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
+function _petPowerCurve(def, lv) {
+    let g = _PET_G[def.kind], t = def.tier || 0;
+    let speedMul = _petClamp(Math.sqrt(60 / Math.max(1, def.apm)), 0.80, 1.25);
+    let hpAvg = ((def.hpUp && def.hpUp[0]) || 0) / 2 + ((def.hpUp && def.hpUp[1]) || 0) / 2;
+    let oldDurableMul = hpAvg <= 5 ? 1.05 : (hpAvg <= 8 ? 1 : (hpAvg <= 11 ? 0.92 : 0.85));
+    let durableMul = t === 2 ? oldDurableMul : 1;
+    let skills = def.sk || [];
+    let hasMagic = skills.some(s => s.kind === 'magic');
+    let hasExtra = skills.some(s => s.kind === 'extra');
+    let hasDebuff = skills.some(s => s.kind === 'debuff');
+    let skillMul = !skills.length ? 1.08 : (hasMagic ? 0.72 : (hasExtra ? 0.85 : (hasDebuff ? 0.98 : 1)));
+    let tierAtk = [1, 1.18, 1.35][t] || 1;
+    let castMul = def.capm > 0 ? _petClamp(Math.sqrt(50 / def.capm), 0.80, 1.25) : 1;
+    let skillTier = [1, 1.15, 1.25][t] || 1;
+    return { avgAtk: Math.max(1, (g.atk0 + lv * g.atkG) * speedMul * durableMul * skillMul * tierAtk * PET_DMG_TUNE.basic),
+        skillFlat: Math.floor(lv * g.skillG * castMul * skillTier * PET_DMG_TUNE.skill) };
+}
 function petDerive(p) {
     let def = PET_BOOK[p.form]; if (!def) return null;
     let g = _PET_G[def.kind], lv = p.lv || 1, t = def.tier || 0;
-    let speedMul = _petClamp(Math.sqrt(60 / Math.max(1, def.apm)), 0.80, 1.25);
     let hpAvg = ((def.hpUp && def.hpUp[0]) || 0) / 2 + ((def.hpUp && def.hpUp[1]) || 0) / 2;
-    const oldDurableMul = hpAvg <= 5 ? 1.05 : (hpAvg <= 8 ? 1 : (hpAvg <= 11 ? 0.92 : 0.85));
     // 生存力換輸出：低血成長寵物明顯偏攻擊，高血成長寵物偏坦；一般／高等的普攻與技能都套用。
     const survivalDmgMult = hpAvg <= 5 ? 1.25 : (hpAvg <= 8 ? 1.08 : (hpAvg <= 11 ? 0.90 : 0.75));
-    const durableMul = t === 2 ? oldDurableMul : 1;   // 黃金龍只有單一型態，保留既有基本傷害，不參與同階血量取向比較
     let hpAc = hpAvg > 11 ? -2 : (hpAvg > 8 ? -1 : (hpAvg <= 5 ? 1 : 0));
     let hpDr = hpAvg > 11 ? 2 : (hpAvg > 8 ? 1 : 0);
-    let hasMagic = def.sk.some(s => s.kind === 'magic');
-    let hasExtra = def.sk.some(s => s.kind === 'extra');
-    let hasDebuff = def.sk.some(s => s.kind === 'debuff');
-    let skillMul = !def.sk.length ? 1.08 : (hasMagic ? 0.72 : (hasExtra ? 0.85 : (hasDebuff ? 0.98 : 1)));
-    let tierAtk = [1, 1.18, 1.35][t] || 1;
-    let avgAtk = Math.max(1, (g.atk0 + lv * g.atkG) * speedMul * durableMul * skillMul * tierAtk * PET_DMG_TUNE.basic);
+    let power = _petPowerCurve(def, lv);
+    if ((def.goldenAtk || def.goldenMagic) && PET_BOOK['黃金龍']) {
+        let golden = _petPowerCurve(PET_BOOK['黃金龍'], lv);
+        if (def.goldenAtk) power.avgAtk = Math.max(power.avgAtk, golden.avgAtk);
+        if (def.goldenMagic) power.skillFlat = Math.max(power.skillFlat, golden.skillFlat);
+    }
+    let avgAtk = power.avgAtk;
     let flat = Math.floor(avgAtk * 0.35), dice = Math.max(1, Math.ceil(avgAtk * 1.30));
     let speedHit = _petClamp(Math.round((60 - def.apm) / 12), -3, 3);
     let elite = t === 2 ? { hit:2, ac:-4, dr:2, mr:10 } : { hit:0, ac:0, dr:0, mr:0 };
-    let castMul = def.capm > 0 ? _petClamp(Math.sqrt(50 / def.capm), 0.80, 1.25) : 1;
-    let skillTier = [1, 1.15, 1.25][t] || 1;
     let mr = g.mr0 + Math.floor(lv * g.mrG) + t * g.mrTier + elite.mr;
     // 🛡️ v3.2.37 寵物個別防具（p.eq.arm）：petAc(+強化每+1再-1)→AC、petMr→MR、petInt→技能傷害+1/點、petWis→MP上限+5·MP恢復+1/點
     let _ga = (p.eq && p.eq.arm) ? DB.items[p.eq.arm.id] : null;
@@ -124,16 +137,18 @@ function petDerive(p) {
         kind: def.kind, tier: t,
         dice: dice,
         flat: flat,
+        attackMult: Math.max(1, def.goldenAtk || 1),
+        magicMult: Math.max(1, def.goldenMagic || 1),
         drPierce: Math.max(0, Math.min(0.95, def.drPierce || 0)),
-        damageMult: (t === 2 ? 1 : (PET_TIER_DMG_MULT[t] || 1) * survivalDmgMult) * petMasteryDmgMult(),   // 👑 夥伴精通 ×1.5 折於此＝普攻(petAttackOnce)／傷害技能(petCastSkill)／extra技(走普攻) 三路徑一次覆蓋
+        damageMult: ((def.goldenAtk || def.goldenMagic) ? 1 : (t === 2 ? 1 : (PET_TIER_DMG_MULT[t] || 1) * survivalDmgMult)) * petMasteryDmgMult(),   // 🦎 四蜥蜴以黃金龍為基準，普攻／魔法各自套用角色倍率；👑 夥伴精通 ×1.5
         hit: Math.floor((g.hit0 + Math.floor(lv * g.hitG) + speedHit + t * 3 + elite.hit + PET_HIT_TUNE) * petMasteryHitMult()),   // 👑 夥伴精通 ×1.5
-        skillFlat: Math.floor(lv * g.skillG * castMul * skillTier * PET_DMG_TUNE.skill) + _gInt,
-        ac: 10 - Math.floor(lv / g.acDiv) - t * g.acTier + hpAc + elite.ac - _gAc,
+        skillFlat: power.skillFlat + _gInt + (typeof petAuraSum === 'function' ? petAuraSum('petMdmgAll') : 0),   // 🏺 v3.7.20 蜥蜴領主的王冠 +3／珍藏的巨大胡蘿蔔 +1：寵物魔法（技能）傷害光環
+        ac: 10 - Math.floor(lv / g.acDiv) - t * g.acTier + hpAc + elite.ac + (def.acMod || 0) - _gAc,
         dr: Math.floor(lv / g.drDiv) + t * g.drTier + hpDr + elite.dr,
         er: Math.min(g.erCap, Math.floor(lv / g.erDiv)),                // ER
-        mr: Math.min(t === 2 ? 110 : g.mrCap, mr) + (_ga ? (_ga.petMr || 0) : 0),
+        mr: Math.min(t === 2 ? 110 : g.mrCap, mr + (def.mrBonus || 0)) + (_ga ? (_ga.petMr || 0) : 0),
         mmpBonus: _gWis * 5,                                            // 精神：MP 上限 +5/點（regen/施放/顯示用有效上限）
-        mpRegBonus: _gWis,                                              // 精神：MP 恢復 +1/點
+        mpRegBonus: _gWis + (typeof petAuraSum === 'function' ? petAuraSum('petMpRAll') : 0),   // 精神：MP 恢復 +1/點；🏺 v3.7.20 蜥蜴領主的王冠：全寵物 MP 自然恢復 +5
         atkItv: Math.max(3, Math.round(600 / def.apm)),                 // 攻擊間隔（ticks·600=每分鐘tick數）
         castItv: def.capm > 0 ? Math.max(5, Math.round(600 / def.capm)) : 0,
         stunTicks: Math.round((def.stun || 0.58) * 10)
@@ -168,6 +183,15 @@ function petMasteryHitMult()   { return petMasteryOn() ? 1.5 : 1; }   // 折進 
 function petMasteryTakenMult() { return petMasteryOn() ? 0.5 : 1; }   // 受到傷害 −50%：掛怪物普攻／怪物魔法兩處（與 teamDmgReduceMult 同列；DoT 依既有設計為固定真傷·不受任何減免）
 // 🏺 遺物 馴獸師手做寵物專用盔甲：該寵物裝備的護甲（p.eq.arm）帶 petDmgReduce → 受到傷害 ×(1−petDmgReduce)。與 petMasteryTakenMult 同列乘算。
 function petArmorDmgReduceMult(p) { let a = p && p.eq && p.eq.arm; let d = a ? DB.items[a.id] : null; return (d && d.petDmgReduce) ? Math.max(0, 1 - d.petDmgReduce) : 1; }
+// 🏺 v3.7.20 蜥蜴領主的王冠等「全寵物光環」欄位加總：掃玩家＋未倒地傭兵全部裝備欄（範圍與 petGearBonus 的 petDmgAll 一致）
+function petAuraSum(field) {
+    let s = 0;
+    let _scan = function (c) { if (!c || !c.eq) return; for (let k in c.eq) { let e = c.eq[k]; if (!e) continue; let d = DB.items[e.id]; if (d && d[field]) s += d[field]; } };
+    if (typeof player !== 'undefined' && player) { _scan(player); (player.allies || []).forEach(a => { if (a && !a._downed) _scan(a); }); }
+    return s;
+}
+// 🏺 v3.7.20 寵物有效 HP 上限＝存檔 mhp ＋ 光環加成（petHpAll·蜥蜴領主的王冠 +100）。恢復/治癒/顯示皆以此為上限；不改寫存檔 p.mhp。
+function petMhpEff(p) { return Math.max(1, (p && p.mhp || 1) + petAuraSum('petHpAll')); }
 function petRandomPhysicalDr(p, d) {
     let k = (d && d.kind) || ((p && PET_BOOK[p.form]) || {}).kind || 'mag';
     let div = k === 'phys' ? 3 : (k === 'spec' ? 4 : 5);
@@ -463,7 +487,7 @@ function petStoreAdd(form, srcLabel, deferCommit) {
     list.push(p); _petPendingAddUids[p.uid] = 1;   // 🪣 v3.5.88 登記為「尚未進桶的本地新增」：只有這批可被上限守衛回滾
     petMarkDirty();
     if (!deferCommit && !petRosterSave()) { _petRoster = list.filter(x => x.uid !== p.uid); delete _petPendingAddUids[p.uid]; petMarkDirty(); logSys('<span class="text-red-400">寵物保管寫入失敗，本次取得已取消。</span>'); return false; }
-    if (!deferCommit) logSys(`<span class="text-green-300 font-bold">🐾 ${srcLabel || '捕獲成功'}！${form}（Lv.${p.lv}）已送往包武的寵物保管。</span>`);
+    if (!deferCommit) logSys(`<span class="text-green-300 font-bold">🐾 ${srcLabel || '捕獲成功'}！${form}（Lv.${p.lv}）已送往寵物保管。</span>`);
     try { renderTabs(); } catch (e) {}
     return p;
 }
@@ -539,7 +563,7 @@ function petUseDragonEgg(item) {   // 頑皮幼龍蛋：保管未滿→消耗·�
     let added = petStoreAdd(form, null, true);
     if (!added || !_petCommitMutation(snap)) return;
     logSys(`<span class="text-amber-300 font-bold">蛋殼裂開了！</span>一隻幼龍探出頭來……`);
-    logSys(`<span class="text-green-300 font-bold">🐾 孵化成功！${form}（Lv.${added.lv}）已送往包武的寵物保管。</span>`);
+    logSys(`<span class="text-green-300 font-bold">🐾 孵化成功！${form}（Lv.${added.lv}）已送往寵物保管。</span>`);
     try { renderTabs(); updateUI(); } catch (e) {}
     try { if (!document.getElementById('item-modal').classList.contains('hidden')) closeModal(); } catch (e) {}
 }
@@ -551,7 +575,7 @@ function petUseCursedEgg(item, petName, crackMsg) {   // 🏺 v3.6.44 充滿詛�
     let added = petStoreAdd(petName, null, true);
     if (!added || !_petCommitMutation(snap)) return;
     logSys(crackMsg || `<span class="text-purple-300 font-bold">蛋殼在詛咒的氣息中碎裂……</span>`);
-    logSys(`<span class="text-green-300 font-bold">🐾 孵化成功！${petName}（Lv.${added.lv}）已送往包武的寵物保管。</span>`);
+    logSys(`<span class="text-green-300 font-bold">🐾 孵化成功！${petName}（Lv.${added.lv}）已送往寵物保管。</span>`);
     try { renderTabs(); updateUI(); } catch (e) {}
     try { if (!document.getElementById('item-modal').classList.contains('hidden')) closeModal(); } catch (e) {}
 }
@@ -567,7 +591,7 @@ function petCaptureOnKill(mob) {   // killMob 掛點：專屬誘捕優先於一�
         if (!player._allLures) player.buffs[key] = 0;   // 🐾 一般誘捕道具捕獲後消耗；飼料袋提供的誘捕不消耗（卸下即失效）
         let added = petStoreAdd(form, null, true);
         if (!added || !_petCommitMutation(snap)) return;
-        logSys(`<span class="text-green-300 font-bold">🐾 誘捕成功！${form}（Lv.${added.lv}）已送往包武的寵物保管。</span>`);
+        logSys(`<span class="text-green-300 font-bold">🐾 誘捕成功！${form}（Lv.${added.lv}）已送往寵物保管。</span>`);
         return;
     }
 }
@@ -842,7 +866,7 @@ function petsTick() {
         // 每 5 秒恢復（比照規格 HP恢復/MP恢復）
         let def = PET_BOOK[p.form];
         if (state.ticks % 50 === 0) {
-            { if (p.hp < p.mhp && def.hpReg) p.hp = Math.min(p.mhp, p.hp + def.hpReg); }
+            { let _me = petMhpEff(p); if (p.hp < _me && def.hpReg) p.hp = Math.min(_me, p.hp + def.hpReg); }   // 🏺 v3.7.20 恢復上限含 petHpAll 光環
             let _mmpEff = p.mmp + (d.mmpBonus || 0);   // 🛡️ v3.2.37 寵物防具 精神：MP上限+5/點·MP恢復+1/點
             if (p.mp < _mmpEff && ((def.mpReg || 0) + (d.mpRegBonus || 0) > 0)) p.mp = Math.min(_mmpEff, p.mp + (def.mpReg || 0) + (d.mpRegBonus || 0));
         }
@@ -931,7 +955,9 @@ function petAttackOnce(p, d, target, forceCrit, addDmg, skName) {
             let targetDr = Math.floor((target.dr || 0) * (1 - (d.drPierce || 0)));
             let dmg = (heavy ? d.dice : roll(1, d.dice)) + d.flat + cb.dmg + (addDmg || 0) + pg.dmg + (_ia ? _ia.ed : 0) + (petDevotionGuardOn(p) ? 8 : 0) - targetDr - (_pst.weaken > 0 ? 5 : 0);   // 🏺 v3.6.44 珍愛夥伴的執念：復活後 8 秒額外傷害 +8
             dmg = Math.max(1, Math.floor(dmg));
-            dmg = Math.max(1, Math.floor(dmg * (d.damageMult || 1)));   // 🐾 型態增傷＋低血高傷取向（普攻／extra 技能共用）
+            dmg += traumaPhysicalBonus(target);
+            let atkMult = (d.damageMult || 1) * (d.attackMult || 1);
+            dmg = Math.max(1, (d.attackMult || 1) > 1 ? Math.ceil(dmg * atkMult) : Math.floor(dmg * atkMult));   // 🦎 蜥蜴普攻以同級黃金龍為底再套角色倍率；其餘寵物維持原取整
             if (skName && typeof _relicPetSkillMult === 'function') dmg = Math.max(1, Math.floor(dmg * _relicPetSkillMult()));
             markBossPhysicalHit(target);
             target.curHp -= dmg; if (typeof terrorVisageOnDamage === 'function') terrorVisageOnDamage(target, dmg, skName ? 'magic' : 'melee'); target.justHit = 'none'; mobWake(target);   // 🌅 巨大骷髏：寵物普攻＝近距離、寵物技能＝魔法
@@ -979,7 +1005,7 @@ function petCastSkill(p, d, target) {
                 logCombat(`寵物 [${p.form}] 施放 <span class="text-pink-300 font-bold">${sk.n}</span>，<span class="${getMobColor(target.lv)}">${target.n}</span> 陷入${sk.debuff === 'slow' ? '緩速' : sk.debuff === 'weaken' ? '弱化' : '疾病'}！（命中率 ${Math.round(ch)}%）`, 'player-special');
             } else logCombat(`寵物 [${p.form}] 施放 <span class="text-pink-300 font-bold">${sk.n}</span>，但被抵抗了。（命中率 ${Math.round(ch)}%）`, 'miss');
         } else if (sk.kind === 'dot') {   // 🦎 v3.6.43 蜥蜴固定 DoT（必中·每秒 dps 點固定傷害·dur 秒）：burn=_burnDot／bleed=bleeds 層／poison=st.poison*（皆走既有 tick 管線·DPS 歸 'pet'）
-            let _t = (sk.dur || 6) * 10, _dm = sk.dps || 10;
+            let _t = (sk.dur || 6) * 10, _dm = (sk.dps || 10) + Math.floor(Math.max(1, p.lv || 1) / 5);
             if (sk.dot === 'burn') target._burnDot = { left: _t, dmg: _dm, tick: 10, src: 'pet' };
             else if (sk.dot === 'bleed') {
                 target.bleeds = target.bleeds || [];
@@ -999,9 +1025,10 @@ function petCastSkill(p, d, target) {
             mobWake(target);
             logCombat(`寵物 [${p.form}] 施放 <span class="text-pink-300 font-bold">${sk.n}</span>，<span class="${getMobColor(target.lv)}">${target.n}</span> 陷入${sk.dot === 'burn' ? '灼燒' : sk.dot === 'bleed' ? '出血' : '中毒'}！（每秒 ${_dm} 點·持續 ${sk.dur || 6} 秒）`, 'player-special');
         } else if (sk.kind === 'selfbuff') {   // 🦎 災厄蜥蜴堅硬：自身傷害減免 +dr·dur 秒（petHardenDr 於受擊時消費·runtime 欄位不入桶）
-            p._hardenDr = sk.dr || 10;
+            let _hd = (sk.dr || 10) + Math.floor(Math.max(1, p.lv || 1) / 10);
+            p._hardenDr = _hd;
             p._hardenUntil = (state.ticks || 0) + (sk.dur || 6) * 10;
-            logCombat(`寵物 [${p.form}] 施放 <span class="text-pink-300 font-bold">${sk.n}</span>，傷害減免 +${sk.dr || 10}！（持續 ${sk.dur || 6} 秒）`, 'player-special');
+            logCombat(`寵物 [${p.form}] 施放 <span class="text-pink-300 font-bold">${sk.n}</span>，傷害減免 +${_hd}！（持續 ${sk.dur || 6} 秒）`, 'player-special');
         } else {   // magic：骰值+技能傷害加成·吃魔抗/DR/屬性剋制；必定命中
             let targets = sk.aoe ? mapState.mobs.filter(m => m && m.curHp > 0) : [target];
             let texts = [];
@@ -1012,7 +1039,8 @@ function petCastSkill(p, d, target) {
                 let dmg = Math.floor(core * mrMult(effMr));
                 if (sk.ele && sk.ele !== 'none' && m.e && m.e !== 'none' && typeof elementCounterMult === 'function') dmg = Math.floor(dmg * elementCounterMult(sk.ele, m.e));
                 dmg = Math.max(1, dmg - (m.dr || 0));
-                dmg = Math.max(1, Math.floor(dmg * (d.damageMult || 1)));   // 🐾 傷害技能同享型態增傷＋低血高傷取向
+                let magicMult = (d.damageMult || 1) * (d.magicMult || 1);
+                dmg = Math.max(1, (d.magicMult || 1) > 1 ? Math.ceil(dmg * magicMult) : Math.floor(dmg * magicMult));   // 🦎 蜥蜴魔法以同級黃金龍為底再套角色倍率；其餘寵物維持原取整
                 if (typeof _relicPetSkillMult === 'function') dmg = Math.max(1, Math.floor(dmg * _relicPetSkillMult()));   // 🏺 馴獸師的訓狗棒：寵物技能×1.5
                 if (sk.n && sk.n.includes('冰錐') && typeof equipSkillDmgMult === 'function') dmg = Math.max(1, Math.floor(dmg * equipSkillDmgMult(DB.skills.sk_ice_spike, 'sk_ice_spike')));   // 🏺 v3.2.35 暴走兔最愛的胡蘿蔔：攜帶的暴走兔/高等暴走兔施放的冰錐也 ×1.5（掃玩家裝備 skillDmgMult.sk_ice_spike·與訓狗棒相乘）
                 m.curHp -= dmg; if (typeof terrorVisageOnDamage === 'function') terrorVisageOnDamage(m, dmg, 'magic'); m.justHit = sk.ele || 'none'; mobWake(m);   // 🌅 巨大骷髏：寵物傷害技能視為魔法
@@ -1021,7 +1049,7 @@ function petCastSkill(p, d, target) {
                     m.st = m.st || newMobStatus(); m.st.freeze = Math.max(m.st.freeze || 0, 40); _fz = true;
                 }
                 texts.push(`<span class="${getMobColor(m.lv)}">${m.n}</span> ${dmg}${_fz ? '<span class="text-sky-300 font-bold">（冰凍！）</span>' : ''}`);
-                if (sk.drainHalf) { let heal = Math.floor(dmg / 2); if (heal > 0) p.hp = Math.min(p.mhp, p.hp + heal); }
+                if (sk.drainHalf) { let heal = Math.floor(dmg / 2); if (heal > 0) p.hp = Math.min(petMhpEff(p), p.hp + heal); }
             });
             logCombat(`寵物 [${p.form}] 施放 <span class="text-pink-300 font-bold">${sk.n}</span> → ${texts.join('、')}${sk.drainHalf ? '（吸收傷害一半 HP）' : ''}`, 'player-special');
             targets.forEach(m => _petAfterDamage(m));
@@ -1123,9 +1151,10 @@ function applyMobMagicToPet(mob, sk, p) {
     petMarkDirty();
 }
 function petTryPotion(p) {   // HP<X% 用治癒藥水（邏輯同傭兵 allyTryPotion：喝「隊長設定的藥水」·缺貨且勾自動購買→補到100瓶）
+    if (typeof pvpArenaPotionBlocked === 'function' && pvpArenaPotionBlocked()) return;   // 🚫 v3.7.17 決鬥中禁治癒藥水（⚠️寵物不像傭兵會被移到場邊·決鬥時仍在場上→這道閘是真的會擋到東西的那一個）
     if (!(p.potPct > 0) || p._downed) return;
     if ((p._potCd || 0) > 0) { p._potCd--; return; }
-    if (p.hp <= 0 || p.hp > p.mhp * (p.potPct / 100)) return;
+    if (p.hp <= 0 || p.hp > petMhpEff(p) * (p.potPct / 100)) return;
     let potSel = (typeof document !== 'undefined') ? document.getElementById('set-pot') : null;
     let potId = potSel ? potSel.value : 'potion_heal';
     let pdef = DB.items[potId];
@@ -1147,14 +1176,14 @@ function petTryPotion(p) {   // HP<X% 用治癒藥水（邏輯同傭兵 allyTryP
     let h = Math.max(1, Math.floor(potionHealBase(pdef) * (1 + getConPotionPct((player.d && player.d.con) || 0) / 100)));
     if (p._statuses && p._statuses.potionFrost > 0) h = Math.max(1, Math.floor(h * 0.5));   // 🌅 藥水霜化：寵物也以自己的 MR/狀態判定，不再借用主角色結果
     if (p._statuses && p._statuses.foulWater > 0) h = Math.max(1, Math.floor(h * 0.5));   // 🌊 v3.6.20 汙濁之水：治癒藥水也減半
-    p.hp = Math.min(p.mhp, p.hp + h);
+    p.hp = Math.min(petMhpEff(p), p.hp + h);
     p._potCd = 10;
     logCombat(`寵物 <span class="text-emerald-300 font-bold">${p.form}</span> 飲用 ${pdef.n}，恢復 ${h} 點 HP。`, 'heal');
     petMarkDirty();
 }
 function _petReviveDone(p, via) {
     p._downed = false; p._reviveCd = 0;
-    p.hp = Math.max(1, Math.floor(p.mhp * 0.5)); p.mp = p.mmp + (((typeof petDerive === 'function' && petDerive(p)) || {}).mmpBonus || 0);   // 🦴 v3.2.42 稽核修：復活 MP 補到含防具精神加成的有效上限（與 petsTick _mmpEff 一致）
+    p.hp = Math.max(1, Math.floor(petMhpEff(p) * 0.5)); p.mp = p.mmp + (((typeof petDerive === 'function' && petDerive(p)) || {}).mmpBonus || 0);   // 🦴 v3.2.42 稽核修：復活 MP 補到含防具精神加成的有效上限（與 petsTick _mmpEff 一致）
     p._animAct = null; p._statuses = newMobStatus();
     logCombat(`<span class="text-green-300 font-bold">寵物 ${p.form} 復活了！</span>（${via}）`, 'heal');
     petDevotionGrant(p);   // 🏺 v3.6.44 珍愛夥伴的執念：復活後 8 秒受傷 −100%＋額外傷害 +8
@@ -1177,7 +1206,7 @@ function petsReviveAtTown() {
     let n = 0;
     outs.forEach(p => {
         if (p._downed) { p._downed = false; p._reviveCd = 0; p._animAct = null; n++; petDevotionGrant(p); }   // 🏺 v3.6.44 回村復活亦觸發珍愛夥伴 buff
-        p.hp = p.mhp;
+        p.hp = petMhpEff(p);   // 🏺 v3.7.20 回村補滿含 petHpAll 光環
         p.mp = (p.mmp || 0) + (((typeof petDerive === 'function' && petDerive(p)) || {}).mmpBonus || 0);
         p._statuses = newMobStatus();
     });
@@ -1228,6 +1257,8 @@ function _petStorageRestoreScroll(div, pos) {
     if (typeof requestAnimationFrame === 'function') requestAnimationFrame(apply);
 }
 function renderPetStorageNPC(div, confirmUid) {
+    // 🏘️ v3.7.7 保管人不只一位（亞丁 包武／古魯丁 奧斯丁·同一個保管桶）→ 台詞取當前互動視窗的 NPC 名，不再寫死
+    let hostName = ((document.getElementById('interaction-npc-name') || {}).innerText || '').trim() || '包武';
     let scrollState = _petStorageScrollState(div);
     let list = petRoster();
     let cha = (player.d && player.d.cha) || 0;
@@ -1259,7 +1290,7 @@ function renderPetStorageNPC(div, confirmUid) {
                 <span class="font-bold ${isOut ? 'text-emerald-300' : 'text-white'}">${p.form}</span>
                 <span class="text-amber-300"> Lv.${p.lv}</span>
                 <span class="text-slate-400 text-xs">（${PET_KIND_LABEL[def.kind] || ''}·魅力${need}${isOut ? '·本角色出戰中' : (otherOut ? '·其他角色出戰中' : '')}）</span><br>
-                <span class="text-xs text-slate-300">HP ${p.hp}/${p.mhp}　MP ${p.mp}/${p.mmp + (d.mmpBonus || 0)}　EXP ${expPct}%　攻1D${Math.max(1, Math.round(d.dice * (d.damageMult || 1)))}+${Math.round((d.flat + cb.dmg) * (d.damageMult || 1))} 命中${d.hit + cb.hit} AC${d.ac} 減免${d.dr} ER${d.er} MR${d.mr}</span>
+                <span class="text-xs text-slate-300">HP ${p.hp}/${p.mhp}　MP ${p.mp}/${p.mmp + (d.mmpBonus || 0)}　EXP ${expPct}%　攻1D${Math.max(1, Math.round(d.dice * (d.damageMult || 1) * (d.attackMult || 1)))}+${Math.round((d.flat + cb.dmg) * (d.damageMult || 1) * (d.attackMult || 1))} 命中${d.hit + cb.hit} AC${d.ac} 減免${d.dr} ER${d.er} MR${d.mr}</span>
             </span>
             <span class="flex gap-1 shrink-0 flex-wrap justify-end" style="max-width:210px">
                 ${!otherOut && canEvo && p.lv >= 30 ? `<button onclick="petEvolve('${p.uid}')" class="btn px-2 py-1 text-xs font-bold" style="background:linear-gradient(135deg,#713f12,#ca8a04);color:#fef9c3;border-color:#eab308;" title="進化：${_evoTip}（兩種果實都有可選擇）">進化</button>` : ''}
@@ -1274,7 +1305,7 @@ function renderPetStorageNPC(div, confirmUid) {
     let vicCnt = player.inv.filter(i => i.id === 'item_victory_fruit').reduce((s, i) => s + (i.cnt || 0), 0);
     div.innerHTML = `
     <div class="flex flex-col gap-3 p-1" data-petui="1">
-        <div class="text-slate-300 text-sm leading-relaxed">包武：我幫你照顧捕獲的寵物。<b class="text-amber-300">最多保管 ${PET_STORAGE_MAX} 隻，同一模式的角色共通</b>。其他角色出戰中的寵物會顯示「使用中」，<b class="text-amber-200">必須先由原角色收回，不能直接轉移</b>。使用誘捕道具後擊殺對應的動物即可捕獲；點「出戰」讓寵物加入隊伍（最多 ${PET_CARRY_MAX} 隻·依寵物需求消耗魅力）。<b class="text-amber-300">只有「一般型態」的寵物（Lv30 以上）可進化，且有兩條路</b>：用「進化果實」→對應的高等型態，或用「勝利果實」→黃金龍；兩種果實都帶在身上時，進化前可自行選擇要走哪條路。高等型態與黃金龍都是最終型態、不會再進化——身上沒有果實可是不能進化的喔。</div>
+        <div class="text-slate-300 text-sm leading-relaxed">${hostName}：我幫你照顧捕獲的寵物。<b class="text-amber-300">最多保管 ${PET_STORAGE_MAX} 隻，同一模式的角色共通</b>。其他角色出戰中的寵物會顯示「使用中」，<b class="text-amber-200">必須先由原角色收回，不能直接轉移</b>。使用誘捕道具後擊殺對應的動物即可捕獲；點「出戰」讓寵物加入隊伍（最多 ${PET_CARRY_MAX} 隻·依寵物需求消耗魅力）。<b class="text-amber-300">只有「一般型態」的寵物（Lv30 以上）可進化，且有兩條路</b>：用「進化果實」→對應的高等型態，或用「勝利果實」→黃金龍；兩種果實都帶在身上時，進化前可自行選擇要走哪條路。高等型態與黃金龍都是最終型態、不會再進化——身上沒有果實可是不能進化的喔。</div>
         <div class="flex items-center gap-4 bg-slate-800/60 border border-slate-600 rounded p-3 text-sm flex-wrap">
             <span>保管：<span class="text-amber-300 font-bold">${list.length}/${PET_STORAGE_MAX}</span></span>
             <span>出戰：<span class="text-emerald-300 font-bold">${petsOutList().length}/${PET_CARRY_MAX}</span></span>
@@ -1292,7 +1323,7 @@ function renderPetTeamHTML() {
     if (!outs.length) return '';
     return outs.map(p => {
         let _mmpEff = p.mmp + (((typeof petDerive === 'function' && petDerive(p)) || {}).mmpBonus || 0);   // 🦴 v3.2.42 稽核修：MP 條/浮標含防具精神加成（原本米索莉寵顯示 35/30 爆表）
-        let hpPct = Math.max(0, Math.min(100, Math.floor(p.hp / Math.max(1, p.mhp) * 100)));
+        let _mhpE = petMhpEff(p); let hpPct = Math.max(0, Math.min(100, Math.floor(p.hp / Math.max(1, _mhpE) * 100)));
         let mpPct = Math.max(0, Math.min(100, Math.floor(p.mp / Math.max(1, _mmpEff) * 100)));
         let expPct = Math.min(100, Math.floor((p.exp || 0) / petExpReq(p.lv) * 100));
         let thumb = 'assets/anim/' + encodeURIComponent(p.form) + '/d6/idle_0.png';
@@ -1315,7 +1346,7 @@ function renderPetTeamHTML() {
                 <span class="text-slate-400 whitespace-nowrap" style="font-size:10px;">HP&lt;<input type="number" min="0" max="95" value="${p.potPct || 0}" onchange="petSetPotPct('${p.uid}',this.value)" class="w-11 bg-slate-900 border border-slate-600 rounded px-1 text-center" style="font-size:10px;height:16px;padding-top:0;padding-bottom:0;">%喝水</span>
             </div>
             <div class="compact-dual-vitals" style="margin-top:2px;">
-                <div class="bar-bg compact-team-bar" title="HP ${p.hp}/${p.mhp}"><div class="bar-fill" style="width:${hpPct}%;background:linear-gradient(90deg,#dc2626,#f87171);"></div><div class="bar-text text-white">${p.hp}/${p.mhp}</div></div>
+                <div class="bar-bg compact-team-bar" title="HP ${p.hp}/${_mhpE}"><div class="bar-fill" style="width:${hpPct}%;background:linear-gradient(90deg,#dc2626,#f87171);"></div><div class="bar-text text-white">${p.hp}/${_mhpE}</div></div>
                 <div class="bar-bg compact-team-bar" title="MP ${p.mp}/${_mmpEff}"><div class="bar-fill" style="width:${mpPct}%;background:linear-gradient(90deg,#2563eb,#60a5fa);"></div><div class="bar-text text-white">${p.mp}/${_mmpEff}</div></div>
             </div>
         </div>`;
@@ -1478,7 +1509,7 @@ function petMigrateLegacy() {
             if (typeof _pg.cnt === 'undefined') _pg.cnt = 1;
             player.inv.push(_pg);
             player.eq.pet = null; delete player.eq.pet;
-            logSys(`<span class="text-amber-200">寵物裝備改為每隻寵物個別穿戴：原「寵物裝備」欄上的 ${DB.items[_pg.id] ? DB.items[_pg.id].n : _pg.id}${(_pg.en || 0) > 0 ? '+' + _pg.en : ''} 已放回背包，請至 亞丁 包武的寵物保管 為寵物裝上。</span>`);
+            logSys(`<span class="text-amber-200">寵物裝備改為每隻寵物個別穿戴：原「寵物裝備」欄上的 ${DB.items[_pg.id] ? DB.items[_pg.id].n : _pg.id}${(_pg.en || 0) > 0 ? '+' + _pg.en : ''} 已放回背包，請至寵物保管（亞丁 包武／古魯丁 奧斯丁）為寵物裝上。</span>`);
         }
         let converted = 0, lost = 0;
         let convert = (id, cnt) => {

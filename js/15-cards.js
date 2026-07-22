@@ -7,9 +7,9 @@
 
 // ---- 卡片階級 ----
 const CARD_TIERS = [
-    { t: 1, key: 'p', sfx: '普卡', col: 'c-card-common', img: 'assets/icons/items/普卡.png', price: 100 },
-    { t: 2, key: 's', sfx: '銀卡', col: 'c-card-silver', img: 'assets/icons/items/銀卡.png', price: 1000 },
-    { t: 3, key: 'g', sfx: '金卡', col: 'c-card-gold',   img: 'assets/icons/items/金卡.png', price: 10000 }
+    { t: 1, key: 'p', sfx: '普卡', col: 'c-card-common', img: 'assets/icons/items/普卡.png', price: 100, weight: 50 },
+    { t: 2, key: 's', sfx: '銀卡', col: 'c-card-silver', img: 'assets/icons/items/銀卡.png', price: 1000, weight: 10 },
+    { t: 3, key: 'g', sfx: '金卡', col: 'c-card-gold',   img: 'assets/icons/items/金卡.png', price: 10000, weight: 1 }
 ];
 function cardId(name, tier) { return 'card_' + CARD_TIERS[tier - 1].key + '_' + name; }
 
@@ -107,7 +107,7 @@ const CARD_MOB_MAPS = {};      // mobName -> [mapKey,...]
         CARD_TIERS.forEach(ct => {
             DB.items[cardId(nm, ct.t)] = {
                 n: nm + ' 的' + ct.sfx, type: 'misc', eff: 'card', cardTier: ct.t, cardMob: nm,
-                c: ct.col, img: ct.img, p: ct.price, gachaWeight: 0,
+                c: ct.col, img: ct.img, p: ct.price, gachaWeight: ct.weight,
                 d: '怪物卡片。使用以在卡片收集冊中登錄「' + nm + '」（' + ct.sfx + '效果）。'
             };
         });
@@ -136,7 +136,7 @@ function ensureCardBook() {
     if (player.inv.some(i => i.id === 'item_card_book')) player.inv = player.inv.filter(i => i.id !== 'item_card_book');
 }
 
-// ---- 掉落（killMob 呼叫）：血盟以外、且該怪屬於某卡片地區才有卡；三階各自獨立，特別版由 _cardDropRoll 套用集中掉寶倍率 ----
+// ---- 掉落（killMob 呼叫）：血盟以外、且該怪屬於某卡片地區才有卡；三階各自獨立、一般＝經典機率（不乘 classicDropMult）----
 // 🦊 v3.5.2 變身鏈卡片規則：中間階（有 transformTo·玉藻/九尾）不掉卡；最終階（殺生石）擲中時從整鏈三張卡隨機選一張。
 const CARD_CHAIN_BY_FINAL = (() => {   // 最終階怪名 -> 整鏈怪名清單（從鏈根走到底·目前僅九尾狐鏈）
     const isTarget = {}; for (const k in DB.mobs) { const t = DB.mobs[k] && DB.mobs[k].transformTo; if (t) isTarget[t] = 1; }
@@ -339,6 +339,7 @@ function _requestedDollOpenCount(requested, have) {
     let n = _normalizeDollOpenCount(requested);
     return n > 0 ? Math.min(n, have) : 0;
 }
+
 function _dollRng(tag, seq) { return _seededFloat(((player && player.enSeed) || 'x') + '|doll' + tag + '|' + seq); }   // 決定論 [0,1)
 function _dollBagOutcome(seq) { let r = _dollRng('bag', seq) * 10000, acc = 0; for (let p of DOLL_BAG_POOL) { acc += p[1]; if (r < acc) return p[0]; } return DOLL_BAG_POOL[0][0]; }
 // 🎁 高級魔法娃娃的盒子：80% 二階 / 18% 三階 / 2% 四階（總權重 10000）；選定階後該階娃娃「平均」抽一隻。committed RNG（dollSeq·save/load 不變）。
