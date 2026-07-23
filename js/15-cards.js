@@ -42,8 +42,8 @@ const CARD_STAT_LABEL = { mhp: 'HP', mmp: 'MP', mpR: 'MP自動恢復量', hpR: '
 
 // ---- 特殊刷出怪：不在任何 DB.maps 出怪池（掃圖建索引抓不到）→ 手動歸入指定卡片地區（同時開通掉卡＋圖鑑）----
 //  怪id → { region: CARD_REGIONS key, mapLabel: 金卡「出沒」顯示文字 }
-//  🐉 v3.5.35 風龍林德拜爾：持有頑皮幼龍蛋於野外 1% 特殊刷出（js/03）·歸入亞丁地區（完成加成 resWind·風龍對味）。
-const CARD_SPECIAL_MOBS = { lindvior: { region: 'aden', mapLabel: '野外（持有頑皮幼龍蛋時極低機率遭遇）' } };
+//  🐉 v3.5.35 風龍林德拜爾：持有任意幼龍蛋（頑皮／淘氣）於野外 1% 特殊刷出（js/03）·歸入亞丁地區（完成加成 resWind·風龍對味）。
+const CARD_SPECIAL_MOBS = { lindvior: { region: 'aden', mapLabel: '野外（持有任意幼龍蛋時極低機率遭遇）' } };
 
 // ---- 地圖 key → 中文名（供金卡「出沒地圖」顯示）----
 const _CARD_MAP_NAMES = {};
@@ -315,6 +315,7 @@ const DOLL_BY_TIER = { 1:[], 2:[], 3:[], 4:[], 5:[], 6:[] };
 (function(){ for (let id in DB.items) { let d = DB.items[id]; if (d && d.doll && d.dollTier && DOLL_BY_TIER[d.dollTier]) DOLL_BY_TIER[d.dollTier].push(id); } })();
 // 合成成功率表：DOLL_SYNTH_RATES[來源階][放入數量] = %（1→2,2→3,...,5→6）
 const DOLL_SYNTH_RATES = { 1:{2:8,3:23,4:45}, 2:{2:7,3:20,4:40}, 3:{2:4,3:12,4:23}, 4:{2:2,3:6,4:12}, 5:{2:1,3:3,4:6} };
+
 // ⭐ 特別版：魔法娃娃指定開啟數量。預設值與可選上限集中在 js/00-data.js。
 function _dollOpenSetting(key, fallback) {
     let n = Number(window.IDLE_SPECIAL_SETTINGS && window.IDLE_SPECIAL_SETTINGS[key]);
@@ -339,7 +340,6 @@ function _requestedDollOpenCount(requested, have) {
     let n = _normalizeDollOpenCount(requested);
     return n > 0 ? Math.min(n, have) : 0;
 }
-
 function _dollRng(tag, seq) { return _seededFloat(((player && player.enSeed) || 'x') + '|doll' + tag + '|' + seq); }   // 決定論 [0,1)
 function _dollBagOutcome(seq) { let r = _dollRng('bag', seq) * 10000, acc = 0; for (let p of DOLL_BAG_POOL) { acc += p[1]; if (r < acc) return p[0]; } return DOLL_BAG_POOL[0][0]; }
 // 🎁 高級魔法娃娃的盒子：80% 二階 / 18% 三階 / 2% 四階（總權重 10000）；選定階後該階娃娃「平均」抽一隻。committed RNG（dollSeq·save/load 不變）。
