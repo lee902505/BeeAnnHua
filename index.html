@@ -6,7 +6,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <script>
       // 📱 BeeAnnHua 特別版手機自由縮放：保留桌機三欄比例，首次以 1600px 虛擬寬度完整縮入。
       // 玩家可用雙指自由放大／縮小與拖曳；平常縮放不重設，僅旋轉螢幕時重建一次 viewport。
@@ -36,7 +36,6 @@
             return meta.getAttribute('content');
           }
 
-          // 不指定 initial-scale，讓瀏覽器首次自動把 1600px 完整縮入螢幕。
           meta.setAttribute('content',
             'width=' + DESIGN_W +
             ', minimum-scale=0.15, maximum-scale=4.0, user-scalable=yes, viewport-fit=cover'
@@ -60,11 +59,14 @@
         window.addEventListener('orientationchange', refreshAfterOrientationChange, { passive: true });
       })();
     </script>
+    <!-- 🗑️ v3.5.87 移除死的行動裝置偵測 IIFE：applyViewport 無任何分支（mobile 變數算了沒用）、
+         DESIGN_W/isMobileDevice/window.__mobileScaling 全專案零呼叫；唯一實際效果 viewport-fit=cover 直接併入上方 meta。
+         （width=1180 手機縮放已於桌機專注決策時移除·本作 desktop-only） -->
 
     <title>放置天堂 - 日出之國</title>
     <link rel="icon" type="image/png" href="assets/favicon.png">   <!-- 🖼️ 瀏覽器分頁圖示(favicon)：把你的圖放到 assets/favicon.png 即生效；可改 href 路徑或副檔名(.ico/.svg) -->
 
-    <link rel="stylesheet" href="css/style.css?v=special-20260723-four-fixed">
+    <link rel="stylesheet" href="css/style.css?v=v3.8.5-special4-20260724">
     <link rel="stylesheet" href="css/floating-ui.css?v=v3.5.100-audit-tail">
     <link rel="stylesheet" href="css/tailwind-built.css"><!-- 🔧 預編譯 Tailwind（取代執行期 JIT tailwind.js）：只含實際用到的 class，省 407KB runtime + 移除持續掃描 DOM 的成本。置於 style.css 之後以保留原 cascade（utility 平手時勝過自訂 class，與舊 JIT 注入順序一致） -->
 </head>
@@ -238,7 +240,6 @@
                         <div class="bar-bg compact-vital-bar" title="MP"><div id="bar-mp" class="bar-fill bg-blue-600" style="width:100%"></div><div id="txt-mp" class="bar-text text-white">1/1</div></div>
                     </div>
                     <div class="bar-bg status-exp-bar" title="EXP"><div id="bar-exp" class="bar-fill bg-yellow-500" style="width:0%"></div><div id="txt-exp" class="bar-text font-normal">0.00%</div></div>
-                    <div id="castle-guard-row" class="flex items-center gap-3 mt-1 hidden"><span id="cg-name" class="text-amber-300 font-bold w-16 text-right text-xs leading-tight whitespace-nowrap">護衛</span><div class="bar-bg compact-team-bar flex-1" title="HP"><div id="cg-bar" class="bar-fill bg-red-600" style="width:100%"></div><div id="cg-txt" class="bar-text text-white">0/0</div></div></div>
                 </div>
             </div>
 
@@ -278,6 +279,7 @@
         </select>
         <select id="map-select" class="bg-slate-800 border border-slate-600 text-white px-3 py-1.5 text-base rounded outline-none" onchange="changeMap()"></select>
         <span id="pride-floor-indicator" class="hidden text-rose-200 font-bold text-base px-3 py-1.5 whitespace-nowrap"></span>
+        <span id="merc-role-hint" class="hidden text-amber-300 font-bold text-base px-3 py-1.5 whitespace-nowrap" title="受僱為其他角色的傭兵期間只能停留在安全區，非安全區一律無法前往；請由僱主解散傭兵後才能再次出發。">目前擔任隊員中</span>
                 </div>
             </div> <!-- 👈 就是少了這個標籤！它是用來把 panel-header 關閉的 -->
             
@@ -443,7 +445,13 @@
                 <!-- 🔧 v2.6.74 自動化設定改「分頁內嵌」（原 v2.6.73 浮動視窗取消）：與 能力/技能 同框架，switchTab(automation) 切換；set-* 控制項恆在 DOM 供 saveGame/自動化讀取 -->
                 <div id="tab-automation" class="p-4 text-base overflow-y-auto h-full hidden">
                     <div class="bg-slate-800 p-3 rounded-lg border border-slate-700 flex flex-col gap-2">
-                        <button type="button" class="btn w-24 py-1 mb-2 text-sm font-bold bg-slate-700 hover:bg-slate-600 border-slate-500 text-slate-100" onclick="returnToCharacterSelect()">回選角</button>
+                        <div class="flex items-center gap-2 mb-2">
+                            <button type="button" class="btn w-24 py-1 text-sm font-bold bg-slate-700 hover:bg-slate-600 border-slate-500 text-slate-100" onclick="returnToCharacterSelect()">回選角</button>
+                            <label id="npc-language-setting" class="btn min-w-32 py-1 px-3 text-sm font-bold bg-slate-700 hover:bg-slate-600 border-slate-500 text-cyan-100 cursor-pointer flex items-center justify-center gap-2" title="本機 NPC AI 對話">
+                                <input type="checkbox" id="set-npc-language-on" class="w-4 h-4" onchange="setNpcLanguageEnabled(this.checked)">
+                                <span>NPC AI 對話</span>
+                            </label>
+                        </div>
                         <div class="flex items-center justify-between gap-3">
                             <label class="cursor-pointer flex items-center gap-2"><input type="checkbox" id="set-sfx-on" class="w-4 h-4" onchange="try{setSfxOn(this.checked)}catch(e){}"><span class="text-sm text-amber-200 font-bold">🔊 戰鬥音效</span></label>
                             <input type="range" id="set-sfx-vol" min="0" max="100" value="50" step="5" class="flex-1 max-w-[150px]" oninput="try{setSfxVol(this.value)}catch(e){}" title="音效音量">
@@ -594,35 +602,38 @@
     })();
     </script>
 
-    <script src="js/anim-manifest.js?v=v3.5.100-audit-tail"></script>
-    <script src="js/00-data.js?v=special-20260723-four-fixed"></script>
-<script src="js/01-drops-config.js?v=v3.7.61"></script>
-<script src="js/02-stats-recompute.js?v=v3.7.57"></script>
-    <script src="js/03-combat-core.js?v=special-20260723-four-fixed"></script>
-    <script src="js/04-combat-attack.js?v=v3.7.57"></script>
-<script src="js/05-kill-progression.js?v=special-20260723-four-fixed"></script>
-    <script src="js/06-status-allies.js?v=v3.7.57"></script>
-    <script src="js/07-skills-cast.js?v=v3.7.57"></script>
-<script src="js/08-items-equip.js?v=v3.7.57"></script>
-<script src="js/09-vfx-render.js?v=v3.7.57"></script>
-<script src="js/10-ui-tabs.js?v=v3.7.52-relic-batch23"></script>
-<script src="js/11-world-map.js?v=v3.7.60"></script>
+    <script src="js/anim-manifest.js?v=v3.7.65"></script>
+    <script src="js/00-data.js?v=v3.8.5-special4-20260724"></script>
+<script src="js/01-drops-config.js?v=v3.8.3-dancefire-team"></script>
+<script src="js/02-stats-recompute.js?v=v3.8.3-dancefire-team"></script>
+    <script src="js/03-combat-core.js?v=v3.8.5-special4-20260724"></script>
+    <script src="js/04-combat-attack.js?v=v3.8.3-dancefire-team"></script>
+<script src="js/05-kill-progression.js?v=v3.8.5-special4-20260724"></script>
+    <script src="js/06-status-allies.js?v=v3.8.5-merc-elf-ele"></script>
+    <script src="js/07-skills-cast.js?v=v3.7.97-threat"></script>
+<script src="js/08-items-equip.js?v=v3.7.96"></script>
+<script src="js/09-vfx-render.js?v=v3.7.95"></script>
+<script src="js/10-ui-tabs.js?v=v3.8.5-merc-elf-ele"></script>
+<script src="js/11-world-map.js?v=v3.7.99-wino-sprite"></script>
 <script src="js/12-npc-quests.js?v=v3.7.56"></script>
-<script src="js/13-shop-save.js?v=v3.7.58"></script>
-<script src="js/14-craft-pandora.js?v=v3.7.57"></script>
-<script src="js/15-cards.js?v=special-20260723-four-fixed"></script>
+<script src="js/13-shop-save.js?v=v3.8.2-merc-exp-monotonic"></script>
+<script src="js/14-craft-pandora.js?v=v3.7.75"></script>
+<script src="js/15-cards.js?v=v3.8.5-special4-20260724"></script>
 <script src="js/16-equip-book.js?v=v3.5.100-audit-tail"></script>
 <script src="js/18-misc-book.js?v=v3.5.100-audit-tail"></script>
-<script src="js/17-audio.js?v=v3.7.57"></script>
+<script src="js/17-audio.js?v=v3.8.1-monia-sfx"></script>
 <script src="js/19-equipment-window.js?v=v3.7.57"></script>
 <script src="js/20-warehouse-window.js?v=v3.5.100-audit-tail"></script>
 <script src="js/21-relic-book.js?v=v3.5.100-audit-tail"></script>
-    <script src="js/23-summons.js?v=v3.7.22-relic-fixes"></script>
-    <script src="js/22-pets.js?v=v3.7.56"></script>
-    <script src="js/24-pandora-relic-market.js?v=v3.7.56-buyer-card-split"></script>
-    <script src="js/25-clan-system.js?v=v3.7.30-catchup-perf-fix"></script>
-    <script src="js/26-world-channel.js?v=v3.7.56-bless-rate2"></script>
-    <script src="js/27-offline-rewards.js?v=v3.7.61-antharas-rules"></script>
-<script src="js/28-pvp-arena.js?v=v3.7.17-duel-no-potion"></script>
+    <script src="js/23-summons.js?v=v3.8.3-dancefire-team"></script>
+    <script src="js/22-pets.js?v=v3.8.3-dancefire-team"></script>
+    <script src="js/24-pandora-relic-market.js?v=v3.7.70"></script>
+    <script src="js/25-clan-system.js?v=v3.7.96-castle-guards"></script>
+    <script src="js/26-world-channel.js?v=v3.8.4-npc-language"></script>
+<script src="js/28-pvp-arena.js?v=v3.7.89-stage33-host-sign"></script>
+<script src="js/29-siege-v2-data.js?v=v3.7.63-siege-v2"></script>
+<script src="js/30-siege-v2.js?v=v3.7.89-castle-ring-layout"></script>
+<script src="js/31-castle-guards.js?v=v3.8.4-guard-support"></script>
+<script src="js/32-threat.js?v=v3.7.97-threat"></script>
 </body>
 </html>

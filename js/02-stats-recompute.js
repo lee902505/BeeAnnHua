@@ -1,4 +1,49 @@
 let _recomputingAlly = false;   // 🌟 v3.0.100 recompute 對象是否為傭兵（buildAlly/_allyLevelRecompute 設 true）：true→跳過「傭兵來源幻覺攻擊光環注入玩家」段（傭兵走 alliesTick 逐回合注入·勿於此重複）
+function mainPlayerHasEquippedEffect(flag) {
+    if (!flag || typeof player === 'undefined' || !player || player._allyName || _recomputingAlly || !player.eq) return false;
+    for (let slot in player.eq) {
+        let item = player.eq[slot], def = item && DB.items[item.id];
+        if (def && def[flag]) return true;
+    }
+    return false;
+}
+function critFurySpeedMultiplier(active, percent) {
+    return active ? (1 / (1 + ((percent || 30) / 100))) : 1;
+}
+function golemMarkMrPenalty(active, equipped) {
+    return active && equipped ? -100 : 0;
+}
+function spellbladeMeleeBonus(tier) {
+    let bonuses = { 1:1, 2:2, 3:3, 4:6, 5:9, 6:12, 7:15, 8:18, 9:21, 10:25 };
+    return bonuses[Math.max(1, Math.min(10, tier || 1))] || 1;
+}
+function spellbladeDurationTicks() {
+    return 100;
+}
+function golemMarkDurationTicks() {
+    return 30;
+}
+function spellbladeSkillElement(element) {
+    return element && element !== 'none' ? element : '';
+}
+function statArrayBonus(value) {
+    return Math.floor((value || 0) / 5);
+}
+function relicDrPerErBonus(er, divisor) {
+    return Math.floor(Math.max(0, er) / divisor);
+}
+function antHelperPrecisionBonus(level) {
+    return Math.min(20, Math.floor((level || 0) * 0.05));
+}
+function antHelperDestroyBonus(value) {
+    return Math.min(20, Math.floor((value || 0) * 0.05));
+}
+function antHelperEarthResistanceBonus(value) {
+    return Math.min(30, Math.floor(value || 0));
+}
+function antHelperGuardReductionPercent(magicResistance) {
+    return Math.min(20, Math.floor((magicResistance || 0) * 0.10));
+}
 function recomputeStats() {
     let p = player, d = p.d, b = p.base, a = p.alloc;
     if (typeof p.lv === 'number') p.lv = Math.max(1, Math.min(100, Math.floor(p.lv) || 1));   // 🛡️ 等級硬夾 [1,100]：即時中和「改 player.lv」的外掛，避免職業成長值被放大
@@ -337,6 +382,7 @@ d.mr += (baseMr + bonusMr);
         if(ed.immSilence) d.immSilence = true;                // 🏺 v3.5.27 被敲爛的半邊頭盔：免疫沉默
         if(ed.resNone) d.resNone += ed.resNone;               // 🛡️ v3.3.29 無屬性抗性（紅騎士盾牌/反射之盾/阿茲特的反光石·只對魔法）
         if(ed.dr) d.dr += ed.dr;   // 🛡️ 防具/飾品固定傷害減免（信念之盾 +2、巴風特盔甲 +2）
+        if(ed.drEnFrom7Max3) d.dr += Math.min(3, Math.max(0, capEn(e.en, ed) - 6));   // 🐉 v3.7.69 安塔瑞斯四防具：強化+7 傷害減免+1，之後每+1再+1，最高+3（與基礎 dr:3 合計上限 +6）·公式同巴風特魔杖 mdmgEnFrom7Max3
         if(ed.hitstunReduce) d.hitstunReduce += ed.hitstunReduce;   // 🏺 不動的鋼鐵堅壁：受傷硬直 -0.5 秒（-5 tick）→先累加·於變身速度覆蓋後統一扣（v3.1.30 審查修：原本直接扣會被 POLY_TIERS 的 d.hitstun=pf.stun 蓋掉）
         if(ed.crushDr) d.crushDr += ed.crushDr;        // 🏺 遺物 妖魔的兜襠布：受到重擊時傷害減少 crushDr%（於 js/04 受擊路徑套用）
         if(ed.meleeHaste) d.meleeHaste += ed.meleeHaste;  // 🏺 遺物 狂野的鬃毛外套：裝備近距離武器時攻速 +meleeHaste%
@@ -349,7 +395,7 @@ d.mr += (baseMr + bonusMr);
         if(ed.wearerEle) d.wearerEle = ed.wearerEle;          // 🏺 遺物 火焰/寒冷化身：裝備者化為某屬性（受擊屬性剋制·js/04）
         if(ed.physDrGated) d.physDrGated += ed.physDrGated;   // 🐍 遺物 祭祀儀式陶罐：受一般攻擊傷害減少%（3秒節流·js/04）
         if(ed.lowMpRegenBonus) d.lowMpRegenBonus += ed.lowMpRegenBonus;   // 🐍 遺物 蛇神的凝視：MP<15% 時 MP自然恢復額外+N（js/03 _regenMP）
-        if(ed.moveSpeedPct) d.moveSpeedPct += ed.moveSpeedPct;   // 🏺 遺物 寄居蟹背殼：移動速度%（影響怪物重生延遲）
+        if(!_recomputingAlly && !p._allyName && ed.moveSpeedPct) d.moveSpeedPct += ed.moveSpeedPct;   // 移速裝備只計主操作玩家；傭兵裝備不影響全隊接敵／補怪速度
         if(e.gw && Array.isArray(e.gw)) e.gw.forEach(w => {   // 🏺 v3.6.44 巨靈的三個願望（非六維願望·六維於 Phase 1 區塊套用）
             if (w === 'hp60') p.mhp += 60; else if (w === 'mp30') p.mmp += 30;
             else if (w === 'md3') d.meleeDmg += 3; else if (w === 'rd3') d.rangedDmg += 3;
@@ -512,13 +558,13 @@ d.mr += (baseMr + bonusMr);
     if(p.buffs.sk_dark_walkhaste > 0) spdMult *= (1/1.15); // 🔧 行走加速：攻速+15%（v3.5.37 1/1.15）（與加速術等相乘疊加）
     { let _clvW = p.eq.wpn ? DB.items[p.eq.wpn.id] : null; let _clvOn = !p.classicMode && ((p.statuses && p.statuses.cleave > 0) || (p.mastery === 'k_cleave' && _clvW && _clvW.eff === 'cleave')); if(_clvOn) spdMult *= (p.mastery === 'k_cleave' ? (1/1.5) : (1/1.2)); }   // 切割：攻速+20%（🏅 切割精通：+50%・持切割武器常駐），與其他加速相乘疊加；🎮 經典模式停用
     if (typeof player !== 'undefined' && p === player && !p._allyName && (p._crushFuryUntil || 0) > state.ticks) spdMult *= (1/1.2);   // 🔨 v3.6.47 重裝戰士的粉碎鎚：即死觸發攻速+20%（8秒·js/04 授予·js/03 到期重算·經典亦生效比照即死本體；傭兵版走 _crushFuryTicks 於 js/06 攻擊間隔）
-    if (typeof player !== 'undefined' && p === player && !p._allyName && (p._fangFuryUntil || 0) > state.ticks) { let _ffw = p.eq.wpn && DB.items[p.eq.wpn.id]; spdMult *= (1 / (1 + (((_ffw && _ffw.critFuryHaste && _ffw.critFuryHaste.pct) || 30) / 100))); }   // 🏺 v3.7.52 邪惡利牙：爆擊觸發攻速+30%（5秒·js/04 授予·js/03 到期重算；傭兵版走 _fangFuryTicks 於 js/06 攻擊間隔）
+    { let _ffOn = typeof player !== 'undefined' && p === player && !p._allyName && (p._fangFuryUntil || 0) > state.ticks; let _ffw = p.eq.wpn && DB.items[p.eq.wpn.id]; spdMult *= critFurySpeedMultiplier(_ffOn, _ffw && _ffw.critFuryHaste && _ffw.critFuryHaste.pct); }   // 🏺 v3.7.52 邪惡利牙：爆擊觸發攻速+30%（5秒·js/04 授予·js/03 到期重算；傭兵版走 _fangFuryTicks 於 js/06 攻擊間隔）
     { let _swMelee = p.eq.wpn ? DB.items[p.eq.wpn.id] : null; if(p.mastery === 'e_sword' && _swMelee && !_swMelee.w2h && !_swMelee.isBow && !_swMelee.ranged) spdMult *= (1/1.5); }   // 🏅 劍術精通：持單手近戰武器攻速+50%（與加速/勇敢/餅乾/變身相乘疊加）
     { let _aw = p.eq.wpn ? getWeaponTags(p.eq.wpn.id) : []; let _ow = p.eq.offwpn ? getWeaponTags(p.eq.offwpn.id) : []; if(p.mastery === 'k_giantaxe' && (_aw.includes('雙手鈍器') || _ow.includes('雙手鈍器'))) spdMult *= (1/1.3); else if(p.mastery === 'k_dualaxe' && _aw.includes('單手鈍器') && p.eq.offwpn && _ow.includes('單手鈍器')) spdMult *= (1/1.3); }   // ⚔️ 巨斧精通(主手或副手任一持雙手鈍器·符合「持雙手鈍器+30%」描述·含混裝)／雙斧精通(主副手皆單手鈍器)：攻速+30%
     { let _rw = p.eq.wpn ? getWeaponTags(p.eq.wpn.id) : []; if(p.mastery === 'k_royal_sword' && (_rw.includes('單手劍') || _rw.includes('雙手劍'))) spdMult *= (1/1.5); }   // 👑 劍術精通：裝單手劍／雙手劍攻速+50%
     { let _iw = p.eq.wpn ? DB.items[p.eq.wpn.id] : null; if(p.cls === 'illusion' && _iw && !_iw.isBow && ((p.mastery === 'i_qigu' && _iw.qigu) || (p.mastery === 'i_magicsword' && !_iw.qigu && !isWandWeapon(_iw)))) spdMult *= (1/1.3); }   // 🔮 奇古獸精通(裝奇古獸)／魔劍精通(裝非奇古獸·排除魔杖)：攻速+30%
     // 🏺 v3.6.44 魔力凝聚的法陣（長靴·statArray）：每 5 體質→攻速 +1%、每 5 敏捷→近傷 +1、每 5 力量→遠傷 +1（用最終六維·置於攻速%消費前）
-    if (p.eq.boots && (DB.items[p.eq.boots.id] || {}).statArray) { d.atkSpdPct += Math.floor((d.con || 0) / 5); d.meleeDmg += Math.floor((d.dex || 0) / 5); d.rangedDmg += Math.floor((d.str || 0) / 5); }
+    if (p.eq.boots && (DB.items[p.eq.boots.id] || {}).statArray) { d.atkSpdPct += statArrayBonus(d.con); d.meleeDmg += statArrayBonus(d.dex); d.rangedDmg += statArrayBonus(d.str); }
     // 🏺 v3.6.44 守護獸的難題（斗篷·playerHardSkin）：裝備→硬皮池初始化 30；卸下→清除（僅主玩家·傭兵換身 _allyName 不吃·runtime 欄位不入檔）
     if (typeof player !== 'undefined' && p === player && !p._allyName) { let _ghs = p.eq.cloak && (DB.items[p.eq.cloak.id] || {}).playerHardSkin; if (_ghs) { if (p._hardSkinPool == null) p._hardSkinPool = 30; } else if (p._hardSkinPool != null) delete p._hardSkinPool; }
     if(d.atkSpdPct !== 0) spdMult *= (1 / (1 + d.atkSpdPct / 100));   // 🏺 遺物 綠色妖鬼的指甲 +20%／🏺 鎧甲守衛的笨重巨劍 -50%（負值＝攻速變慢·間隔加倍·v3.1.52 由 >0 改 !==0 使負值生效）
@@ -648,16 +694,17 @@ d.mr += (baseMr + bonusMr);
     }
     if(p.buffs.sk_dragon_bloodlust > 0) spdMult *= (1/1.15);   // 🐉 血之渴望：攻速+15%（速度×1.15；與加速/覺醒/變身相乘疊加）
     // 🌟 v3.0.100 玩家攻擊也吃「傭兵提供的幻覺攻擊光環」(化身+10/歐吉+4傷+4命/巫妖+2魔傷)：玩家自身幻覺已由上方 buff 迴圈套入 d·此處只補「傭兵來源」(teamIlluAura(p) 已排除玩家自身避免雙算)·限玩家(_recomputingAlly=false·傭兵走 alliesTick 注入)。傭兵化身狀態變動時由 allyMaintainBuffs 觸發 calcStats 刷新此段。
-    if (!_recomputingAlly && typeof teamIlluAura === 'function') { let _mia = teamIlluAura(p); if (_mia) { d.extraDmg += _mia.ed; d.extraHit += _mia.eh; d.magicDmg += _mia.md; } }
+    if (!_recomputingAlly && typeof teamIlluAura === 'function') { let _mia = teamIlluAura(p); if (_mia) { d.extraDmg += _mia.ed; d.extraHit += _mia.eh; d.magicDmg += _mia.md; d.meleeDmg += (_mia.mel || 0); } }   // 🔥 v3.8.3 mel＝舞躍之火團隊光環（近距離傷害·自身持有時已由上方 buff 迴圈算入·此處只補其他隊員來源）
     // 🏺 人面獅身的漆黑羽翼（drPerEr）：傷害減免 +（完整 ER ÷ N）。ER 的迴避效益遞減由 effResistPct 處理，此處不設上限。
     if (p.eq) { for (let _dk in p.eq) { let _de = p.eq[_dk]; if (!_de) continue; let _dd = DB.items[_de.id];
-        if (_dd && _dd.drPerEr) d.dr += Math.floor(Math.max(0, d.er) / _dd.drPerEr); } }
+        if (_dd && _dd.drPerEr) d.dr += relicDrPerErBonus(d.er, _dd.drPerEr); } }
     // 🏺 v3.7.52 高崙的生命印記（golemMarkDebuff）：受重擊後 3 秒 MR-100（js/04 授予·js/03 到期重算；置於所有 MR 來源之後·可為負值＝魔法傷害被放大）
-    if ((p._golemMrDebuffUntil || 0) > state.ticks && p.eq && p.eq.helm && (DB.items[p.eq.helm.id] || {}).golemMarkDebuff) d.mr -= 100;
+    d.mr += golemMarkMrPenalty(
+        (p._golemMrDebuffUntil || 0) > state.ticks,
+        !!(p.eq && p.eq.helm && (DB.items[p.eq.helm.id] || {}).golemMarkDebuff));
     // 🏺 v3.7.54 專精劍術的魔劍士之刀（spellbladeBuff）：消耗MP施放傷害法術後 10 秒·依法術階級提升近傷/近命（1:+1 2:+2 3:+3 4:+6 5:+9 6:+12 7:+15 8:+18 9:+21 10:+25）
     if ((p._spellbladeUntil || 0) > state.ticks && p.eq && p.eq.wpn && (DB.items[p.eq.wpn.id] || {}).spellbladeBuff) {
-        let _sbT = { 1:1, 2:2, 3:3, 4:6, 5:9, 6:12, 7:15, 8:18, 9:21, 10:25 };
-        let _sbB = _sbT[Math.max(1, Math.min(10, p._spellbladeTier || 1))] || 1;
+        let _sbB = spellbladeMeleeBonus(p._spellbladeTier);
         d.meleeDmg += _sbB; d.meleeHit += _sbB;
     }
     // 🐉 v3.7.57 安塔瑞斯副本助戰者（僅主玩家·快照制 player.antharasHelpers）：精準=等級5%額外命中(≤20)·破壞=近/遠/魔傷/SP各5%(各≤20)·
@@ -665,15 +712,15 @@ d.mr += (baseMr + bonusMr);
     p._antHelperDr = 0;
     if (!_recomputingAlly && p.antharasHelpers) {
         let _ah = p.antharasHelpers;
-        if (_ah.precision) d.extraHit += Math.min(20, Math.floor((_ah.precision.lv || 0) * 0.05));
+        if (_ah.precision) d.extraHit += antHelperPrecisionBonus(_ah.precision.lv);
         if (_ah.destroy) {
-            d.meleeDmg  += Math.min(20, Math.floor((_ah.destroy.meleeDmg  || 0) * 0.05));
-            d.rangedDmg += Math.min(20, Math.floor((_ah.destroy.rangedDmg || 0) * 0.05));
-            d.magicDmg  += Math.min(20, Math.floor((_ah.destroy.magicDmg  || 0) * 0.05));
-            d.extraMp   += Math.min(20, Math.floor((_ah.destroy.sp        || 0) * 0.05));
+            d.meleeDmg  += antHelperDestroyBonus(_ah.destroy.meleeDmg);
+            d.rangedDmg += antHelperDestroyBonus(_ah.destroy.rangedDmg);
+            d.magicDmg  += antHelperDestroyBonus(_ah.destroy.magicDmg);
+            d.extraMp   += antHelperDestroyBonus(_ah.destroy.sp);
         }
-        if (_ah.resist) d.resEarth = (d.resEarth || 0) + Math.min(30, Math.floor(_ah.resist.resEarth || 0));
-        if (_ah.guard) p._antHelperDr = Math.min(20, Math.floor((_ah.guard.mr || 0) * 0.10));
+        if (_ah.resist) d.resEarth = (d.resEarth || 0) + antHelperEarthResistanceBonus(_ah.resist.resEarth);
+        if (_ah.guard) p._antHelperDr = antHelperGuardReductionPercent(_ah.guard.mr);
     }
     // 🐉 v3.7.57 地龍之魔眼觸發增益（10 分鐘）：額外傷害/額外命中/ER 各 +5（js/04 石化觸發·js/03 _tickExpireFields 到期重算）
     if ((p._eyePetrifyUntil || 0) > state.ticks) { d.extraDmg += 5; d.extraHit += 5; d.er += 5; }
@@ -978,7 +1025,7 @@ function playerMoveDelayMultiplier() {
     if (dashSid) mult *= 1 / ((DB.skills[dashSid] && DB.skills[dashSid].moveSpeedMult) || 1.33);   // 神聖疾走／風之疾走：移速+33%（速度×1.33）；若舊存檔同時殘留，風之疾走優先且不疊加
     if (buffs.elfcookie > 0 && !windDashOn) mult *= (1/1.15);  // 精靈餅乾：移速+15%；風之疾走存在時只保留餅乾攻速，不疊加移速
     if (buffs.sk_dark_walkhaste > 0) mult *= (1/1.15);         // 行走加速：移速+15%（🔧 v3.5.37 1/1.15）
-    let equipPct = p.d && p.d.moveSpeedPct ? Math.max(-95, p.d.moveSpeedPct) : 0;
+    let equipPct = !p._allyName && !_recomputingAlly && p.d && p.d.moveSpeedPct ? Math.max(-95, p.d.moveSpeedPct) : 0;
     if (equipPct) mult *= 1 / (1 + equipPct / 100);            // 裝備移動速度
     return Math.max(0.001, mult);
 }

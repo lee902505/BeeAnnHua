@@ -266,7 +266,7 @@
         '羅孚妖魔': [['arm_69', 0.2], ['arm_63',3], ['new_item_149',1], ['new_item_157',5], ['item_orc_amulet',0.01], ['wpn_osis_hammer',0.0005]],
         '艾爾摩士兵': [['wpn_4',1], ['wpn_halberd',0.5], ['wpn_14',1], ['arm_66',3], ['arm_68',2], ['bot_short',2], ['glv_glove',0.5], ['scroll_armor',2], ['scroll_acc',0.01], ['wpn_frost_spear',0.05], ['wpn_crimson_spear',0.05]],   // 🆕 酷寒之矛 0.05%、深紅長矛 0.05%
         '艾爾摩將軍': [['wpn_greatsword',0.1], ['wpn_2hsword',0.5], ['arm_60',1], ['arm_65',1], ['arm_90',1], ['glv_glove',0.5], ['scroll_weapon',1], ['scroll_armor',2], ['scroll_acc',0.01], ['bk_shock_stun',0.05], ['bk_reduction_armor',0.01], ['bk_spike_armor',0.001], ['item_elmore_heart',1]],
-        '艾爾摩法師': [['wpn_witchwand',1], ['scroll_weapon',1], ['bk_full_heal',0.01], ['bk_ice_spike',0.5], ['bk_bless_wpn',0.005], ['wpn_qigu_meditate',0.0001], ['bk_mana_drain',0.1]],   // 🆕 魔力奪取 0.1%
+        '艾爾摩法師': [['wpn_witchwand',1], ['scroll_weapon',1], ['bk_full_heal',0.01], ['bk_ice_spike',0.5], ['bk_bless_wpn',0.005], ['wpn_qigu_meditate',0.0001], ['bk_mana_drain',0.1], ['wpn_angel_wand',0.01]],   // 🆕 魔力奪取 0.1%；😇 v3.7.74 天使魔杖 0.01%
         '莫妮亞': [['arm_87',1], ['scroll_weapon',1], ['scroll_armor',1.5], ['bk_slow',0.5], ['bk_heal2',0.5], ['bk_holy_light',0.1], ['scroll_poly',1]],
         '萊肯': [['wpn_battleaxe',3], ['wpn_halberd',0.5], ['arm_65',1], ['arm_66',1], ['arm_105',2], ['arm_90',1], ['new_item_151',5], ['bk_dex_up',0.05], ['bk_vampire',0.1], ['bk_slow',0.1], ['new_item_195',1]],
         '蘑菇': [['new_item_166',10]],
@@ -812,7 +812,7 @@ const SAVE_DEFAULTS = {
     cds:     { pot:0, atkSk:0, healSk:0, purifySk:0, convertSk:0 },
     buffs:   { haste:0, brave:0, blue:0, cautious:0, elfcookie:0, poly:0, shield:0, sk_magic_shield:0 },
     statuses:{ stun:0, freeze:0, stone:0, poison:0, poisonDmg:0, poisonTick:0, burn:0, burnDmg:0, burnTick:0,
-               scald:0, scaldDmg:0, scaldTick:0, bleed:0, bleedDmg:0, bleedTick:0, sleep:0, silence:0, paralyze:0, magicseal:0, armorBreak:0, slowAtk:0, cleave:0 },
+               scald:0, scaldDmg:0, scaldTick:0, bleed:0, bleedDmg:0, bleedTick:0, sleep:0, silence:0, paralyze:0, magicseal:0, armorBreak:0, slowAtk:0, cleave:0, bind:0 },   // 🕸️ v3.7.75 bind 束縛（舊存檔由 applySaveDefaults 自動補鍵）
     siege:   { active:false, city:'kent', gateKilled:false, towerKilled:false, endTime:0, kills:0, result:null,
                cooldownUntil:0, accCdUntil:0 }
 };
@@ -1179,9 +1179,63 @@ const MASTERY_POS_STYLE = {   // 四向按鈕四色（上紅/左藍/右紫/下�
 const MAGIC_MASTERY_SKILLS = ['sk_blizzard', 'sk_tornado', 'sk_quake', 'sk_fire_storm'];   // 魔導精通可學的法師法術
 function hasMastery(id) { return !!(player && player.mastery === id); }
 function allyHasMastery(ally, id) { return !!(ally && ally.mastery === id); }   // 🔧 傭兵吃「自身存檔」的精通（不吃主玩家精通）
+function repairMasteryState(p) {
+    let result = { changed: false, reset: false, reason: null };
+    if (!p || typeof p !== 'object') return result;
+
+    let reset = reason => {
+        p.masteryQuest = null;
+        p.mastery = null;
+        p.masteryChangeCnt = 0;
+        result.changed = true;
+        result.reset = true;
+        result.reason = reason;
+    };
+    let hasSavedMastery = p.mastery != null || p.masteryQuest != null || Number(p.masteryChangeCnt) > 0;
+
+    // 經典模式不開放精通；清除舊版刪角殘留或外部匯入的不合法狀態。
+    if (p.classicMode) {
+        if (hasSavedMastery) reset('classic-mode');
+        return result;
+    }
+
+    let md = MASTERY_DATA[p.cls];
+    if (!md || !md.list) {
+        if (hasSavedMastery) reset('unknown-class');
+        return result;
+    }
+
+    // v3.7.73 前，刪角後不重整便創角會沿用上一角色的 player 物件。
+    // 新職業因此可能帶著舊職業精通 ID，渲染／切換時存取 md.list[舊ID] 而中斷。
+    if (p.mastery != null && !Object.prototype.hasOwnProperty.call(md.list, p.mastery)) {
+        reset('class-mismatch');
+        return result;
+    }
+
+    let validQuest = p.masteryQuest === null || p.masteryQuest === 'active' || p.masteryQuest === 'done';
+    if (!validQuest) {
+        p.masteryQuest = p.mastery == null ? null : 'done';
+        result.changed = true;
+        result.reason = 'invalid-quest';
+    } else if (p.mastery != null && p.masteryQuest !== 'done') {
+        // 已有合法精通代表任務必定完成；保護很早期缺 masteryQuest 的合法存檔。
+        p.masteryQuest = 'done';
+        result.changed = true;
+        result.reason = 'missing-completion';
+    }
+
+    let count = Math.max(0, Math.floor(Number(p.masteryChangeCnt) || 0));
+    if (p.mastery == null) count = 0;
+    if (p.masteryChangeCnt !== count) {
+        p.masteryChangeCnt = count;
+        result.changed = true;
+        if (!result.reason) result.reason = 'invalid-change-count';
+    }
+    return result;
+}
 // 🌟 v3.0.99 隊長團隊光環：任一隊員(玩家或未倒地傭兵)維持該 buff 即全隊生效。清單供「傭兵可維持/隊伍面板可開關/避免重複施放」使用。
 //   ⚠️不含完全免疫類(絕對屏障/大地屏障/魔法屏障·刻意不給傭兵)。golem/ogre/lich 為幻術幻象召喚(illuSummon)·此處僅列其「光環」由玩家提供·傭兵暫不維持(見 _isMercSelfBuff)。
-const TEAM_AURA_SKILLS = ['sk_elf_earthbless', 'sk_royal_burnweapon', 'sk_royal_shield'];   // 傭兵可維持的團隊光環（大地祝福AC-7·灼熱武器傷害/命中+5·閃亮之盾AC-8）。任一來源施放一次即惠及玩家、傭兵、寵物與召喚物，同技能不重複疊加。鋼鐵防護為施法者自身 AC-10，不列入團隊光環。⚠️v3.4.45 水之元氣/化身已改「單體共享」(TEAM_SHARE_BUFFS)→移出此清單。⚠️此陣列＝唯一註冊點（勿在 DB.skills 加 teamAura 旗標·無人讀取）。
+const TEAM_AURA_SKILLS = ['sk_elf_earthbless', 'sk_royal_burnweapon', 'sk_royal_shield', 'sk_elf_dancefire'];   // 傭兵可維持的團隊光環（大地祝福AC-7·灼熱武器傷害/命中+5·閃亮之盾AC-8·🔥v3.8.3 舞躍之火近距離傷害+3）。任一來源施放一次即惠及玩家、傭兵、寵物與召喚物，同技能不重複疊加。鋼鐵防護為施法者自身 AC-10，不列入團隊光環。⚠️v3.4.45 水之元氣/化身已改「單體共享」(TEAM_SHARE_BUFFS)→移出此清單。⚠️此陣列＝唯一註冊點（勿在 DB.skills 加 teamAura 旗標·無人讀取）。
 // 🤝 v3.4.45 單體輔助共享清單：施法者(玩家/傭兵)自己有清單內 buff、隊友沒有 → 由 shareTeamBuffs(js/06) 一次補滿所有缺者(逐一扣施法者 MP)。與「自動維持勾選」解耦(只看清單＋是否持有)。
 //   ⚠️其中原為全隊光環者(幻覺歐吉/巫妖/鑽石高崙/化身·水之元氣)已於本版改單體：移出 TEAM_AURA_SKILLS＋teamIlluAura/teamAcBonus/teamDmgReduceMult 只對寵物/召喚保留(forMinion)；玩家/傭兵改各自持有(recompute d)＋此共享逐人補。
 const TEAM_SHARE_BUFFS = new Set(['sk_holy_wpn', 'sk_dex_up', 'sk_haste_spell', 'sk_greater_haste', 'sk_bless_wpn', 'sk_str_up', 'sk_holy_barrier', 'sk_illu_ogre', 'sk_illu_focus', 'sk_illu_lich', 'sk_illu_golem', 'sk_illu_avatar', 'sk_elf_watervital', 'sk_elf_windshot', 'sk_elf_earthshield', 'sk_elf_preciseshot', 'sk_elf_stormeye', 'sk_heal_energy_storm']);   // 🌀 v3.4.71 治癒能量風暴＝單體輔助共享（施法者有→幫缺的傭兵/玩家補·各自 320s 結束才再補）；v3.5.87 補強力加速術（漏列·原本「只有強力加速術」的施法者不分享加速）
@@ -1223,11 +1277,12 @@ let _echoFree = false;        // 🏅 迴響精通：免費連發旗標（連發
 let _royalFreeCast = false;   // 👑 魔法精通：一般攻擊命中 10% 免MP額外施放選定攻擊技的旗標
 
 let state = { running: false, ticks: 0, pDmgTick: 0, ff: false, ffSmall: false, inTick: false };
-// 🔀 v3.6.95 混合制（用戶拍板）：「網頁還開著」的背景期間（切分頁/縮小）＝回前景時補幀全額補跑（state.ff 補跑重建）；
-//    「真正關閉網頁」後重開＝js/27 離線收益（實戰速率×70%）。兩軌互斥，靠下方錨點與 js/27 的重置防重複入帳。
+// 🗑️ v3.7.94 用戶指定移除離線掛機（js/27 整檔刪除）：現在只剩「網頁還開著」這一軌——
+//    切分頁／縮小的背景期間由下方 Worker 心跳持續跑，被節流到的差額則於回前景時補幀補跑（state.ff 補跑重建）。
+//    **真正關閉網頁＝進度完全停止**，重開不再有任何離線結算。
 const TICK_MS = 100;                 // 一個邏輯 tick 代表的真實時間
 const JUNK_AUTOSELL_TICKS = 100;    // 🗑️ 廢品自動賣出間隔：10 秒（100 tick × 100ms·2026-07-01 由 1800/3分鐘改快）；玩家手動標示廢品會把倒數重置為此值（標完 10 秒無新動作才賣）。⚠️自動賣出這條路徑不 saveGame(見 autoSellJunk)，靠其他既有存檔點落地
-const MERC_EXP_SHARE = 0.5;          // ⚠️v3.0.86 已停用：傭兵經驗改「主玩家＋未倒地傭兵」4 人均分制（見 js/05 partyExpShareCount／killMob）；常數保留避免外部殘留引用報錯
+const MERC_EXP_SHARE = 0.5;          // ⚠️已停用：v3.7.62 起主玩家、未倒地傭兵與寵物各得完整經驗；常數只留給舊外部引用
 // 🤝 Phase4：設為「全體」的怪物攻擊技能名（依 mag.skn 比對·同名全部生效）→ 同時打玩家＋全部非倒地傭兵。其餘怪物傷害/狀態魔法仍可依仇恨權重隨機打單一目標(玩家或某傭兵)。
 const MOB_PARTY_AOE_SKILLS = new Set(['闇黑波動','毒霧','鐮刀波動','火焰之舞','燃燒的火球','火焰之陣','地面震裂','跳躍波動','冰雪暴','震裂術','咆哮','燃燒立方','火焰噴吐','流星雨','火牢','寒冰噴吐','巨水炮','大地怒吼','毒氣風暴','閃電風暴','火焰雨','寒冰吐息','地獄犬噴吐','火風暴','龍捲風','爆炎的火球','噴火','漩渦','防身電擊','震裂踏擊','火焰放射','黑霧','火焰氣息','黑暗流星雨','放射斬','迴旋鞭打','衝擊波動','千刃破軍','靈魂波動','火焰爆發','迴旋斬','龍的一擊','地獄火','黑魔法力場','鐮刀劍氣斬','腐蝕之血','冰錐流星雨','水氣爆裂','集體衝暈','巨石爆裂','地面障礙','邪靈之氣','血夜月彎刀','夜魔飛襲','幻象光線','集體相消','劇毒龍捲風','麻痺蜘蛛網','雷霆風暴','沙塵暴','震裂重擊','冰雪颶風','衝擊之暈','岩漿流星雨','火焰散落','鎌鼬旋風','寒冰氣息','妖狐之火','牛鬼突進','大地崩裂','幽魂怨念','枯竭詛咒','屬性噴吐','劇毒噴吐','毀滅隕石']);   // 🐍 提卡爾杰弗雷庫雙BOSS 全體技能；🌑 v3.3.33 聖地；🌅 枯竭詛咒對每位玩家/傭兵各自以 MR 判定藥水霜化；🐉 v3.7.57 安塔瑞斯副本全體技（與 js/00 PARTY_AOE_SKILLS 同步）
 let _loopLast = null;                // 上次主迴圈時間戳 (performance.now)
@@ -1344,7 +1399,7 @@ if (typeof window !== 'undefined' && window.addEventListener) {
 //    前景不走此路徑（100ms 主迴圈負責）；Worker 建立失敗時自動退回既有的節流喚醒＋回前景差額補跑。
 //    file:// 下外部 Worker 檔會被擋，須用 Blob URL 建立。
 //    ⚠️限制：分頁被瀏覽器整個凍結／丟棄（省電模式、記憶體回收）時 message 也不會送達，
-//    該情境仍由回前景差額補跑與 js/27 離線結算兜底。
+//    該情境由回前景的差額補跑兜底（v3.7.94 起已無離線結算這條退路）。
 let _bgHeartbeatWorker = null;
 (function _initBgHeartbeat() {
     if (typeof window === 'undefined' || typeof Worker === 'undefined' || typeof Blob === 'undefined'
@@ -1372,7 +1427,7 @@ let player = {
     inv: [], eq: { wpn: null, arrow: null, helm: null, armor: null, shin: null, shield: null, cloak: null, tshirt: null, gloves: null, boots: null, ring1: null, ring2: null, ring3: null, ring4: null, amulet: null, ear1: null, ear2: null, belt: null, pet: null, doll: null },
     skills: [], buffs: { haste: 0, brave: 0, blue: 0, cautious: 0, elfcookie: 0, poly: 0, shield: 0, sk_magic_shield: 0 }, poly: null, allies: [],
     summon: null, charmed: null, manualCd: {}, elfEle: null, hots: {},   // 🔧 v3.5.94 同上：孤兒 hot(單數) → 休眠機制真正使用的 hots(複數 dict)
-    cds: { pot: 0, atkSk: 0, healSk: 0, purifySk: 0, convertSk: 0 }, dead: false, statuses: { stun: 0, freeze: 0, stone: 0, poison: 0, poisonDmg: 0, poisonTick: 0, burn: 0, burnDmg: 0, burnTick: 0, scald: 0, scaldDmg: 0, scaldTick: 0, bleed: 0, bleedDmg: 0, bleedTick: 0, sleep: 0, silence: 0, paralyze: 0, magicseal: 0, armorBreak: 0, slowAtk: 0, cleave: 0 },
+    cds: { pot: 0, atkSk: 0, healSk: 0, purifySk: 0, convertSk: 0 }, dead: false, statuses: { stun: 0, freeze: 0, stone: 0, poison: 0, poisonDmg: 0, poisonTick: 0, burn: 0, burnDmg: 0, burnTick: 0, scald: 0, scaldDmg: 0, scaldTick: 0, bleed: 0, bleedDmg: 0, bleedTick: 0, sleep: 0, silence: 0, paralyze: 0, magicseal: 0, armorBreak: 0, slowAtk: 0, cleave: 0, bind: 0 },   // 🕸️ v3.7.75 bind 束縛
     d: { str:0, dex:0, con:0, int:0, wis:0, cha:8,
          meleeDmg: 0, meleeHit: 0, meleeCrit: 0,           // 近距離（力量）
          rangedDmg: 0, rangedHit: 0, rangedCrit: 0,         // 遠距離（敏捷）
@@ -1385,6 +1440,16 @@ let player = {
 };
 
 let mapState = { current: "training", mobs: [null, null, null, null, null], targetIdx: 0 };   // 🆕 5 格（前排 0,1,2＋後排 3,4）
+
+// 🧼 v3.7.73 「頁面剛載入」的原型快照＝新角色乾淨起點的單一真相。
+//   背景：遊戲中按「返回角色選擇」不會重載頁面 → 全域 player／mapState 仍是上一個角色的物件；
+//   而 startGame() 只逐欄覆寫其中一部分，沒被覆寫的欄位會整包被新角色繼承
+//   （allies 傭兵／panacea+panaceaUsed 萬能藥／masteryQuest+mastery 精通／trialQ 試煉／deathLog／alignmentValue…）。
+//   ⚠️ 刻意不套 applySaveDefaults()：目標就是「與重新整理後創角完全等價」，多補欄位反而偏離該基準。
+const PLAYER_INIT_SNAPSHOT = JSON.stringify(player);
+const MAPSTATE_INIT_SNAPSHOT = JSON.stringify(mapState);
+function freshPlayerState() { return JSON.parse(PLAYER_INIT_SNAPSHOT); }
+function freshMapState() { return JSON.parse(MAPSTATE_INIT_SNAPSHOT); }
 let _mobBornSeq = 0;   // 🎯 全域單調遞增「出生序」（每隻怪生成時 +1；越小＝越早出生／在場上存活越久）→ getTarget 用來「優先打先出生的怪」
 let createBase = { 
     knight: {str:16, dex:12, con:14, int:8, wis:9, cha:8, pts:8}, 
@@ -1960,6 +2025,7 @@ Object.assign(ITEM_WEIGHTS, {"充滿破滅氣息的蛋":5,"充滿災厄氣息的
  ['底比斯 斯芬克斯(黑)','relic_sphinx_black_wing'],['底比斯 尼荷斯','relic_overlook_thunder'],['受詛咒的艾爾摩將軍','relic_elmore_greatsword'],
  ['暗黑火焰戰士','relic_warrior_blackblade'],['遺忘之島獨眼巨人','relic_cyclops_dollsuit'],['西斯','relic_beheading_scythe'],
  ['曼波兔','relic_treasured_carrot'],['墳墓守護者騎士','relic_cross_tombshield'],['象牙塔紙人','relic_mage_scrap_note']].forEach(r => (MOB_DROPS[r[0]] = MOB_DROPS[r[0]] || []).push([r[1], 0.0001]));
+Object.assign(ITEM_WEIGHTS, {"天使魔杖":20});   // 😇 v3.7.74 天使魔杖（單手魔杖·艾爾摩法師 0.01%）
 Object.assign(ITEM_WEIGHTS, {"迷宮惡魔的瞥視":130,"盔甲內襯鎖鏈衣":30,"冰牙虎臂甲":15,"無限火藥爆裂矢":10,"蜥蜴領主的王冠":15,"鋼鐵僧侶的錫杖":80,"長老的黑曜水晶球":30,"百變化身":15,"解除封印的巴風特魔杖":15,"人面獅身的漆黑羽翼":10,"俯瞰大地的雷電":5,"艾爾摩古戰場巨劍":150,"戰士的漆黑之劍":120,"獨眼巨人的手製娃娃裝":30,"斬首的巨大鐮刀":150,"珍藏的巨大胡蘿蔔":50,"十字墓碑盾":250,"古代法師的隨手小抄":3});   // 🏺 遺物重量（依名稱·v3.7.20 +18 件·規格書指定值）
 // 🏺 v3.7.52 遺物 第二十三批掉落（16 件·各 0.0001%·push 追加安全·⚠️怪鍵=顯示名·墮落的司祭一～五階各掉一件司祭苦行套裝）
 [['象牙塔石頭高崙','relic_golem_lifemark'],['象牙塔密密','relic_serrated_fangs'],['克特','relic_kurt_shield'],
@@ -1968,7 +2034,7 @@ Object.assign(ITEM_WEIGHTS, {"迷宮惡魔的瞥視":130,"盔甲內襯鎖鏈衣"
  ['墮落的司祭(四階)','relic_priest_robe'],['墮落的司祭(五階)','relic_priest_sandals'],['象牙塔鋼鐵高崙','relic_mageblade_knife'],
  ['卡魯塔','relic_ghost_teardrop'],['卡瑞','relic_true_dragonslayer'],['死亡騎士','relic_flame_dk_sword']].forEach(r => (MOB_DROPS[r[0]] = MOB_DROPS[r[0]] || []).push([r[1], 0.0001]));
 Object.assign(ITEM_WEIGHTS, {"高崙的生命印記":5,"無數鋸齒的邪惡利牙":30,"克特之盾":150,"隨從的護身斗篷":10,"灰燼巨獸的束鏈":50,"烈焰焚燒的巴風特盔甲":30,"司祭的無眼頭飾":20,"司祭的斷指護手":10,"司祭的鎖喉頸圈":5,"司祭的腐爛長袍":30,"司祭的殘破草鞋":15,"專精劍術的魔劍士之刀":40,"受困幽魂的淚滴":5,"真‧屠龍劍":150,"烈焰的死亡騎士之劍":150});   // 🏺 遺物重量（依名稱·v3.7.52 +15 件·規格書指定值）
-Object.assign(ITEM_WEIGHTS, {"古代地龍鱗盔甲":250,"古代水龍鱗盔甲":250,"古代火龍鱗盔甲":250,"古代風龍鱗盔甲":250,"安塔瑞斯的力量":150,"安塔瑞斯的魅惑":50,"安塔瑞斯的泉源":100,"安塔瑞斯的霸氣":100,"地龍之魔眼":10,"深紅之弩":100});   // 🐉 安塔瑞斯副本裝備重量（依名稱·v3.7.57·規格書指定值）
+Object.assign(ITEM_WEIGHTS, {"古代地龍鱗盔甲":250,"古代水龍鱗盔甲":250,"古代火龍鱗盔甲":250,"古代風龍鱗盔甲":250,"安塔瑞斯的力量":150,"安塔瑞斯的魅惑":50,"安塔瑞斯的泉源":100,"安塔瑞斯的霸氣":100,"地龍之魔眼":10,"深紅之弩":25});   // 🐉 安塔瑞斯副本裝備重量（依名稱·v3.7.57·規格書指定值）；🕸️ v3.7.75 深紅之弩重量 100→25（依新規格）
 // 🐉 v3.7.57 侵蝕的安塔瑞斯巢穴掉落（依規格書·%·全新怪鍵無覆蓋疑慮；中間兩階變身不死不掉落·只有最終階結算）
 Object.assign(MOB_DROPS, {
     '喀瑪南':   [['new_item_191', 0.001]],
@@ -2003,7 +2069,8 @@ function dollFieldVal(field){ let e = player.eq && player.eq.doll; let dd = e ? 
 //  ⚠️ v3.0.75 用戶：武器上限 +20→+15，既有 >+15 武器一律以 +15 計（顯示 capEn／能力 capWpnEn／最終傷害倍率 enhanceWpnFinalMult 皆已夾至此上限；loadGame 另做一次性實體降級）。
 const ENHANCE_CAP = { wpn: 15, arm: 15, acc: 5 };
 function enhanceCap(d) { return (d && (d.maxEn || ENHANCE_CAP[d.type])) || 10; }             // 依物品類型取強化上限（maxEn 可逐物品覆蓋·寵物防具+5）
-function isMaxEnhanced(item) { let d = DB.items[item.id]; return !!d && (Number(item.en) || 0) >= enhanceCap(d); }
+function enhancementAtCap(en, cap) { return (Number(en) || 0) >= cap; }
+function isMaxEnhanced(item) { let d = DB.items[item.id]; return !!d && enhancementAtCap(item.en, enhanceCap(d)); }
 // 🏺 遺物判定（單一真相）：relic:true。維持 wpn/arm/acc 型別（供 equipCatKey 分類·遺物圖鑑）但用此旗標排除 強化/祝福/賦予/潘朵拉，並套海藍色。
 function isRelic(d) { return !!(d && d.relic); }
 // 🏺 遺物「寵物專屬命中」加成：掃玩家所有裝備欄，回傳 partnerHit[petName] 總和；高等進化型同時繼承原型效果。
@@ -2026,24 +2093,30 @@ function capWpnEn(en) { return Math.min(Math.max(0, Number(en) || 0), ENHANCE_CA
 //   武器：+9 前 1/3 成功、2/3 爆裝；+9 起 1/6 成功、1/6 無事發生、4/6 爆裝
 //   防具(安定值>0)：成功率 = 1/目前強化值（例 +7 過 +8 為 1/7），失敗爆裝
 //   防具(安定值0)／飾品：+0 成功率 1/2；+1 以上 = 1/(目前強化值×2)（例 +2 過 +3 為 1/4），失敗爆裝
-function enhanceRollOutcome(d, en) {   // 擲一次衝裝骰 → 'ok'成功 | 'break'爆裝 | 'none'無事（僅武器 +9 起）
-    let safe = (d && d.safe) || 0;
-    en = Number(en) || 0;
+function enhanceOutcomeFromRoll(type, safe, en, r) {
     if (en < safe) return 'ok';
-    let r = Math.random();   // 🎲 即時擲骰：成敗純機率（每次嘗試獨立，可 save/load 重抽）
-    if (d && d.type === 'wpn') {
+    if (type === 'wpn') {
         if (en < 9) return r < 1 / 3 ? 'ok' : 'break';
         return r < 1 / 6 ? 'ok' : (r < 2 / 6 ? 'none' : 'break');
     }
     let rate = safe > 0 ? 1 / Math.max(1, en) : (en <= 0 ? 0.5 : 1 / (en * 2));
     return r < rate ? 'ok' : 'break';
 }
+function enhanceRollOutcome(d, en) {   // 擲一次衝裝骰 → 'ok'成功 | 'break'爆裝 | 'none'無事（僅武器 +9 起）
+    let safe = (d && d.safe) || 0;
+    en = Number(en) || 0;
+    let r = en < safe ? 0 : Math.random();   // 🎲 安定值內不消耗亂數；其餘每次嘗試獨立，可 save/load 重抽
+    return enhanceOutcomeFromRoll(d && d.type, safe, en, r);
+}
 // 🌟 祝福卷軸成功時的提升量：+2 以下(含負值) 各 1/3 機率 +1/+2/+3；+3~+5 各 1/2 機率 +1/+2；+6 以上無特殊功能（等同一般卷軸 +1）
+function blessEnhanceGainFromRoll(en, r) {
+    if (en <= 2) return 1 + Math.floor(r * 3);
+    if (en <= 5) return 1 + Math.floor(r * 2);
+    return 1;
+}
 function blessEnhanceGain(en) {
     en = Number(en) || 0;
-    if (en <= 2) return 1 + Math.floor(Math.random() * 3);
-    if (en <= 5) return 1 + Math.floor(Math.random() * 2);
-    return 1;
+    return blessEnhanceGainFromRoll(en, en <= 5 ? Math.random() : 0);
 }
 // 🛡️ runtime 合理性檢查：把「遊戲規則上不可能」的玩家數值夾回合法範圍，抓「隨手用 DevTools Console / 改存檔」調參數的笨外掛。
 //    只夾「有硬性上限、超過即證明不可能」者：等級≤100（checkLvUp 硬上限）、裝備強化值≤各類上限、經驗/金幣為非負有限數。
@@ -2063,11 +2136,20 @@ function sanitizeState() {
 //  額外傷害：+0~+20 每階+1（實務受 ENHANCE_CAP.wpn=15 夾擠，最高 +15）；
 //  額外命中：+0~+10 每階+1，+10 之後依 WPN_EN_HIT_OVER10 累加。
 const WPN_EN_HIT_OVER10 = { 11:1, 12:2, 13:4, 14:6, 15:8 };   // +11~+15 額外命中（超過 +10 的「累加」量；每階增量 1,1,2,2,2 逐級累加 → 總命中 +11/+12/+14/+16/+18）
+function _enhanceWpnBonusRaw(en, hitOver) {
+    return { dmg: Math.min(en, 20), hit: Math.min(en, 10) + hitOver };
+}
+function enhanceWpnBonusJson(en, hitOver) {
+    return JSON.stringify(_enhanceWpnBonusRaw(en, hitOver));
+}
 function enhanceWpnBonus(en) {
     en = Math.max(0, Number(en) || 0);
-    let base = Math.min(en, 10);                                                            // +10 以內：每階 +1
     let hitOver = (en > 10) ? (WPN_EN_HIT_OVER10[Math.min(en, 20)] || 0) : 0;               // +11~+20：額外命中累積
-    return { dmg: Math.min(en, 20), hit: base + hitOver };                                  // 🔧 額外傷害每階+1（實務受武器強化上限 +15 夾擠）；額外命中+1~+10後依表續加
+    try {
+        let parsed = JSON.parse(enhanceWpnBonusJson(en, hitOver));
+        if (parsed && Number.isFinite(parsed.dmg) && Number.isFinite(parsed.hit)) return parsed;
+    } catch (e) {}
+    return _enhanceWpnBonusRaw(en, hitOver);                                                // 🔧 額外傷害每階+1；額外命中+1~+10後依表續加
 }
 // 武器強化 → 最終傷害倍率（一般物理攻擊）；+1~+20「取該階段數值」（非累加），+0 為 1.0
 // 基準曲線（最高檔）：+1 ×1.02（平緩）→ +10 ×1.37 → +20 ×2.50（爆發）；總數值 100→250 對應的倍率（總數值/100）。
@@ -2150,19 +2232,24 @@ function atkSpdFamily(id) {
     d._spdFam = fam; return fam;
 }
 // 取「動作/分鐘」：p＝玩家或傭兵（讀 avatar·缺→依 cls 男性列）；id 未給→取 p.eq.wpn；戰士雙持（offwpn）→雙斧速度
+function atkSpdApmResolved(hasWeapon, avatarFamilyApm, defaultFamilyApm) {
+    if (!hasWeapon) return 60;
+    return avatarFamilyApm || defaultFamilyApm || 60;
+}
 function atkSpdApm(p, id) {
     let av = (p && p.avatar && ATK_APM[p.avatar]) ? p.avatar : ATK_AV_BY_CLS[(p && p.cls) || ''];
     let row = ATK_APM[av] || ATK_APM_DEFAULT;
     let wid = id || (p && p.eq && p.eq.wpn ? p.eq.wpn.id : null);
-    if (!wid) return 60;   // 空手＝每分鐘 60 次（維持原 1.0s 間隔）
+    if (!wid) return atkSpdApmResolved(false, 0, 0);   // 空手＝每分鐘 60 次（維持原 1.0s 間隔）
     let fam = atkSpdFamily(wid) || '單手劍';
     // ⚔️ v3.5.100 主副手攻速分離：移除「裝副手 → 主手改吃雙斧家族」的覆蓋。
     //   舊制讓雙手鈍器主手一裝副手就從 51.43 跳到 65.45 APM（戰士 +27%），等於主手借用副手的速度；
     //   現在兩手各用自己的武器家族，副手的間隔由 d.aspdOff 另計（js/02）。
     //   （'雙斧' 這一欄在 ATK_APM 全 16 職與 '單手鈍器' 數值完全相同＝純別名，移除覆蓋不影響單手鈍器主手。）
-    return row[fam] || ATK_APM_DEFAULT[fam] || 60;
+    return atkSpdApmResolved(true, row[fam], ATK_APM_DEFAULT[fam]);
 }
-function atkSpdBaseItv(p) { return Math.round(6000 / Math.max(1, atkSpdApm(p))) / 100; }   // 基礎攻擊間隔（秒·2位小數·未含加速/精通等倍率）
+function atkSpdBaseIntervalFromApm(apm) { return Math.round(6000 / Math.max(1, apm)) / 100; }
+function atkSpdBaseItv(p) { return atkSpdBaseIntervalFromApm(atkSpdApm(p)); }   // 基礎攻擊間隔（秒·2位小數·未含加速/精通等倍率）
 function hitstunTicks(p) { let av = (p && p.avatar && HITSTUN_TICKS[p.avatar]) ? p.avatar : ATK_AV_BY_CLS[(p && p.cls) || '']; return HITSTUN_TICKS[av] != null ? HITSTUN_TICKS[av] : 5; }   // ⚔️ 職業硬直 tick（被擊時延遲攻擊）
 function castLockTicks(p) { let av = (p && p.avatar && CAST_TICKS[p.avatar]) ? p.avatar : ATK_AV_BY_CLS[(p && p.cls) || '']; return CAST_TICKS[av] != null ? CAST_TICKS[av] : 12; }   // 🔮 職業施法冷卻下限 tick
 function castIntervalTicks(p, support) {
