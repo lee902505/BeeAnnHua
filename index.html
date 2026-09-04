@@ -91,7 +91,6 @@
             text-align: left;
             line-height: 1.5;
         }
-        /* 十连抽骰子容器 */
         .dice-container {
             display: flex;
             flex-wrap: wrap;
@@ -174,7 +173,6 @@
         <div class="score-value" id="displayScore">0<span class="score-total"> / 990</span></div>
     </div>
 
-    <!-- 骰子连抽模块 -->
     <div class="section">
         <h3>🎲 命运盲盒骰子</h3>
         <p>支持多连抽（需截图回传 GM 报备结算）</p>
@@ -184,14 +182,12 @@
             <span style="color:#ff9f43;">* 每日免费 3 次，之后每次需消耗 1 积分</span>
         </div>
         
-        <!-- 骰子展示区 -->
         <div class="dice-container" id="diceResult">
             <div class="dice-wrapper"><div class="dice">❓</div></div>
         </div>
         
         <div class="dice-desc" id="diceDesc">今日免费剩余次数: 3</div>
         
-        <!-- 连抽按钮组 -->
         <div class="btn-group">
             <button onclick="rollDice(1)" style="flex: 1;">掷 1 次</button>
             <button onclick="rollDice(5)" class="btn-5" style="flex: 1;">连抽 5 次</button>
@@ -199,7 +195,6 @@
         </div>
     </div>
 
-    <!-- 每日占卜模块 -->
     <div class="section">
         <h3>🔮 每日运势占卜</h3>
         <p>每日限抽一次，抽完请截图发给 GM<br>（未报备者当日运势与分数无效）</p>
@@ -215,15 +210,10 @@
 </div>
 
 <script>
-    // ----------------------------------------------------
-    // 核心机制 1：本地分数初始化 (支援小数)
-    // ----------------------------------------------------
     let currentScore = parseFloat(localStorage.getItem('tidu_score') || '-1'); 
     document.getElementById('displayScore').innerHTML = currentScore + '<span class="score-total"> / 990</span>';
+    let isRolling = false; 
 
-    // ----------------------------------------------------
-    // 核心机制 2：GM 神奇连结 (温柔防护版)
-    // ----------------------------------------------------
     const urlParams = new URLSearchParams(window.location.search);
     const addScore = urlParams.get('add'); 
     const setScore = urlParams.get('set'); 
@@ -233,7 +223,6 @@
         let usedKeys = JSON.parse(localStorage.getItem('tidu_usedKeys') || '[]');
         
         if (usedKeys.includes(key)) {
-            // 老哥，提示改在这里了！超级温柔宠溺
             alert("温馨提示：这条连结的积分已经领过啦～\n乖乖去找奕奕哥哥要新的奖励连结吧！");
         } else {
             if (setScore) {
@@ -252,14 +241,13 @@
             
             usedKeys.push(key);
             localStorage.setItem('tidu_usedKeys', JSON.stringify(usedKeys));
+            
+            localStorage.removeItem('tidu_pendingSettlement');
         }
         
         window.history.replaceState({}, document.title, window.location.pathname);
     }
 
-    // ----------------------------------------------------
-    // 核心机制 3：每日状态重置
-    // ----------------------------------------------------
     let today = new Date().toDateString();
     if (localStorage.getItem('tidu_dailyDate') !== today) {
         localStorage.setItem('tidu_dailyDate', today);
@@ -267,8 +255,14 @@
     }
 
     function updateDiceUI() {
-        let count = parseInt(localStorage.getItem('tidu_diceCount') || '0');
         let descBox = document.getElementById('diceDesc');
+        
+        if (localStorage.getItem('tidu_pendingSettlement') === 'true') {
+            descBox.innerHTML = `⚠️ <span style="color:#ee5253; font-weight:bold;">系统已锁定！请先找 GM 结算上一笔抽取！</span>`;
+            return;
+        }
+
+        let count = parseInt(localStorage.getItem('tidu_diceCount') || '0');
         if (count < 3) {
             descBox.innerHTML = `今日免费剩余次数: <span style="color:#feca57; font-size:16px;">${3 - count}</span>`;
             descBox.style.color = "#00d2d3";
@@ -279,21 +273,28 @@
     }
     updateDiceUI();
 
-    // ----------------------------------------------------
-    // 骰子连抽逻辑 (支持 1, 5, 10 次)
-    // ----------------------------------------------------
     function rollDice(num) {
+        if (isRolling) return;
+
+        if (localStorage.getItem('tidu_pendingSettlement') === 'true') {
+            alert("⚠️ 结算锁定中！\n你上一笔【付费抽取】尚未找 GM 报备结算！\n请先将画面截图发给奕奕哥哥，等他发给你专属连结更新分数后，才能继续玩喔！");
+            return;
+        }
+
         let count = parseInt(localStorage.getItem('tidu_diceCount') || '0');
         let freeLeft = Math.max(0, 3 - count);
         let paidRolls = Math.max(0, num - freeLeft); 
         
-        // 如果需要花钱买次数，弹出温馨提示确认
         if (paidRolls > 0) {
-            let buy = confirm(`⚠️ 本次抽取需额外消耗【${paidRolls} 积分】作为入场费。\n确定要赌一把吗？(抽完记得截图找 GM 结算喔)`);
+            if (currentScore < paidRolls) {
+                alert(`❌ 余额不足！\n本次抽取需消耗 ${paidRolls} 积分作为入场费，你目前只有 ${currentScore} 分。\n还不快去解任务赚积分，或者找奕奕哥哥撒娇求情！`);
+                return;
+            }
+            let buy = confirm(`⚠️ 本次抽取需额外消耗【${paidRolls} 积分】作为入场费。\n确定要花积分赌一把吗？\n(注意：抽完需找 GM 结算分数后才能再次抽取)`);
             if (!buy) return; 
         }
 
-        // 记录总次数
+        isRolling = true;
         localStorage.setItem('tidu_diceCount', count + num);
         
         const diceFaces = ['⚀', '⚁', '⚂', '⚃', '⚄', '⚅'];
@@ -302,7 +303,6 @@
         let resultBox = document.getElementById('diceResult');
         let descBox = document.getElementById('diceDesc');
         
-        // 动态生成对应数量的骰子 HTML
         resultBox.innerHTML = '';
         for(let i=0; i<num; i++) {
             resultBox.innerHTML += `
@@ -317,13 +317,11 @@
 
         let animCounter = 0;
         let interval = setInterval(() => {
-            // 动画跳动
             for(let i=0; i<num; i++) {
                 document.getElementById(`die-${i}`).innerText = diceFaces[Math.floor(Math.random() * 6)];
             }
             animCounter++;
             
-            // 动画结束，结算分数
             if(animCounter > 10) {
                 clearInterval(interval);
                 let totalDicePoints = 0;
@@ -341,23 +339,27 @@
                     else if (pt < 0) document.getElementById(`die-pt-${i}`).style.color = "#ee5253";
                 }
                 
-                // 计算净利 = 骰子总得分 - 购买次数花费的积分
                 let netPoints = totalDicePoints - paidRolls;
                 let netStr = netPoints > 0 ? "+" + netPoints : netPoints;
                 let netColor = netPoints > 0 ? "#1dd1a1" : (netPoints < 0 ? "#ee5253" : "#48dbfb");
-                
                 let costStr = paidRolls > 0 ? `<br><span style="color:#ff9f43; font-size:12px;">(已扣除 ${paidRolls} 分入场费)</span>` : "";
                 
                 descBox.innerHTML = `本次掷出 ${num} 颗骰子，点数合计 ${totalDicePoints} 分${costStr}<br>最终系统结算总计：<span style="font-size:20px; font-weight:bold; color:${netColor}">${netStr} 积分</span>`;
                 
-                setTimeout(updateDiceUI, 5000); // 5秒后恢复剩余次数提示
+                if (paidRolls > 0) {
+                    localStorage.setItem('tidu_pendingSettlement', 'true');
+                }
+                
+                // 🎯 骰子防呆提醒：延遲半秒彈出，讓她先看到分數
+                setTimeout(() => {
+                    alert("🎲 命运结算完毕！\n小笨蛋，记得现在立刻把这个画面【截图】发给奕奕哥哥算分数！\n不截图的话，刚刚骰的分数就不认帐喔，快去报备～");
+                    updateDiceUI();
+                    isRolling = false;
+                }, 500); 
             }
         }, 60);
     }
 
-    // ----------------------------------------------------
-    // 占卜逻辑 (不变)
-    // ----------------------------------------------------
     const fortunes = [
         { title: "🌟 上上签 (+3分)", color: "#feca57", descs: ["运气爆棚！今天非常适合撒娇，GM 审核通过率极高。","欧气满满！天选之子就是你，赶紧去找 GM 领赏吧！","吉星高照！今天提任何要求 GM 都可能答应，快去截图报备！"] },
         { title: "✨ 中上签 (+1分)", color: "#1dd1a1", descs: ["运势不错，发张可爱的照片给 GM，大概率能获得额外奖励。","顺风顺水！今天对 GM 甜言蜜语会有意想不到的收获。","小吉之日，适合乖乖做任务，GM 看你顺眼可能会爆击加分。"] },
@@ -403,6 +405,11 @@
         localStorage.setItem('tidu_fortuneTitle_v2', fortune.title);
         localStorage.setItem('tidu_fortuneDesc_v2', randomDesc);
         localStorage.setItem('tidu_fortuneColor_v2', fortune.color);
+
+        // 🎯 占卜防呆提醒：延遲半秒彈出
+        setTimeout(() => {
+            alert("🔮 运势出炉啦！\n笨笨，记得现在立刻把这个画面【截图】发给奕奕哥哥报备喔！\n不截图不算数，快去快去～");
+        }, 500);
     }
 </script>
 
