@@ -31,7 +31,7 @@
         h1 {
             color: #00d2d3;
             font-size: 22px;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             letter-spacing: 1px;
         }
         .score-board {
@@ -40,11 +40,10 @@
             padding: 20px;
             border-radius: 16px;
             text-align: center;
-            margin-bottom: 25px;
+            margin-bottom: 20px;
             border: 1px solid #00d2d3;
             box-sizing: border-box;
             box-shadow: 0 4px 15px rgba(0, 210, 211, 0.15);
-            position: relative;
         }
         .score-title {
             font-size: 14px;
@@ -92,38 +91,45 @@
             text-align: left;
             line-height: 1.5;
         }
+        /* 十连抽骰子容器 */
+        .dice-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 12px;
+            margin: 15px 0;
+            min-height: 70px;
+        }
+        .dice-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
         .dice {
-            font-size: 65px;
-            margin: 10px 0;
+            font-size: 45px;
             line-height: 1;
+            margin-bottom: 2px;
         }
         .dice-desc {
-            font-size: 15px;
-            color: #00d2d3;
-            min-height: 22px;
-            margin-bottom: 15px;
-            font-weight: bold;
-        }
-        .fortune-text {
-            font-size: 24px;
-            font-weight: bold;
-            margin: 15px 0 5px 0;
-        }
-        .fortune-desc {
-            font-size: 15px;
+            font-size: 14px;
             color: #00d2d3;
             min-height: 44px;
             margin-bottom: 15px;
-            line-height: 1.5;
+            line-height: 1.4;
+        }
+        .btn-group {
+            display: flex;
+            gap: 8px;
+            width: 100%;
         }
         button {
             background: linear-gradient(135deg, #00d2d3, #0984e3);
             color: #ffffff;
             border: none;
-            padding: 14px 0;
-            font-size: 16px;
+            padding: 12px 0;
+            font-size: 15px;
             font-weight: bold;
-            border-radius: 12px;
+            border-radius: 10px;
             cursor: pointer;
             width: 100%;
             transition: transform 0.1s;
@@ -132,6 +138,21 @@
         button:active {
             transform: scale(0.96);
         }
+        .btn-5 { background: linear-gradient(135deg, #a29bfe, #6c5ce7); }
+        .btn-10 { background: linear-gradient(135deg, #fd79a8, #e84393); }
+        
+        .fortune-text {
+            font-size: 24px;
+            font-weight: bold;
+            margin: 15px 0 5px 0;
+        }
+        .fortune-desc {
+            font-size: 14px;
+            color: #00d2d3;
+            min-height: 42px;
+            margin-bottom: 15px;
+            line-height: 1.4;
+        }
         .tips {
             font-size: 12px;
             color: #747d8c;
@@ -139,6 +160,7 @@
             padding-top: 20px;
             text-align: center;
             line-height: 1.6;
+            padding-bottom: 20px;
         }
     </style>
 </head>
@@ -152,22 +174,35 @@
         <div class="score-value" id="displayScore">0<span class="score-total"> / 990</span></div>
     </div>
 
+    <!-- 骰子连抽模块 -->
     <div class="section">
-        <h3>🎲 命运骰子</h3>
-        <p>系统临时任务专用（需截图回传 GM 报备）</p>
+        <h3>🎲 命运盲盒骰子</h3>
+        <p>支持多连抽（需截图回传 GM 报备结算）</p>
         <div class="rules">
             6点: +4分 | 5点: +3分 | 4点: +1分<br>
             3点: 0分 &nbsp;| 2点: -1分 | 1点: -3分<br>
             <span style="color:#ff9f43;">* 每日免费 3 次，之后每次需消耗 1 积分</span>
         </div>
-        <div class="dice" id="diceResult">❓</div>
+        
+        <!-- 骰子展示区 -->
+        <div class="dice-container" id="diceResult">
+            <div class="dice-wrapper"><div class="dice">❓</div></div>
+        </div>
+        
         <div class="dice-desc" id="diceDesc">今日免费剩余次数: 3</div>
-        <button onclick="rollDice()">点击掷骰</button>
+        
+        <!-- 连抽按钮组 -->
+        <div class="btn-group">
+            <button onclick="rollDice(1)" style="flex: 1;">掷 1 次</button>
+            <button onclick="rollDice(5)" class="btn-5" style="flex: 1;">连抽 5 次</button>
+            <button onclick="rollDice(10)" class="btn-10" style="flex: 1.2;">十连抽！</button>
+        </div>
     </div>
 
+    <!-- 每日占卜模块 -->
     <div class="section">
         <h3>🔮 每日运势占卜</h3>
-        <p>每日限抽一次，抽完请截图发给 GM 报备<br>（未报备者当日运势与分数无效）</p>
+        <p>每日限抽一次，抽完请截图发给 GM<br>（未报备者当日运势与分数无效）</p>
         <div class="fortune-text" id="fortuneResult">等待抽签...</div>
         <div class="fortune-desc" id="fortuneDesc"></div>
         <button onclick="drawFortune()" id="fortuneBtn">抽取今日运势</button>
@@ -181,49 +216,44 @@
 
 <script>
     // ----------------------------------------------------
-    // 核心机制 1：本地分数初始化與讀取
+    // 核心机制 1：本地分数初始化 (支援小数)
     // ----------------------------------------------------
-    let currentScore = parseInt(localStorage.getItem('tidu_score') || '-1'); // 初始預設 -1
+    let currentScore = parseFloat(localStorage.getItem('tidu_score') || '-1'); 
     document.getElementById('displayScore').innerHTML = currentScore + '<span class="score-total"> / 990</span>';
 
     // ----------------------------------------------------
-    // 核心机制 2：GM 神奇連結 (Magic Link) 發放分數
-    // 用法：發送網址 ?add=分數&key=防重複碼
-    // 範例：https://你的網址.github.io/?add=3&key=test1
+    // 核心机制 2：GM 神奇连结 (温柔防护版)
     // ----------------------------------------------------
     const urlParams = new URLSearchParams(window.location.search);
-    const addScore = urlParams.get('add'); // 要加或扣的分数
-    const setScore = urlParams.get('set'); // 强制覆盖成某分数 (用于校正)
-    const key = urlParams.get('key');      // 防作弊密钥
+    const addScore = urlParams.get('add'); 
+    const setScore = urlParams.get('set'); 
+    const key = urlParams.get('key');      
 
     if ((addScore || setScore) && key) {
         let usedKeys = JSON.parse(localStorage.getItem('tidu_usedKeys') || '[]');
         
         if (usedKeys.includes(key)) {
-            alert("⚠️ 贪心抓包！该 GM 奖励/惩罚连结已经使用过了！");
+            // 老哥，提示改在这里了！超级温柔宠溺
+            alert("温馨提示：这条连结的积分已经领过啦～\n乖乖去找奕奕哥哥要新的奖励连结吧！");
         } else {
             if (setScore) {
-                // 强制校正分数模式
-                currentScore = parseInt(setScore);
+                currentScore = parseFloat(setScore);
                 alert(`🔧 GM 后台强制介入，分数已校正为：${currentScore} 分！`);
             } else if (addScore) {
-                // 加扣分模式
-                let point = parseInt(addScore);
+                let point = parseFloat(addScore);
                 currentScore += point;
+                currentScore = Math.round(currentScore * 10) / 10; 
                 let word = point > 0 ? "发放的奖励" : "下达的惩罚";
                 alert(`🎉 成功接收 GM ${word}：${point > 0 ? '+'+point : point} 积分！\n目前总积分：${currentScore}`);
             }
             
-            // 存入新分数
             localStorage.setItem('tidu_score', currentScore.toString());
-            document.getElementById('displayScore').innerHTML = currentScore + '<span class="score-total"> /990</span>';
+            document.getElementById('displayScore').innerHTML = currentScore + '<span class="score-total"> / 990</span>';
             
-            // 记录该密钥已使用
             usedKeys.push(key);
             localStorage.setItem('tidu_usedKeys', JSON.stringify(usedKeys));
         }
         
-        // 自动清除网址后面的参数，保持画面干净，也防止她一直按重新整理
         window.history.replaceState({}, document.title, window.location.pathname);
     }
 
@@ -240,59 +270,94 @@
         let count = parseInt(localStorage.getItem('tidu_diceCount') || '0');
         let descBox = document.getElementById('diceDesc');
         if (count < 3) {
-            descBox.innerText = "今日免费剩余次数: " + (3 - count);
+            descBox.innerHTML = `今日免费剩余次数: <span style="color:#feca57; font-size:16px;">${3 - count}</span>`;
             descBox.style.color = "#00d2d3";
         } else {
-            descBox.innerText = "今日免费次数已用尽 (每次需耗费1分)";
+            descBox.innerText = "今日免费已用尽 (后续每次需消耗 1 积分)";
             descBox.style.color = "#ff9f43";
         }
     }
     updateDiceUI();
 
     // ----------------------------------------------------
-    // 骰子与占卜逻辑 (与上一版相同)
+    // 骰子连抽逻辑 (支持 1, 5, 10 次)
     // ----------------------------------------------------
-    function rollDice() {
+    function rollDice(num) {
         let count = parseInt(localStorage.getItem('tidu_diceCount') || '0');
+        let freeLeft = Math.max(0, 3 - count);
+        let paidRolls = Math.max(0, num - freeLeft); 
         
-        if (count >= 3) {
-            let buy = confirm("⚠️ 今日 3 次免费掷骰已用尽！\n继续掷骰将【消耗 1 积分】当作入场费，请确认是否继续？\n（需截图给 GM 结算扣除）");
+        // 如果需要花钱买次数，弹出温馨提示确认
+        if (paidRolls > 0) {
+            let buy = confirm(`⚠️ 本次抽取需额外消耗【${paidRolls} 积分】作为入场费。\n确定要赌一把吗？(抽完记得截图找 GM 结算喔)`);
             if (!buy) return; 
         }
 
-        localStorage.setItem('tidu_diceCount', count + 1);
+        // 记录总次数
+        localStorage.setItem('tidu_diceCount', count + num);
+        
         const diceFaces = ['⚀', '⚁', '⚂', '⚃', '⚄', '⚅'];
         const dicePoints = [-3, -1, 0, 1, 3, 4]; 
         
         let resultBox = document.getElementById('diceResult');
         let descBox = document.getElementById('diceDesc');
-        let animCounter = 0;
         
-        descBox.innerText = "命运判定中...";
+        // 动态生成对应数量的骰子 HTML
+        resultBox.innerHTML = '';
+        for(let i=0; i<num; i++) {
+            resultBox.innerHTML += `
+                <div class="dice-wrapper">
+                    <div class="dice" id="die-${i}">❓</div>
+                    <div id="die-pt-${i}" style="font-size:12px; color:#a4b0be; height:14px; font-weight:bold;"></div>
+                </div>`;
+        }
+        
+        descBox.innerText = "命运疯狂转动中...";
         descBox.style.color = "#ffffff";
 
+        let animCounter = 0;
         let interval = setInterval(() => {
-            resultBox.innerText = diceFaces[Math.floor(Math.random() * 6)];
+            // 动画跳动
+            for(let i=0; i<num; i++) {
+                document.getElementById(`die-${i}`).innerText = diceFaces[Math.floor(Math.random() * 6)];
+            }
             animCounter++;
+            
+            // 动画结束，结算分数
             if(animCounter > 10) {
                 clearInterval(interval);
-                let finalIndex = Math.floor(Math.random() * 6);
-                let pointChange = dicePoints[finalIndex];
-                let pointStr = pointChange > 0 ? "+" + pointChange : pointChange;
+                let totalDicePoints = 0;
                 
-                resultBox.innerText = diceFaces[finalIndex];
-                let prefix = (count >= 3) ? "【已扣除1分入场费】" : "";
-                descBox.innerText = prefix + "掷出 " + (finalIndex + 1) + " 点，积分 " + pointStr + "！";
+                for(let i=0; i<num; i++) {
+                    let finalIndex = Math.floor(Math.random() * 6);
+                    let pt = dicePoints[finalIndex];
+                    totalDicePoints += pt;
+                    
+                    document.getElementById(`die-${i}`).innerText = diceFaces[finalIndex];
+                    let ptDisplay = pt > 0 ? "+" + pt : pt;
+                    document.getElementById(`die-pt-${i}`).innerText = ptDisplay;
+                    
+                    if (pt > 0) document.getElementById(`die-pt-${i}`).style.color = "#1dd1a1";
+                    else if (pt < 0) document.getElementById(`die-pt-${i}`).style.color = "#ee5253";
+                }
                 
-                if (pointChange > 0) descBox.style.color = "#1dd1a1"; 
-                else if (pointChange < 0) descBox.style.color = "#ee5253"; 
-                else descBox.style.color = "#48dbfb"; 
+                // 计算净利 = 骰子总得分 - 购买次数花费的积分
+                let netPoints = totalDicePoints - paidRolls;
+                let netStr = netPoints > 0 ? "+" + netPoints : netPoints;
+                let netColor = netPoints > 0 ? "#1dd1a1" : (netPoints < 0 ? "#ee5253" : "#48dbfb");
                 
-                setTimeout(updateDiceUI, 3000);
+                let costStr = paidRolls > 0 ? `<br><span style="color:#ff9f43; font-size:12px;">(已扣除 ${paidRolls} 分入场费)</span>` : "";
+                
+                descBox.innerHTML = `本次掷出 ${num} 颗骰子，点数合计 ${totalDicePoints} 分${costStr}<br>最终系统结算总计：<span style="font-size:20px; font-weight:bold; color:${netColor}">${netStr} 积分</span>`;
+                
+                setTimeout(updateDiceUI, 5000); // 5秒后恢复剩余次数提示
             }
         }, 60);
     }
 
+    // ----------------------------------------------------
+    // 占卜逻辑 (不变)
+    // ----------------------------------------------------
     const fortunes = [
         { title: "🌟 上上签 (+3分)", color: "#feca57", descs: ["运气爆棚！今天非常适合撒娇，GM 审核通过率极高。","欧气满满！天选之子就是你，赶紧去找 GM 领赏吧！","吉星高照！今天提任何要求 GM 都可能答应，快去截图报备！"] },
         { title: "✨ 中上签 (+1分)", color: "#1dd1a1", descs: ["运势不错，发张可爱的照片给 GM，大概率能获得额外奖励。","顺风顺水！今天对 GM 甜言蜜语会有意想不到的收获。","小吉之日，适合乖乖做任务，GM 看你顺眼可能会爆击加分。"] },
@@ -311,7 +376,7 @@
         let descBox = document.getElementById('fortuneDesc');
 
         if (lastDrawDate === today) {
-            alert("⚠️ 系统警告：你今天已经抽过签了！\n请拿这个结果去跟 GM 报备，不许耍赖！");
+            alert("温馨提示：你今天已经抽过签了喔！\n快拿这个结果去跟 GM 报备，不许耍赖！");
             titleBox.innerText = savedTitle;
             titleBox.style.color = savedColor;
             descBox.innerText = savedDesc;
