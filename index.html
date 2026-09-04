@@ -149,7 +149,7 @@
     
     <div class="score-board">
         <div class="score-title">当前持有碎片 (本地同步)</div>
-        <div class="score-value" id="displayScore">0<span class="score-total"> / 999</span></div>
+        <div class="score-value" id="displayScore">0<span class="score-total"> / 990</span></div>
     </div>
 
     <div class="section">
@@ -183,8 +183,8 @@
     // ----------------------------------------------------
     // 核心机制 1：本地分数初始化與讀取
     // ----------------------------------------------------
-    let currentScore = parseInt(localStorage.getItem('tidu_score') || '18.5'); // 初始預設 -1
-    document.getElementById('displayScore').innerHTML = currentScore + '<span class="score-total"> / 999</span>';
+    let currentScore = parseInt(localStorage.getItem('tidu_score') || '-1'); // 初始預設 -1
+    document.getElementById('displayScore').innerHTML = currentScore + '<span class="score-total"> / 990</span>';
 
     // ----------------------------------------------------
     // 核心机制 2：GM 神奇連結 (Magic Link) 發放分數
@@ -216,7 +216,7 @@
             
             // 存入新分数
             localStorage.setItem('tidu_score', currentScore.toString());
-            document.getElementById('displayScore').innerHTML = currentScore + '<span class="score-total"> / 999</span>';
+            document.getElementById('displayScore').innerHTML = currentScore + '<span class="score-total"> /990</span>';
             
             // 记录该密钥已使用
             usedKeys.push(key);
