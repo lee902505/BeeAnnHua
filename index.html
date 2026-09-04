@@ -82,14 +82,14 @@
             line-height: 1.4;
         }
         .rules {
-            font-size: 12px;
+            font-size: 13px;
             color: #feca57;
             background: rgba(254, 202, 87, 0.1);
-            padding: 8px;
+            padding: 12px;
             border-radius: 8px;
             margin-bottom: 15px;
             text-align: left;
-            line-height: 1.5;
+            line-height: 1.6;
         }
         .dice-container {
             display: flex;
@@ -156,7 +156,7 @@
             font-size: 12px;
             color: #747d8c;
             margin-top: auto;
-            padding-top: 20px;
+            padding-top: 10px;
             text-align: center;
             line-height: 1.6;
             padding-bottom: 20px;
@@ -173,10 +173,11 @@
         <div class="score-value" id="displayScore">0<span class="score-total"> / 990</span></div>
     </div>
 
+    <!-- 骰子连抽模块 -->
     <div class="section">
         <h3>🎲 命运盲盒骰子</h3>
         <p>支持多连抽（需截图回传 GM 报备结算）</p>
-        <div class="rules">
+        <div class="rules" style="font-size: 12px; padding: 8px;">
             6点: +4分 | 5点: +3分 | 4点: +1分<br>
             3点: 0分 &nbsp;| 2点: -1分 | 1点: -3分<br>
             <span style="color:#ff9f43;">* 每日免费 3 次，之后每次需消耗 1 积分</span>
@@ -195,6 +196,7 @@
         </div>
     </div>
 
+    <!-- 每日占卜模块 -->
     <div class="section">
         <h3>🔮 每日运势占卜</h3>
         <p>每日限抽一次，抽完请截图发给 GM<br>（未报备者当日运势与分数无效）</p>
@@ -203,9 +205,24 @@
         <button onclick="drawFortune()" id="fortuneBtn">抽取今日运势</button>
     </div>
 
+    <!-- 新增：每日任务指南模块 -->
+    <div class="section">
+        <h3>📜 每日任务指南 (目标33分)</h3>
+        <div class="rules">
+            <b style="color:#00d2d3;">1. 基础打卡 (2分)：</b><br>
+            每日主动发送早安、晚安 (各得1分)。<br><br>
+            <b style="color:#00d2d3;">2. 情绪投资 (最高10分)：</b><br>
+            发送好看的日常照片、语音撒娇，或真诚夸奖奕奕哥哥 (视甜度每次发 1~3 分)。<br><br>
+            <b style="color:#00d2d3;">3. 盲盒与运势 (欧皇分)：</b><br>
+            网页每日占卜 + 免费 3 次命运骰子。<br><br>
+            <b style="color:#00d2d3;">4. 隐藏任务 (惊喜分)：</b><br>
+            触发 GM 随机发布的专属任务，分数由 GM 视心情额外下发！
+        </div>
+    </div>
+
     <div class="tips">
         * 本客户端由 奕奕哥哥 独家开发维运<br>
-        * 请妥善保存 GM 发放的专属加分连结
+        * 系统一切最终解释权归 GM 所有
     </div>
 </div>
 
@@ -350,7 +367,6 @@
                     localStorage.setItem('tidu_pendingSettlement', 'true');
                 }
                 
-                // 🎯 骰子防呆提醒：延遲半秒彈出，讓她先看到分數
                 setTimeout(() => {
                     alert("🎲 命运结算完毕！\n小笨蛋，记得现在立刻把这个画面【截图】发给奕奕哥哥算分数！\n不截图的话，刚刚骰的分数就不认帐喔，快去报备～");
                     updateDiceUI();
@@ -406,7 +422,6 @@
         localStorage.setItem('tidu_fortuneDesc_v2', randomDesc);
         localStorage.setItem('tidu_fortuneColor_v2', fortune.color);
 
-        // 🎯 占卜防呆提醒：延遲半秒彈出
         setTimeout(() => {
             alert("🔮 运势出炉啦！\n笨笨，记得现在立刻把这个画面【截图】发给奕奕哥哥报备喔！\n不截图不算数，快去快去～");
         }, 500);
