@@ -5,81 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>专属提督碎片系统 🧩</title>
     <style>
-        body {
-            font-family: '-apple-system', BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background-color: #1a1a2e;
-            color: #ffffff;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            height: 100vh;
-            overflow: hidden;
-        }
-        .app-container {
-            width: 100%;
-            max-width: 430px;
-            height: 100%;
-            padding: 25px 20px;
-            box-sizing: border-box;
-            background: linear-gradient(145deg, #1f1f3a, #161625);
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        h1 {
-            color: #00d2d3;
-            font-size: 22px;
-            margin-bottom: 12px;
-            letter-spacing: 1px;
-        }
+        body { font-family: '-apple-system', BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #1a1a2e; color: #ffffff; margin: 0; padding: 0; display: flex; justify-content: center; height: 100vh; overflow: hidden; }
+        .app-container { width: 100%; max-width: 430px; height: 100%; padding: 25px 20px; box-sizing: border-box; background: linear-gradient(145deg, #1f1f3a, #161625); overflow-y: auto; display: flex; flex-direction: column; align-items: center; }
+        h1 { color: #00d2d3; font-size: 22px; margin-bottom: 12px; letter-spacing: 1px; }
         
-        /* 🏆 炫酷阶级徽章 */
-        .title-badge {
-            position: relative;
-            background: linear-gradient(180deg, rgba(30, 30, 45, 0.9), rgba(15, 15, 25, 0.9));
-            padding: 8px 24px;
-            border-radius: 30px;
-            font-size: 15px;
-            font-weight: 900;
-            letter-spacing: 1.5px;
-            margin-bottom: 22px;
-            overflow: hidden;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            border: 2px solid transparent;
-            z-index: 1;
-            transition: all 0.4s ease;
-        }
-        .title-badge::before {
-            content: ''; position: absolute; top: 0; left: -150%; width: 50%; height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
-            transform: skewX(-25deg); animation: sweepLight 3.5s infinite; z-index: -1;
-        }
+        .title-badge { position: relative; background: linear-gradient(180deg, rgba(30, 30, 45, 0.9), rgba(15, 15, 25, 0.9)); padding: 8px 24px; border-radius: 30px; font-size: 15px; font-weight: 900; letter-spacing: 1.5px; margin-bottom: 22px; overflow: hidden; display: inline-flex; align-items: center; justify-content: center; border: 2px solid transparent; z-index: 1; transition: all 0.4s ease; }
+        .title-badge::before { content: ''; position: absolute; top: 0; left: -150%; width: 50%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent); transform: skewX(-25deg); animation: sweepLight 3.5s infinite; z-index: -1; }
         @keyframes sweepLight { 0% { left: -150%; } 20% { left: 200%; } 100% { left: 200%; } }
 
-        /* 面板统一样式 */
-        .score-board {
-            background: rgba(255, 255, 255, 0.05); width: 100%; padding: 20px; border-radius: 16px;
-            text-align: center; margin-bottom: 20px; border: 1px solid #00d2d3; box-sizing: border-box;
-            box-shadow: 0 4px 15px rgba(0, 210, 211, 0.15);
-        }
+        .score-board { background: rgba(255, 255, 255, 0.05); width: 100%; padding: 20px; border-radius: 16px; text-align: center; margin-bottom: 20px; border: 1px solid #00d2d3; box-sizing: border-box; box-shadow: 0 4px 15px rgba(0, 210, 211, 0.15); }
         .score-title { font-size: 14px; color: #a4b0be; margin-bottom: 8px; }
         .score-value { font-size: 40px; font-weight: 800; color: #feca57; text-shadow: 0 2px 10px rgba(254, 202, 87, 0.3); }
         .score-total { font-size: 18px; color: #ffffff; }
-        
-        .asset-board {
-            display: flex; justify-content: space-around; flex-wrap: wrap; gap: 10px;
-            margin-top: 15px; padding-top: 15px; border-top: 1px dashed rgba(0, 210, 211, 0.3); 
-            font-size: 14px; font-weight: bold;
-        }
+        .asset-board { display: flex; justify-content: space-around; flex-wrap: wrap; gap: 10px; margin-top: 15px; padding-top: 15px; border-top: 1px dashed rgba(0, 210, 211, 0.3); font-size: 14px; font-weight: bold; }
 
-        .section {
-            width: 100%; background: rgba(0, 0, 0, 0.2); border-radius: 16px; padding: 20px;
-            margin-bottom: 15px; box-sizing: border-box; text-align: center;
-        }
+        .section { width: 100%; background: rgba(0, 0, 0, 0.2); border-radius: 16px; padding: 20px; margin-bottom: 15px; box-sizing: border-box; text-align: center; }
         .section h3 { margin: 0 0 10px 0; color: #ff9ff3; font-size: 18px; }
         .section p { font-size: 13px; color: #ced6e0; margin-bottom: 10px; line-height: 1.4; }
         .rules { font-size: 12px; color: #feca57; background: rgba(254, 202, 87, 0.1); padding: 8px; border-radius: 8px; margin-bottom: 15px; text-align: left; line-height: 1.5; }
@@ -94,57 +34,37 @@
         .btn-farm { background: linear-gradient(135deg, #1dd1a1, #10ac84); font-size: 16px; padding: 14px 0; border: 2px solid #2ecc71;}
         .btn-harvest { background: linear-gradient(135deg, #f368e0, #ff9ff3); font-size: 16px; padding: 14px 0; border: 2px solid #ff9ff3; animation: pulse-glow 1.5s infinite alternate;}
 
-        /* 💣 踩地雷专属样式 */
-        .ms-header {
-            display: flex; justify-content: space-between; align-items: center;
-            background: rgba(0,0,0,0.5); padding: 10px 15px; border-radius: 10px; margin-bottom: 15px;
-            font-size: 18px; font-weight: bold; border: 2px solid #a4b0be;
-        }
-        .ms-timer { color: #feca57; font-family: monospace; }
-        .ms-mine-count { color: #ff4757; font-family: monospace; }
-        .btn-ms-mode { width: auto; padding: 5px 15px; font-size: 14px; background: linear-gradient(135deg, #1dd1a1, #10ac84); }
-        
-        .ms-grid {
-            display: grid; grid-template-columns: repeat(6, 1fr); gap: 4px;
-            background: rgba(255,255,255,0.05); padding: 8px; border-radius: 12px;
-        }
-        .ms-cell {
-            aspect-ratio: 1; background: linear-gradient(135deg, #a4b0be, #747d8c);
-            border-radius: 6px; display: flex; align-items: center; justify-content: center;
-            font-size: 20px; font-weight: bold; box-shadow: 0 4px 0 #57606f; cursor: pointer;
-            user-select: none; transition: transform 0.1s, box-shadow 0.1s;
-        }
-        .ms-cell:active { transform: translateY(4px); box-shadow: 0 0 0 #57606f; }
-        .ms-cell.revealed {
-            background: rgba(0,0,0,0.2); box-shadow: inset 0 3px 6px rgba(0,0,0,0.4);
-            transform: translateY(4px); pointer-events: none;
-        }
-        .ms-cell.exploded { background: #ff4757; animation: shakeBox 0.3s; }
-        .ms-1 { color: #48dbfb; } .ms-2 { color: #1dd1a1; } .ms-3 { color: #ff7675; } 
-        .ms-4 { color: #a29bfe; } .ms-5 { color: #feca57; } .ms-6 { color: #ff9f43; }
-
         /* 🌱 农场专属样式 */
-        .farm-container {
-            border: 2px solid #1dd1a1; border-radius: 12px; padding: 15px; margin-bottom: 15px;
-            box-shadow: 0 0 20px rgba(29, 209, 161, 0.2);
-            background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.8)), url('farm_bg.png') center/cover;
-            position: relative; overflow: hidden;
-        }
+        .farm-container { border: 2px solid #1dd1a1; border-radius: 12px; padding: 15px; margin-bottom: 15px; box-shadow: 0 0 20px rgba(29, 209, 161, 0.2); background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.8)), url('farm_bg.png') center/cover; position: relative; overflow: hidden; }
         .farm-status-icon { font-size: 55px; margin-bottom: 10px; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.6)); }
         .farm-timer { font-size: 26px; font-weight: bold; color: #1dd1a1; font-family: monospace; letter-spacing: 2px; text-shadow: 0 0 10px rgba(29, 209, 161, 0.5); margin: 10px 0; }
         .progress-bar { width: 100%; height: 8px; background: rgba(255,255,255,0.2); border-radius: 4px; overflow: hidden; margin-bottom: 15px; }
         .progress-fill { height: 100%; background: linear-gradient(90deg, #1dd1a1, #feca57); width: 0%; transition: width 1s linear; }
 
         /* 🎰 拉霸机专属样式 */
-        .slot-machine {
-            background: linear-gradient(180deg, #2d3436, #000000); border: 3px solid #feca57; border-radius: 12px;
-            padding: 15px; display: flex; justify-content: center; gap: 10px; margin-bottom: 15px;
-            box-shadow: 0 0 20px rgba(254, 202, 87, 0.2), inset 0 0 15px rgba(0,0,0,0.8);
-        }
-        .slot-reel {
-            background: #ffffff; width: 70px; height: 80px; border-radius: 8px; display: flex; align-items: center; justify-content: center;
-            font-size: 45px; box-shadow: inset 0 5px 10px rgba(0,0,0,0.4); border: 2px solid #b2bec3; overflow: hidden;
-        }
+        .slot-machine { background: linear-gradient(180deg, #2d3436, #000000); border: 3px solid #feca57; border-radius: 12px; padding: 15px; display: flex; justify-content: center; gap: 10px; margin-bottom: 15px; box-shadow: 0 0 20px rgba(254, 202, 87, 0.2), inset 0 0 15px rgba(0,0,0,0.8); }
+        .slot-reel { background: #ffffff; width: 70px; height: 80px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 45px; box-shadow: inset 0 5px 10px rgba(0,0,0,0.4); border: 2px solid #b2bec3; overflow: hidden; }
+        .reel-inner { transition: transform 0.1s linear; }
+
+        /* 💣 踩地雷专属样式 */
+        .ms-header { display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.5); padding: 10px 15px; border-radius: 10px; margin-bottom: 15px; font-size: 18px; font-weight: bold; border: 2px solid #a4b0be; }
+        .ms-timer { color: #feca57; font-family: monospace; } .ms-mine-count { color: #ff4757; font-family: monospace; }
+        .btn-ms-mode { width: auto; padding: 5px 15px; font-size: 14px; background: linear-gradient(135deg, #1dd1a1, #10ac84); }
+        .ms-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 4px; background: rgba(255,255,255,0.05); padding: 8px; border-radius: 12px; }
+        .ms-cell { aspect-ratio: 1; background: linear-gradient(135deg, #a4b0be, #747d8c); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: bold; box-shadow: 0 4px 0 #57606f; cursor: pointer; user-select: none; transition: transform 0.1s, box-shadow 0.1s; }
+        .ms-cell:active { transform: translateY(4px); box-shadow: 0 0 0 #57606f; }
+        .ms-cell.revealed { background: rgba(0,0,0,0.2); box-shadow: inset 0 3px 6px rgba(0,0,0,0.4); transform: translateY(4px); pointer-events: none; }
+        .ms-cell.exploded { background: #ff4757; animation: shakeBox 0.3s; }
+        .ms-1 { color: #48dbfb; } .ms-2 { color: #1dd1a1; } .ms-3 { color: #ff7675; } .ms-4 { color: #a29bfe; } .ms-5 { color: #feca57; } .ms-6 { color: #ff9f43; }
+
+        /* 🎴 记忆翻牌专属样式 */
+        .mem-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 15px; perspective: 1000px; }
+        .mem-card { aspect-ratio: 1; position: relative; cursor: pointer; transform-style: preserve-3d; transition: transform 0.5s cubic-bezier(0.4, 0.2, 0.2, 1); }
+        .mem-card.flipped { transform: rotateY(180deg); }
+        .mem-card.matched { opacity: 0.3; pointer-events: none; transition: opacity 0.3s 0.5s; }
+        .mem-face { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 35px; box-shadow: 0 4px 8px rgba(0,0,0,0.3); }
+        .mem-back { background: linear-gradient(135deg, #a29bfe, #6c5ce7); border: 2px solid #a4b0be; }
+        .mem-front { background: rgba(255,255,255,0.1); border: 2px solid #1dd1a1; transform: rotateY(180deg); backdrop-filter: blur(5px); }
         
         /* 🎁 盲盒与骰子特效保留 */
         .blind-box-container { margin: 15px 0; min-height: 140px; position: relative; }
@@ -152,26 +72,16 @@
         @keyframes pulse-glow { 0% { filter: drop-shadow(0 0 10px rgba(255, 159, 243, 0.4)) scale(1); } 100% { filter: drop-shadow(0 0 30px rgba(255, 159, 243, 0.9)) scale(1.05); } }
         .box-icon.shake { animation: shakeBox 0.4s infinite; }
         .box-results-wrap { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-top: 15px; }
-        .drawn-item { 
-            display: flex; flex-direction: column; align-items: center; 
-            background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.03));
-            backdrop-filter: blur(5px); border: 1px solid rgba(255,255,255,0.1); padding: 12px 8px; border-radius: 14px; width: 42%; 
-            animation: popUp 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-        }
+        .drawn-item { display: flex; flex-direction: column; align-items: center; background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.03)); backdrop-filter: blur(5px); border: 1px solid rgba(255,255,255,0.1); padding: 12px 8px; border-radius: 14px; width: 42%; animation: popUp 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
         .drawn-item img { width: 55px; height: 55px; object-fit: contain; margin-bottom: 8px; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.4));}
         .drawn-title { font-size: 14px; font-weight: bold; margin-bottom: 4px; text-shadow: 0 1px 3px rgba(0,0,0,0.5);}
         .drawn-pt { font-size: 12px; font-weight: bold; background: rgba(0,0,0,0.4); padding: 2px 8px; border-radius: 8px;}
         @keyframes shakeBox { 0%, 100% { transform: rotate(0deg) scale(1) translateX(0); } 25% { transform: rotate(-12deg) scale(1.1) translateX(-5px); } 75% { transform: rotate(12deg) scale(1.1) translateX(5px); } }
         @keyframes popUp { 0% { transform: scale(0.5) translateY(20px); opacity: 0; } 100% { transform: scale(1) translateY(0); opacity: 1; } }
 
-        /* 骰子3D效果 */
         .dice-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; margin: 20px 0; min-height: 80px; }
         .dice-wrapper { display: flex; flex-direction: column; align-items: center; gap: 8px; }
-        .dice { 
-            font-size: 40px; line-height: 1; background: linear-gradient(135deg, #ffffff, #e1e5ee); color: #2f3542;
-            width: 55px; height: 55px; display: flex; align-items: center; justify-content: center; border-radius: 12px;
-            box-shadow: 0 6px 0 #a4b0be, 0 10px 15px rgba(0,0,0,0.4); transition: all 0.1s;
-        }
+        .dice { font-size: 40px; line-height: 1; background: linear-gradient(135deg, #ffffff, #e1e5ee); color: #2f3542; width: 55px; height: 55px; display: flex; align-items: center; justify-content: center; border-radius: 12px; box-shadow: 0 6px 0 #a4b0be, 0 10px 15px rgba(0,0,0,0.4); transition: all 0.1s; }
         .dice.rolling { animation: diceRoll 0.25s infinite linear; box-shadow: 0 2px 0 #a4b0be, 0 5px 10px rgba(0,0,0,0.4); transform: translateY(4px); }
         @keyframes diceRoll { 0% { transform: rotate(0deg) scale(1) translateY(2px); } 50% { transform: rotate(15deg) scale(1.1) translateY(-5px); } 100% { transform: rotate(-15deg) scale(1) translateY(2px); } }
         .dice-pt-label { font-size: 13px; font-weight: bold; padding: 3px 10px; border-radius: 12px; animation: popInBounce 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; box-shadow: 0 2px 5px rgba(0,0,0,0.3); }
@@ -202,16 +112,13 @@
     <div class="section" style="border: 1px solid rgba(29, 209, 161, 0.3); box-shadow: 0 0 15px rgba(29, 209, 161, 0.1);">
         <h3 style="color: #1dd1a1;">🌱 兔兔专属草莓农场</h3>
         <p>每日系统自动发放 <b style="color:#ff7675;">5 颗草莓种子</b><br>种植需等待 <b style="color:#feca57;">90 分钟</b> 才能收成唷！</p>
-        
         <div class="farm-container" id="farmUI">
             <div class="farm-status-icon" id="farmIcon">🚜</div>
             <div id="farmStatusText" style="font-size:14px; font-weight:bold; color:#ced6e0;">农田目前空着，快来播种吧！</div>
-            
             <div id="farmProgressWrap" style="display:none; margin-top:15px;">
                 <div class="progress-bar"><div class="progress-fill" id="farmProgressBar"></div></div>
                 <div class="farm-timer" id="farmTimer">01:30:00</div>
             </div>
-            
             <div id="plantActionWrap" style="display: flex; gap: 10px; margin-top: 15px;">
                 <select id="plantAmount" style="flex: 1; background: rgba(0,0,0,0.5); border: 2px solid #1dd1a1; border-radius: 8px; color: #fff; font-size: 15px; font-weight: bold; text-align: center; outline: none;">
                     <option value="1">1 颗</option><option value="2">2 颗</option><option value="3">3 颗</option>
@@ -219,7 +126,6 @@
                 </select>
                 <button class="btn-farm" onclick="plantSeed()" style="flex: 2; margin-top: 0;">🌱 立即播种</button>
             </div>
-
             <button class="btn-harvest" id="btnHarvest" onclick="harvestCrop()" style="display:none; margin-top:15px;">🧺 农作物成熟啦！点击收成</button>
         </div>
     </div>
@@ -248,16 +154,12 @@
     </div>
 
     <!-- 💣 踩地雷小游戏 -->
-    <div class="section" style="border: 1px solid rgba(164, 176, 190, 0.5); box-shadow: 0 0 15px rgba(164, 176, 190, 0.2);">
+    <div class="section" style="border: 1px solid rgba(164, 176, 190, 0.5);">
         <h3 style="color: #a4b0be;">💣 兔兔拆弹特工队</h3>
         <p>消耗 <b style="color:#feca57;">2 碎片</b> 入场。手速越快，奖励越高！<br>S级过关最高拿 <b style="color:#1dd1a1;">5 碎片</b>！</p>
-        
-        <!-- 游戏入口 -->
         <div id="ms-setup">
             <button onclick="startMinesweeper()" style="background: linear-gradient(135deg, #57606f, #2f3542); border: 2px solid #a4b0be; margin-top: 10px;">🛡️ 支付 2 碎片 开始拆弹</button>
         </div>
-
-        <!-- 游戏面板 -->
         <div id="ms-game" style="display: none; margin-top: 15px;">
             <div class="ms-header">
                 <div class="ms-timer">⏱️ <span id="ms-timer-text">0</span>s</div>
@@ -265,6 +167,22 @@
                 <div class="ms-mine-count">💣 <span id="ms-mine-text">6</span></div>
             </div>
             <div class="ms-grid" id="ms-grid"></div>
+        </div>
+    </div>
+
+    <!-- 🎴 记忆翻牌小游戏 -->
+    <div class="section" style="border: 1px solid rgba(162, 155, 254, 0.5); box-shadow: 0 0 15px rgba(162, 155, 254, 0.2);">
+        <h3 style="color: #a29bfe;">🎴 兔兔记忆翻牌</h3>
+        <p>消耗 <b style="color:#feca57;">2 碎片</b> 入场。翻错 11 次直接失败！<br>完美通关最高拿 <b style="color:#1dd1a1;">5 碎片</b>！</p>
+        <div id="mem-setup">
+            <button onclick="startMemoryGame()" style="background: linear-gradient(135deg, #a29bfe, #6c5ce7); border: 2px solid #81ecec; margin-top: 10px;">🎴 支付 2 碎片 开始翻牌</button>
+        </div>
+        <div id="mem-game" style="display: none; margin-top: 15px;">
+            <div class="ms-header" style="border-color:#a29bfe;">
+                <div style="color:#1dd1a1">🎯 匹配: <span id="mem-matched">0</span>/8</div>
+                <div style="color:#ff7675">❌ 失误: <span id="mem-mistakes">0</span>/10</div>
+            </div>
+            <div class="mem-grid" id="mem-grid"></div>
         </div>
     </div>
 
@@ -313,18 +231,12 @@
     let currentSeeds = parseInt(localStorage.getItem('tidu_seeds') || '0'); 
     let isSystemBusy = false; 
 
-    // --- 每日状态重置 ---
     let today = new Date().toDateString();
     if (localStorage.getItem('tidu_dailyDate') !== today) {
-        localStorage.setItem('tidu_dailyDate', today);
-        localStorage.setItem('tidu_diceCount', '0');
-        localStorage.removeItem('tidu_dailyFortune');
-        currentSeeds += 5; 
-        localStorage.setItem('tidu_seeds', currentSeeds.toString());
+        localStorage.setItem('tidu_dailyDate', today); localStorage.setItem('tidu_diceCount', '0'); localStorage.removeItem('tidu_dailyFortune');
+        currentSeeds += 5; localStorage.setItem('tidu_seeds', currentSeeds.toString());
     } else {
-        if (!localStorage.getItem('tidu_seeds')) {
-            currentSeeds = 5; localStorage.setItem('tidu_seeds', '5');
-        }
+        if (!localStorage.getItem('tidu_seeds')) { currentSeeds = 5; localStorage.setItem('tidu_seeds', '5'); }
     }
 
     function getPlayerTitle(score) {
@@ -347,24 +259,104 @@
         if(document.getElementById('displayCoins')) document.getElementById('displayCoins').innerText = currentCoins;
         if(document.getElementById('displaySeeds')) document.getElementById('displaySeeds').innerText = currentSeeds;
         
-        let titleInfo = getPlayerTitle(currentScore);
-        let badge = document.getElementById('playerTitle');
+        let titleInfo = getPlayerTitle(currentScore); let badge = document.getElementById('playerTitle');
         if(badge) {
             badge.innerText = titleInfo.text; badge.style.color = titleInfo.color; badge.style.borderColor = titleInfo.color;
-            badge.style.boxShadow = `0 0 15px ${titleInfo.glow}, inset 0 0 10px ${titleInfo.glow}`;
-            badge.style.textShadow = `0 0 8px ${titleInfo.color}`;
+            badge.style.boxShadow = `0 0 15px ${titleInfo.glow}, inset 0 0 10px ${titleInfo.glow}`; badge.style.textShadow = `0 0 8px ${titleInfo.color}`;
         }
     }
     updateScoreUI(0, 0, 0, 0); 
 
     // ==========================================
+    // 🎴 兔兔记忆翻牌小游戏
+    // ==========================================
+    let memBoard = []; let memFlippedCards = []; let memMatchedCount = 0; let memMistakes = 0; let memIsBusy = false;
+
+    function startMemoryGame() {
+        if (isSystemBusy) return;
+        if (currentScore < 2) { alert(`❌ 余额不足！\n玩一把翻牌需要 2 碎片，你只有 ${currentScore} 分。\n快去做任务存钱！`); return; }
+        if (!confirm("确定花费 2 碎片开始翻牌任务？\n考验瞬间记忆力，失误 11 次直接淘汰喔！")) return;
+
+        isSystemBusy = true; updateScoreUI(-2, 0, 0, 0); isSystemBusy = false;
+
+        document.getElementById('mem-setup').style.display = 'none';
+        document.getElementById('mem-game').style.display = 'block';
+
+        memMatchedCount = 0; memMistakes = 0; memFlippedCards = []; memIsBusy = false;
+        document.getElementById('mem-matched').innerText = '0';
+        document.getElementById('mem-mistakes').innerText = '0';
+
+        const symbols = ['🐰','🥕','🍓','🥬','🔔','💎','👑','💖'];
+        memBoard = [...symbols, ...symbols].sort(() => Math.random() - 0.5);
+
+        const grid = document.getElementById('mem-grid');
+        grid.innerHTML = '';
+        for(let i=0; i<16; i++) {
+            grid.innerHTML += `
+                <div class="mem-card" id="mem-card-${i}" onclick="flipMemCard(${i})">
+                    <div class="mem-face mem-back">❓</div>
+                    <div class="mem-face mem-front">${memBoard[i]}</div>
+                </div>
+            `;
+        }
+    }
+
+    function flipMemCard(idx) {
+        if (memIsBusy || memFlippedCards.includes(idx)) return;
+        const card = document.getElementById(`mem-card-${idx}`);
+        if (card.classList.contains('matched') || card.classList.contains('flipped')) return;
+
+        card.classList.add('flipped');
+        memFlippedCards.push(idx);
+
+        if (memFlippedCards.length === 2) {
+            memIsBusy = true;
+            let [idx1, idx2] = memFlippedCards;
+            if (memBoard[idx1] === memBoard[idx2]) {
+                setTimeout(() => {
+                    document.getElementById(`mem-card-${idx1}`).classList.add('matched');
+                    document.getElementById(`mem-card-${idx2}`).classList.add('matched');
+                    memMatchedCount++; document.getElementById('mem-matched').innerText = memMatchedCount;
+                    memFlippedCards = []; memIsBusy = false; checkMemWin();
+                }, 600);
+            } else {
+                setTimeout(() => {
+                    document.getElementById(`mem-card-${idx1}`).classList.remove('flipped');
+                    document.getElementById(`mem-card-${idx2}`).classList.remove('flipped');
+                    memMistakes++; document.getElementById('mem-mistakes').innerText = memMistakes;
+                    memFlippedCards = []; memIsBusy = false; checkMemWin();
+                }, 1000);
+            }
+        }
+    }
+
+    function checkMemWin() {
+        if (memMistakes > 10) {
+            setTimeout(() => {
+                alert("💥 失误达到 11 次！\n金鱼脑发作了吗？挑战失败！\n被扣除的 2 碎片打水漂啦～");
+                document.getElementById('mem-setup').style.display = 'block'; document.getElementById('mem-game').style.display = 'none';
+            }, 500);
+            return;
+        }
+
+        if (memMatchedCount === 8) {
+            setTimeout(() => {
+                let reward = 3; let rank = "惊险过关 (小迷糊)";
+                if (memMistakes <= 4) { reward = 5; rank = "完美通关 (记忆大师)"; }
+                else if (memMistakes <= 7) { reward = 4; rank = "优秀 (火眼金睛)"; }
+
+                updateScoreUI(reward, 0, 0, 0);
+                alert(`🎉 翻牌成功！\n失误次数: ${memMistakes}\n评价: ${rank}\n获得奖励: +${reward} 碎片！`);
+                document.getElementById('mem-setup').style.display = 'block'; document.getElementById('mem-game').style.display = 'none';
+            }, 500);
+        }
+    }
+
+    // ==========================================
     // 💣 兔兔拆弹特工队 (踩地雷)
     // ==========================================
-    let msRows = 6; let msCols = 6; let msMineCount = 6;
-    let msBoard = []; let msRevealedCount = 0; let msFlagCount = 0;
-    let msTimerInt; let msTime = 0;
-    let msGameActive = false; let msFirstClick = false;
-    let msMode = 'dig'; // 'dig' or 'flag'
+    let msRows = 6; let msCols = 6; let msMineCount = 6; let msBoard = []; let msRevealedCount = 0; let msFlagCount = 0;
+    let msTimerInt; let msTime = 0; let msGameActive = false; let msFirstClick = false; let msMode = 'dig';
 
     function startMinesweeper() {
         if (isSystemBusy) return;
@@ -372,63 +364,39 @@
         if (!confirm("确定花费 2 碎片开始拆弹任务？\n动作越快，奖励越高喔！")) return;
 
         isSystemBusy = true; updateScoreUI(-2, 0, 0, 0); isSystemBusy = false;
-
-        document.getElementById('ms-setup').style.display = 'none';
-        document.getElementById('ms-game').style.display = 'block';
+        document.getElementById('ms-setup').style.display = 'none'; document.getElementById('ms-game').style.display = 'block';
         initMinesweeper();
     }
 
     function initMinesweeper() {
-        msBoard = []; msRevealedCount = 0; msFlagCount = 0; msTime = 0;
-        msGameActive = true; msFirstClick = true; msMode = 'dig';
-        clearInterval(msTimerInt);
-
-        document.getElementById('ms-timer-text').innerText = msTime;
-        document.getElementById('ms-mine-text').innerText = msMineCount;
-        let toggleBtn = document.getElementById('ms-mode-toggle');
-        toggleBtn.innerText = "⛏️ 挖掘"; toggleBtn.style.background = "linear-gradient(135deg, #1dd1a1, #10ac84)";
-
-        let grid = document.getElementById('ms-grid');
-        grid.innerHTML = '';
+        msBoard = []; msRevealedCount = 0; msFlagCount = 0; msTime = 0; msGameActive = true; msFirstClick = true; msMode = 'dig'; clearInterval(msTimerInt);
+        document.getElementById('ms-timer-text').innerText = msTime; document.getElementById('ms-mine-text').innerText = msMineCount;
+        let toggleBtn = document.getElementById('ms-mode-toggle'); toggleBtn.innerText = "⛏️ 挖掘"; toggleBtn.style.background = "linear-gradient(135deg, #1dd1a1, #10ac84)";
+        let grid = document.getElementById('ms-grid'); grid.innerHTML = '';
         for (let r = 0; r < msRows; r++) {
             let rowArray = [];
             for (let c = 0; c < msCols; c++) {
                 rowArray.push({ isMine: false, neighborMines: 0, isRevealed: false, isFlagged: false });
-                let cell = document.createElement('div');
-                cell.className = 'ms-cell'; cell.id = `ms-cell-${r}-${c}`;
-                cell.onclick = () => handleMsClick(r, c);
-                grid.appendChild(cell);
+                let cell = document.createElement('div'); cell.className = 'ms-cell'; cell.id = `ms-cell-${r}-${c}`; cell.onclick = () => handleMsClick(r, c); grid.appendChild(cell);
             }
             msBoard.push(rowArray);
         }
     }
 
     function toggleMsMode() {
-        if(!msGameActive) return;
-        let btn = document.getElementById('ms-mode-toggle');
-        if (msMode === 'dig') {
-            msMode = 'flag'; btn.innerText = "🚩 插旗"; btn.style.background = "linear-gradient(135deg, #ff9f43, #ee5253)";
-        } else {
-            msMode = 'dig'; btn.innerText = "⛏️ 挖掘"; btn.style.background = "linear-gradient(135deg, #1dd1a1, #10ac84)";
-        }
+        if(!msGameActive) return; let btn = document.getElementById('ms-mode-toggle');
+        if (msMode === 'dig') { msMode = 'flag'; btn.innerText = "🚩 插旗"; btn.style.background = "linear-gradient(135deg, #ff9f43, #ee5253)"; } 
+        else { msMode = 'dig'; btn.innerText = "⛏️ 挖掘"; btn.style.background = "linear-gradient(135deg, #1dd1a1, #10ac84)"; }
     }
 
     function placeMsMines(firstR, firstC) {
         let placed = 0;
-        while (placed < msMineCount) {
-            let r = Math.floor(Math.random() * msRows); let c = Math.floor(Math.random() * msCols);
-            if (!msBoard[r][c].isMine && !(r === firstR && c === firstC)) { msBoard[r][c].isMine = true; placed++; }
-        }
+        while (placed < msMineCount) { let r = Math.floor(Math.random() * msRows); let c = Math.floor(Math.random() * msCols); if (!msBoard[r][c].isMine && !(r === firstR && c === firstC)) { msBoard[r][c].isMine = true; placed++; } }
         for (let r = 0; r < msRows; r++) {
             for (let c = 0; c < msCols; c++) {
                 if (!msBoard[r][c].isMine) {
                     let count = 0;
-                    for(let i=-1; i<=1; i++) {
-                        for(let j=-1; j<=1; j++) {
-                            let nr = r+i, nc = c+j;
-                            if (nr>=0 && nr<msRows && nc>=0 && nc<msCols && msBoard[nr][nc].isMine) count++;
-                        }
-                    }
+                    for(let i=-1; i<=1; i++) { for(let j=-1; j<=1; j++) { let nr = r+i, nc = c+j; if (nr>=0 && nr<msRows && nc>=0 && nc<msCols && msBoard[nr][nc].isMine) count++; } }
                     msBoard[r][c].neighborMines = count;
                 }
             }
@@ -436,93 +404,41 @@
     }
 
     function handleMsClick(r, c) {
-        if (!msGameActive) return;
-        let cellData = msBoard[r][c];
-        if (cellData.isRevealed) return;
-
+        if (!msGameActive) return; let cellData = msBoard[r][c]; if (cellData.isRevealed) return;
         let cellElem = document.getElementById(`ms-cell-${r}-${c}`);
-
         if (msMode === 'flag') {
-            cellData.isFlagged = !cellData.isFlagged;
-            cellElem.innerText = cellData.isFlagged ? "🚩" : "";
-            msFlagCount += cellData.isFlagged ? 1 : -1;
-            document.getElementById('ms-mine-text').innerText = msMineCount - msFlagCount;
-            return;
+            cellData.isFlagged = !cellData.isFlagged; cellElem.innerText = cellData.isFlagged ? "🚩" : "";
+            msFlagCount += cellData.isFlagged ? 1 : -1; document.getElementById('ms-mine-text').innerText = msMineCount - msFlagCount; return;
         }
-
         if (cellData.isFlagged) return;
-
-        if (msFirstClick) {
-            msFirstClick = false; placeMsMines(r, c);
-            msTimerInt = setInterval(() => { msTime++; document.getElementById('ms-timer-text').innerText = msTime; }, 1000);
-        }
-
-        if (cellData.isMine) {
-            cellElem.classList.add('exploded');
-            gameOverMs(false);
-        } else {
-            revealMsCell(r, c);
-            checkMsWin();
-        }
+        if (msFirstClick) { msFirstClick = false; placeMsMines(r, c); msTimerInt = setInterval(() => { msTime++; document.getElementById('ms-timer-text').innerText = msTime; }, 1000); }
+        if (cellData.isMine) { cellElem.classList.add('exploded'); gameOverMs(false); } else { revealMsCell(r, c); checkMsWin(); }
     }
 
     function revealMsCell(r, c) {
-        if (r<0 || r>=msRows || c<0 || c>=msCols) return;
-        let cellData = msBoard[r][c];
-        if (cellData.isRevealed || cellData.isFlagged) return;
-
-        cellData.isRevealed = true; msRevealedCount++;
-        let cellElem = document.getElementById(`ms-cell-${r}-${c}`);
-        cellElem.classList.add('revealed');
-
-        if (cellData.neighborMines > 0) {
-            cellElem.innerText = cellData.neighborMines;
-            cellElem.classList.add(`ms-${cellData.neighborMines}`);
-        } else {
-            cellElem.innerText = "";
-            for(let i=-1; i<=1; i++) {
-                for(let j=-1; j<=1; j++) {
-                    if (i!==0 || j!==0) revealMsCell(r+i, c+j);
-                }
-            }
-        }
+        if (r<0 || r>=msRows || c<0 || c>=msCols) return; let cellData = msBoard[r][c]; if (cellData.isRevealed || cellData.isFlagged) return;
+        cellData.isRevealed = true; msRevealedCount++; let cellElem = document.getElementById(`ms-cell-${r}-${c}`); cellElem.classList.add('revealed');
+        if (cellData.neighborMines > 0) { cellElem.innerText = cellData.neighborMines; cellElem.classList.add(`ms-${cellData.neighborMines}`); } 
+        else { cellElem.innerText = ""; for(let i=-1; i<=1; i++) { for(let j=-1; j<=1; j++) { if (i!==0 || j!==0) revealMsCell(r+i, c+j); } } }
     }
 
-    function checkMsWin() {
-        if (msRevealedCount === (msRows * msCols) - msMineCount) {
-            gameOverMs(true);
-        }
-    }
+    function checkMsWin() { if (msRevealedCount === (msRows * msCols) - msMineCount) { gameOverMs(true); } }
 
     function gameOverMs(isWin) {
         msGameActive = false; clearInterval(msTimerInt);
-        
         for (let r = 0; r < msRows; r++) {
             for (let c = 0; c < msCols; c++) {
                 let cellData = msBoard[r][c]; let cellElem = document.getElementById(`ms-cell-${r}-${c}`);
-                if (cellData.isMine) {
-                    cellElem.innerText = "💣";
-                    if (!isWin && !cellElem.classList.contains('exploded')) {
-                        cellElem.style.background = "rgba(255, 71, 87, 0.4)";
-                        cellElem.style.boxShadow = "none"; cellElem.style.transform = "translateY(4px)";
-                    }
-                }
+                if (cellData.isMine) { cellElem.innerText = "💣"; if (!isWin && !cellElem.classList.contains('exploded')) { cellElem.style.background = "rgba(255, 71, 87, 0.4)"; cellElem.style.boxShadow = "none"; cellElem.style.transform = "translateY(4px)"; } }
             }
         }
-
         setTimeout(() => {
             if (isWin) {
                 let reward = 3; let rank = "B级 (优秀)";
-                if (msTime <= 15) { reward = 5; rank = "S级 (神级特工)"; }
-                else if (msTime <= 30) { reward = 4; rank = "A级 (王牌拆弹)"; }
-                
-                updateScoreUI(reward, 0, 0, 0);
-                alert(`🎉 拆弹成功！\n耗时: ${msTime} 秒\n评价: ${rank}\n获得奖励: +${reward} 碎片！`);
-            } else {
-                alert(`💥 轰！！！踩到地雷了！\n拆弹失败，被扣除的 2 碎片打水漂啦～`);
-            }
-            document.getElementById('ms-setup').style.display = 'block';
-            document.getElementById('ms-game').style.display = 'none';
+                if (msTime <= 15) { reward = 5; rank = "S级 (神级特工)"; } else if (msTime <= 30) { reward = 4; rank = "A级 (王牌拆弹)"; }
+                updateScoreUI(reward, 0, 0, 0); alert(`🎉 拆弹成功！\n耗时: ${msTime} 秒\n评价: ${rank}\n获得奖励: +${reward} 碎片！`);
+            } else { alert(`💥 轰！！！踩到地雷了！\n拆弹失败，被扣除的 2 碎片打水漂啦～`); }
+            document.getElementById('ms-setup').style.display = 'block'; document.getElementById('ms-game').style.display = 'none';
         }, 1000);
     }
 
