@@ -257,19 +257,19 @@
         localStorage.removeItem('tidu_dailyFortune'); 
     }
 
-    // ==========================================
-    // 🎁 惊喜盲盒逻辑 (期望值<1 官方回收深渊版，无限畅玩)
+// ==========================================
+    // 🎁 惊喜盲盒逻辑 (温水煮青蛙 - 极低感亏损版)
     // ==========================================
     function getBoxRewards() {
-        // 期望值精算约为 0.96。每次消耗 1.5 积分，长远必定大亏。
+        // 总期望值精算约为 0.993。每次消耗 1.5 积分，维持绝对的回收机制。
         return [
-            { weight: 10, title: "🏰 浪漫城堡", desc: "+100 碎片", color: "#ff9ff3", img: "images/0001.png", pt: 100, isWish: false }, // 0.1%
-            { weight: 100, title: "🐎 神驹宝玺", desc: "+10 碎片", color: "#1dd1a1", img: "images/0002.png", pt: 10, isWish: false },  // 1.0%
-            { weight: 300, title: "🔭 时空之站", desc: "+5 碎片", color: "#48dbfb", img: "images/0003.png", pt: 5, isWish: false },    // 3.0%
-            { weight: 1000, title: "🪄 绚彩权杖", desc: "+2 碎片", color: "#feca57", img: "images/0004.png", pt: 2, isWish: false },   // 10.0%
-            { weight: 20, title: "🎫 专属许愿券", desc: "实体许愿+1", color: "#ff7675", img: "images/0007.png", pt: 0, isWish: true }, // 0.2%
-            { weight: 3000, title: "💖 爱心抱枕", desc: "+1.0 碎片", color: "#ff9ff3", img: "images/0005.png", pt: 1.0, isWish: false }, // 30.0%
-            { weight: 5570, title: "☁️ 棉花糖", desc: "+0.2 碎片", color: "#a4b0be", img: "images/0006.png", pt: 0.2, isWish: false }  // 55.7%
+            { weight: 5, title: "🏰 浪漫城堡", desc: "+100 碎片", color: "#ff9ff3", img: "images/0001.png", pt: 100, isWish: false },  // 0.05%
+            { weight: 10, title: "🐎 神驹宝玺", desc: "+30 碎片", color: "#1dd1a1", img: "images/0002.png", pt: 30, isWish: false },   // 0.1%
+            { weight: 20, title: "🔭 时空之站", desc: "+20 碎片", color: "#48dbfb", img: "images/0003.png", pt: 20, isWish: false },    // 0.2%
+            { weight: 80, title: "🪄 绚彩权杖", desc: "+10 碎片", color: "#feca57", img: "images/0004.png", pt: 10, isWish: false },   // 0.8%
+            { weight: 20, title: "🎫 专属许愿券", desc: "实体许愿+1", color: "#ff7675", img: "images/0007.png", pt: 0, isWish: true },  // 0.2% (SSR极稀有)
+            { weight: 6000, title: "💖 爱心抱枕", desc: "+1.0 碎片", color: "#ff9ff3", img: "images/0005.png", pt: 1.0, isWish: false }, // 60.0% (高频微亏，掩盖视觉亏损)
+            { weight: 3865, title: "☁️ 棉花糖", desc: "+0.5 碎片", color: "#a4b0be", img: "images/0006.png", pt: 0.5, isWish: false }   // 38.65%
         ];
     }
 
