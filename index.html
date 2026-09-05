@@ -272,7 +272,7 @@
     // ==========================================
     let memBoard = []; let memFlippedCards = []; let memMatchedCount = 0; let memMistakes = 0; let memIsBusy = false;
 
-    function startMemoryGame() {
+function startMemoryGame() {
         if (isSystemBusy) return;
         if (currentScore < 2) { alert(`❌ 余额不足！\n玩一把翻牌需要 2 碎片，你只有 ${currentScore} 分。\n快去做任务存钱！`); return; }
         if (!confirm("确定花费 2 碎片开始翻牌任务？\n考验瞬间记忆力，失误 11 次直接淘汰喔！")) return;
@@ -287,7 +287,14 @@
         document.getElementById('mem-mistakes').innerText = '0';
 
         const symbols = ['🐰','🥕','🍓','🥬','🔔','💎','👑','💖'];
-        memBoard = [...symbols, ...symbols].sort(() => Math.random() - 0.5);
+        let tempBoard = [...symbols, ...symbols];
+        
+        // 🔄 升级：使用 Fisher-Yates 完美洗牌演算法，保证每次 100% 绝对随机
+        for (let i = tempBoard.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [tempBoard[i], tempBoard[j]] = [tempBoard[j], tempBoard[i]];
+        }
+        memBoard = tempBoard;
 
         const grid = document.getElementById('mem-grid');
         grid.innerHTML = '';
