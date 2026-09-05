@@ -147,20 +147,22 @@
         </div>
     </div>
 
-    <!-- 🎲 骰子模块 -->
+    <!-- 🎲 骰子模块 (无限免费版) -->
     <div class="section">
         <h3>🎲 命运盲盒骰子</h3>
         <p>系统自动实时结算增减分数</p>
         <div class="rules">
-            6点: +4分 | 5点: +3分 | 4点: +1分<br>
-            3点: 0分 &nbsp;| 2点: -1分 | 1点: -3分<br>
-            <span style="color:#ff9f43;">* 每日免费 3 次，之后每次需消耗 1 积分</span>
+            6点: +3分 | 5点: +2分 | 4点: 0分<br>
+            3点: -1分 &nbsp;| 2点: -2分 | 1点: -3分<br>
+            <span style="color:#1dd1a1; font-weight:bold;">* 本玩法永久免费，无限畅玩！盈亏自负！</span>
         </div>
         
         <div class="dice-container" id="diceResult">
             <div class="dice-wrapper"><div class="dice">❓</div></div>
         </div>
-        <div class="dice-desc" id="diceDesc">今日免费剩余次数: 3</div>
+        
+        <!-- 移除了剩余次数提示，改为单纯的结果展示区 -->
+        <div class="dice-desc" id="diceDesc" style="min-height: 20px;"></div>
         
         <div class="btn-group">
             <button onclick="rollDice(1)" style="flex: 1;">掷 1 次</button>
@@ -252,7 +254,6 @@
     let today = new Date().toDateString();
     if (localStorage.getItem('tidu_dailyDate') !== today) {
         localStorage.setItem('tidu_dailyDate', today);
-        localStorage.setItem('tidu_diceCount', '0');
         localStorage.removeItem('tidu_dailyFortune'); 
     }
 
@@ -357,42 +358,17 @@
     }
 
     // ==========================================
-    // 🎲 命运骰子逻辑
+    // 🎲 命运骰子逻辑 (无限免费坑人版)
     // ==========================================
-    function updateDiceUI() {
-        let count = parseInt(localStorage.getItem('tidu_diceCount') || '0');
-        let descBox = document.getElementById('diceDesc');
-        if (count < 3) {
-            descBox.innerHTML = `今日免费剩余次数: <span style="color:#feca57; font-size:16px;">${3 - count}</span>`;
-            descBox.style.color = "#00d2d3";
-        } else {
-            descBox.innerText = "今日免费已用尽 (后续每次需消耗 1 积分)";
-            descBox.style.color = "#ff9f43";
-        }
-    }
-    updateDiceUI();
-
     function rollDice(num) {
         if (isSystemBusy) return;
-        let count = parseInt(localStorage.getItem('tidu_diceCount') || '0');
-        let freeLeft = Math.max(0, 3 - count);
-        let paidRolls = Math.max(0, num - freeLeft); 
         
-        if (paidRolls > 0) {
-            if (currentScore < paidRolls) {
-                alert(`❌ 余额不足！本次需消耗 ${paidRolls} 积分，你余额不够啦！`);
-                return;
-            }
-            if (!confirm(`⚠️ 本次掷骰需消耗【${paidRolls} 积分】入场费，确定吗？`)) return; 
-        }
-
+        // 🚀 完全免费，无需检查余额与扣费！
         isSystemBusy = true;
-        updateScoreUI(-paidRolls, 0);
-        localStorage.setItem('tidu_diceCount', count + num);
-        updateDiceUI();
         
         const diceFaces = ['⚀', '⚁', '⚂', '⚃', '⚄', '⚅'];
-        const dicePoints = [-3, -1, 0, 1, 3, 4]; 
+        // 方案B 计分：1点~6点 对应 -3, -2, -1, 0, 2, 3
+        const dicePoints = [-3, -2, -1, 0, 2, 3]; 
         
         let resultBox = document.getElementById('diceResult');
         let descBox = document.getElementById('diceDesc');
@@ -401,8 +377,11 @@
         for(let i=0; i<num; i++) {
             resultBox.innerHTML += `<div class="dice-wrapper"><div class="dice" id="die-${i}">❓</div><div id="die-pt-${i}" style="font-size:12px; color:#a4b0be; height:14px; font-weight:bold;"></div></div>`;
         }
-        descBox.innerText = "命运疯狂转动中...";
-        descBox.style.color = "#ffffff";
+        
+        if(descBox) {
+            descBox.innerText = "命运疯狂转动中...";
+            descBox.style.color = "#ffffff";
+        }
 
         let animCounter = 0;
         let interval = setInterval(() => {
@@ -421,17 +400,19 @@
                     totalDicePoints += pt;
                     
                     document.getElementById(`die-${i}`).innerText = diceFaces[finalIndex];
-                    document.getElementById(`die-pt-${i}`).innerText = pt > 0 ? "+" + pt : pt;
+                    let ptDisplay = pt > 0 ? "+" + pt : pt;
+                    document.getElementById(`die-pt-${i}`).innerText = ptDisplay;
                     document.getElementById(`die-pt-${i}`).style.color = pt > 0 ? "#1dd1a1" : (pt < 0 ? "#ee5253" : "#a4b0be");
                 }
                 
+                // 实时加入骰子得分 (0成本)
                 updateScoreUI(totalDicePoints, 0);
 
-                let netPoints = totalDicePoints - paidRolls;
-                let netColor = netPoints > 0 ? "#1dd1a1" : (netPoints < 0 ? "#ee5253" : "#48dbfb");
-                let costStr = paidRolls > 0 ? `<br><span style="color:#ff9f43; font-size:12px;">(已扣除 ${paidRolls} 分入场费)</span>` : "";
+                let netColor = totalDicePoints > 0 ? "#1dd1a1" : (totalDicePoints < 0 ? "#ee5253" : "#48dbfb");
                 
-                descBox.innerHTML = `点数合计 +${totalDicePoints} 分${costStr}<br>本次实际净利润：<span style="font-size:20px; font-weight:bold; color:${netColor}">${netPoints > 0 ? '+'+netPoints : netPoints} 积分</span>`;
+                if(descBox) {
+                    descBox.innerHTML = `点数合计：<span style="font-size:20px; font-weight:bold; color:${netColor}">${totalDicePoints > 0 ? '+'+totalDicePoints : totalDicePoints} 积分</span>`;
+                }
                 isSystemBusy = false;
             }
         }, 60);
