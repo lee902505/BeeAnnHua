@@ -132,7 +132,7 @@
         
         <!-- 🔧 GM 专属修改区：活动文字说明 -->
         <div style="background: rgba(0,0,0,0.3); border: 1px solid #a4b0be; padding: 5px 10px; border-radius: 8px; font-size: 13px; margin-bottom: 10px; color: #fff;">
-            当前活动：<span style="color:#1dd1a1; font-weight:bold;">日常基础爆率 (每日限抽50次)</span>
+            当前活动：<span style="color:#1dd1a1; font-weight:bold;">日常基础爆率</span>
         </div>
         
         <div class="blind-box-container">
@@ -255,11 +255,10 @@
         localStorage.setItem('tidu_dailyDate', today);
         localStorage.setItem('tidu_diceCount', '0');
         localStorage.removeItem('tidu_dailyFortune'); 
-        localStorage.removeItem('tidu_dailyBoxCount'); // 每天重置盲盒抽取次数
     }
 
     // ==========================================
-    // 🎁 惊喜盲盒逻辑 (期望值<1 官方回收深渊版)
+    // 🎁 惊喜盲盒逻辑 (期望值<1 官方回收深渊版，无限畅玩)
     // ==========================================
     function getBoxRewards() {
         // 期望值精算约为 0.96。每次消耗 1.5 积分，长远必定大亏。
@@ -286,15 +285,6 @@
 
     function openBlindBox(times) {
         if (isSystemBusy) return;
-        
-        // 🛑 防沉迷机制：每日限抽 50 次
-        const DAILY_BOX_LIMIT = 50;
-        let currentDailyBoxes = parseInt(localStorage.getItem('tidu_dailyBoxCount') || '0');
-        
-        if (currentDailyBoxes + times > DAILY_BOX_LIMIT) {
-            alert(`⚠️ 防沉迷系统启动！\n奕奕哥哥怕你把碎片全败光，每日盲盒限抽 ${DAILY_BOX_LIMIT} 次。\n你今天已经抽了 ${currentDailyBoxes} 次啦，乖乖去解日常任务，明天再来抽吧！`);
-            return;
-        }
 
         let cost = times * 1.5;
 
@@ -308,9 +298,6 @@
 
         isSystemBusy = true;
         updateScoreUI(-cost, 0);
-        
-        // 记录抽取次数
-        localStorage.setItem('tidu_dailyBoxCount', (currentDailyBoxes + times).toString());
 
         let icon = document.getElementById('boxIcon');
         let listWrap = document.getElementById('boxResultList');
