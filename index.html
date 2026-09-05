@@ -161,7 +161,6 @@
             <div class="dice-wrapper"><div class="dice">❓</div></div>
         </div>
         
-        <!-- 移除了剩余次数提示，改为单纯的结果展示区 -->
         <div class="dice-desc" id="diceDesc" style="min-height: 20px;"></div>
         
         <div class="btn-group">
@@ -257,28 +256,29 @@
         localStorage.removeItem('tidu_dailyFortune'); 
     }
 
-    // ==========================================
-    // 🎁 惊喜盲盒逻辑 (GM 强制锁定倍率版)
+// ==========================================
+    // 🎁 惊喜盲盒逻辑 (高多巴胺 + 许愿券 0.2% 极稀有版)
     // ==========================================
     function getBoxRewards() {
         // 🔧 GM 专属修改区：在这里设定今天的倍率 (平常填 1，十倍活动填 10)
         let multi = 10; 
         
-        let baseCastle = 4; // 基础机率 0.04%
-        let cotton = 4950;  // 棉花糖基础机率 49.50%
+        let baseCastle = 20; // 基础机率 0.2%
+        let cotton = 4480;   // 棉花糖基础机率调整为 44.80% (接收了许愿券扣除的机率)
         
         // 城堡爆率翻倍，从棉花糖里扣除机率，维持总和 10000
         let currentCastle = baseCastle * multi; 
         let currentCotton = cotton - (currentCastle - baseCastle);
 
         return [
-            { weight: currentCastle, title: "🏰 浪漫城堡", desc: "+300 碎片", color: "#ff9ff3", img: "images/0001.png", pt: 300, isWish: false },
-            { weight: 8, title: "🐎 神驹宝玺", desc: "+20 碎片", color: "#1dd1a1", img: "images/0002.png", pt: 20, isWish: false },
-            { weight: 12, title: "🔭 时空之站", desc: "+10 碎片", color: "#48dbfb", img: "images/0003.png", pt: 10, isWish: false },
-            { weight: 370, title: "🪄 绚彩权杖", desc: "+4 碎片", color: "#feca57", img: "images/0004.png", pt: 4, isWish: false },
-            { weight: 100, title: "🎫 专属许愿券", desc: "实体许愿+1", color: "#ff7675", img: "images/0007.png", pt: 0, isWish: true },
-            { weight: 4556, title: "💖 爱心抱枕", desc: "+1.6 碎片", color: "#ff9ff3", img: "images/0005.png", pt: 1.6, isWish: false },
-            { weight: currentCotton, title: "☁️ 棉花糖", desc: "+0.9 碎片", color: "#a4b0be", img: "images/0006.png", pt: 0.9, isWish: false }
+            { weight: currentCastle, title: "🏰 浪漫城堡", desc: "+100 碎片", color: "#ff9ff3", img: "images/0001.png", pt: 100, isWish: false },
+            { weight: 200, title: "🐎 神驹宝玺", desc: "+8 碎片", color: "#1dd1a1", img: "images/0002.png", pt: 8, isWish: false },
+            { weight: 500, title: "🔭 时空之站", desc: "+4 碎片", color: "#48dbfb", img: "images/0003.png", pt: 4, isWish: false },
+            { weight: 1280, title: "🪄 绚彩权杖", desc: "+2 碎片", color: "#feca57", img: "images/0004.png", pt: 2, isWish: false },
+            // 许愿券机率从 100 (1%) 砍到 20 (0.2%)，变成真正的极稀有 SSR！
+            { weight: 20, title: "🎫 专属许愿券", desc: "实体许愿+1", color: "#ff7675", img: "images/0007.png", pt: 0, isWish: true },
+            { weight: 3500, title: "💖 爱心抱枕", desc: "+1.2 碎片", color: "#ff9ff3", img: "images/0005.png", pt: 1.2, isWish: false },
+            { weight: currentCotton, title: "☁️ 棉花糖", desc: "+0.5 碎片", color: "#a4b0be", img: "images/0006.png", pt: 0.5, isWish: false }
         ];
     }
 
@@ -358,9 +358,6 @@
     }
 
     // ==========================================
-    // 🎲 命运骰子逻辑 (无限免费坑人版)
-    // ==========================================
-// ==========================================
     // 🎲 命运骰子逻辑 (无限免费坑人版 + 破产防堵机制)
     // ==========================================
     function rollDice(num) {
