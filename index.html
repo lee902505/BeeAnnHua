@@ -58,6 +58,17 @@
             transition: all 0.3s ease;
         }
         .score-total { font-size: 18px; color: #ffffff; }
+        
+        /* 独立许愿券样式 */
+        .wish-board {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px dashed rgba(255, 118, 117, 0.3);
+            font-size: 16px;
+            color: #ff7675;
+            font-weight: bold;
+        }
+
         .section {
             width: 100%;
             background: rgba(0, 0, 0, 0.2);
@@ -71,15 +82,13 @@
         .section p { font-size: 13px; color: #ced6e0; margin-bottom: 10px; line-height: 1.4; }
         .rules { font-size: 12px; color: #feca57; background: rgba(254, 202, 87, 0.1); padding: 8px; border-radius: 8px; margin-bottom: 15px; text-align: left; line-height: 1.5; }
         
-        /* 骰子样式 */
         .dice-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin: 15px 0; min-height: 70px; }
         .dice-wrapper { display: flex; flex-direction: column; align-items: center; }
         .dice { font-size: 45px; line-height: 1; margin-bottom: 2px; }
         .dice-desc { font-size: 14px; color: #00d2d3; min-height: 44px; margin-bottom: 15px; line-height: 1.4; }
         .btn-group { display: flex; gap: 8px; width: 100%; }
         
-        /* 盲盒样式 */
-        .blind-box-container { margin: 20px 0; min-height: 120px; position: relative; }
+        .blind-box-container { margin: 15px 0; min-height: 120px; position: relative; }
         .box-icon { font-size: 70px; display: inline-block; filter: drop-shadow(0 0 10px rgba(255, 159, 243, 0.4)); }
         .box-icon.shake { animation: shakeBox 0.4s infinite; }
         .box-results-wrap { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 15px; }
@@ -111,12 +120,20 @@
     <div class="score-board">
         <div class="score-title">当前持有碎片 (实时更新)</div>
         <div class="score-value" id="displayScore">0<span class="score-total"> / 990</span></div>
+        <div class="wish-board">
+            🎟️ 专属许愿券: <span id="displayWish" style="font-size: 22px;">0</span> 张
+        </div>
     </div>
 
-    <!-- 🎁 盲盒模块 (支持单抽/十连) -->
+    <!-- 🎁 盲盒模块 -->
     <div class="section" style="border: 1px solid rgba(255, 159, 243, 0.3); box-shadow: 0 0 15px rgba(255, 159, 243, 0.1);">
         <h3 style="color: #ff9ff3;">🎁 惊喜盲盒抽奖</h3>
-        <p>心跳盲盒，单次消耗 <b style="color:#feca57;">1.5 积分</b>！</p>
+        <p>单次消耗 <b style="color:#feca57;">1.5 积分</b></p>
+        
+        <!-- 🔧 GM 专属修改区：活动文字说明 -->
+        <div style="background: rgba(0,0,0,0.3); border: 1px solid #ff9ff3; padding: 5px 10px; border-radius: 8px; font-size: 13px; margin-bottom: 10px; color: #fff;">
+            当前活动：<span style="color:#ff7675; font-weight:bold;">10倍极限爆率！</span>
+        </div>
         
         <div class="blind-box-container">
             <div class="box-icon" id="boxIcon">🎁</div>
@@ -126,7 +143,7 @@
         
         <div class="btn-group">
             <button class="btn-box1" onclick="openBlindBox(1)" style="flex: 1;">单抽 (1.5分)</button>
-            <button class="btn-box10" onclick="openBlindBox(10)" style="flex: 1.2;">十连抽！(15分)</button>
+            <button class="btn-box10" onclick="openBlindBox(10)" style="flex: 1.2;">十连抽 (15分)</button>
         </div>
     </div>
 
@@ -161,17 +178,6 @@
         <button onclick="drawFortune()" id="fortuneBtn">抽取今日运势</button>
     </div>
 
-    <!-- 📜 任务模块 -->
-    <div class="section">
-        <h3>📜 每日任务指南 (目标33分)</h3>
-        <div class="rules" style="font-size:13px;">
-            <b style="color:#00d2d3;">1. 基础打卡 (2分)：</b> 发送早晚安 (各1分)。<br><br>
-            <b style="color:#00d2d3;">2. 情绪投资 (最高10分)：</b> 照片、语音撒娇，或夸奖奕奕哥哥 (视甜度给分)。<br><br>
-            <b style="color:#00d2d3;">3. 自助玩法：</b> 盲盒、占卜、骰子分数皆由系统自动扣除或增加，自由游玩。<br><br>
-            <b style="color:#ff9f43;">* 任务分需主动截图向 GM 汇报，由 GM 专属连结发放积分。</b>
-        </div>
-    </div>
-
     <div class="tips">
         * 本客户端由 奕奕哥哥 独家开发维运<br>
         * 系统一切最终解释权归 GM 所有
@@ -179,42 +185,63 @@
 </div>
 
 <script>
-    // --- 核心分数管理 ---
+    // --- 核心分数与许愿券管理 ---
     let currentScore = parseFloat(localStorage.getItem('tidu_score') || '-1'); 
+    let currentWish = parseInt(localStorage.getItem('tidu_wishTickets') || '0');
     let isSystemBusy = false; 
 
-    function updateScoreUI(change = 0) {
-        if(change !== 0) {
-            currentScore += change;
-            currentScore = Math.round(currentScore * 10) / 10; // 解决小数无限位
+    function updateScoreUI(scoreChange = 0, wishChange = 0) {
+        if(scoreChange !== 0) {
+            currentScore += scoreChange;
+            currentScore = Math.round(currentScore * 10) / 10; 
             localStorage.setItem('tidu_score', currentScore.toString());
         }
+        if(wishChange !== 0) {
+            currentWish += wishChange;
+            currentWish = Math.max(0, currentWish); // 许愿券不能为负数
+            localStorage.setItem('tidu_wishTickets', currentWish.toString());
+        }
         document.getElementById('displayScore').innerHTML = currentScore + '<span class="score-total"> / 990</span>';
+        document.getElementById('displayWish').innerText = currentWish;
     }
-    updateScoreUI(0); // 初始渲染
+    updateScoreUI(0, 0); // 初始渲染
 
-    // --- GM 魔法连结 (仅用于外部强制加扣分) ---
+    // --- GM 魔法连结 (支援增减许愿券) ---
     const urlParams = new URLSearchParams(window.location.search);
     const addScore = urlParams.get('add'); 
     const setScore = urlParams.get('set'); 
+    const addWish = urlParams.get('addWish'); 
+    const setWish = urlParams.get('setWish'); 
     const key = urlParams.get('key');      
 
-    if ((addScore || setScore) && key) {
+    if ((addScore || setScore || addWish || setWish) && key) {
         let usedKeys = JSON.parse(localStorage.getItem('tidu_usedKeys') || '[]');
         if (usedKeys.includes(key)) {
-            alert("温馨提示：这条连结的积分已经领过啦～");
+            alert("温馨提示：这条魔法连结已经失效啦～");
         } else {
+            let msg = "🎉 成功接收 GM 指令：\n";
             if (setScore) {
                 currentScore = parseFloat(setScore);
-                alert(`🔧 GM 后台强制介入，分数已校正为：${currentScore} 分！`);
+                msg += `碎片已校正为：${currentScore}\n`;
             } else if (addScore) {
-                let point = parseFloat(addScore);
-                currentScore += point;
+                currentScore += parseFloat(addScore);
                 currentScore = Math.round(currentScore * 10) / 10; 
-                alert(`🎉 成功接收 GM 发放：${point > 0 ? '+'+point : point} 积分！`);
+                msg += `碎片变更：${parseFloat(addScore) > 0 ? '+'+addScore : addScore}\n`;
             }
+            
+            if (setWish) {
+                currentWish = parseInt(setWish);
+                msg += `许愿券已校正为：${currentWish}\n`;
+            } else if (addWish) {
+                currentWish += parseInt(addWish);
+                msg += `许愿券变更：${parseInt(addWish) > 0 ? '+'+addWish : addWish}\n`;
+            }
+
             localStorage.setItem('tidu_score', currentScore.toString());
-            updateScoreUI(0);
+            localStorage.setItem('tidu_wishTickets', Math.max(0, currentWish).toString());
+            updateScoreUI(0, 0);
+            alert(msg);
+            
             usedKeys.push(key);
             localStorage.setItem('tidu_usedKeys', JSON.stringify(usedKeys));
         }
@@ -230,26 +257,38 @@
     }
 
     // ==========================================
-    // 🎁 惊喜盲盒逻辑 (单抽 & 十连抽)
+    // 🎁 惊喜盲盒逻辑 (GM 强制锁定倍率版)
     // ==========================================
-    const boxRewards = [
-        { weight: 4, title: "🏰 浪漫城堡", desc: "+300 碎片", color: "#ff9ff3", img: "images/0001.png", pt: 300 },
-        { weight: 8, title: "🐎 神驹宝玺", desc: "+20 碎片", color: "#1dd1a1", img: "images/0002.png", pt: 20 },
-        { weight: 12, title: "🔭 时空之站", desc: "+10 碎片", color: "#48dbfb", img: "images/0003.png", pt: 10 },
-        { weight: 370, title: "🪄 绚彩权杖", desc: "+4 碎片", color: "#feca57", img: "images/0004.png", pt: 4 },
-        { weight: 100, title: "🎫 专属许愿券", desc: "向哥哥许愿!", color: "#ff7675", img: "images/0007.png", pt: 0 },
-        { weight: 4556, title: "💖 爱心抱枕", desc: "+1.6 碎片", color: "#ff9ff3", img: "images/0005.png", pt: 1.6 },
-        { weight: 4950, title: "☁️ 棉花糖", desc: "+0.9 碎片", color: "#a4b0be", img: "images/0006.png", pt: 0.9 }
-    ];
+    function getBoxRewards() {
+        // 🔧 GM 专属修改区：在这里设定今天的倍率 (平常填 1，十倍活动填 10)
+        let multi = 10; 
+        
+        let baseCastle = 4; // 基础机率 0.04%
+        let cotton = 4950;  // 棉花糖基础机率 49.50%
+        
+        // 城堡爆率翻倍，从棉花糖里扣除机率，维持总和 10000
+        let currentCastle = baseCastle * multi; 
+        let currentCotton = cotton - (currentCastle - baseCastle);
 
-    function getRandomBoxItem() {
+        return [
+            { weight: currentCastle, title: "🏰 浪漫城堡", desc: "+300 碎片", color: "#ff9ff3", img: "images/0001.png", pt: 300, isWish: false },
+            { weight: 8, title: "🐎 神驹宝玺", desc: "+20 碎片", color: "#1dd1a1", img: "images/0002.png", pt: 20, isWish: false },
+            { weight: 12, title: "🔭 时空之站", desc: "+10 碎片", color: "#48dbfb", img: "images/0003.png", pt: 10, isWish: false },
+            { weight: 370, title: "🪄 绚彩权杖", desc: "+4 碎片", color: "#feca57", img: "images/0004.png", pt: 4, isWish: false },
+            { weight: 100, title: "🎫 专属许愿券", desc: "实体许愿+1", color: "#ff7675", img: "images/0007.png", pt: 0, isWish: true },
+            { weight: 4556, title: "💖 爱心抱枕", desc: "+1.6 碎片", color: "#ff9ff3", img: "images/0005.png", pt: 1.6, isWish: false },
+            { weight: currentCotton, title: "☁️ 棉花糖", desc: "+0.9 碎片", color: "#a4b0be", img: "images/0006.png", pt: 0.9, isWish: false }
+        ];
+    }
+
+    function getRandomBoxItem(rewardsArray) {
         let rand = Math.floor(Math.random() * 10000);
         let sum = 0;
-        for (let item of boxRewards) {
+        for (let item of rewardsArray) {
             sum += item.weight;
             if (rand < sum) return item;
         }
-        return boxRewards[6]; 
+        return rewardsArray[6]; 
     }
 
     function openBlindBox(times) {
@@ -265,8 +304,7 @@
         if (!confirm(confirmMsg)) return;
 
         isSystemBusy = true;
-        // 实时扣除入场费
-        updateScoreUI(-cost);
+        updateScoreUI(-cost, 0);
 
         let icon = document.getElementById('boxIcon');
         let listWrap = document.getElementById('boxResultList');
@@ -277,20 +315,22 @@
         summary.style.display = 'none';
         icon.classList.add('shake');
         
+        let activeRewards = getBoxRewards(); 
+
         setTimeout(() => {
             icon.classList.remove('shake');
             icon.style.display = 'none'; 
             
             listWrap.innerHTML = '';
             let totalEarned = 0;
-            let hasWishTicket = false;
+            let wishTicketsWon = 0;
 
             for(let i=0; i<times; i++) {
-                let item = getRandomBoxItem();
+                let item = getRandomBoxItem(activeRewards);
                 totalEarned += item.pt;
-                if(item.title.includes("许愿券")) hasWishTicket = true;
+                if(item.isWish) wishTicketsWon++;
 
-                let ptColor = item.pt > 1.5 ? "#1dd1a1" : (item.pt === 0 ? "#ff7675" : "#a4b0be");
+                let ptColor = item.isWish ? "#ff7675" : (item.pt > 1.5 ? "#1dd1a1" : "#a4b0be");
 
                 listWrap.innerHTML += `
                     <div class="drawn-item">
@@ -301,23 +341,23 @@
                 `;
             }
 
-            // 实时增加奖励分数
-            updateScoreUI(totalEarned);
+            // 实时增加碎片与许愿券
+            updateScoreUI(totalEarned, wishTicketsWon);
 
             let netPoints = Math.round((totalEarned - cost) * 10) / 10;
             let netColor = netPoints > 0 ? "#1dd1a1" : "#ee5253";
-            let wishMsg = hasWishTicket ? "<br><span style='color:#ff7675; font-size:16px;'>🎉 抽中稀有【专属许愿券】！快截图去向哥哥许愿！</span>" : "";
+            let wishMsg = wishTicketsWon > 0 ? `<br><span style='color:#ff7675; font-size:16px;'>🎉 抽中 ${wishTicketsWon} 张【许愿券】！快截图去向哥哥许愿！</span>` : "";
 
             summary.innerHTML = `总计获得: ${Math.round(totalEarned*10)/10} 碎片 (净利润: <span style="color:${netColor}">${netPoints > 0 ? '+'+netPoints : netPoints}</span>)${wishMsg}`;
             
             listWrap.style.display = 'flex';
             summary.style.display = 'block';
             isSystemBusy = false;
-        }, 800); // 抽奖动画时间
+        }, 800);
     }
 
     // ==========================================
-    // 🎲 命运骰子逻辑 (实时结算版)
+    // 🎲 命运骰子逻辑
     // ==========================================
     function updateDiceUI() {
         let count = parseInt(localStorage.getItem('tidu_diceCount') || '0');
@@ -347,8 +387,7 @@
         }
 
         isSystemBusy = true;
-        // 提前扣除入场费
-        updateScoreUI(-paidRolls);
+        updateScoreUI(-paidRolls, 0);
         localStorage.setItem('tidu_diceCount', count + num);
         updateDiceUI();
         
@@ -386,8 +425,7 @@
                     document.getElementById(`die-pt-${i}`).style.color = pt > 0 ? "#1dd1a1" : (pt < 0 ? "#ee5253" : "#a4b0be");
                 }
                 
-                // 实时加入骰子得分
-                updateScoreUI(totalDicePoints);
+                updateScoreUI(totalDicePoints, 0);
 
                 let netPoints = totalDicePoints - paidRolls;
                 let netColor = netPoints > 0 ? "#1dd1a1" : (netPoints < 0 ? "#ee5253" : "#48dbfb");
@@ -400,7 +438,7 @@
     }
 
     // ==========================================
-    // 🔮 占卜逻辑 (实时结算版)
+    // 🔮 占卜逻辑
     // ==========================================
     const fortunes = [
         { title: "🌟 上上签 (+3分)", color: "#feca57", pt: 3, descs: ["运气爆棚！系统已自动为你加上 3 分！"] },
@@ -410,7 +448,6 @@
         { title: "💀 下下签 (-3分)", color: "#ee5253", pt: -3, descs: ["大凶！系统无情扣除 3 分！建议找哥哥化解厄运！"] }
     ];
 
-    // 初始化检查今天是否抽过
     let savedFortune = localStorage.getItem('tidu_dailyFortune');
     if (savedFortune) {
         let f = JSON.parse(savedFortune);
@@ -436,15 +473,13 @@
 
         let desc = fortune.descs[0];
 
-        // 实时处理占卜分数
-        updateScoreUI(fortune.pt);
+        updateScoreUI(fortune.pt, 0);
 
         document.getElementById('fortuneResult').innerText = fortune.title;
         document.getElementById('fortuneResult').style.color = fortune.color;
         document.getElementById('fortuneDesc').innerText = desc;
         document.getElementById('fortuneDesc').style.color = fortune.color;
 
-        // 记录今天已抽
         localStorage.setItem('tidu_dailyFortune', JSON.stringify({
             title: fortune.title, desc: desc, color: fortune.color
         }));
