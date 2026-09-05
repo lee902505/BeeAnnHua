@@ -138,23 +138,79 @@
         }
         .reel-inner { transition: transform 0.1s linear; }
 
-        .dice-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin: 15px 0; min-height: 70px; }
-        .dice-wrapper { display: flex; flex-direction: column; align-items: center; }
-        .dice { font-size: 45px; line-height: 1; margin-bottom: 2px; }
-        .dice-desc { font-size: 14px; color: #00d2d3; min-height: 44px; margin-bottom: 15px; line-height: 1.4; }
+        /* 🎲 3D实体感骰子升级 */
+        .dice-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; margin: 20px 0; min-height: 80px; }
+        .dice-wrapper { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+        .dice { 
+            font-size: 40px; 
+            line-height: 1; 
+            background: linear-gradient(135deg, #ffffff, #e1e5ee);
+            color: #2f3542;
+            width: 55px; 
+            height: 55px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            box-shadow: 0 6px 0 #a4b0be, 0 10px 15px rgba(0,0,0,0.4);
+            transition: all 0.1s;
+        }
+        .dice.rolling {
+            animation: diceRoll 0.25s infinite linear;
+            box-shadow: 0 2px 0 #a4b0be, 0 5px 10px rgba(0,0,0,0.4);
+            transform: translateY(4px);
+        }
+        @keyframes diceRoll {
+            0% { transform: rotate(0deg) scale(1) translateY(2px); }
+            50% { transform: rotate(15deg) scale(1.1) translateY(-5px); }
+            100% { transform: rotate(-15deg) scale(1) translateY(2px); }
+        }
+        
+        /* 弹跳果冻计分标签 */
+        .dice-pt-label {
+            font-size: 13px; font-weight: bold;
+            padding: 3px 10px; border-radius: 12px;
+            animation: popInBounce 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        }
+        @keyframes popInBounce {
+            0% { transform: scale(0.3); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .dice-desc { font-size: 14px; color: #00d2d3; min-height: 25px; margin-bottom: 15px; font-weight: bold; }
         .btn-group { display: flex; gap: 8px; width: 100%; }
         
-        .blind-box-container { margin: 15px 0; min-height: 120px; position: relative; }
-        .box-icon { font-size: 70px; display: inline-block; filter: drop-shadow(0 0 10px rgba(255, 159, 243, 0.4)); }
+        /* 🎁 盲盒高奢特效升级 */
+        .blind-box-container { margin: 15px 0; min-height: 140px; position: relative; }
+        .box-icon { 
+            font-size: 75px; 
+            display: inline-block; 
+            animation: pulse-glow 2s infinite alternate;
+        }
+        @keyframes pulse-glow {
+            0% { filter: drop-shadow(0 0 10px rgba(255, 159, 243, 0.4)) scale(1); }
+            100% { filter: drop-shadow(0 0 30px rgba(255, 159, 243, 0.9)) scale(1.05); }
+        }
         .box-icon.shake { animation: shakeBox 0.4s infinite; }
-        .box-results-wrap { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 15px; }
-        .drawn-item { display: flex; flex-direction: column; align-items: center; background: rgba(255,255,255,0.05); padding: 8px; border-radius: 10px; width: 38%; animation: popUp 0.4s ease forwards; }
-        .drawn-item img { width: 50px; height: 50px; object-fit: contain; margin-bottom: 5px; }
-        .drawn-title { font-size: 13px; font-weight: bold; margin-bottom: 3px; }
-        .drawn-pt { font-size: 12px; font-weight: bold; }
+        .box-results-wrap { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-top: 15px; }
+        
+        /* 毛玻璃质感抽奖卡牌 */
+        .drawn-item { 
+            display: flex; flex-direction: column; align-items: center; 
+            background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.03));
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 12px 8px; border-radius: 14px; width: 42%; 
+            animation: popUp 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; 
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+        .drawn-item img { width: 55px; height: 55px; object-fit: contain; margin-bottom: 8px; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.4));}
+        .drawn-title { font-size: 14px; font-weight: bold; margin-bottom: 4px; text-shadow: 0 1px 3px rgba(0,0,0,0.5);}
+        .drawn-pt { font-size: 12px; font-weight: bold; background: rgba(0,0,0,0.4); padding: 2px 8px; border-radius: 8px;}
 
-        @keyframes shakeBox { 0%, 100% { transform: rotate(0deg) scale(1); } 25% { transform: rotate(-10deg) scale(1.05); } 75% { transform: rotate(10deg) scale(1.05); } }
-        @keyframes popUp { 0% { transform: scale(0.5); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+        @keyframes shakeBox { 0%, 100% { transform: rotate(0deg) scale(1); filter: brightness(1); } 25% { transform: rotate(-12deg) scale(1.1); filter: brightness(1.2); } 75% { transform: rotate(12deg) scale(1.1); filter: brightness(1.2); } }
+        @keyframes popUp { 0% { transform: scale(0.5) translateY(20px); opacity: 0; } 100% { transform: scale(1) translateY(0); opacity: 1; } }
 
         button { background: linear-gradient(135deg, #00d2d3, #0984e3); color: #ffffff; border: none; padding: 12px 0; font-size: 15px; font-weight: bold; border-radius: 10px; cursor: pointer; width: 100%; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); transition: transform 0.1s; }
         button:active { transform: scale(0.96); }
@@ -234,8 +290,8 @@
             3点: -1分 &nbsp;| 2点: -2分 | 1点: -3分<br>
             <span style="color:#1dd1a1; font-weight:bold;">* 永久免费，无限畅玩！盈亏自负！</span>
         </div>
-        <div class="dice-container" id="diceResult"><div class="dice-wrapper"><div class="dice">❓</div></div></div>
-        <div class="dice-desc" id="diceDesc" style="min-height: 20px;"></div>
+        <div class="dice-container" id="diceResult"><div class="dice-wrapper"><div class="dice">❓</div><div id="die-pt-wrap-0" style="height:20px;"></div></div></div>
+        <div class="dice-desc" id="diceDesc"></div>
         <div class="btn-group">
             <button onclick="rollDice(1)" style="flex: 1;">掷 1 次</button>
             <button onclick="rollDice(5)" class="btn-5" style="flex: 1;">连抽 5 次</button>
@@ -264,7 +320,6 @@
     let currentCoins = parseInt(localStorage.getItem('tidu_rabbitCoins') || '0'); 
     let isSystemBusy = false; 
 
-    // 🏆 获取当前阶级称号与动态发光颜色
     function getPlayerTitle(score) {
         if (score <= 100) return { text: "当前阶级: 见习小笨蛋", color: "#a4b0be", glow: "rgba(164, 176, 190, 0.6)" };
         if (score <= 300) return { text: "当前阶级: 专属小宝贝", color: "#ff9ff3", glow: "rgba(255, 159, 243, 0.6)" };
@@ -305,157 +360,73 @@
     }
     updateScoreUI(0, 0, 0); 
 
-// --- 💰 兔兔币兑换逻辑 (高级防破解版) ---
+    // --- 💰 兔兔币兑换逻辑 (高级防破解版) ---
     function redeemTaskCode() {
         let codeInput = document.getElementById('taskCode');
         let code = codeInput.value.trim().toUpperCase();
         
-        if (!code) {
-            alert("小笨蛋，你还没输入代码呢！");
-            return;
-        }
+        if (!code) { alert("小笨蛋，你还没输入代码呢！"); return; }
 
         let usedCodes = JSON.parse(localStorage.getItem('tidu_usedTaskCodes') || '[]');
         if (usedCodes.includes(code)) {
-            alert("❌ 贪心鬼！这个任务代码你已经换过啦！");
-            codeInput.value = '';
-            return;
+            alert("❌ 贪心鬼！这个任务代码你已经换过啦！"); codeInput.value = ''; return;
         }
 
-        let earnedCoins = 0;
-        let alertMsg = "";
+        let earnedCoins = 0; let alertMsg = "";
 
-        // 🛡️ 只要"包含" EE 或 CHUN 即可，且长度必须大于等于 6，防止她乱猜短码
         if (code.length >= 6 && code.includes("EE")) {
-            // 包含 EE：高级代码，固定 5 枚！
-            earnedCoins = 5;
-            alertMsg = `💎 触发高级隐藏代码！\n奕奕哥哥大放送！恭喜获得 ${earnedCoins} 枚【兔兔币】！\n可以直接拉霸 5 次啦！`;
+            earnedCoins = 5; alertMsg = `💎 触发高级隐藏代码！\n奕奕哥哥大放送！恭喜获得 ${earnedCoins} 枚【兔兔币】！\n可以直接拉霸 5 次啦！`;
         } else if (code.length >= 6 && code.includes("CHUN")) {
-            // 包含 CHUN：日常任务，固定 1 枚
-            earnedCoins = 1; 
-            alertMsg = `🪙 兑换成功！\n恭喜获得 ${earnedCoins} 枚【兔兔币】！\n快去下面转拉霸机试试手气吧！`;
+            earnedCoins = 1; alertMsg = `🪙 兑换成功！\n恭喜获得 ${earnedCoins} 枚【兔兔币】！\n快去下面转拉霸机试试手气吧！`;
         } else {
-            alert("❌ 代码错误或无效！是不是想乱猜密码作弊呀？乖乖去做任务！");
-            codeInput.value = '';
-            return;
+            alert("❌ 代码错误或无效！是不是想乱猜密码作弊呀？乖乖去做任务！"); codeInput.value = ''; return;
         }
 
         updateScoreUI(0, 0, earnedCoins);
-        usedCodes.push(code);
-        localStorage.setItem('tidu_usedTaskCodes', JSON.stringify(usedCodes));
-        
-        alert(alertMsg);
-        codeInput.value = '';
+        usedCodes.push(code); localStorage.setItem('tidu_usedTaskCodes', JSON.stringify(usedCodes));
+        alert(alertMsg); codeInput.value = '';
     }
 
     // --- 🎰 兔兔拉霸机逻辑 ---
     function spinSlotMachine() {
         if (isSystemBusy) return;
-        
-        if (currentCoins < 1) {
-            alert("❌ 兔兔币不足啦！\n快去完成奕奕哥哥的任务，要神秘代码来换兔兔币！");
-            return;
-        }
+        if (currentCoins < 1) { alert("❌ 兔兔币不足啦！\n快去完成奕奕哥哥的任务，要神秘代码来换兔兔币！"); return; }
 
         isSystemBusy = true;
         updateScoreUI(0, 0, -1); 
         
         let slotDesc = document.getElementById('slotDesc');
-        slotDesc.innerText = "机器疯狂运转中...";
-        slotDesc.style.color = "#feca57";
+        slotDesc.innerText = "机器疯狂运转中..."; slotDesc.style.color = "#feca57";
         
-        let rand = Math.random() * 100;
-        let outcome = [];
-        let earnedPts = 0;
-        let resultMsg = "";
-        let resultColor = "";
+        let rand = Math.random() * 100; let outcome = []; let earnedPts = 0; let resultMsg = ""; let resultColor = "";
 
-        if (rand < 1) {
-            outcome = ['🐰', '🐰', '🐰']; earnedPts = 50; resultMsg = "🎉 超级大奖！兔兔发威啦！(+50碎片)"; resultColor = "#ff7675";
-        } else if (rand < 6) {
-            outcome = ['🥕', '🥕', '🥕']; earnedPts = 15; resultMsg = "🎊 大爆气！萝卜大丰收！(+15碎片)"; resultColor = "#feca57";
-        } else if (rand < 21) {
-            outcome = ['🍓', '🍓', '🍓']; earnedPts = 8; resultMsg = "✨ 不错喔！草莓甜甜的！(+8碎片)"; resultColor = "#1dd1a1";
-        } else if (rand < 46) {
-            outcome = ['🔔', '🔔', '🔔']; earnedPts = 3; resultMsg = "🔔 叮叮叮！小赚一笔！(+3碎片)"; resultColor = "#48dbfb";
-        } else {
+        if (rand < 1) { outcome = ['🐰', '🐰', '🐰']; earnedPts = 50; resultMsg = "🎉 超级大奖！兔兔发威啦！(+50碎片)"; resultColor = "#ff7675"; } 
+        else if (rand < 6) { outcome = ['🥕', '🥕', '🥕']; earnedPts = 15; resultMsg = "🎊 大爆气！萝卜大丰收！(+15碎片)"; resultColor = "#feca57"; } 
+        else if (rand < 21) { outcome = ['🍓', '🍓', '🍓']; earnedPts = 8; resultMsg = "✨ 不错喔！草莓甜甜的！(+8碎片)"; resultColor = "#1dd1a1"; } 
+        else if (rand < 46) { outcome = ['🔔', '🔔', '🔔']; earnedPts = 3; resultMsg = "🔔 叮叮叮！小赚一笔！(+3碎片)"; resultColor = "#48dbfb"; } 
+        else {
             let duds = [['🐰','🥕','🥬'], ['🍓','🥬','🔔'], ['🥕','🔔','🍓'], ['🥬','🥬','🍓'], ['🔔','🐰','🥕']];
             outcome = duds[Math.floor(Math.random() * duds.length)]; earnedPts = 0; resultMsg = "💩 哎呀没中！再接再厉！(+0碎片)"; resultColor = "#a4b0be";
         }
 
         const symbols = ['🐰', '🥕', '🍓', '🥬', '🔔', '💎'];
-        let ticks = 0;
-        let maxTicks = 20; 
+        let ticks = 0; let maxTicks = 20; 
 
         let slotInterval = setInterval(() => {
-            for(let i=0; i<3; i++) {
-                document.getElementById(`reel-${i}`).innerText = symbols[Math.floor(Math.random() * symbols.length)];
-            }
+            for(let i=0; i<3; i++) document.getElementById(`reel-${i}`).innerText = symbols[Math.floor(Math.random() * symbols.length)];
             ticks++;
-
             if (ticks >= maxTicks) {
                 clearInterval(slotInterval);
-                for(let i=0; i<3; i++) {
-                    document.getElementById(`reel-${i}`).innerText = outcome[i];
-                }
+                for(let i=0; i<3; i++) document.getElementById(`reel-${i}`).innerText = outcome[i];
                 updateScoreUI(earnedPts, 0, 0);
-                slotDesc.innerText = resultMsg;
-                slotDesc.style.color = resultColor;
-                
-                if(earnedPts > 10) {
-                    alert(`🎰 哔哔哔——！\n拉霸机大爆奖！获得了 ${earnedPts} 碎片！`);
-                }
+                slotDesc.innerText = resultMsg; slotDesc.style.color = resultColor;
+                if(earnedPts > 10) alert(`🎰 哔哔哔——！\n拉霸机大爆奖！获得了 ${earnedPts} 碎片！`);
                 isSystemBusy = false;
             }
         }, 80); 
     }
 
-    // --- GM 魔法连结 ---
-    const urlParams = new URLSearchParams(window.location.search);
-    const addScore = urlParams.get('add'); 
-    const setScore = urlParams.get('set'); 
-    const addWish = urlParams.get('addWish'); 
-    const setWish = urlParams.get('setWish'); 
-    const addCoin = urlParams.get('addCoin'); 
-    const key = urlParams.get('key');      
-
-    if ((addScore || setScore || addWish || setWish || addCoin) && key) {
-        let usedKeys = JSON.parse(localStorage.getItem('tidu_usedKeys') || '[]');
-        if (usedKeys.includes(key)) {
-            alert("温馨提示：这条魔法连结已经失效啦～");
-        } else {
-            let msg = "🎉 成功接收 GM 指令：\n";
-            if (setScore) { currentScore = parseFloat(setScore); msg += `碎片已校正为：${currentScore}\n`; } 
-            else if (addScore) { currentScore += parseFloat(addScore); currentScore = Math.round(currentScore * 10) / 10; msg += `碎片变更：${addScore}\n`; }
-            
-            if (setWish) { currentWish = parseInt(setWish); msg += `许愿券已校正为：${currentWish}\n`; } 
-            else if (addWish) { currentWish += parseInt(addWish); msg += `许愿券变更：${addWish}\n`; }
-
-            if (addCoin) { currentCoins += parseInt(addCoin); msg += `兔兔币变更：${addCoin}\n`; }
-
-            localStorage.setItem('tidu_score', currentScore.toString());
-            localStorage.setItem('tidu_wishTickets', Math.max(0, currentWish).toString());
-            localStorage.setItem('tidu_rabbitCoins', Math.max(0, currentCoins).toString());
-            updateScoreUI(0, 0, 0);
-            alert(msg);
-            
-            usedKeys.push(key);
-            localStorage.setItem('tidu_usedKeys', JSON.stringify(usedKeys));
-        }
-        window.history.replaceState({}, document.title, window.location.pathname);
-    }
-
-    // --- 每日状态重置 ---
-    let today = new Date().toDateString();
-    if (localStorage.getItem('tidu_dailyDate') !== today) {
-        localStorage.setItem('tidu_dailyDate', today);
-        localStorage.setItem('tidu_diceCount', '0');
-        localStorage.removeItem('tidu_dailyFortune'); 
-    }
-
-    // ==========================================
-    // 🎁 惊喜盲盒逻辑
-    // ==========================================
+    // --- 🎁 盲盒逻辑 (高奢卡牌特效版) ---
     function getBoxRewards() {
         return [
             { weight: 5, title: "🏰 浪漫城堡", desc: "+100 碎片", color: "#ff9ff3", img: "images/0001.png", pt: 100, isWish: false },
@@ -472,8 +443,7 @@
         let rand = Math.floor(Math.random() * 10000);
         let sum = 0;
         for (let item of rewardsArray) {
-            sum += item.weight;
-            if (rand < sum) return item;
+            sum += item.weight; if (rand < sum) return item;
         }
         return rewardsArray[6]; 
     }
@@ -481,10 +451,7 @@
     function openBlindBox(times) {
         if (isSystemBusy) return;
         let cost = times * 1.5;
-        if (currentScore < cost) {
-            alert(`❌ 余额不足！\n抽取 ${times} 次需要 ${cost} 积分，你只有 ${currentScore} 分。`);
-            return;
-        }
+        if (currentScore < cost) { alert(`❌ 余额不足！\n抽取 ${times} 次需要 ${cost} 积分，你只有 ${currentScore} 分。`); return; }
         if (!confirm(times === 1 ? `花费 1.5 积分开启盲盒？` : `⚠️ 疯狂模式！将扣除 15 积分进行十连抽，确定吗？`)) return;
 
         isSystemBusy = true;
@@ -493,6 +460,7 @@
         let icon = document.getElementById('boxIcon');
         let listWrap = document.getElementById('boxResultList');
         let summary = document.getElementById('boxSummary');
+        
         icon.style.display = 'inline-block'; listWrap.style.display = 'none'; summary.style.display = 'none';
         icon.classList.add('shake');
         
@@ -501,12 +469,23 @@
         setTimeout(() => {
             icon.classList.remove('shake'); icon.style.display = 'none'; listWrap.innerHTML = '';
             let totalEarned = 0, wishTicketsWon = 0;
+            
             for(let i=0; i<times; i++) {
                 let item = getRandomBoxItem(activeRewards);
                 totalEarned += item.pt;
                 if(item.isWish) wishTicketsWon++;
                 let ptColor = item.isWish ? "#ff7675" : (item.pt > 1.5 ? "#1dd1a1" : "#a4b0be");
-                listWrap.innerHTML += `<div class="drawn-item"><img src="${item.img}" onerror="this.src=''; this.alt='🎁';"><div class="drawn-title" style="color:${item.color}">${item.title}</div><div class="drawn-pt" style="color:${ptColor}">${item.desc}</div></div>`;
+                
+                // 💎 大奖判定：若分数>=30或是许愿券，赋予高亮外框与内发光
+                let glowStyle = (item.pt >= 30 || item.isWish) ? `box-shadow: 0 0 15px ${item.color}80, inset 0 0 10px ${item.color}40; border: 1px solid ${item.color};` : "";
+                
+                listWrap.innerHTML += `
+                    <div class="drawn-item" style="${glowStyle}">
+                        <img src="${item.img}" onerror="this.src=''; this.alt='🎁'; this.style.fontSize='35px'; margin-bottom:5px;">
+                        <div class="drawn-title" style="color:${item.color}">${item.title}</div>
+                        <div class="drawn-pt" style="color:${ptColor}">${item.desc}</div>
+                    </div>
+                `;
             }
             updateScoreUI(totalEarned, wishTicketsWon, 0);
             let wishMsg = wishTicketsWon > 0 ? `<br><span style='color:#ff7675; font-size:16px;'>🎉 抽中 ${wishTicketsWon} 张许愿券！</span>` : "";
@@ -517,7 +496,7 @@
     }
 
     // ==========================================
-    // 🎲 命运骰子逻辑
+    // 🎲 命运骰子逻辑 (3D拟真版)
     // ==========================================
     function rollDice(num) {
         if (isSystemBusy) return;
@@ -530,35 +509,88 @@
         let resultBox = document.getElementById('diceResult');
         let descBox = document.getElementById('diceDesc');
         resultBox.innerHTML = '';
-        for(let i=0; i<num; i++) resultBox.innerHTML += `<div class="dice-wrapper"><div class="dice" id="die-${i}">❓</div><div id="die-pt-${i}" style="font-size:12px; color:#a4b0be; height:14px; font-weight:bold;"></div></div>`;
-        descBox.innerText = "命运疯狂转动中..."; descBox.style.color = "#ffffff";
+        
+        // 预设骰子坑位与底座结构
+        for(let i=0; i<num; i++) {
+            resultBox.innerHTML += `
+                <div class="dice-wrapper">
+                    <div class="dice rolling" id="die-${i}">❓</div>
+                    <div id="die-pt-wrap-${i}" style="height:22px; margin-top:2px;"></div>
+                </div>
+            `;
+        }
+        descBox.innerText = "命运疯狂翻滚中..."; descBox.style.color = "#ffffff";
 
         let animCounter = 0;
         let interval = setInterval(() => {
-            for(let i=0; i<num; i++) document.getElementById(`die-${i}`).innerText = diceFaces[Math.floor(Math.random() * 6)];
+            // 翻滚期间随机切换表面点数
+            for(let i=0; i<num; i++) {
+                document.getElementById(`die-${i}`).innerText = diceFaces[Math.floor(Math.random() * 6)];
+            }
             animCounter++;
-            if(animCounter > 10) {
+            
+            if(animCounter > 12) { // 稍微延长滚动时间增加期待感
                 clearInterval(interval);
                 let totalDicePoints = 0;
+                
                 for(let i=0; i<num; i++) {
                     let finalIndex = Math.floor(Math.random() * 6);
                     let pt = dicePoints[finalIndex];
                     totalDicePoints += pt;
-                    document.getElementById(`die-${i}`).innerText = diceFaces[finalIndex];
-                    document.getElementById(`die-pt-${i}`).innerText = pt > 0 ? "+" + pt : pt;
-                    document.getElementById(`die-pt-${i}`).style.color = pt > 0 ? "#1dd1a1" : (pt < 0 ? "#ee5253" : "#a4b0be");
+                    
+                    let dieElem = document.getElementById(`die-${i}`);
+                    dieElem.innerText = diceFaces[finalIndex];
+                    dieElem.classList.remove('rolling'); // 停止CSS翻滚动画
+                    
+                    // 渲染弹跳计分标签
+                    let ptDisplay = pt > 0 ? "+" + pt : pt;
+                    let bgColor = pt > 0 ? "rgba(29, 209, 161, 0.2)" : (pt < 0 ? "rgba(238, 82, 83, 0.2)" : "rgba(164, 176, 190, 0.2)");
+                    let textColor = pt > 0 ? "#1dd1a1" : (pt < 0 ? "#ee5253" : "#a4b0be");
+                    
+                    document.getElementById(`die-pt-wrap-${i}`).innerHTML = `
+                        <div class="dice-pt-label" style="color:${textColor}; background:${bgColor}; border: 1px solid ${textColor}50;">
+                            ${ptDisplay}
+                        </div>
+                    `;
                 }
                 updateScoreUI(totalDicePoints, 0, 0);
                 let netColor = totalDicePoints > 0 ? "#1dd1a1" : (totalDicePoints < 0 ? "#ee5253" : "#48dbfb");
                 descBox.innerHTML = `点数合计：<span style="font-size:20px; font-weight:bold; color:${netColor}">${totalDicePoints > 0 ? '+'+totalDicePoints : totalDicePoints} 积分</span>`;
                 isSystemBusy = false;
             }
-        }, 60);
+        }, 50); // 加快切换频率匹配视觉效果
     }
 
-    // ==========================================
-    // 🔮 占卜逻辑
-    // ==========================================
+    // --- GM 魔法连结 ---
+    const urlParams = new URLSearchParams(window.location.search);
+    const addScore = urlParams.get('add'); const setScore = urlParams.get('set'); const addWish = urlParams.get('addWish'); 
+    const setWish = urlParams.get('setWish'); const addCoin = urlParams.get('addCoin'); const key = urlParams.get('key');      
+
+    if ((addScore || setScore || addWish || setWish || addCoin) && key) {
+        let usedKeys = JSON.parse(localStorage.getItem('tidu_usedKeys') || '[]');
+        if (usedKeys.includes(key)) { alert("温馨提示：这条魔法连结已经失效啦～"); } 
+        else {
+            let msg = "🎉 成功接收 GM 指令：\n";
+            if (setScore) { currentScore = parseFloat(setScore); msg += `碎片已校正为：${currentScore}\n`; } 
+            else if (addScore) { currentScore += parseFloat(addScore); currentScore = Math.round(currentScore * 10) / 10; msg += `碎片变更：${addScore}\n`; }
+            if (setWish) { currentWish = parseInt(setWish); msg += `许愿券已校正为：${currentWish}\n`; } 
+            else if (addWish) { currentWish += parseInt(addWish); msg += `许愿券变更：${addWish}\n`; }
+            if (addCoin) { currentCoins += parseInt(addCoin); msg += `兔兔币变更：${addCoin}\n`; }
+
+            localStorage.setItem('tidu_score', currentScore.toString());
+            localStorage.setItem('tidu_wishTickets', Math.max(0, currentWish).toString());
+            localStorage.setItem('tidu_rabbitCoins', Math.max(0, currentCoins).toString());
+            updateScoreUI(0, 0, 0); alert(msg); usedKeys.push(key); localStorage.setItem('tidu_usedKeys', JSON.stringify(usedKeys));
+        }
+        window.history.replaceState({}, document.title, window.location.pathname);
+    }
+
+    // --- 每日与占卜逻辑 ---
+    let today = new Date().toDateString();
+    if (localStorage.getItem('tidu_dailyDate') !== today) {
+        localStorage.setItem('tidu_dailyDate', today); localStorage.removeItem('tidu_dailyFortune'); 
+    }
+
     const fortunes = [
         { title: "🌟 上上签 (+3分)", color: "#feca57", pt: 3, descs: ["运气爆棚！"] },
         { title: "✨ 中上签 (+1分)", color: "#1dd1a1", pt: 1, descs: ["顺风顺水！"] },
@@ -566,16 +598,12 @@
         { title: "🌧️ 中下签 (-1分)", color: "#ff9f43", pt: -1, descs: ["有点倒霉。"] },
         { title: "💀 下下签 (-3分)", color: "#ee5253", pt: -3, descs: ["大凶！系统扣分！"] }
     ];
-
     let savedFortune = localStorage.getItem('tidu_dailyFortune');
     if (savedFortune) {
         let f = JSON.parse(savedFortune);
-        document.getElementById('fortuneResult').innerText = f.title;
-        document.getElementById('fortuneResult').style.color = f.color;
-        document.getElementById('fortuneDesc').innerText = f.desc;
-        document.getElementById('fortuneDesc').style.color = f.color;
+        document.getElementById('fortuneResult').innerText = f.title; document.getElementById('fortuneResult').style.color = f.color;
+        document.getElementById('fortuneDesc').innerText = f.desc; document.getElementById('fortuneDesc').style.color = f.color;
     }
-
     function drawFortune() {
         if (localStorage.getItem('tidu_dailyFortune')) { alert("你今天抽过签了！明天再来吧！"); return; }
         let rand = Math.random(), fortune;
