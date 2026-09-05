@@ -256,7 +256,7 @@
         localStorage.removeItem('tidu_dailyFortune'); 
     }
 
-// ==========================================
+    // ==========================================
     // 🎁 惊喜盲盒逻辑 (高多巴胺 + 许愿券 0.2% 极稀有版)
     // ==========================================
     function getBoxRewards() {
@@ -345,11 +345,10 @@
             // 实时增加碎片与许愿券
             updateScoreUI(totalEarned, wishTicketsWon);
 
-            let netPoints = Math.round((totalEarned - cost) * 10) / 10;
-            let netColor = netPoints > 0 ? "#1dd1a1" : "#ee5253";
             let wishMsg = wishTicketsWon > 0 ? `<br><span style='color:#ff7675; font-size:16px;'>🎉 抽中 ${wishTicketsWon} 张【许愿券】！快截图去向哥哥许愿！</span>` : "";
 
-            summary.innerHTML = `总计获得: ${Math.round(totalEarned*10)/10} 碎片 (净利润: <span style="color:${netColor}">${netPoints > 0 ? '+'+netPoints : netPoints}</span>)${wishMsg}`;
+            // 🚀 隐藏利润：只显示获得的碎片总数
+            summary.innerHTML = `总计获得: ${Math.round(totalEarned*10)/10} 碎片 ${wishMsg}`;
             
             listWrap.style.display = 'flex';
             summary.style.display = 'block';
