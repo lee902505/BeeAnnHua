@@ -35,7 +35,7 @@
             letter-spacing: 1px;
         }
         
-        /* 🏆 炫酷阶级徽章样式 */
+        /* 🏆 炫酷阶级徽章 */
         .title-badge {
             position: relative;
             background: linear-gradient(180deg, rgba(30, 30, 45, 0.9), rgba(15, 15, 25, 0.9));
@@ -53,165 +53,37 @@
             z-index: 1;
             transition: all 0.4s ease;
         }
-
         .title-badge::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -150%;
-            width: 50%;
-            height: 100%;
+            content: ''; position: absolute; top: 0; left: -150%; width: 50%; height: 100%;
             background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
-            transform: skewX(-25deg);
-            animation: sweepLight 3.5s infinite;
-            z-index: -1;
+            transform: skewX(-25deg); animation: sweepLight 3.5s infinite; z-index: -1;
         }
+        @keyframes sweepLight { 0% { left: -150%; } 20% { left: 200%; } 100% { left: 200%; } }
 
-        @keyframes sweepLight {
-            0% { left: -150%; }
-            20% { left: 200%; }
-            100% { left: 200%; }
-        }
-
+        /* 面板统一样式 */
         .score-board {
-            background: rgba(255, 255, 255, 0.05);
-            width: 100%;
-            padding: 20px;
-            border-radius: 16px;
-            text-align: center;
-            margin-bottom: 20px;
-            border: 1px solid #00d2d3;
-            box-sizing: border-box;
+            background: rgba(255, 255, 255, 0.05); width: 100%; padding: 20px; border-radius: 16px;
+            text-align: center; margin-bottom: 20px; border: 1px solid #00d2d3; box-sizing: border-box;
             box-shadow: 0 4px 15px rgba(0, 210, 211, 0.15);
         }
         .score-title { font-size: 14px; color: #a4b0be; margin-bottom: 8px; }
-        .score-value { font-size: 40px; font-weight: 800; color: #feca57; text-shadow: 0 2px 10px rgba(254, 202, 87, 0.3); transition: all 0.3s ease; }
+        .score-value { font-size: 40px; font-weight: 800; color: #feca57; text-shadow: 0 2px 10px rgba(254, 202, 87, 0.3); }
         .score-total { font-size: 18px; color: #ffffff; }
         
         .asset-board {
-            display: flex;
-            justify-content: space-around;
-            margin-top: 15px;
-            padding-top: 15px;
-            border-top: 1px dashed rgba(0, 210, 211, 0.3);
-            font-size: 15px;
-            font-weight: bold;
+            display: flex; justify-content: space-around; flex-wrap: wrap; gap: 10px;
+            margin-top: 15px; padding-top: 15px; border-top: 1px dashed rgba(0, 210, 211, 0.3); 
+            font-size: 14px; font-weight: bold;
         }
 
         .section {
-            width: 100%;
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 16px;
-            padding: 20px;
-            margin-bottom: 15px;
-            box-sizing: border-box;
-            text-align: center;
+            width: 100%; background: rgba(0, 0, 0, 0.2); border-radius: 16px; padding: 20px;
+            margin-bottom: 15px; box-sizing: border-box; text-align: center;
         }
         .section h3 { margin: 0 0 10px 0; color: #ff9ff3; font-size: 18px; }
         .section p { font-size: 13px; color: #ced6e0; margin-bottom: 10px; line-height: 1.4; }
         .rules { font-size: 12px; color: #feca57; background: rgba(254, 202, 87, 0.1); padding: 8px; border-radius: 8px; margin-bottom: 15px; text-align: left; line-height: 1.5; }
         
-        /* 🎰 拉霸机专属样式 */
-        .slot-machine {
-            background: linear-gradient(180deg, #2d3436, #000000);
-            border: 3px solid #feca57;
-            border-radius: 12px;
-            padding: 15px;
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin-bottom: 15px;
-            box-shadow: 0 0 20px rgba(254, 202, 87, 0.2), inset 0 0 15px rgba(0,0,0,0.8);
-        }
-        .slot-reel {
-            background: #ffffff;
-            width: 70px;
-            height: 80px;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 45px;
-            box-shadow: inset 0 5px 10px rgba(0,0,0,0.4);
-            border: 2px solid #b2bec3;
-            overflow: hidden;
-        }
-        .reel-inner { transition: transform 0.1s linear; }
-
-        /* 🎲 3D实体感骰子升级 */
-        .dice-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; margin: 20px 0; min-height: 80px; }
-        .dice-wrapper { display: flex; flex-direction: column; align-items: center; gap: 8px; }
-        .dice { 
-            font-size: 40px; 
-            line-height: 1; 
-            background: linear-gradient(135deg, #ffffff, #e1e5ee);
-            color: #2f3542;
-            width: 55px; 
-            height: 55px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 12px;
-            box-shadow: 0 6px 0 #a4b0be, 0 10px 15px rgba(0,0,0,0.4);
-            transition: all 0.1s;
-        }
-        .dice.rolling {
-            animation: diceRoll 0.25s infinite linear;
-            box-shadow: 0 2px 0 #a4b0be, 0 5px 10px rgba(0,0,0,0.4);
-            transform: translateY(4px);
-        }
-        @keyframes diceRoll {
-            0% { transform: rotate(0deg) scale(1) translateY(2px); }
-            50% { transform: rotate(15deg) scale(1.1) translateY(-5px); }
-            100% { transform: rotate(-15deg) scale(1) translateY(2px); }
-        }
-        
-        /* 弹跳果冻计分标签 */
-        .dice-pt-label {
-            font-size: 13px; font-weight: bold;
-            padding: 3px 10px; border-radius: 12px;
-            animation: popInBounce 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-        }
-        @keyframes popInBounce {
-            0% { transform: scale(0.3); opacity: 0; }
-            100% { transform: scale(1); opacity: 1; }
-        }
-
-        .dice-desc { font-size: 14px; color: #00d2d3; min-height: 25px; margin-bottom: 15px; font-weight: bold; }
-        .btn-group { display: flex; gap: 8px; width: 100%; }
-        
-        /* 🎁 盲盒高奢特效升级 */
-        .blind-box-container { margin: 15px 0; min-height: 140px; position: relative; }
-        .box-icon { 
-            font-size: 75px; 
-            display: inline-block; 
-            animation: pulse-glow 2s infinite alternate;
-        }
-        @keyframes pulse-glow {
-            0% { filter: drop-shadow(0 0 10px rgba(255, 159, 243, 0.4)) scale(1); }
-            100% { filter: drop-shadow(0 0 30px rgba(255, 159, 243, 0.9)) scale(1.05); }
-        }
-        .box-icon.shake { animation: shakeBox 0.4s infinite; }
-        .box-results-wrap { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-top: 15px; }
-        
-        /* 毛玻璃质感抽奖卡牌 */
-        .drawn-item { 
-            display: flex; flex-direction: column; align-items: center; 
-            background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.03));
-            backdrop-filter: blur(5px);
-            border: 1px solid rgba(255,255,255,0.1);
-            padding: 12px 8px; border-radius: 14px; width: 42%; 
-            animation: popUp 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; 
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-        }
-        .drawn-item img { width: 55px; height: 55px; object-fit: contain; margin-bottom: 8px; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.4));}
-        .drawn-title { font-size: 14px; font-weight: bold; margin-bottom: 4px; text-shadow: 0 1px 3px rgba(0,0,0,0.5);}
-        .drawn-pt { font-size: 12px; font-weight: bold; background: rgba(0,0,0,0.4); padding: 2px 8px; border-radius: 8px;}
-
-        @keyframes shakeBox { 0%, 100% { transform: rotate(0deg) scale(1); filter: brightness(1); } 25% { transform: rotate(-12deg) scale(1.1); filter: brightness(1.2); } 75% { transform: rotate(12deg) scale(1.1); filter: brightness(1.2); } }
-        @keyframes popUp { 0% { transform: scale(0.5) translateY(20px); opacity: 0; } 100% { transform: scale(1) translateY(0); opacity: 1; } }
-
         button { background: linear-gradient(135deg, #00d2d3, #0984e3); color: #ffffff; border: none; padding: 12px 0; font-size: 15px; font-weight: bold; border-radius: 10px; cursor: pointer; width: 100%; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); transition: transform 0.1s; }
         button:active { transform: scale(0.96); }
         .btn-5 { background: linear-gradient(135deg, #a29bfe, #6c5ce7); }
@@ -219,9 +91,68 @@
         .btn-box1 { background: linear-gradient(135deg, #ff9ff3, #f368e0); }
         .btn-box10 { background: linear-gradient(135deg, #ff7675, #d63031); }
         .btn-slot { background: linear-gradient(135deg, #ff9f43, #ee5253); font-size: 18px; padding: 15px 0; border: 2px solid #feca57;}
+        .btn-farm { background: linear-gradient(135deg, #1dd1a1, #10ac84); font-size: 16px; padding: 14px 0; border: 2px solid #2ecc71;}
+        .btn-harvest { background: linear-gradient(135deg, #f368e0, #ff9ff3); font-size: 16px; padding: 14px 0; border: 2px solid #ff9ff3; animation: pulse-glow 1.5s infinite alternate;}
+
+        /* 🌱 农场专属样式 (调亮遮罩，并修改为 farm_bg.png) */
+        .farm-container {
+            border: 2px solid #1dd1a1; border-radius: 12px; padding: 15px; margin-bottom: 15px;
+            box-shadow: 0 0 20px rgba(29, 209, 161, 0.2);
+            /* 注意这里：确保你的图片改名叫做 farm_bg.png 并放在同一层资料夹 */
+            background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.8)), url('farm_bg.png') center/cover;
+            position: relative; overflow: hidden;
+        }
+        .farm-status-icon { font-size: 55px; margin-bottom: 10px; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.6)); }
+        .farm-timer {
+            font-size: 26px; font-weight: bold; color: #1dd1a1; font-family: monospace; letter-spacing: 2px;
+            text-shadow: 0 0 10px rgba(29, 209, 161, 0.5); margin: 10px 0;
+        }
+        .progress-bar { width: 100%; height: 8px; background: rgba(255,255,255,0.2); border-radius: 4px; overflow: hidden; margin-bottom: 15px; }
+        .progress-fill { height: 100%; background: linear-gradient(90deg, #1dd1a1, #feca57); width: 0%; transition: width 1s linear; }
+
+        /* 🎰 拉霸机专属样式 */
+        .slot-machine {
+            background: linear-gradient(180deg, #2d3436, #000000); border: 3px solid #feca57; border-radius: 12px;
+            padding: 15px; display: flex; justify-content: center; gap: 10px; margin-bottom: 15px;
+            box-shadow: 0 0 20px rgba(254, 202, 87, 0.2), inset 0 0 15px rgba(0,0,0,0.8);
+        }
+        .slot-reel {
+            background: #ffffff; width: 70px; height: 80px; border-radius: 8px; display: flex; align-items: center; justify-content: center;
+            font-size: 45px; box-shadow: inset 0 5px 10px rgba(0,0,0,0.4); border: 2px solid #b2bec3; overflow: hidden;
+        }
         
-        .fortune-text { font-size: 24px; font-weight: bold; margin: 15px 0 5px 0; }
-        .fortune-desc { font-size: 14px; color: #00d2d3; min-height: 42px; margin-bottom: 15px; line-height: 1.4; }
+        /* 🎁 盲盒与骰子特效保留 */
+        .blind-box-container { margin: 15px 0; min-height: 140px; position: relative; }
+        .box-icon { font-size: 75px; display: inline-block; animation: pulse-glow 2s infinite alternate; }
+        @keyframes pulse-glow { 0% { filter: drop-shadow(0 0 10px rgba(255, 159, 243, 0.4)) scale(1); } 100% { filter: drop-shadow(0 0 30px rgba(255, 159, 243, 0.9)) scale(1.05); } }
+        .box-icon.shake { animation: shakeBox 0.4s infinite; }
+        .box-results-wrap { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-top: 15px; }
+        .drawn-item { 
+            display: flex; flex-direction: column; align-items: center; 
+            background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.03));
+            backdrop-filter: blur(5px); border: 1px solid rgba(255,255,255,0.1); padding: 12px 8px; border-radius: 14px; width: 42%; 
+            animation: popUp 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+        .drawn-item img { width: 55px; height: 55px; object-fit: contain; margin-bottom: 8px; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.4));}
+        .drawn-title { font-size: 14px; font-weight: bold; margin-bottom: 4px; text-shadow: 0 1px 3px rgba(0,0,0,0.5);}
+        .drawn-pt { font-size: 12px; font-weight: bold; background: rgba(0,0,0,0.4); padding: 2px 8px; border-radius: 8px;}
+        @keyframes shakeBox { 0%, 100% { transform: rotate(0deg) scale(1); } 25% { transform: rotate(-12deg) scale(1.1); } 75% { transform: rotate(12deg) scale(1.1); } }
+        @keyframes popUp { 0% { transform: scale(0.5) translateY(20px); opacity: 0; } 100% { transform: scale(1) translateY(0); opacity: 1; } }
+
+        /* 骰子3D效果 */
+        .dice-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; margin: 20px 0; min-height: 80px; }
+        .dice-wrapper { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+        .dice { 
+            font-size: 40px; line-height: 1; background: linear-gradient(135deg, #ffffff, #e1e5ee); color: #2f3542;
+            width: 55px; height: 55px; display: flex; align-items: center; justify-content: center; border-radius: 12px;
+            box-shadow: 0 6px 0 #a4b0be, 0 10px 15px rgba(0,0,0,0.4); transition: all 0.1s;
+        }
+        .dice.rolling { animation: diceRoll 0.25s infinite linear; box-shadow: 0 2px 0 #a4b0be, 0 5px 10px rgba(0,0,0,0.4); transform: translateY(4px); }
+        @keyframes diceRoll { 0% { transform: rotate(0deg) scale(1) translateY(2px); } 50% { transform: rotate(15deg) scale(1.1) translateY(-5px); } 100% { transform: rotate(-15deg) scale(1) translateY(2px); } }
+        .dice-pt-label { font-size: 13px; font-weight: bold; padding: 3px 10px; border-radius: 12px; animation: popInBounce 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; box-shadow: 0 2px 5px rgba(0,0,0,0.3); }
+        @keyframes popInBounce { 0% { transform: scale(0.3); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+        .dice-desc { font-size: 14px; color: #00d2d3; min-height: 25px; margin-bottom: 15px; font-weight: bold; }
+
         .tips { font-size: 12px; color: #747d8c; margin-top: auto; padding-top: 10px; text-align: center; line-height: 1.6; padding-bottom: 20px; }
     </style>
 </head>
@@ -230,22 +161,55 @@
 <div class="app-container">
     <h1>🧩 专属提督碎片系统 🧩</h1>
     
-    <!-- 🏆 动态炫酷好感度阶级称号 -->
     <div class="title-badge" id="playerTitle">阶级加载中...</div>
     
     <div class="score-board">
         <div class="score-title">当前持有碎片 (实时更新)</div>
         <div class="score-value" id="displayScore">0<span class="score-total"> / 990</span></div>
         <div class="asset-board">
-            <span style="color: #feca57;">🪙 兔兔币: <span id="displayCoins" style="font-size: 20px;">0</span></span>
-            <span style="color: #ff7675;">🎟️ 许愿券: <span id="displayWish" style="font-size: 20px;">0</span></span>
+            <span style="color: #feca57;">🪙 兔兔币: <span id="displayCoins" style="font-size: 18px;">0</span></span>
+            <span style="color: #1dd1a1;">🍓 种子: <span id="displaySeeds" style="font-size: 18px;">0</span></span>
+            <span style="color: #ff7675;">🎟️ 许愿券: <span id="displayWish" style="font-size: 18px;">0</span></span>
+        </div>
+    </div>
+
+    <!-- 🌱 兔兔专属挂机农场 -->
+    <div class="section" style="border: 1px solid rgba(29, 209, 161, 0.3); box-shadow: 0 0 15px rgba(29, 209, 161, 0.1);">
+        <h3 style="color: #1dd1a1;">🌱 兔兔专属草莓农场</h3>
+        <p>每日系统自动发放 <b style="color:#ff7675;">5 颗草莓种子</b><br>种植需等待 <b style="color:#feca57;">90 分钟</b> 才能收成唷！</p>
+        
+        <div class="farm-container" id="farmUI">
+            <!-- 农场状态图标 -->
+            <div class="farm-status-icon" id="farmIcon">🚜</div>
+            <div id="farmStatusText" style="font-size:14px; font-weight:bold; color:#ced6e0;">农田目前空着，快来播种吧！</div>
+            
+            <!-- 倒数计分与进度条 -->
+            <div id="farmProgressWrap" style="display:none; margin-top:15px;">
+                <div class="progress-bar"><div class="progress-fill" id="farmProgressBar"></div></div>
+                <div class="farm-timer" id="farmTimer">01:30:00</div>
+            </div>
+            
+            <!-- 🔧 新增：批量播种选单与按钮 -->
+            <div id="plantActionWrap" style="display: flex; gap: 10px; margin-top: 15px;">
+                <select id="plantAmount" style="flex: 1; background: rgba(0,0,0,0.5); border: 2px solid #1dd1a1; border-radius: 8px; color: #fff; font-size: 15px; font-weight: bold; text-align: center; outline: none;">
+                    <option value="1">1 颗</option>
+                    <option value="2">2 颗</option>
+                    <option value="3">3 颗</option>
+                    <option value="4">4 颗</option>
+                    <option value="5">5 颗</option>
+                    <option value="10">10 颗</option>
+                </select>
+                <button class="btn-farm" onclick="plantSeed()" style="flex: 2; margin-top: 0;">🌱 立即播种</button>
+            </div>
+
+            <button class="btn-harvest" id="btnHarvest" onclick="harvestCrop()" style="display:none; margin-top:15px;">🧺 农作物成熟啦！点击收成</button>
         </div>
     </div>
 
     <!-- 🎟️ 兔兔币兑换所 -->
-    <div class="section" style="border: 1px solid rgba(254, 202, 87, 0.3); box-shadow: 0 0 15px rgba(254, 202, 87, 0.1);">
+    <div class="section" style="border: 1px solid rgba(254, 202, 87, 0.3);">
         <h3 style="color: #feca57;">💰 兔兔币兑换中心</h3>
-        <p>完成哥哥的特别任务，输入代码领取拉霸代币！</p>
+        <p>输入哥哥给的代币码，领取拉霸资本！</p>
         <div style="display: flex; gap: 8px; margin-top: 10px;">
             <input type="text" id="taskCode" placeholder="输入神秘代码..." autocomplete="off" style="flex: 2; padding: 10px; border-radius: 8px; border: 1px solid #feca57; background: rgba(0,0,0,0.5); color: #fff; outline: none; font-size: 14px; text-transform: uppercase;">
             <button onclick="redeemTaskCode()" style="flex: 1; background: linear-gradient(135deg, #feca57, #ff9f43); font-size: 14px; color: #000;">兑换兔兔币</button>
@@ -253,21 +217,19 @@
     </div>
 
     <!-- 🎰 兔兔拉霸机 -->
-    <div class="section" style="border: 1px solid rgba(255, 118, 117, 0.3); box-shadow: 0 0 20px rgba(255, 118, 117, 0.15);">
+    <div class="section" style="border: 1px solid rgba(255, 118, 117, 0.3);">
         <h3 style="color: #ff7675;">🎰 兔兔疯狂拉霸机 🎰</h3>
-        <p>单次消耗 <b style="color:#feca57;">1 枚兔兔币</b>，最高可中 50 碎片！</p>
-        
+        <p>消耗 <b style="color:#feca57;">1 枚兔兔币</b>，最高可中 50 碎片！</p>
         <div class="slot-machine">
             <div class="slot-reel"><div class="reel-inner" id="reel-0">❓</div></div>
             <div class="slot-reel"><div class="reel-inner" id="reel-1">❓</div></div>
             <div class="slot-reel"><div class="reel-inner" id="reel-2">❓</div></div>
         </div>
         <div id="slotDesc" style="font-size: 14px; color: #1dd1a1; min-height: 20px; margin-bottom: 15px; font-weight: bold;"></div>
-        
         <button class="btn-slot" onclick="spinSlotMachine()">🎯 投币启动拉霸机</button>
     </div>
 
-    <!-- 🎁 盲盒模块 (消耗碎片) -->
+    <!-- 🎁 盲盒模块 -->
     <div class="section">
         <h3 style="color: #ff9ff3;">🎁 惊喜盲盒抽奖</h3>
         <p>单次消耗 <b style="color:#feca57;">1.5 碎片</b></p>
@@ -287,8 +249,7 @@
         <h3>🎲 命运盲盒骰子</h3>
         <div class="rules">
             6点: +3分 | 5点: +2分 | 4点: 0分<br>
-            3点: -1分 &nbsp;| 2点: -2分 | 1点: -3分<br>
-            <span style="color:#1dd1a1; font-weight:bold;">* 永久免费，无限畅玩！盈亏自负！</span>
+            3点: -1分 &nbsp;| 2点: -2分 | 1点: -3分
         </div>
         <div class="dice-container" id="diceResult"><div class="dice-wrapper"><div class="dice">❓</div><div id="die-pt-wrap-0" style="height:20px;"></div></div></div>
         <div class="dice-desc" id="diceDesc"></div>
@@ -297,14 +258,6 @@
             <button onclick="rollDice(5)" class="btn-5" style="flex: 1;">连抽 5 次</button>
             <button onclick="rollDice(10)" class="btn-10" style="flex: 1.2;">十连抽！</button>
         </div>
-    </div>
-
-    <!-- 🔮 占卜模块 -->
-    <div class="section">
-        <h3>🔮 每日运势占卜</h3>
-        <div class="fortune-text" id="fortuneResult">等待抽签...</div>
-        <div class="fortune-desc" id="fortuneDesc"></div>
-        <button onclick="drawFortune()" id="fortuneBtn">抽取今日运势</button>
     </div>
 
     <div class="tips">
@@ -318,7 +271,23 @@
     let currentScore = parseFloat(localStorage.getItem('tidu_score') || '0'); 
     let currentWish = parseInt(localStorage.getItem('tidu_wishTickets') || '0');
     let currentCoins = parseInt(localStorage.getItem('tidu_rabbitCoins') || '0'); 
+    let currentSeeds = parseInt(localStorage.getItem('tidu_seeds') || '0'); 
     let isSystemBusy = false; 
+
+    // --- 每日状态重置与旧版升级防护 ---
+    let today = new Date().toDateString();
+    if (localStorage.getItem('tidu_dailyDate') !== today) {
+        localStorage.setItem('tidu_dailyDate', today);
+        localStorage.setItem('tidu_diceCount', '0');
+        localStorage.removeItem('tidu_dailyFortune');
+        
+        currentSeeds += 5; // 每天发5颗种子，可累积
+        localStorage.setItem('tidu_seeds', currentSeeds.toString());
+    } else {
+        if (!localStorage.getItem('tidu_seeds')) {
+            currentSeeds = 5; localStorage.setItem('tidu_seeds', '5');
+        }
+    }
 
     function getPlayerTitle(score) {
         if (score <= 100) return { text: "当前阶级: 见习小笨蛋", color: "#a4b0be", glow: "rgba(164, 176, 190, 0.6)" };
@@ -329,51 +298,161 @@
         return { text: "👑 当前阶级: 霸道女提督 👑", color: "#ff7675", glow: "rgba(255, 118, 117, 0.8)" };
     }
 
-    function updateScoreUI(scoreChange = 0, wishChange = 0, coinChange = 0) {
+    function updateScoreUI(scoreChange = 0, wishChange = 0, coinChange = 0, seedChange = 0) {
         if(scoreChange !== 0) {
-            currentScore += scoreChange;
-            currentScore = Math.round(currentScore * 10) / 10; 
+            currentScore += scoreChange; currentScore = Math.round(currentScore * 10) / 10; 
             localStorage.setItem('tidu_score', currentScore.toString());
         }
         if(wishChange !== 0) {
-            currentWish += wishChange;
-            currentWish = Math.max(0, currentWish); 
+            currentWish += wishChange; currentWish = Math.max(0, currentWish); 
             localStorage.setItem('tidu_wishTickets', currentWish.toString());
         }
         if(coinChange !== 0) {
-            currentCoins += coinChange;
-            currentCoins = Math.max(0, currentCoins);
+            currentCoins += coinChange; currentCoins = Math.max(0, currentCoins);
             localStorage.setItem('tidu_rabbitCoins', currentCoins.toString());
         }
+        if(seedChange !== 0) {
+            currentSeeds += seedChange; currentSeeds = Math.max(0, currentSeeds);
+            localStorage.setItem('tidu_seeds', currentSeeds.toString());
+        }
 
-        document.getElementById('displayScore').innerHTML = currentScore + '<span class="score-total"> / 990</span>';
-        document.getElementById('displayWish').innerText = currentWish;
-        document.getElementById('displayCoins').innerText = currentCoins;
+        if(document.getElementById('displayScore')) document.getElementById('displayScore').innerHTML = currentScore + '<span class="score-total"> / 990</span>';
+        if(document.getElementById('displayWish')) document.getElementById('displayWish').innerText = currentWish;
+        if(document.getElementById('displayCoins')) document.getElementById('displayCoins').innerText = currentCoins;
+        if(document.getElementById('displaySeeds')) document.getElementById('displaySeeds').innerText = currentSeeds;
         
         let titleInfo = getPlayerTitle(currentScore);
         let badge = document.getElementById('playerTitle');
-        badge.innerText = titleInfo.text;
-        badge.style.color = titleInfo.color;
-        badge.style.borderColor = titleInfo.color;
-        badge.style.boxShadow = `0 0 15px ${titleInfo.glow}, inset 0 0 10px ${titleInfo.glow}`;
-        badge.style.textShadow = `0 0 8px ${titleInfo.color}`;
+        if(badge) {
+            badge.innerText = titleInfo.text; badge.style.color = titleInfo.color; badge.style.borderColor = titleInfo.color;
+            badge.style.boxShadow = `0 0 15px ${titleInfo.glow}, inset 0 0 10px ${titleInfo.glow}`;
+            badge.style.textShadow = `0 0 8px ${titleInfo.color}`;
+        }
     }
-    updateScoreUI(0, 0, 0); 
+    updateScoreUI(0, 0, 0, 0); 
 
-    // --- 💰 兔兔币兑换逻辑 (高级防破解版) ---
+    // ==========================================
+    // 🌱 专属农场逻辑 (支持批量播种 1~10 颗)
+    // ==========================================
+    const PLANT_DURATION_MS = 90 * 60 * 1000; 
+    let farmInterval;
+
+    function checkFarmStatus() {
+        let plantEndTime = localStorage.getItem('tidu_farmEndTime');
+        let plantedAmount = parseInt(localStorage.getItem('tidu_plantedSeeds') || '0');
+        
+        let icon = document.getElementById('farmIcon');
+        let statusText = document.getElementById('farmStatusText');
+        let progressWrap = document.getElementById('farmProgressWrap');
+        let plantActionWrap = document.getElementById('plantActionWrap');
+        let btnHarvest = document.getElementById('btnHarvest');
+        let progressBar = document.getElementById('farmProgressBar');
+        let timerText = document.getElementById('farmTimer');
+
+        if (!plantEndTime || plantedAmount === 0) {
+            icon.innerText = "🚜"; statusText.innerText = "农田目前空着，快来播种吧！"; statusText.style.color = "#ced6e0";
+            progressWrap.style.display = "none"; plantActionWrap.style.display = "flex"; btnHarvest.style.display = "none";
+            clearInterval(farmInterval);
+            return;
+        }
+
+        let endTime = parseInt(plantEndTime);
+        let now = Date.now();
+
+        if (now >= endTime) {
+            icon.innerText = "🍓"; statusText.innerText = `哇！你的 ${plantedAmount} 颗草莓成熟啦！`; statusText.style.color = "#f368e0";
+            progressWrap.style.display = "none"; plantActionWrap.style.display = "none"; btnHarvest.style.display = "block";
+            clearInterval(farmInterval);
+        } else {
+            icon.innerText = "🌱"; statusText.innerText = `${plantedAmount} 颗草莓生长中... 请耐心等待！`; statusText.style.color = "#1dd1a1";
+            progressWrap.style.display = "block"; plantActionWrap.style.display = "none"; btnHarvest.style.display = "none";
+            
+            clearInterval(farmInterval);
+            farmInterval = setInterval(() => {
+                let currentNow = Date.now();
+                let remaining = endTime - currentNow;
+                
+                if (remaining <= 0) {
+                    checkFarmStatus(); 
+                } else {
+                    let totalMs = PLANT_DURATION_MS;
+                    let passedMs = totalMs - remaining;
+                    let progressPct = (passedMs / totalMs) * 100;
+                    progressBar.style.width = progressPct + "%";
+                    
+                    let h = Math.floor(remaining / (1000 * 60 * 60));
+                    let m = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
+                    let s = Math.floor((remaining % (1000 * 60)) / 1000);
+                    timerText.innerText = `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+                }
+            }, 1000);
+        }
+    }
+    checkFarmStatus(); 
+
+    function plantSeed() {
+        let amount = parseInt(document.getElementById('plantAmount').value);
+        if (currentSeeds < amount) {
+            alert(`❌ 种子不足啦！\n你现在只有 ${currentSeeds} 颗草莓种子，不够种 ${amount} 颗喔！`);
+            return;
+        }
+        updateScoreUI(0, 0, 0, -amount); 
+        let endTime = Date.now() + PLANT_DURATION_MS;
+        localStorage.setItem('tidu_farmEndTime', endTime.toString());
+        localStorage.setItem('tidu_plantedSeeds', amount.toString()); // 记录种了几颗
+        checkFarmStatus();
+    }
+
+    function harvestCrop() {
+        let amount = parseInt(localStorage.getItem('tidu_plantedSeeds') || '1');
+        localStorage.removeItem('tidu_farmEndTime'); 
+        localStorage.removeItem('tidu_plantedSeeds'); 
+        
+        let totalFragments = 0;
+        let totalCoins = 0;
+        let totalSeeds = 0;
+        let stolenCount = 0;
+        let bugCount = 0;
+
+        // 🎲 批量收成机率判定
+        for(let i = 0; i < amount; i++) {
+            let rand = Math.floor(Math.random() * 100); 
+            if (rand < 30) stolenCount++; // 30% 被奕奕偷走
+            else if (rand < 60) bugCount++; // 30% 被虫子咬
+            else if (rand < 80) totalFragments += 2; // 20% 正常收成 (+2碎片)
+            else if (rand < 90) totalSeeds += 2; // 10% 种子*2
+            else if (rand < 95) totalCoins += 1; // 5% 兔币*1
+            else if (rand < 99) totalCoins += 2; // 4% 兔币*2
+            else totalCoins += 5; // 1% 兔币*5
+        }
+
+        updateScoreUI(totalFragments, 0, totalCoins, totalSeeds);
+
+        // 组合结算报告
+        let alertMsg = `🧺 收成总结报告 (共 ${amount} 颗):\n\n`;
+        if(stolenCount > 0) alertMsg += `🤬 被奕奕偷吃: ${stolenCount} 颗 (找他算账！)\n`;
+        if(bugCount > 0) alertMsg += `🐛 被虫子咬烂: ${bugCount} 颗\n`;
+        if(totalFragments > 0) alertMsg += `🍓 获得碎片: +${totalFragments}\n`;
+        if(totalSeeds > 0) alertMsg += `✨ 获得新种子: +${totalSeeds} 颗\n`;
+        if(totalCoins > 0) alertMsg += `💰 获得兔兔币: +${totalCoins} 枚\n`;
+        
+        if(totalFragments === 0 && totalSeeds === 0 && totalCoins === 0) {
+            alertMsg += `\n😭 太惨了... 这波血本无归！`;
+        }
+
+        alert(alertMsg);
+        checkFarmStatus(); 
+    }
+
+    // --- 💰 兔兔币兑换逻辑 ---
     function redeemTaskCode() {
         let codeInput = document.getElementById('taskCode');
         let code = codeInput.value.trim().toUpperCase();
-        
         if (!code) { alert("小笨蛋，你还没输入代码呢！"); return; }
-
         let usedCodes = JSON.parse(localStorage.getItem('tidu_usedTaskCodes') || '[]');
-        if (usedCodes.includes(code)) {
-            alert("❌ 贪心鬼！这个任务代码你已经换过啦！"); codeInput.value = ''; return;
-        }
+        if (usedCodes.includes(code)) { alert("❌ 贪心鬼！这个任务代码你已经换过啦！"); codeInput.value = ''; return; }
 
         let earnedCoins = 0; let alertMsg = "";
-
         if (code.length >= 6 && code.includes("EE")) {
             earnedCoins = 5; alertMsg = `💎 触发高级隐藏代码！\n奕奕哥哥大放送！恭喜获得 ${earnedCoins} 枚【兔兔币】！\n可以直接拉霸 5 次啦！`;
         } else if (code.length >= 6 && code.includes("CHUN")) {
@@ -381,8 +460,7 @@
         } else {
             alert("❌ 代码错误或无效！是不是想乱猜密码作弊呀？乖乖去做任务！"); codeInput.value = ''; return;
         }
-
-        updateScoreUI(0, 0, earnedCoins);
+        updateScoreUI(0, 0, earnedCoins, 0);
         usedCodes.push(code); localStorage.setItem('tidu_usedTaskCodes', JSON.stringify(usedCodes));
         alert(alertMsg); codeInput.value = '';
     }
@@ -391,13 +469,10 @@
     function spinSlotMachine() {
         if (isSystemBusy) return;
         if (currentCoins < 1) { alert("❌ 兔兔币不足啦！\n快去完成奕奕哥哥的任务，要神秘代码来换兔兔币！"); return; }
-
-        isSystemBusy = true;
-        updateScoreUI(0, 0, -1); 
+        isSystemBusy = true; updateScoreUI(0, 0, -1, 0); 
         
         let slotDesc = document.getElementById('slotDesc');
         slotDesc.innerText = "机器疯狂运转中..."; slotDesc.style.color = "#feca57";
-        
         let rand = Math.random() * 100; let outcome = []; let earnedPts = 0; let resultMsg = ""; let resultColor = "";
 
         if (rand < 1) { outcome = ['🐰', '🐰', '🐰']; earnedPts = 50; resultMsg = "🎉 超级大奖！兔兔发威啦！(+50碎片)"; resultColor = "#ff7675"; } 
@@ -411,14 +486,13 @@
 
         const symbols = ['🐰', '🥕', '🍓', '🥬', '🔔', '💎'];
         let ticks = 0; let maxTicks = 20; 
-
         let slotInterval = setInterval(() => {
             for(let i=0; i<3; i++) document.getElementById(`reel-${i}`).innerText = symbols[Math.floor(Math.random() * symbols.length)];
             ticks++;
             if (ticks >= maxTicks) {
                 clearInterval(slotInterval);
                 for(let i=0; i<3; i++) document.getElementById(`reel-${i}`).innerText = outcome[i];
-                updateScoreUI(earnedPts, 0, 0);
+                updateScoreUI(earnedPts, 0, 0, 0);
                 slotDesc.innerText = resultMsg; slotDesc.style.color = resultColor;
                 if(earnedPts > 10) alert(`🎰 哔哔哔——！\n拉霸机大爆奖！获得了 ${earnedPts} 碎片！`);
                 isSystemBusy = false;
@@ -426,7 +500,7 @@
         }, 80); 
     }
 
-    // --- 🎁 盲盒逻辑 (高奢卡牌特效版) ---
+    // --- 🎁 盲盒逻辑 ---
     function getBoxRewards() {
         return [
             { weight: 5, title: "🏰 浪漫城堡", desc: "+100 碎片", color: "#ff9ff3", img: "images/0001.png", pt: 100, isWish: false },
@@ -438,180 +512,75 @@
             { weight: 3865, title: "☁️ 棉花糖", desc: "+0.5 碎片", color: "#a4b0be", img: "images/0006.png", pt: 0.5, isWish: false }
         ];
     }
-
     function getRandomBoxItem(rewardsArray) {
-        let rand = Math.floor(Math.random() * 10000);
-        let sum = 0;
-        for (let item of rewardsArray) {
-            sum += item.weight; if (rand < sum) return item;
-        }
-        return rewardsArray[6]; 
+        let rand = Math.floor(Math.random() * 10000); let sum = 0;
+        for (let item of rewardsArray) { sum += item.weight; if (rand < sum) return item; } return rewardsArray[6]; 
     }
-
     function openBlindBox(times) {
         if (isSystemBusy) return;
         let cost = times * 1.5;
         if (currentScore < cost) { alert(`❌ 余额不足！\n抽取 ${times} 次需要 ${cost} 积分，你只有 ${currentScore} 分。`); return; }
         if (!confirm(times === 1 ? `花费 1.5 积分开启盲盒？` : `⚠️ 疯狂模式！将扣除 15 积分进行十连抽，确定吗？`)) return;
 
-        isSystemBusy = true;
-        updateScoreUI(-cost, 0, 0);
+        isSystemBusy = true; updateScoreUI(-cost, 0, 0, 0);
 
-        let icon = document.getElementById('boxIcon');
-        let listWrap = document.getElementById('boxResultList');
-        let summary = document.getElementById('boxSummary');
-        
-        icon.style.display = 'inline-block'; listWrap.style.display = 'none'; summary.style.display = 'none';
-        icon.classList.add('shake');
-        
+        let icon = document.getElementById('boxIcon'); let listWrap = document.getElementById('boxResultList'); let summary = document.getElementById('boxSummary');
+        icon.style.display = 'inline-block'; listWrap.style.display = 'none'; summary.style.display = 'none'; icon.classList.add('shake');
         let activeRewards = getBoxRewards(); 
 
         setTimeout(() => {
             icon.classList.remove('shake'); icon.style.display = 'none'; listWrap.innerHTML = '';
             let totalEarned = 0, wishTicketsWon = 0;
-            
             for(let i=0; i<times; i++) {
                 let item = getRandomBoxItem(activeRewards);
-                totalEarned += item.pt;
-                if(item.isWish) wishTicketsWon++;
+                totalEarned += item.pt; if(item.isWish) wishTicketsWon++;
                 let ptColor = item.isWish ? "#ff7675" : (item.pt > 1.5 ? "#1dd1a1" : "#a4b0be");
-                
-                // 💎 大奖判定：若分数>=30或是许愿券，赋予高亮外框与内发光
                 let glowStyle = (item.pt >= 30 || item.isWish) ? `box-shadow: 0 0 15px ${item.color}80, inset 0 0 10px ${item.color}40; border: 1px solid ${item.color};` : "";
                 
-                listWrap.innerHTML += `
-                    <div class="drawn-item" style="${glowStyle}">
-                        <img src="${item.img}" onerror="this.src=''; this.alt='🎁'; this.style.fontSize='35px'; margin-bottom:5px;">
-                        <div class="drawn-title" style="color:${item.color}">${item.title}</div>
-                        <div class="drawn-pt" style="color:${ptColor}">${item.desc}</div>
-                    </div>
-                `;
+                listWrap.innerHTML += `<div class="drawn-item" style="${glowStyle}"><img src="${item.img}" onerror="this.src=''; this.alt='🎁'; this.style.fontSize='35px'; margin-bottom:5px;"><div class="drawn-title" style="color:${item.color}">${item.title}</div><div class="drawn-pt" style="color:${ptColor}">${item.desc}</div></div>`;
             }
-            updateScoreUI(totalEarned, wishTicketsWon, 0);
+            updateScoreUI(totalEarned, wishTicketsWon, 0, 0);
             let wishMsg = wishTicketsWon > 0 ? `<br><span style='color:#ff7675; font-size:16px;'>🎉 抽中 ${wishTicketsWon} 张许愿券！</span>` : "";
             summary.innerHTML = `总计获得: ${Math.round(totalEarned*10)/10} 碎片 ${wishMsg}`;
-            listWrap.style.display = 'flex'; summary.style.display = 'block';
-            isSystemBusy = false;
+            listWrap.style.display = 'flex'; summary.style.display = 'block'; isSystemBusy = false;
         }, 800);
     }
 
-    // ==========================================
-    // 🎲 命运骰子逻辑 (3D拟真版)
-    // ==========================================
+    // --- 🎲 命运骰子逻辑 ---
     function rollDice(num) {
         if (isSystemBusy) return;
         if (currentScore < 0) { alert(`❌ 负债警报！你已破产，禁止掷骰子！`); return; }
         
         isSystemBusy = true;
-        const diceFaces = ['⚀', '⚁', '⚂', '⚃', '⚄', '⚅'];
-        const dicePoints = [-3, -2, -1, 0, 2, 3]; 
-        
-        let resultBox = document.getElementById('diceResult');
-        let descBox = document.getElementById('diceDesc');
+        const diceFaces = ['⚀', '⚁', '⚂', '⚃', '⚄', '⚅']; const dicePoints = [-3, -2, -1, 0, 2, 3]; 
+        let resultBox = document.getElementById('diceResult'); let descBox = document.getElementById('diceDesc');
         resultBox.innerHTML = '';
-        
-        // 预设骰子坑位与底座结构
         for(let i=0; i<num; i++) {
-            resultBox.innerHTML += `
-                <div class="dice-wrapper">
-                    <div class="dice rolling" id="die-${i}">❓</div>
-                    <div id="die-pt-wrap-${i}" style="height:22px; margin-top:2px;"></div>
-                </div>
-            `;
+            resultBox.innerHTML += `<div class="dice-wrapper"><div class="dice rolling" id="die-${i}">❓</div><div id="die-pt-wrap-${i}" style="height:22px; margin-top:2px;"></div></div>`;
         }
         descBox.innerText = "命运疯狂翻滚中..."; descBox.style.color = "#ffffff";
 
         let animCounter = 0;
         let interval = setInterval(() => {
-            // 翻滚期间随机切换表面点数
-            for(let i=0; i<num; i++) {
-                document.getElementById(`die-${i}`).innerText = diceFaces[Math.floor(Math.random() * 6)];
-            }
+            for(let i=0; i<num; i++) document.getElementById(`die-${i}`).innerText = diceFaces[Math.floor(Math.random() * 6)];
             animCounter++;
-            
-            if(animCounter > 12) { // 稍微延长滚动时间增加期待感
+            if(animCounter > 12) {
                 clearInterval(interval);
                 let totalDicePoints = 0;
-                
                 for(let i=0; i<num; i++) {
-                    let finalIndex = Math.floor(Math.random() * 6);
-                    let pt = dicePoints[finalIndex];
-                    totalDicePoints += pt;
-                    
-                    let dieElem = document.getElementById(`die-${i}`);
-                    dieElem.innerText = diceFaces[finalIndex];
-                    dieElem.classList.remove('rolling'); // 停止CSS翻滚动画
-                    
-                    // 渲染弹跳计分标签
+                    let finalIndex = Math.floor(Math.random() * 6); let pt = dicePoints[finalIndex]; totalDicePoints += pt;
+                    let dieElem = document.getElementById(`die-${i}`); dieElem.innerText = diceFaces[finalIndex]; dieElem.classList.remove('rolling');
                     let ptDisplay = pt > 0 ? "+" + pt : pt;
                     let bgColor = pt > 0 ? "rgba(29, 209, 161, 0.2)" : (pt < 0 ? "rgba(238, 82, 83, 0.2)" : "rgba(164, 176, 190, 0.2)");
                     let textColor = pt > 0 ? "#1dd1a1" : (pt < 0 ? "#ee5253" : "#a4b0be");
-                    
-                    document.getElementById(`die-pt-wrap-${i}`).innerHTML = `
-                        <div class="dice-pt-label" style="color:${textColor}; background:${bgColor}; border: 1px solid ${textColor}50;">
-                            ${ptDisplay}
-                        </div>
-                    `;
+                    document.getElementById(`die-pt-wrap-${i}`).innerHTML = `<div class="dice-pt-label" style="color:${textColor}; background:${bgColor}; border: 1px solid ${textColor}50;">${ptDisplay}</div>`;
                 }
-                updateScoreUI(totalDicePoints, 0, 0);
+                updateScoreUI(totalDicePoints, 0, 0, 0);
                 let netColor = totalDicePoints > 0 ? "#1dd1a1" : (totalDicePoints < 0 ? "#ee5253" : "#48dbfb");
                 descBox.innerHTML = `点数合计：<span style="font-size:20px; font-weight:bold; color:${netColor}">${totalDicePoints > 0 ? '+'+totalDicePoints : totalDicePoints} 积分</span>`;
                 isSystemBusy = false;
             }
-        }, 50); // 加快切换频率匹配视觉效果
-    }
-
-    // --- GM 魔法连结 ---
-    const urlParams = new URLSearchParams(window.location.search);
-    const addScore = urlParams.get('add'); const setScore = urlParams.get('set'); const addWish = urlParams.get('addWish'); 
-    const setWish = urlParams.get('setWish'); const addCoin = urlParams.get('addCoin'); const key = urlParams.get('key');      
-
-    if ((addScore || setScore || addWish || setWish || addCoin) && key) {
-        let usedKeys = JSON.parse(localStorage.getItem('tidu_usedKeys') || '[]');
-        if (usedKeys.includes(key)) { alert("温馨提示：这条魔法连结已经失效啦～"); } 
-        else {
-            let msg = "🎉 成功接收 GM 指令：\n";
-            if (setScore) { currentScore = parseFloat(setScore); msg += `碎片已校正为：${currentScore}\n`; } 
-            else if (addScore) { currentScore += parseFloat(addScore); currentScore = Math.round(currentScore * 10) / 10; msg += `碎片变更：${addScore}\n`; }
-            if (setWish) { currentWish = parseInt(setWish); msg += `许愿券已校正为：${currentWish}\n`; } 
-            else if (addWish) { currentWish += parseInt(addWish); msg += `许愿券变更：${addWish}\n`; }
-            if (addCoin) { currentCoins += parseInt(addCoin); msg += `兔兔币变更：${addCoin}\n`; }
-
-            localStorage.setItem('tidu_score', currentScore.toString());
-            localStorage.setItem('tidu_wishTickets', Math.max(0, currentWish).toString());
-            localStorage.setItem('tidu_rabbitCoins', Math.max(0, currentCoins).toString());
-            updateScoreUI(0, 0, 0); alert(msg); usedKeys.push(key); localStorage.setItem('tidu_usedKeys', JSON.stringify(usedKeys));
-        }
-        window.history.replaceState({}, document.title, window.location.pathname);
-    }
-
-    // --- 每日与占卜逻辑 ---
-    let today = new Date().toDateString();
-    if (localStorage.getItem('tidu_dailyDate') !== today) {
-        localStorage.setItem('tidu_dailyDate', today); localStorage.removeItem('tidu_dailyFortune'); 
-    }
-
-    const fortunes = [
-        { title: "🌟 上上签 (+3分)", color: "#feca57", pt: 3, descs: ["运气爆棚！"] },
-        { title: "✨ 中上签 (+1分)", color: "#1dd1a1", pt: 1, descs: ["顺风顺水！"] },
-        { title: "📄 平签 (0分)", color: "#48dbfb", pt: 0, descs: ["无事发生。"] },
-        { title: "🌧️ 中下签 (-1分)", color: "#ff9f43", pt: -1, descs: ["有点倒霉。"] },
-        { title: "💀 下下签 (-3分)", color: "#ee5253", pt: -3, descs: ["大凶！系统扣分！"] }
-    ];
-    let savedFortune = localStorage.getItem('tidu_dailyFortune');
-    if (savedFortune) {
-        let f = JSON.parse(savedFortune);
-        document.getElementById('fortuneResult').innerText = f.title; document.getElementById('fortuneResult').style.color = f.color;
-        document.getElementById('fortuneDesc').innerText = f.desc; document.getElementById('fortuneDesc').style.color = f.color;
-    }
-    function drawFortune() {
-        if (localStorage.getItem('tidu_dailyFortune')) { alert("你今天抽过签了！明天再来吧！"); return; }
-        let rand = Math.random(), fortune;
-        if (rand < 0.1) fortune = fortunes[0]; else if (rand < 0.3) fortune = fortunes[1]; else if (rand < 0.7) fortune = fortunes[2]; else if (rand < 0.9) fortune = fortunes[3]; else fortune = fortunes[4];
-        updateScoreUI(fortune.pt, 0, 0);
-        document.getElementById('fortuneResult').innerText = fortune.title; document.getElementById('fortuneResult').style.color = fortune.color;
-        document.getElementById('fortuneDesc').innerText = fortune.descs[0]; document.getElementById('fortuneDesc').style.color = fortune.color;
-        localStorage.setItem('tidu_dailyFortune', JSON.stringify({ title: fortune.title, desc: fortune.descs[0], color: fortune.color }));
+        }, 50); 
     }
 </script>
 
