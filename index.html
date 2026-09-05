@@ -305,7 +305,7 @@
     }
     updateScoreUI(0, 0, 0); 
 
-    // --- 💰 兔兔币兑换逻辑 (双阶级代码系统) ---
+// --- 💰 兔兔币兑换逻辑 (高级防破解版) ---
     function redeemTaskCode() {
         let codeInput = document.getElementById('taskCode');
         let code = codeInput.value.trim().toUpperCase();
@@ -325,13 +325,13 @@
         let earnedCoins = 0;
         let alertMsg = "";
 
-        // 根据代码前缀派发不同数量的代币
-        if (code.startsWith("EE")) {
-            // EE开头：奕奕哥哥专属大礼包，固定 5 枚！
+        // 🛡️ 只要"包含" EE 或 CHUN 即可，且长度必须大于等于 6，防止她乱猜短码
+        if (code.length >= 6 && code.includes("EE")) {
+            // 包含 EE：高级代码，固定 5 枚！
             earnedCoins = 5;
             alertMsg = `💎 触发高级隐藏代码！\n奕奕哥哥大放送！恭喜获得 ${earnedCoins} 枚【兔兔币】！\n可以直接拉霸 5 次啦！`;
-        } else if (code.startsWith("CHUN")) {
-            // CHUN开头：日常小任务，固定 1 枚
+        } else if (code.length >= 6 && code.includes("CHUN")) {
+            // 包含 CHUN：日常任务，固定 1 枚
             earnedCoins = 1; 
             alertMsg = `🪙 兑换成功！\n恭喜获得 ${earnedCoins} 枚【兔兔币】！\n快去下面转拉霸机试试手气吧！`;
         } else {
