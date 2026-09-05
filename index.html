@@ -624,6 +624,45 @@ function startMemoryGame() {
             }
         }, 50); 
     }
+
+    // ==========================================
+    // 🔗 GM 魔法连结系统 (加分/发代币)
+    // ==========================================
+    const urlParams = new URLSearchParams(window.location.search);
+    const addScore = urlParams.get('add'); 
+    const setScore = urlParams.get('set'); 
+    const addWish = urlParams.get('addWish'); 
+    const setWish = urlParams.get('setWish'); 
+    const addCoin = urlParams.get('addCoin'); 
+    const key = urlParams.get('key');      
+
+    if ((addScore || setScore || addWish || setWish || addCoin) && key) {
+        let usedKeys = JSON.parse(localStorage.getItem('tidu_usedKeys') || '[]');
+        if (usedKeys.includes(key)) {
+            alert("❌ 温馨提示：这条魔法连结已经被使用过，失效啦～");
+        } else {
+            let msg = "🎉 成功接收 GM 指令：\n";
+            if (setScore) { currentScore = parseFloat(setScore); msg += `碎片已校正为：${currentScore}\n`; } 
+            else if (addScore) { currentScore += parseFloat(addScore); currentScore = Math.round(currentScore * 10) / 10; msg += `碎片变更：${parseFloat(addScore) > 0 ? '+'+addScore : addScore}\n`; }
+            
+            if (setWish) { currentWish = parseInt(setWish); msg += `许愿券已校正为：${currentWish}\n`; } 
+            else if (addWish) { currentWish += parseInt(addWish); msg += `许愿券变更：${parseInt(addWish) > 0 ? '+'+addWish : addWish}\n`; }
+
+            if (addCoin) { currentCoins += parseInt(addCoin); msg += `兔兔币变更：${parseInt(addCoin) > 0 ? '+'+addCoin : addCoin}\n`; }
+
+            localStorage.setItem('tidu_score', currentScore.toString());
+            localStorage.setItem('tidu_wishTickets', Math.max(0, currentWish).toString());
+            localStorage.setItem('tidu_rabbitCoins', Math.max(0, currentCoins).toString());
+            updateScoreUI(0, 0, 0, 0);
+            alert(msg);
+            
+            usedKeys.push(key);
+            localStorage.setItem('tidu_usedKeys', JSON.stringify(usedKeys));
+        }
+        // 读取完毕后自动清理网址参数，保持画面干净
+        window.history.replaceState({}, document.title, window.location.pathname);
+    }
+
 </script>
 
 </body>
