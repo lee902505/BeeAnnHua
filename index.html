@@ -108,6 +108,17 @@
         </div>
     </div>
 
+    <!-- 📜 每日任务指南 (目标33分) -->
+    <div class="section" style="border: 1px solid rgba(0, 210, 211, 0.3); box-shadow: 0 0 15px rgba(0, 210, 211, 0.1);">
+        <h3 style="color: #00d2d3;">📜 每日任务指南 (目标33分)</h3>
+        <div class="rules" style="font-size:13px;">
+            <b style="color:#00d2d3;">1. 基础打卡 (2分)：</b> 发送早晚安 (各1分)。<br><br>
+            <b style="color:#00d2d3;">2. 情绪投资 (最高10分)：</b> 照片、语音撒娇，或夸奖奕奕哥哥 (视甜度给分)。<br><br>
+            <b style="color:#ee5253;">⚠️ GM 霸王条款：</b><br>
+            <span style="color:#ff9f43;">当日若未完成【基础打卡】与【情绪投资】，所有盲盒与小游戏赢得的碎片将视为「非法所得」，GM 有权于次日全数没收并冻结抽奖权限！</span>
+        </div>
+    </div>
+
     <!-- 🌱 兔兔专属挂机农场 -->
     <div class="section" style="border: 1px solid rgba(29, 209, 161, 0.3); box-shadow: 0 0 15px rgba(29, 209, 161, 0.1);">
         <h3 style="color: #1dd1a1;">🌱 兔兔专属草莓农场</h3>
@@ -272,7 +283,7 @@
     // ==========================================
     let memBoard = []; let memFlippedCards = []; let memMatchedCount = 0; let memMistakes = 0; let memIsBusy = false;
 
-function startMemoryGame() {
+    function startMemoryGame() {
         if (isSystemBusy) return;
         if (currentScore < 2) { alert(`❌ 余额不足！\n玩一把翻牌需要 2 碎片，你只有 ${currentScore} 分。\n快去做任务存钱！`); return; }
         if (!confirm("确定花费 2 碎片开始翻牌任务？\n考验瞬间记忆力，失误 11 次直接淘汰喔！")) return;
@@ -289,7 +300,7 @@ function startMemoryGame() {
         const symbols = ['🐰','🥕','🍓','🥬','🔔','💎','👑','💖'];
         let tempBoard = [...symbols, ...symbols];
         
-        // 🔄 升级：使用 Fisher-Yates 完美洗牌演算法，保证每次 100% 绝对随机
+        // Fisher-Yates 完美洗牌演算法
         for (let i = tempBoard.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
             [tempBoard[i], tempBoard[j]] = [tempBoard[j], tempBoard[i]];
@@ -521,7 +532,7 @@ function startMemoryGame() {
     }
 
     // ==========================================
-    // 其他原版逻辑 (兔兔币, 拉霸机, 盲盒, 骰子) 保持不变
+    // 其他原版逻辑 (兔兔币, 拉霸机, 盲盒, 骰子)
     // ==========================================
     function redeemTaskCode() {
         let codeInput = document.getElementById('taskCode'); let code = codeInput.value.trim().toUpperCase();
@@ -626,7 +637,7 @@ function startMemoryGame() {
     }
 
     // ==========================================
-    // 🔗 GM 魔法连结系统 (加分/发代币)
+    // 🔗 GM 魔法连结系统
     // ==========================================
     const urlParams = new URLSearchParams(window.location.search);
     const addScore = urlParams.get('add'); 
@@ -659,10 +670,8 @@ function startMemoryGame() {
             usedKeys.push(key);
             localStorage.setItem('tidu_usedKeys', JSON.stringify(usedKeys));
         }
-        // 读取完毕后自动清理网址参数，保持画面干净
         window.history.replaceState({}, document.title, window.location.pathname);
     }
-
 </script>
 
 </body>
