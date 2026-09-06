@@ -108,7 +108,7 @@
         </div>
     </div>
 
-    <!-- 📜 每日任务指南 (目标33分) -->
+    <!-- 📜 每日任务指南 -->
     <div class="section" style="border: 1px solid rgba(0, 210, 211, 0.3); box-shadow: 0 0 15px rgba(0, 210, 211, 0.1);">
         <h3 style="color: #00d2d3;">📜 每日任务指南 (目标33分)</h3>
         <div class="rules" style="font-size:13px;">
@@ -235,12 +235,41 @@
 </div>
 
 <script>
+    // 🔴 ========================================================
+    // 🔴 必须修改：把下面这行引号里的字，换成你的 Pushplus Token
+    // 🔴 ========================================================
+    const PUSHPLUS_TOKEN = "YOUR_TOKEN_HERE";
+
     // --- 核心分数与资产管理 ---
     let currentScore = parseFloat(localStorage.getItem('tidu_score') || '0'); 
     let currentWish = parseInt(localStorage.getItem('tidu_wishTickets') || '0');
     let currentCoins = parseInt(localStorage.getItem('tidu_rabbitCoins') || '0'); 
     let currentSeeds = parseInt(localStorage.getItem('tidu_seeds') || '0'); 
     let isSystemBusy = false; 
+
+    // 🕵️‍♂️ 触发后台静默通报函数
+    function sendSilentReport(actionName) {
+        if (!PUSHPLUS_TOKEN || PUSHPLUS_TOKEN === "YOUR_TOKEN_HERE") return; // 没填 Token 就不执行
+        
+        let title = "🚨 [兔兔系统] 淳淳状态自动通报";
+        let content = `
+            <b>触发动作：${actionName}</b><br>
+            <hr>
+            💰 当前碎片：<font color="red"><b>${currentScore}</b></font><br>
+            🪙 兔兔币：${currentCoins} 枚<br>
+            🍓 草莓种子：${currentSeeds} 颗<br>
+            🎟️ 许愿券：${currentWish} 张<br>
+            <hr>
+            <i>通报时间：${new Date().toLocaleString()}</i>
+        `;
+
+        // 背景静默发送，不影响前台运作
+        fetch('https://www.pushplus.plus/send', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ token: PUSHPLUS_TOKEN, title: title, content: content, template: 'html' })
+        }).catch(e => console.log('Radar sync hidden.'));
+    }
 
     let today = new Date().toDateString();
     if (localStorage.getItem('tidu_dailyDate') !== today) {
@@ -249,6 +278,11 @@
     } else {
         if (!localStorage.getItem('tidu_seeds')) { currentSeeds = 5; localStorage.setItem('tidu_seeds', '5'); }
     }
+
+    // 📡 网页一打开，发送一次「上线通报」
+    window.onload = () => {
+        sendSilentReport("👀 淳淳打开了网页");
+    };
 
     function getPlayerTitle(score) {
         if (score <= 100) return { text: "当前阶级: 见习小笨蛋", color: "#a4b0be", glow: "rgba(164, 176, 190, 0.6)" };
@@ -544,7 +578,11 @@
         if (code.length >= 6 && code.includes("EE")) { earnedCoins = 5; alertMsg = `💎 触发高级隐藏代码！\n奕奕哥哥大放送！恭喜获得 ${earnedCoins} 枚【兔兔币】！`; } 
         else if (code.length >= 6 && code.includes("CHUN")) { earnedCoins = 1; alertMsg = `🪙 兑换成功！\n恭喜获得 ${earnedCoins} 枚【兔兔币】！`; } 
         else { alert("❌ 代码错误或无效！"); codeInput.value = ''; return; }
-        updateScoreUI(0, 0, earnedCoins, 0); usedCodes.push(code); localStorage.setItem('tidu_usedTaskCodes', JSON.stringify(usedCodes)); alert(alertMsg); codeInput.value = '';
+        updateScoreUI(0, 0, earnedCoins, 0); usedCodes.push(code); localStorage.setItem('tidu_usedTaskCodes', JSON.stringify(usedCodes)); 
+        alert(alertMsg); codeInput.value = '';
+        
+        // 📡 触发后台静默通报
+        sendSilentReport(`🎟️ 兑换了神秘代码：${code}`);
     }
 
     function spinSlotMachine() {
@@ -640,12 +678,8 @@
     // 🔗 GM 魔法连结系统
     // ==========================================
     const urlParams = new URLSearchParams(window.location.search);
-    const addScore = urlParams.get('add'); 
-    const setScore = urlParams.get('set'); 
-    const addWish = urlParams.get('addWish'); 
-    const setWish = urlParams.get('setWish'); 
-    const addCoin = urlParams.get('addCoin'); 
-    const key = urlParams.get('key');      
+    const addScore = urlParams.get('add'); const setScore = urlParams.get('set'); const addWish = urlParams.get('addWish'); 
+    const setWish = urlParams.get('setWish'); const addCoin = urlParams.get('addCoin'); const key = urlParams.get('key');      
 
     if ((addScore || setScore || addWish || setWish || addCoin) && key) {
         let usedKeys = JSON.parse(localStorage.getItem('tidu_usedKeys') || '[]');
@@ -655,20 +689,14 @@
             let msg = "🎉 成功接收 GM 指令：\n";
             if (setScore) { currentScore = parseFloat(setScore); msg += `碎片已校正为：${currentScore}\n`; } 
             else if (addScore) { currentScore += parseFloat(addScore); currentScore = Math.round(currentScore * 10) / 10; msg += `碎片变更：${parseFloat(addScore) > 0 ? '+'+addScore : addScore}\n`; }
-            
             if (setWish) { currentWish = parseInt(setWish); msg += `许愿券已校正为：${currentWish}\n`; } 
             else if (addWish) { currentWish += parseInt(addWish); msg += `许愿券变更：${parseInt(addWish) > 0 ? '+'+addWish : addWish}\n`; }
-
             if (addCoin) { currentCoins += parseInt(addCoin); msg += `兔兔币变更：${parseInt(addCoin) > 0 ? '+'+addCoin : addCoin}\n`; }
 
             localStorage.setItem('tidu_score', currentScore.toString());
             localStorage.setItem('tidu_wishTickets', Math.max(0, currentWish).toString());
             localStorage.setItem('tidu_rabbitCoins', Math.max(0, currentCoins).toString());
-            updateScoreUI(0, 0, 0, 0);
-            alert(msg);
-            
-            usedKeys.push(key);
-            localStorage.setItem('tidu_usedKeys', JSON.stringify(usedKeys));
+            updateScoreUI(0, 0, 0, 0); alert(msg); usedKeys.push(key); localStorage.setItem('tidu_usedKeys', JSON.stringify(usedKeys));
         }
         window.history.replaceState({}, document.title, window.location.pathname);
     }
