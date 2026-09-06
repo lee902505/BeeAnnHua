@@ -241,10 +241,20 @@
     let currentSeeds = parseInt(localStorage.getItem('tidu_seeds') || '0'); 
     let isSystemBusy = false; 
 
-    // 🕵️‍♂️ 触发后台静默通报函数
-    function sendSilentReport(actionName) {
+    // 🕵️‍♂️ 触发后台静默通报函数 (新增防通知轰炸拦截)
+    function sendSilentReport(actionName, throttleMinutes = 0) {
         if (!BARK_KEY || BARK_KEY === "YOUR_BARK_KEY_HERE") return; 
         
+        // ⏳ 防刷屏机制：如果设定了冷却时间，则在冷却时间内不再重复发送通知
+        if (throttleMinutes > 0) {
+            let now = Date.now();
+            let lastTime = parseInt(localStorage.getItem('tidu_lastBark_' + actionName) || '0');
+            if (now - lastTime < throttleMinutes * 60 * 1000) {
+                return; // 还在冷却中，静默拦截！
+            }
+            localStorage.setItem('tidu_lastBark_' + actionName, now.toString());
+        }
+
         let title = encodeURIComponent("🚨 [兔兔系统] 状态通报");
         let content = encodeURIComponent(
             `动作：${actionName}\n` +
@@ -337,6 +347,7 @@
         localStorage.setItem('tidu_dailyFortune', resHtml);
         document.getElementById('fortuneResult').innerHTML = resHtml;
         document.getElementById('btnFortune').style.display = 'none';
+        
         sendSilentReport("🔮 抽取了每日占卜");
         isSystemBusy = false;
     }
@@ -349,7 +360,9 @@
         if (currentScore < 3) { alert(`❌ 余额不足！\n开启羁绊宝盒需要 3 碎片。`); return; }
         
         isSystemBusy = true; updateScoreUI(-3, 0, 0, 0);
-        sendSilentReport("🎁 开启了羁绊宝盒");
+        
+        // 加入 3 分钟防刷屏机制，防止她连抽时 Bark 通知炸爆你的手机！
+        sendSilentReport("🎁 正在疯狂连抽羁绊宝盒...", 3);
 
         let icon = document.getElementById('bondIcon'); 
         let overlay = document.getElementById('gachaOverlay');
