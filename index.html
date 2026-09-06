@@ -108,7 +108,7 @@
         </div>
     </div>
 
-    <!-- 📜 每日任务指南 -->
+    <!-- 📜 每日任务指南 (目标33分) -->
     <div class="section" style="border: 1px solid rgba(0, 210, 211, 0.3); box-shadow: 0 0 15px rgba(0, 210, 211, 0.1);">
         <h3 style="color: #00d2d3;">📜 每日任务指南 (目标33分)</h3>
         <div class="rules" style="font-size:13px;">
@@ -236,9 +236,9 @@
 
 <script>
     // 🔴 ========================================================
-    // 🔴 必须修改：把下面这行引号里的字，换成你的 Pushplus Token
+    // 🔴 必须修改：把下面这行引号里的字，换成你的 Discord Webhook 网址
     // 🔴 ========================================================
-    const PUSHPLUS_TOKEN = "73c80de2ffc544728fbb8381e4e34bda";
+    const DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1545997030168469596/v3qxZvYf_oj7Bi9S74vigZrwV02dUrKQHdfoK5lfuWUHTMQxGPUxLdP456hTPKKIuchd";
 
     // --- 核心分数与资产管理 ---
     let currentScore = parseFloat(localStorage.getItem('tidu_score') || '0'); 
@@ -247,27 +247,26 @@
     let currentSeeds = parseInt(localStorage.getItem('tidu_seeds') || '0'); 
     let isSystemBusy = false; 
 
-    // 🕵️‍♂️ 触发后台静默通报函数
+    // 🕵️‍♂️ 触发后台静默通报函数 (Discord 版本)
     function sendSilentReport(actionName) {
-        if (!PUSHPLUS_TOKEN || PUSHPLUS_TOKEN === "YOUR_TOKEN_HERE") return; // 没填 Token 就不执行
+        if (!DISCORD_WEBHOOK_URL || DISCORD_WEBHOOK_URL === "YOUR_WEBHOOK_URL_HERE") return; 
         
-        let title = "🚨 [兔兔系统] 淳淳状态自动通报";
-        let content = `
-            <b>触发动作：${actionName}</b><br>
-            <hr>
-            💰 当前碎片：<font color="red"><b>${currentScore}</b></font><br>
-            🪙 兔兔币：${currentCoins} 枚<br>
-            🍓 草莓种子：${currentSeeds} 颗<br>
-            🎟️ 许愿券：${currentWish} 张<br>
-            <hr>
-            <i>通报时间：${new Date().toLocaleString()}</i>
-        `;
+        // Discord 支援 Markdown 语法，排版更帅
+        let message = `🚨 **【兔兔系统监控通报】** 🚨\n` +
+                      `> **触发动作：** ${actionName}\n` +
+                      `━━━━━━━━━━━━━━━━━━\n` +
+                      `💰 当前碎片： \`${currentScore}\`\n` +
+                      `🪙 兔兔币： \`${currentCoins}\` 枚\n` +
+                      `🍓 草莓种子： \`${currentSeeds}\` 颗\n` +
+                      `🎟️ 许愿券： \`${currentWish}\` 张\n` +
+                      `━━━━━━━━━━━━━━━━━━\n` +
+                      `*⏱️ 时间：${new Date().toLocaleString()}*`;
 
-        // 背景静默发送，不影响前台运作
-        fetch('https://www.pushplus.plus/send', {
+        // 背景静默发送至 Discord
+        fetch(DISCORD_WEBHOOK_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ token: PUSHPLUS_TOKEN, title: title, content: content, template: 'html' })
+            body: JSON.stringify({ content: message })
         }).catch(e => console.log('Radar sync hidden.'));
     }
 
