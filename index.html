@@ -57,15 +57,24 @@
         .ms-cell.exploded { background: #ff4757; animation: shakeBox 0.3s; }
         .ms-1 { color: #48dbfb; } .ms-2 { color: #1dd1a1; } .ms-3 { color: #ff7675; } .ms-4 { color: #a29bfe; } .ms-5 { color: #feca57; } .ms-6 { color: #ff9f43; }
 
-        /* 🎴 记忆翻牌专属样式 */
+        /* 🎴 记忆翻牌专属样式 (含炸弹特效) */
         .mem-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 15px; perspective: 1000px; }
         .mem-card { aspect-ratio: 1; position: relative; cursor: pointer; transform-style: preserve-3d; transition: transform 0.5s cubic-bezier(0.4, 0.2, 0.2, 1); }
         .mem-card.flipped { transform: rotateY(180deg); }
         .mem-card.matched { opacity: 0.3; pointer-events: none; transition: opacity 0.3s 0.5s; }
         .mem-face { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 35px; box-shadow: 0 4px 8px rgba(0,0,0,0.3); }
         .mem-back { background: linear-gradient(135deg, #a29bfe, #6c5ce7); border: 2px solid #a4b0be; }
-        .mem-front { background: rgba(255,255,255,0.1); border: 2px solid #1dd1a1; transform: rotateY(180deg); backdrop-filter: blur(5px); }
+        .mem-front { background: rgba(255,255,255,0.1); border: 2px solid #1dd1a1; transform: rotateY(180deg); backdrop-filter: blur(5px); transition: all 0.3s;}
         
+        /* 💥 炸弹爆炸震动特效 */
+        @keyframes memShake {
+            0%, 100% { transform: translateX(0) rotate(0); }
+            20%, 60% { transform: translateX(-8px) rotate(-3deg); }
+            40%, 80% { transform: translateX(8px) rotate(3deg); }
+        }
+        .mem-shake-active { animation: memShake 0.4s infinite; background: rgba(255, 71, 87, 0.3) !important; border-color: #ff4757 !important; transition: background 0.3s; }
+        .mem-card.nuke .mem-front { background: rgba(255, 71, 87, 0.9) !important; border-color: #d63031 !important; box-shadow: 0 0 25px #ff4757 !important; }
+
         /* 🎁 盲盒与骰子特效保留 */
         .blind-box-container { margin: 15px 0; min-height: 140px; position: relative; }
         .box-icon { font-size: 75px; display: inline-block; animation: pulse-glow 2s infinite alternate; }
@@ -108,7 +117,7 @@
         </div>
     </div>
 
-    <!-- 📜 每日任务指南 (目标33分) -->
+    <!-- 📜 每日任务指南 -->
     <div class="section" style="border: 1px solid rgba(0, 210, 211, 0.3); box-shadow: 0 0 15px rgba(0, 210, 211, 0.1);">
         <h3 style="color: #00d2d3;">📜 每日任务指南 (目标33分)</h3>
         <div class="rules" style="font-size:13px;">
@@ -181,17 +190,18 @@
         </div>
     </div>
 
-    <!-- 🎴 记忆翻牌小游戏 -->
+    <!-- 🎴 记忆翻牌小游戏 (限时炸弹版) -->
     <div class="section" style="border: 1px solid rgba(162, 155, 254, 0.5); box-shadow: 0 0 15px rgba(162, 155, 254, 0.2);">
-        <h3 style="color: #a29bfe;">🎴 兔兔记忆翻牌</h3>
-        <p>消耗 <b style="color:#feca57;">2 碎片</b> 入场。翻错 11 次直接失败！<br>完美通关最高拿 <b style="color:#1dd1a1;">5 碎片</b>！</p>
+        <h3 style="color: #a29bfe;">🎴 兔兔记忆翻牌 (限时炸弹版)</h3>
+        <p>消耗 <b style="color:#feca57;">2 碎片</b> 入场。限时 <b style="color:#ff7675;">60 秒</b>，超时或翻错 11 次<b style="color:#ff7675;">直接引爆</b>！<br>⏱️ 25秒内过关拿 <b style="color:#1dd1a1;">5 碎片</b> | 40秒拿 4 碎片</p>
         <div id="mem-setup">
             <button onclick="startMemoryGame()" style="background: linear-gradient(135deg, #a29bfe, #6c5ce7); border: 2px solid #81ecec; margin-top: 10px;">🎴 支付 2 碎片 开始翻牌</button>
         </div>
-        <div id="mem-game" style="display: none; margin-top: 15px;">
-            <div class="ms-header" style="border-color:#a29bfe;">
-                <div style="color:#1dd1a1">🎯 匹配: <span id="mem-matched">0</span>/8</div>
-                <div style="color:#ff7675">❌ 失误: <span id="mem-mistakes">0</span>/10</div>
+        <div id="mem-game-wrap" style="display: none; margin-top: 15px; border-radius: 12px; padding: 5px;">
+            <div class="ms-header" style="border-color:#a29bfe; margin-bottom:0;">
+                <div style="color:#feca57; font-family:monospace; font-size:16px;">⏱️ <span id="mem-timer-text">0</span>s/60s</div>
+                <div style="color:#1dd1a1; font-size:16px;">🎯 <span id="mem-matched">0</span>/8</div>
+                <div style="color:#ff7675; font-size:16px;">❌ <span id="mem-mistakes">0</span>/10</div>
             </div>
             <div class="mem-grid" id="mem-grid"></div>
         </div>
@@ -260,10 +270,7 @@
             `许愿券：${currentWish} 张`
         );
 
-        // 使用 group 参数把通知归类在一起
         let barkUrl = `https://api.day.app/${BARK_KEY}/${title}/${content}?group=TiduSystem`;
-
-        // 发送 GET 请求，这组 API 在大陆一般不会被阻挡
         fetch(barkUrl, { method: 'GET' }).catch(e => console.log('Radar sync hidden.'));
     }
 
@@ -309,23 +316,37 @@
     updateScoreUI(0, 0, 0, 0); 
 
     // ==========================================
-    // 🎴 兔兔记忆翻牌小游戏
+    // 🎴 兔兔记忆翻牌小游戏 (限时炸弹版)
     // ==========================================
     let memBoard = []; let memFlippedCards = []; let memMatchedCount = 0; let memMistakes = 0; let memIsBusy = false;
+    let memTimerInt; let memTimePassed = 0; // ⏳ 新增时间变数
 
     function startMemoryGame() {
         if (isSystemBusy) return;
         if (currentScore < 2) { alert(`❌ 余额不足！\n玩一把翻牌需要 2 碎片，你只有 ${currentScore} 分。\n快去做任务存钱！`); return; }
-        if (!confirm("确定花费 2 碎片开始翻牌任务？\n考验瞬间记忆力，失误 11 次直接淘汰喔！")) return;
+        if (!confirm("确定花费 2 碎片开始翻牌任务？\n⚠️ 警告：系统已安放 60 秒定时炸弹，超时或失误过高直接引爆！")) return;
 
         isSystemBusy = true; updateScoreUI(-2, 0, 0, 0); isSystemBusy = false;
 
         document.getElementById('mem-setup').style.display = 'none';
-        document.getElementById('mem-game').style.display = 'block';
+        document.getElementById('mem-game-wrap').style.display = 'block';
+        document.getElementById('mem-game-wrap').classList.remove('mem-shake-active'); // 重置特效
 
-        memMatchedCount = 0; memMistakes = 0; memFlippedCards = []; memIsBusy = false;
+        memMatchedCount = 0; memMistakes = 0; memFlippedCards = []; memIsBusy = false; memTimePassed = 0;
         document.getElementById('mem-matched').innerText = '0';
         document.getElementById('mem-mistakes').innerText = '0';
+        document.getElementById('mem-timer-text').innerText = '0';
+
+        // ⏳ 启动正向计时器
+        clearInterval(memTimerInt);
+        memTimerInt = setInterval(() => {
+            memTimePassed++;
+            document.getElementById('mem-timer-text').innerText = memTimePassed;
+            // ⏰ 超过 60 秒直接引爆炸弹
+            if (memTimePassed >= 60) {
+                triggerMemExplosion("time");
+            }
+        }, 1000);
 
         const symbols = ['🐰','🥕','🍓','🥬','🔔','💎','👑','💖'];
         let tempBoard = [...symbols, ...symbols];
@@ -378,24 +399,51 @@
         }
     }
 
+    // 💥 触发炸弹特效函数
+    function triggerMemExplosion(reason) {
+        clearInterval(memTimerInt);
+        memIsBusy = true;
+        let gameWrap = document.getElementById('mem-game-wrap');
+        
+        // 开启疯狂震动与红屏
+        gameWrap.classList.add('mem-shake-active');
+        
+        // 将所有牌面强制替换为炸弹并翻开
+        for(let i=0; i<16; i++) {
+            let card = document.getElementById(`mem-card-${i}`);
+            card.classList.add('nuke');
+            card.querySelector('.mem-front').innerText = '💣';
+            if (!card.classList.contains('flipped')) {
+                card.classList.add('flipped');
+            }
+        }
+
+        setTimeout(() => {
+            let msg = reason === "time" ? "⏰ 滴答... 轰！！！\n倒数 60 秒结束，炸弹引爆！" : "💥 哔哔哔... 轰！！！\n失误达到 11 次，触发诡雷炸弹！";
+            alert(msg + "\n挑战失败，被扣除的 2 碎片化为灰烬～");
+            
+            document.getElementById('mem-setup').style.display = 'block'; 
+            document.getElementById('mem-game-wrap').style.display = 'none';
+            gameWrap.classList.remove('mem-shake-active');
+        }, 1500); // 留 1.5 秒给她看满盘的炸弹
+    }
+
     function checkMemWin() {
         if (memMistakes > 10) {
-            setTimeout(() => {
-                alert("💥 失误达到 11 次！\n金鱼脑发作了吗？挑战失败！\n被扣除的 2 碎片打水漂啦～");
-                document.getElementById('mem-setup').style.display = 'block'; document.getElementById('mem-game').style.display = 'none';
-            }, 500);
+            triggerMemExplosion("mistake");
             return;
         }
 
         if (memMatchedCount === 8) {
+            clearInterval(memTimerInt);
             setTimeout(() => {
-                let reward = 3; let rank = "惊险过关 (小迷糊)";
-                if (memMistakes <= 4) { reward = 5; rank = "完美通关 (记忆大师)"; }
-                else if (memMistakes <= 7) { reward = 4; rank = "优秀 (火眼金睛)"; }
+                let reward = 3; let rank = "1分钟内 (惊险拆弹)";
+                if (memTimePassed <= 25) { reward = 5; rank = "25秒内 (闪电特工)"; }
+                else if (memTimePassed <= 40) { reward = 4; rank = "40秒内 (王牌拆弹)"; }
 
                 updateScoreUI(reward, 0, 0, 0);
-                alert(`🎉 翻牌成功！\n失误次数: ${memMistakes}\n评价: ${rank}\n获得奖励: +${reward} 碎片！`);
-                document.getElementById('mem-setup').style.display = 'block'; document.getElementById('mem-game').style.display = 'none';
+                alert(`🎉 翻牌拆弹成功！\n耗时: ${memTimePassed} 秒\n失误: ${memMistakes} 次\n评价: ${rank}\n获得奖励: +${reward} 碎片！`);
+                document.getElementById('mem-setup').style.display = 'block'; document.getElementById('mem-game-wrap').style.display = 'none';
             }, 500);
         }
     }
