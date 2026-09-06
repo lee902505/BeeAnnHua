@@ -193,7 +193,7 @@
     <!-- 🎴 记忆翻牌小游戏 (限时炸弹版) -->
     <div class="section" style="border: 1px solid rgba(162, 155, 254, 0.5); box-shadow: 0 0 15px rgba(162, 155, 254, 0.2);">
         <h3 style="color: #a29bfe;">🎴 兔兔记忆翻牌 (限时炸弹版)</h3>
-        <p>消耗 <b style="color:#feca57;">2 碎片</b> 入场。限时 <b style="color:#ff7675;">40 秒</b>，超时或翻错 11 次<b style="color:#ff7675;">直接引爆</b>！<br>⏱️ 20秒内过关拿 <b style="color:#1dd1a1;">5 碎片</b> | 30秒拿 4 碎片 | 40秒拿 3 碎片</p>
+        <p>消耗 <b style="color:#feca57;">2 碎片</b> 入场。限时 <b style="color:#ff7675;">40 秒</b>，超时或翻错 8 次<b style="color:#ff7675;">直接引爆</b>！<br>⏱️ 20秒内过关拿 <b style="color:#1dd1a1;">5 碎片</b> | 30秒拿 4 碎片 | 40秒拿 3 碎片</p>
         <div id="mem-setup">
             <button onclick="startMemoryGame()" style="background: linear-gradient(135deg, #a29bfe, #6c5ce7); border: 2px solid #81ecec; margin-top: 10px;">🎴 支付 2 碎片 开始翻牌</button>
         </div>
@@ -201,7 +201,7 @@
             <div class="ms-header" style="border-color:#a29bfe; margin-bottom:0;">
                 <div style="color:#feca57; font-family:monospace; font-size:16px;">⏱️ <span id="mem-timer-text">0</span>s/40s</div>
                 <div style="color:#1dd1a1; font-size:16px;">🎯 <span id="mem-matched">0</span>/8</div>
-                <div style="color:#ff7675; font-size:16px;">❌ <span id="mem-mistakes">0</span>/10</div>
+                <div style="color:#ff7675; font-size:16px;">❌ <span id="mem-mistakes">0</span>/8</div>
             </div>
             <div class="mem-grid" id="mem-grid"></div>
         </div>
@@ -419,7 +419,7 @@
         }
 
         setTimeout(() => {
-            let msg = reason === "time" ? "⏰ 滴答... 轰！！！\n倒数 40 秒结束，炸弹引爆！" : "💥 哔哔哔... 轰！！！\n失误达到 11 次，触发诡雷炸弹！";
+            let msg = reason === "time" ? "⏰ 滴答... 轰！！！\n倒数 40 秒结束，炸弹引爆！" : "💥 哔哔哔... 轰！！！\n失误达到 9 次，触发诡雷炸弹！";
             alert(msg + "\n挑战失败，被扣除的 2 碎片化为灰烬～");
             
             document.getElementById('mem-setup').style.display = 'block'; 
@@ -429,7 +429,7 @@
     }
 
     function checkMemWin() {
-        if (memMistakes > 10) {
+        if (memMistakes > 7) {
             triggerMemExplosion("mistake");
             return;
         }
