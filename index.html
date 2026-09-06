@@ -27,7 +27,6 @@
         button { background: linear-gradient(135deg, #00d2d3, #0984e3); color: #ffffff; border: none; padding: 12px 0; font-size: 15px; font-weight: bold; border-radius: 10px; cursor: pointer; width: 100%; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); transition: transform 0.1s; }
         button:active { transform: scale(0.96); }
         .btn-5 { background: linear-gradient(135deg, #a29bfe, #6c5ce7); }
-        .btn-box1 { background: linear-gradient(135deg, #ff9ff3, #f368e0); border: 2px solid #ff9ff3;}
         .btn-farm { background: linear-gradient(135deg, #1dd1a1, #10ac84); font-size: 16px; padding: 14px 0; border: 2px solid #2ecc71;}
         .btn-harvest { background: linear-gradient(135deg, #f368e0, #ff9ff3); font-size: 16px; padding: 14px 0; border: 2px solid #ff9ff3; animation: pulse-glow 1.5s infinite alternate;}
 
@@ -38,18 +37,8 @@
         .progress-bar { width: 100%; height: 8px; background: rgba(255,255,255,0.2); border-radius: 4px; overflow: hidden; margin-bottom: 15px; }
         .progress-fill { height: 100%; background: linear-gradient(90deg, #1dd1a1, #feca57); width: 0%; transition: width 1s linear; }
 
-        /* 💣 踩地雷专属样式 */
-        .ms-header { display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.5); padding: 10px 15px; border-radius: 10px; margin-bottom: 15px; font-size: 18px; font-weight: bold; border: 2px solid #a4b0be; }
-        .ms-timer { color: #feca57; font-family: monospace; } .ms-mine-count { color: #ff4757; font-family: monospace; }
-        .btn-ms-mode { width: auto; padding: 5px 15px; font-size: 14px; background: linear-gradient(135deg, #1dd1a1, #10ac84); }
-        .ms-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 4px; background: rgba(255,255,255,0.05); padding: 8px; border-radius: 12px; }
-        .ms-cell { aspect-ratio: 1; background: linear-gradient(135deg, #a4b0be, #747d8c); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: bold; box-shadow: 0 4px 0 #57606f; cursor: pointer; user-select: none; transition: transform 0.1s, box-shadow 0.1s; }
-        .ms-cell:active { transform: translateY(4px); box-shadow: 0 0 0 #57606f; }
-        .ms-cell.revealed { background: rgba(0,0,0,0.2); box-shadow: inset 0 3px 6px rgba(0,0,0,0.4); transform: translateY(4px); pointer-events: none; }
-        .ms-cell.exploded { background: #ff4757; animation: shakeBox 0.3s; }
-        .ms-1 { color: #48dbfb; } .ms-2 { color: #1dd1a1; } .ms-3 { color: #ff7675; } .ms-4 { color: #a29bfe; } .ms-5 { color: #feca57; } .ms-6 { color: #ff9f43; }
-
         /* 🎴 记忆翻牌专属样式 (含炸弹特效) */
+        .ms-header { display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.5); padding: 10px 15px; border-radius: 10px; margin-bottom: 15px; font-size: 18px; font-weight: bold; border: 2px solid #a4b0be; }
         .mem-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 15px; perspective: 1000px; }
         .mem-card { aspect-ratio: 1; position: relative; cursor: pointer; transform-style: preserve-3d; transition: transform 0.5s cubic-bezier(0.4, 0.2, 0.2, 1); }
         .mem-card.flipped { transform: rotateY(180deg); }
@@ -62,36 +51,6 @@
         @keyframes memShake { 0%, 100% { transform: translateX(0) rotate(0); } 20%, 60% { transform: translateX(-8px) rotate(-3deg); } 40%, 80% { transform: translateX(8px) rotate(3deg); } }
         .mem-shake-active { animation: memShake 0.4s infinite; background: rgba(255, 71, 87, 0.3) !important; border-color: #ff4757 !important; transition: background 0.3s; }
         .mem-card.nuke .mem-front { background: rgba(255, 71, 87, 0.9) !important; border-color: #d63031 !important; box-shadow: 0 0 25px #ff4757 !important; }
-
-        /* 🎁 羁绊宝盒专属 (华丽演出版) */
-        .gacha-box-area { position: relative; width: 100%; height: 220px; display: flex; align-items: center; justify-content: center; background: radial-gradient(circle, rgba(255,159,243,0.1) 0%, rgba(0,0,0,0.5) 100%); border-radius: 16px; overflow: hidden; border: 1px solid rgba(255,159,243,0.3); margin-bottom: 15px; box-shadow: inset 0 0 20px rgba(0,0,0,0.8); }
-        .box-icon { font-size: 80px; display: inline-block; animation: pulse-glow 2s infinite alternate; z-index: 5; filter: drop-shadow(0 4px 10px rgba(0,0,0,0.5)); }
-        
-        /* 狂暴蓄力震动 */
-        .super-shake { animation: superShakeAnim 0.1s infinite; filter: drop-shadow(0 0 30px #ff9ff3) brightness(1.2); }
-        @keyframes superShakeAnim { 
-            0% { transform: translate(2px, 1px) rotate(0deg) scale(1.1); } 
-            25% { transform: translate(-3px, -2px) rotate(-3deg) scale(1.1); } 
-            50% { transform: translate(0px, 3px) rotate(3deg) scale(1.1); } 
-            75% { transform: translate(3px, -1px) rotate(-3deg) scale(1.1); } 
-            100% { transform: translate(-2px, 2px) rotate(0deg) scale(1.1); } 
-        }
-
-        /* 抽卡全屏遮罩与光芒 */
-        .gacha-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.2s; }
-        .gacha-overlay.active { opacity: 1; pointer-events: all; z-index: 10; }
-        
-        .light-rays { position: absolute; width: 250%; height: 250%; background: repeating-conic-gradient(from 0deg, transparent 0deg 15deg, rgba(255,255,255,0.1) 15deg 30deg); animation: spinRays 8s linear infinite; z-index: -1; }
-        @keyframes spinRays { 100% { transform: rotate(360deg); } }
-        
-        /* 物品弹射出场 */
-        .gacha-item-reveal { transform: scale(0); animation: epicPop 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; display: flex; flex-direction: column; align-items: center; background: linear-gradient(135deg, rgba(0,0,0,0.8), rgba(20,20,30,0.9)); padding: 15px 20px; border-radius: 16px; backdrop-filter: blur(5px); }
-        @keyframes epicPop { 0% { transform: scale(0) translateY(30px); opacity: 0; } 100% { transform: scale(1) translateY(0); opacity: 1; } }
-        
-        /* 闪光弹白屏特效 */
-        .flash-bang { position: absolute; top:0; left:0; width:100%; height:100%; background:#fff; opacity:0; z-index:20; pointer-events:none; }
-        .flash-bang.trigger { animation: flashAnim 0.8s ease-out forwards; }
-        @keyframes flashAnim { 0% { opacity: 1; } 100% { opacity: 0; } }
 
         @keyframes pulse-glow { 0% { filter: drop-shadow(0 0 10px rgba(255, 159, 243, 0.4)) scale(1); } 100% { filter: drop-shadow(0 0 30px rgba(255, 159, 243, 0.9)) scale(1.05); } }
 
@@ -122,7 +81,7 @@
             <b style="color:#00d2d3;">1. 基础打卡 (2分)：</b> 发送早晚安 (各1分)。<br><br>
             <b style="color:#00d2d3;">2. 情绪投资 (最高10分)：</b> 照片、语音撒娇，或夸奖奕奕哥哥 (视甜度给分)。<br><br>
             <b style="color:#ee5253;">⚠️ GM 霸王条款：</b><br>
-            <span style="color:#ff9f43;">当日若未完成【基础打卡】与【情绪投资】，所有盲盒与小游戏赢得的碎片将视为「非法所得」，GM 有权于次日全数没收并冻结抽奖权限！</span>
+            <span style="color:#ff9f43;">当日若未完成【基础打卡】与【情绪投资】，所有小游戏赢得的碎片将视为「非法所得」，GM 有权于次日全数没收并冻结权限！</span>
         </div>
     </div>
 
@@ -158,55 +117,16 @@
         </div>
     </div>
 
-    <!-- 🎁 羁绊宝盒 (高频假赢放血版) -->
-    <div class="section" style="border: 1px solid rgba(255, 159, 243, 0.3); box-shadow: 0 0 15px rgba(255, 159, 243, 0.1);">
-        <h3 style="color: #ff9ff3;">🎁 羁绊宝盒</h3>
-        <p>每次投喂消耗 <b style="color:#feca57;">3 碎片</b>。<br>一发入魂！最高可开出 <b style="color:#ff7675;">命运交响 (200碎片)</b></p>
-        
-        <div class="gacha-box-area">
-            <div class="box-icon" id="bondIcon">🧰</div>
-            
-            <!-- 抽卡光芒与结果容器 -->
-            <div class="gacha-overlay" id="gachaOverlay">
-                <div class="light-rays" id="gachaRays"></div>
-                <div id="gachaResultWrap" style="z-index: 15; text-align: center; display:flex; align-items:center; justify-content:center;"></div>
-            </div>
-            
-            <!-- 震动后的白屏闪光 -->
-            <div class="flash-bang" id="flashBang"></div>
-        </div>
-
-        <div id="bondSummary" style="display:none; margin-bottom:12px; font-size:15px; font-weight:bold; text-align:center;"></div>
-        <button class="btn-box1" onclick="openBondBox()">🎁 支付 3 碎片开启宝盒</button>
-    </div>
-
-    <!-- 💣 踩地雷小游戏 -->
-    <div class="section" style="border: 1px solid rgba(164, 176, 190, 0.5);">
-        <h3 style="color: #a4b0be;">💣 兔兔拆弹特工队</h3>
-        <p>消耗 <b style="color:#feca57;">2 碎片</b> 入场。手速越快，奖励越高！<br>S级过关最高拿 <b style="color:#1dd1a1;">5 碎片</b>！</p>
-        <div id="ms-setup">
-            <button onclick="startMinesweeper()" style="background: linear-gradient(135deg, #57606f, #2f3542); border: 2px solid #a4b0be; margin-top: 10px;">🛡️ 支付 2 碎片 开始拆弹</button>
-        </div>
-        <div id="ms-game" style="display: none; margin-top: 15px;">
-            <div class="ms-header">
-                <div class="ms-timer">⏱️ <span id="ms-timer-text">0</span>s</div>
-                <button class="btn-ms-mode" id="ms-mode-toggle" onclick="toggleMsMode()">⛏️ 挖掘</button>
-                <div class="ms-mine-count">💣 <span id="ms-mine-text">6</span></div>
-            </div>
-            <div class="ms-grid" id="ms-grid"></div>
-        </div>
-    </div>
-
     <!-- 🎴 记忆翻牌小游戏 (限时炸弹版) -->
     <div class="section" style="border: 1px solid rgba(162, 155, 254, 0.5); box-shadow: 0 0 15px rgba(162, 155, 254, 0.2);">
         <h3 style="color: #a29bfe;">🎴 兔兔记忆翻牌 (限时炸弹版)</h3>
-        <p>消耗 <b style="color:#feca57;">2 碎片</b> 入场。限时 <b style="color:#ff7675;">40 秒</b>，超时或翻错 8 次<b style="color:#ff7675;">直接引爆</b>！<br>⏱️ 20秒内过关拿 <b style="color:#1dd1a1;">5 碎片</b> | 30秒拿 4 碎片 | 40秒拿 3 碎片</p>
+        <p>消耗 <b style="color:#feca57;">2 碎片</b> 入场。限时 <b style="color:#ff7675;">30 秒</b>，超时或翻错 8 次<b style="color:#ff7675;">直接引爆</b>！<br>⏱️ 20秒内过关拿 <b style="color:#1dd1a1;">5 碎片</b> | 30秒内拿 <b style="color:#1dd1a1;">3 碎片</b></p>
         <div id="mem-setup">
             <button onclick="startMemoryGame()" style="background: linear-gradient(135deg, #a29bfe, #6c5ce7); border: 2px solid #81ecec; margin-top: 10px;">🎴 支付 2 碎片 开始翻牌</button>
         </div>
         <div id="mem-game-wrap" style="display: none; margin-top: 15px; border-radius: 12px; padding: 5px;">
             <div class="ms-header" style="border-color:#a29bfe; margin-bottom:0;">
-                <div style="color:#feca57; font-family:monospace; font-size:16px;">⏱️ <span id="mem-timer-text">0</span>s/40s</div>
+                <div style="color:#feca57; font-family:monospace; font-size:16px;">⏱️ <span id="mem-timer-text">0</span>s/30s</div>
                 <div style="color:#1dd1a1; font-size:16px;">🎯 <span id="mem-matched">0</span>/8</div>
                 <div style="color:#ff7675; font-size:16px;">❌ <span id="mem-mistakes">0</span>/8</div>
             </div>
@@ -368,126 +288,6 @@
     }
 
     // ==========================================
-    // 🎁 羁绊宝盒 (高频假赢 + 降低门槛版)
-    // ==========================================
-function openBondBox() {
-        if (isSystemBusy) return;
-        if (currentScore < 3) { alert(`❌ 余额不足！\n开启羁绊宝盒需要 3 碎片。`); return; }
-        
-        isSystemBusy = true; updateScoreUI(-3, 0, 0, 0);
-        
-        sendSilentReport("🎁 正在开启羁绊宝盒...", 3);
-
-        let icon = document.getElementById('bondIcon'); 
-        let overlay = document.getElementById('gachaOverlay');
-        let resultWrap = document.getElementById('gachaResultWrap');
-        let summary = document.getElementById('bondSummary');
-        let flash = document.getElementById('flashBang');
-        let rays = document.getElementById('gachaRays');
-
-        summary.style.display = 'none';
-        overlay.classList.remove('active');
-        icon.style.display = 'inline-block';
-        icon.classList.add('super-shake'); 
-
-        let bondDraws = parseInt(localStorage.getItem('tidu_bondDraws') || '0');
-        let boxPity = parseInt(localStorage.getItem('tidu_boxPity') || '0');
-        
-        // ✨ [修改] 动态保底目标拉长至 70~90 抽 (消耗 210~270 碎片才给一次大奖)
-        let pityTarget = parseInt(localStorage.getItem('tidu_pityTarget') || (Math.floor(Math.random() * 21) + 70).toString());
-        
-        bondDraws++; boxPity++;
-
-        let rewards = [ 
-            { title: "命运交响", desc: "+200 碎片", color: "#ff7675", img: "images/007.png", pt: 200 }, 
-            { title: "时光羁绊", desc: "+80 碎片",  color: "#feca57", img: "images/006.png", pt: 80 },  
-            { title: "心电共鸣", desc: "+20 碎片",  color: "#ff9ff3", img: "images/005.png", pt: 20 },  
-            { title: "守护之翼", desc: "+10 碎片",  color: "#a29bfe", img: "images/004.png", pt: 10 },  
-            { title: "甜蜜契约", desc: "+3.5 碎片", color: "#ff9ff3", img: "images/003.png", pt: 3.5 }, 
-            { title: "星光点点", desc: "+2 碎片",   color: "#48dbfb", img: "images/002.png", pt: 2 },   
-            { title: "暖心陪伴", desc: "+0.5 碎片", color: "#a4b0be", img: "images/001.png", pt: 0.5 }  
-        ];
-
-        let item;
-
-        // 🎯 阶段一：动态深渊保底机制 
-        if (boxPity >= pityTarget) {
-            let r = Math.random();
-            // 保底池：5% 出 200，95% 出 80 (限制 200 的泛滥)
-            item = (r < 0.05) ? rewards[0] : rewards[1]; 
-            
-            boxPity = 0; 
-            
-            // ✨ 中大奖后重新生成深渊保底目标 (70 到 90 抽之间)
-            let newTarget = Math.floor(Math.random() * 21) + 70;
-            localStorage.setItem('tidu_pityTarget', newTarget.toString());
-        } 
-        // 🔪 阶段二：真实赌场放血池 (完全移除 200 与 80，净期望值为负)
-        else {
-            let r = Math.random();
-            // 注意：常規池絕對抽不到 200 和 80
-            if (r < 0.005) item = rewards[2];        // 0.5% 出 20 (极小概率防身)
-            else if (r < 0.025) item = rewards[3];   // 2.0% 出 10
-            else if (r < 0.145) item = rewards[4];   // 12.0% 出 3.5 (假赢，只赚0.5)
-            else if (r < 0.445) item = rewards[5];   // 30.0% 出 2 (微亏1点，不痛不痒)
-            else item = rewards[6];                  // 55.5% 出 0.5 (主力放血，亏2.5点)
-        }
-
-        localStorage.setItem('tidu_bondDraws', bondDraws.toString());
-        localStorage.setItem('tidu_boxPity', boxPity.toString());
-
-        setTimeout(() => {
-            icon.classList.remove('super-shake'); 
-            icon.style.display = 'none'; 
-            
-            flash.classList.remove('trigger');
-            void flash.offsetWidth; 
-            flash.classList.add('trigger');
-            overlay.classList.add('active');
-
-            if (item.pt >= 80) { 
-                rays.style.background = 'repeating-conic-gradient(from 0deg, rgba(255, 215, 0, 0.3) 0deg 15deg, rgba(255, 118, 117, 0.4) 15deg 30deg)';
-                resultWrap.style.transform = "scale(1.15)";
-            } else if (item.pt >= 10) { 
-                rays.style.background = 'repeating-conic-gradient(from 0deg, rgba(162, 155, 254, 0.3) 0deg 15deg, rgba(255, 159, 243, 0.4) 15deg 30deg)';
-                resultWrap.style.transform = "scale(1.05)";
-            } else { 
-                rays.style.background = 'repeating-conic-gradient(from 0deg, rgba(255, 255, 255, 0.1) 0deg 15deg, rgba(72, 219, 251, 0.2) 15deg 30deg)';
-                resultWrap.style.transform = "scale(0.95)";
-            }
-
-            let glowStyle = (item.pt >= 20) ? `box-shadow: 0 0 35px ${item.color}, inset 0 0 15px ${item.color}80; border: 2px solid ${item.color};` : `border: 1px solid rgba(255,255,255,0.2);`;
-            let ptColor = item.pt > 3 ? "#1dd1a1" : "#a4b0be"; 
-            
-            resultWrap.innerHTML = `
-                <div class="drawn-item gacha-item-reveal" style="width: 140px; ${glowStyle}">
-                    <img src="${item.img}" onerror="this.src=''; this.alt='🎁'; this.style.fontSize='45px'; margin-bottom:5px; height:75px; object-fit:contain; filter:drop-shadow(0 0 10px ${item.color});">
-                    <div style="color:${item.color}; font-size:18px; font-weight:900; margin-top:8px; text-shadow: 0 2px 4px rgba(0,0,0,0.8);">${item.title}</div>
-                    <div style="color:${ptColor}; font-size:14px; background: rgba(255,255,255,0.15); padding: 4px 12px; border-radius: 12px; margin-top: 8px; font-weight:bold;">${item.desc}</div>
-                </div>`;
-
-            updateScoreUI(item.pt, 0, 0, 0);
-
-            if (item.pt >= 80) {
-                summary.innerHTML = `✨💎 奇迹降临！传说级大奖！💎✨`;
-                summary.style.color = "#feca57";
-                summary.style.textShadow = "0 0 10px rgba(254,202,87,0.8)";
-            } else if (item.pt >= 20) {
-                summary.innerHTML = `🎉 欧气爆发！获得稀有奖励！`;
-                summary.style.color = "#ff9ff3";
-                summary.style.textShadow = "none";
-            } else {
-                summary.innerHTML = `获得: ${item.title}`;
-                summary.style.color = "#1dd1a1";
-                summary.style.textShadow = "none";
-            }
-            
-            summary.style.display = 'block'; 
-            isSystemBusy = false;
-        }, 1500); 
-    }
-
-    // ==========================================
     // 🎴 兔兔记忆翻牌小游戏 (限时炸弹版)
     // ==========================================
     let memBoard = []; let memFlippedCards = []; let memMatchedCount = 0; let memMistakes = 0; let memIsBusy = false;
@@ -496,7 +296,7 @@ function openBondBox() {
     function startMemoryGame() {
         if (isSystemBusy) return;
         if (currentScore < 2) { alert(`❌ 余额不足！\n玩一把翻牌需要 2 碎片，你只有 ${currentScore} 分。\n快去做任务存钱！`); return; }
-        if (!confirm("确定花费 2 碎片开始翻牌任务？\n⚠️ 警告：系统已安放 40 秒定时炸弹，超时或失误过高直接引爆！")) return;
+        if (!confirm("确定花费 2 碎片开始翻牌任务？\n⚠️ 警告：系统已安放 30 秒定时炸弹，超时或失误过高直接引爆！")) return;
 
         isSystemBusy = true; updateScoreUI(-2, 0, 0, 0); isSystemBusy = false;
 
@@ -513,7 +313,8 @@ function openBondBox() {
         memTimerInt = setInterval(() => {
             memTimePassed++;
             document.getElementById('mem-timer-text').innerText = memTimePassed;
-            if (memTimePassed >= 40) {
+            // ★ 修改引爆時間為 30 秒
+            if (memTimePassed >= 30) {
                 triggerMemExplosion("time");
             }
         }, 1000);
@@ -585,7 +386,8 @@ function openBondBox() {
         }
 
         setTimeout(() => {
-            let msg = reason === "time" ? "⏰ 滴答... 轰！！！\n倒数 40 秒结束，炸弹引爆！" : "💥 哔哔哔... 轰！！！\n失误达到 8 次，触发诡雷炸弹！";
+            // ★ 修改提示文字為 30 秒
+            let msg = reason === "time" ? "⏰ 滴答... 轰！！！\n倒数 30 秒结束，炸弹引爆！" : "💥 哔哔哔... 轰！！！\n失误达到 8 次，触发诡雷炸弹！";
             alert(msg + "\n挑战失败，被扣除的 2 碎片化为灰烬～");
             
             document.getElementById('mem-setup').style.display = 'block'; 
@@ -603,105 +405,15 @@ function openBondBox() {
         if (memMatchedCount === 8) {
             clearInterval(memTimerInt);
             setTimeout(() => {
-                let reward = 3; let rank = "40秒内 (惊险拆弹)";
+                // ★ 修改獎勵機制
+                let reward = 3; let rank = "30秒内 (王牌特工)";
                 if (memTimePassed <= 20) { reward = 5; rank = "20秒内 (闪电特工)"; }
-                else if (memTimePassed <= 30) { reward = 4; rank = "30秒内 (王牌拆弹)"; }
 
                 updateScoreUI(reward, 0, 0, 0);
                 alert(`🎉 翻牌拆弹成功！\n耗时: ${memTimePassed} 秒\n失误: ${memMistakes} 次\n评价: ${rank}\n获得奖励: +${reward} 碎片！`);
                 document.getElementById('mem-setup').style.display = 'block'; document.getElementById('mem-game-wrap').style.display = 'none';
             }, 500);
         }
-    }
-
-    // ==========================================
-    // 💣 兔兔拆弹特工队 (踩地雷)
-    // ==========================================
-    let msRows = 6; let msCols = 6; let msMineCount = 6; let msBoard = []; let msRevealedCount = 0; let msFlagCount = 0;
-    let msTimerInt; let msTime = 0; let msGameActive = false; let msFirstClick = false; let msMode = 'dig';
-
-    function startMinesweeper() {
-        if (isSystemBusy) return;
-        if (currentScore < 2) { alert(`❌ 余额不足！\n玩一把拆弹需要 2 碎片，你只有 ${currentScore} 分。\n快去做任务存钱！`); return; }
-        if (!confirm("确定花费 2 碎片开始拆弹任务？\n动作越快，奖励越高喔！")) return;
-
-        isSystemBusy = true; updateScoreUI(-2, 0, 0, 0); isSystemBusy = false;
-        document.getElementById('ms-setup').style.display = 'none'; document.getElementById('ms-game').style.display = 'block';
-        initMinesweeper();
-    }
-
-    function initMinesweeper() {
-        msBoard = []; msRevealedCount = 0; msFlagCount = 0; msTime = 0; msGameActive = true; msFirstClick = true; msMode = 'dig'; clearInterval(msTimerInt);
-        document.getElementById('ms-timer-text').innerText = msTime; document.getElementById('ms-mine-text').innerText = msMineCount;
-        let toggleBtn = document.getElementById('ms-mode-toggle'); toggleBtn.innerText = "⛏️ 挖掘"; toggleBtn.style.background = "linear-gradient(135deg, #1dd1a1, #10ac84)";
-        let grid = document.getElementById('ms-grid'); grid.innerHTML = '';
-        for (let r = 0; r < msRows; r++) {
-            let rowArray = [];
-            for (let c = 0; c < msCols; c++) {
-                rowArray.push({ isMine: false, neighborMines: 0, isRevealed: false, isFlagged: false });
-                let cell = document.createElement('div'); cell.className = 'ms-cell'; cell.id = `ms-cell-${r}-${c}`; cell.onclick = () => handleMsClick(r, c); grid.appendChild(cell);
-            }
-            msBoard.push(rowArray);
-        }
-    }
-
-    function toggleMsMode() {
-        if(!msGameActive) return; let btn = document.getElementById('ms-mode-toggle');
-        if (msMode === 'dig') { msMode = 'flag'; btn.innerText = "🚩 插旗"; btn.style.background = "linear-gradient(135deg, #ff9f43, #ee5253)"; } 
-        else { msMode = 'dig'; btn.innerText = "⛏️ 挖掘"; btn.style.background = "linear-gradient(135deg, #1dd1a1, #10ac84)"; }
-    }
-
-    function placeMsMines(firstR, firstC) {
-        let placed = 0;
-        while (placed < msMineCount) { let r = Math.floor(Math.random() * msRows); let c = Math.floor(Math.random() * msCols); if (!msBoard[r][c].isMine && !(r === firstR && c === firstC)) { msBoard[r][c].isMine = true; placed++; } }
-        for (let r = 0; r < msRows; r++) {
-            for (let c = 0; c < msCols; c++) {
-                if (!msBoard[r][c].isMine) {
-                    let count = 0;
-                    for(let i=-1; i<=1; i++) { for(let j=-1; j<=1; j++) { let nr = r+i, nc = c+j; if (nr>=0 && nr<msRows && nc>=0 && nc<msCols && msBoard[nr][nc].isMine) count++; } }
-                    msBoard[r][c].neighborMines = count;
-                }
-            }
-        }
-    }
-
-    function handleMsClick(r, c) {
-        if (!msGameActive) return; let cellData = msBoard[r][c]; if (cellData.isRevealed) return;
-        let cellElem = document.getElementById(`ms-cell-${r}-${c}`);
-        if (msMode === 'flag') {
-            cellData.isFlagged = !cellData.isFlagged; cellElem.innerText = cellData.isFlagged ? "🚩" : "";
-            msFlagCount += cellData.isFlagged ? 1 : -1; document.getElementById('ms-mine-text').innerText = msMineCount - msFlagCount; return;
-        }
-        if (cellData.isFlagged) return;
-        if (msFirstClick) { msFirstClick = false; placeMsMines(r, c); msTimerInt = setInterval(() => { msTime++; document.getElementById('ms-timer-text').innerText = msTime; }, 1000); }
-        if (cellData.isMine) { cellElem.classList.add('exploded'); gameOverMs(false); } else { revealMsCell(r, c); checkMsWin(); }
-    }
-
-    function revealMsCell(r, c) {
-        if (r<0 || r>=msRows || c<0 || c>=msCols) return; let cellData = msBoard[r][c]; if (cellData.isRevealed || cellData.isFlagged) return;
-        cellData.isRevealed = true; msRevealedCount++; let cellElem = document.getElementById(`ms-cell-${r}-${c}`); cellElem.classList.add('revealed');
-        if (cellData.neighborMines > 0) { cellElem.innerText = cellData.neighborMines; cellElem.classList.add(`ms-${cellData.neighborMines}`); } 
-        else { cellElem.innerText = ""; for(let i=-1; i<=1; i++) { for(let j=-1; j<=1; j++) { if (i!==0 || j!==0) revealMsCell(r+i, c+j); } } }
-    }
-
-    function checkMsWin() { if (msRevealedCount === (msRows * msCols) - msMineCount) { gameOverMs(true); } }
-
-    function gameOverMs(isWin) {
-        msGameActive = false; clearInterval(msTimerInt);
-        for (let r = 0; r < msRows; r++) {
-            for (let c = 0; c < msCols; c++) {
-                let cellData = msBoard[r][c]; let cellElem = document.getElementById(`ms-cell-${r}-${c}`);
-                if (cellData.isMine) { cellElem.innerText = "💣"; if (!isWin && !cellElem.classList.contains('exploded')) { cellElem.style.background = "rgba(255, 71, 87, 0.4)"; cellElem.style.boxShadow = "none"; cellElem.style.transform = "translateY(4px)"; } }
-            }
-        }
-        setTimeout(() => {
-            if (isWin) {
-                let reward = 3; let rank = "B级 (优秀)";
-                if (msTime <= 15) { reward = 5; rank = "S级 (神级特工)"; } else if (msTime <= 30) { reward = 4; rank = "A级 (王牌拆弹)"; }
-                updateScoreUI(reward, 0, 0, 0); alert(`🎉 拆弹成功！\n耗时: ${msTime} 秒\n评价: ${rank}\n获得奖励: +${reward} 碎片！`);
-            } else { alert(`💥 轰！！！踩到地雷了！\n拆弹失败，被扣除的 2 碎片打水漂啦～`); }
-            document.getElementById('ms-setup').style.display = 'block'; document.getElementById('ms-game').style.display = 'none';
-        }, 1000);
     }
 
     // ==========================================
