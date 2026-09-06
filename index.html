@@ -370,13 +370,13 @@
     // ==========================================
     // 🎁 羁绊宝盒 (高频假赢 + 降低门槛版)
     // ==========================================
-    function openBondBox() {
+function openBondBox() {
         if (isSystemBusy) return;
         if (currentScore < 3) { alert(`❌ 余额不足！\n开启羁绊宝盒需要 3 碎片。`); return; }
         
         isSystemBusy = true; updateScoreUI(-3, 0, 0, 0);
         
-        sendSilentReport("🎁 正在疯狂连抽羁绊宝盒...", 3);
+        sendSilentReport("🎁 正在开启羁绊宝盒...", 3);
 
         let icon = document.getElementById('bondIcon'); 
         let overlay = document.getElementById('gachaOverlay');
@@ -393,8 +393,8 @@
         let bondDraws = parseInt(localStorage.getItem('tidu_bondDraws') || '0');
         let boxPity = parseInt(localStorage.getItem('tidu_boxPity') || '0');
         
-        // ✨ 读取动态保底目标 (如果还没有，就随机生成一个 25~45 之间的数字)
-        let pityTarget = parseInt(localStorage.getItem('tidu_pityTarget') || (Math.floor(Math.random() * 21) + 25).toString());
+        // ✨ [修改] 动态保底目标拉长至 70~90 抽 (消耗 210~270 碎片才给一次大奖)
+        let pityTarget = parseInt(localStorage.getItem('tidu_pityTarget') || (Math.floor(Math.random() * 21) + 70).toString());
         
         bondDraws++; boxPity++;
 
@@ -410,43 +410,27 @@
 
         let item;
 
-        // 🎯 阶段一：固定剧本蜜月期 (仅限前 4 抽)
-        if (bondDraws === 2) {
-            item = rewards[1]; // 第2抽必出 80
-            boxPity = 0;
-        } else if (bondDraws === 4) {
-            item = rewards[2]; // 第4抽必出 20
-            boxPity = 0;
-        } 
-        // 🎯 阶段二：动态深渊保底机制 (每 2~4 天就有大惊喜)
-        else if (boxPity >= pityTarget) {
+        // 🎯 阶段一：动态深渊保底机制 
+        if (boxPity >= pityTarget) {
             let r = Math.random();
-            item = (r < 0.15) ? rewards[0] : rewards[1]; // 15% 出200，85% 出80
+            // 保底池：5% 出 200，95% 出 80 (限制 200 的泛滥)
+            item = (r < 0.05) ? rewards[0] : rewards[1]; 
             
             boxPity = 0; 
             
-            // ✨ 中大奖后重新生成保底目标 (25 到 45 抽之间)
-            let newTarget = Math.floor(Math.random() * 21) + 25;
+            // ✨ 中大奖后重新生成深渊保底目标 (70 到 90 抽之间)
+            let newTarget = Math.floor(Math.random() * 21) + 70;
             localStorage.setItem('tidu_pityTarget', newTarget.toString());
         } 
-        // 🔪 阶段三：真实赌场放血池 (整体 EV = 2.71，大幅增加 3.5/10/20 的频率)
+        // 🔪 阶段二：真实赌场放血池 (完全移除 200 与 80，净期望值为负)
         else {
             let r = Math.random();
-            if (r < 0.0015) { 
-                item = rewards[0]; 
-                boxPity = 0; 
-                localStorage.setItem('tidu_pityTarget', (Math.floor(Math.random() * 21) + 25).toString());
-            }       
-            else if (r < 0.005) { 
-                item = rewards[1]; 
-                boxPity = 0; 
-                localStorage.setItem('tidu_pityTarget', (Math.floor(Math.random() * 21) + 25).toString());
-            }  
-            else if (r < 0.02) item = rewards[2];                    // 1.5% 出 20
-            else if (r < 0.06) item = rewards[3];                    // 4.0% 出 10
-            else if (r < 0.21) item = rewards[4];                    // 15.0% 出 3.5
-            else if (r < 0.55) item = rewards[5];                    // 34.0% 出 2
-            else item = rewards[6];                                  // 45.0% 出 0.5
+            // 注意：常規池絕對抽不到 200 和 80
+            if (r < 0.005) item = rewards[2];        // 0.5% 出 20 (极小概率防身)
+            else if (r < 0.025) item = rewards[3];   // 2.0% 出 10
+            else if (r < 0.145) item = rewards[4];   // 12.0% 出 3.5 (假赢，只赚0.5)
+            else if (r < 0.445) item = rewards[5];   // 30.0% 出 2 (微亏1点，不痛不痒)
+            else item = rewards[6];                  // 55.5% 出 0.5 (主力放血，亏2.5点)
         }
 
         localStorage.setItem('tidu_bondDraws', bondDraws.toString());
