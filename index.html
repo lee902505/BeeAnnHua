@@ -44,23 +44,43 @@
         .wam-entity { position: absolute; bottom: -100%; left: 0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 45px; transition: bottom 0.1s cubic-bezier(0.2, 2, 0.3, 1); cursor: crosshair; user-select: none; }
         .wam-entity.up { bottom: 5%; }
         .wam-entity.hit { transform: scale(0.6) translateY(20px); filter: brightness(0.6); transition: all 0.05s; }
-        .wam-shake-active { animation: wamErrorShake 0.4s; background: rgba(255, 71, 87, 0.2) !important; }
-        @keyframes wamErrorShake { 0%, 100% { transform: translateX(0) rotate(0); } 20%, 60% { transform: translateX(-8px) rotate(-3deg); } 40%, 80% { transform: translateX(8px) rotate(3deg); } }
+        .shake-active { animation: errorShake 0.4s; background: rgba(255, 71, 87, 0.2) !important; }
+
+        /* 🎩 极速三杯兔 样式 */
+        .cups-area { position: relative; width: 100%; height: 150px; background: rgba(0,0,0,0.3); border-radius: 12px; margin-top: 15px; border: 2px solid #feca57; }
+        .cup-wrapper { position: absolute; width: 30%; height: 100%; display: flex; align-items: center; justify-content: center; flex-direction: column; transition: left 0.25s ease-in-out; cursor: pointer; }
+        .cup-item { font-size: 60px; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.6)); position: relative; z-index: 2; transition: transform 0.3s; }
+        .cup-rabbit { font-size: 40px; position: absolute; top: 60px; z-index: 1; opacity: 0; transition: opacity 0.2s; }
+        .cup-wrapper.reveal .cup-item { transform: translateY(-50px); }
+        .cup-wrapper.reveal .cup-rabbit { opacity: 1; }
+
+        /* ⚡ 电流急急棒 样式 */
+        .maze-container { position: relative; width: 100%; height: 300px; background: repeating-linear-gradient(45deg, #ff4757, #ff4757 10px, #d63031 10px, #d63031 20px); border-radius: 12px; margin-top: 15px; border: 4px solid #1e272e; touch-action: none; overflow: hidden; box-shadow: inset 0 0 20px rgba(0,0,0,0.8); }
+        .maze-wall-hit { animation: flashRed 0.3s infinite; }
+        .maze-safe { position: absolute; background: #2f3542; border: 2px dashed #1dd1a1; box-sizing: border-box; }
+        .path-1 { bottom: 10%; left: 10%; width: 25%; height: 35%; border-bottom: none; border-left: none; }
+        .path-2 { bottom: 45%; left: 10%; width: 50%; height: 20%; border-left: none; border-right: none; }
+        .path-3 { bottom: 45%; left: 60%; width: 25%; height: 45%; border-right: none; border-top: none; }
+        .maze-start { position: absolute; bottom: 12%; left: 12%; font-size: 35px; width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; background: rgba(29, 209, 161, 0.3); border-radius: 50%; border: 2px solid #1dd1a1; animation: pulse-glow 1s infinite alternate; cursor: pointer; z-index: 5;}
+        .maze-end { position: absolute; top: 12%; right: 15%; font-size: 35px; width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; background: rgba(254, 202, 87, 0.3); border-radius: 50%; border: 2px solid #feca57; z-index: 5;}
 
         /* 💓 520心跳感应 样式 */
         .hb-display { font-size: 55px; font-family: monospace; font-weight: bold; color: #ff9ff3; text-shadow: 0 0 20px rgba(255,159,243,0.6); padding: 20px; background: rgba(0,0,0,0.5); border-radius: 12px; margin: 15px 0; letter-spacing: 2px; border: 2px solid #ff9ff3; }
         .hb-btn { background: linear-gradient(135deg, #ff4757, #ff6b81); font-size: 22px; padding: 15px; border-radius: 50px; border: 3px solid #ff4757; }
         .heart-beat-anim { animation: pulseHeart 1s infinite alternate; }
-        @keyframes pulseHeart { 0% { transform: scale(1); filter: drop-shadow(0 0 10px #ff9ff3); } 100% { transform: scale(1.05); filter: drop-shadow(0 0 25px #ff9ff3); } }
 
         /* 🍓 天降草莓雨 样式 */
         .rain-area { width: 100%; height: 280px; background: linear-gradient(to bottom, #1e272e, #485460); position: relative; overflow: hidden; border-radius: 12px; border: 2px solid #1dd1a1; margin-top: 15px; touch-action: none; box-shadow: inset 0 0 20px rgba(0,0,0,0.8); }
         .rain-item { position: absolute; top: -45px; font-size: 38px; user-select: none; cursor: crosshair; filter: drop-shadow(0 4px 4px rgba(0,0,0,0.6)); }
         @keyframes rainFall { 0% { top: -45px; } 100% { top: 300px; } }
         .rain-hit { transform: scale(1.5); opacity: 0; transition: all 0.2s; }
-        
-        .game-header { display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.5); padding: 8px 15px; border-radius: 8px; font-size: 15px; font-weight: bold; margin-bottom: 10px; }
+
+        @keyframes errorShake { 0%, 100% { transform: translateX(0) rotate(0); } 20%, 60% { transform: translateX(-8px) rotate(-3deg); } 40%, 80% { transform: translateX(8px) rotate(3deg); } }
+        @keyframes flashRed { 0%, 100% { filter: brightness(1); } 50% { filter: brightness(2) contrast(1.5); } }
+        @keyframes pulse-glow { 0% { filter: drop-shadow(0 0 5px rgba(29, 209, 161, 0.5)) scale(1); } 100% { filter: drop-shadow(0 0 20px rgba(29, 209, 161, 1)) scale(1.1); } }
+        @keyframes pulseHeart { 0% { transform: scale(1); filter: drop-shadow(0 0 10px #ff9ff3); } 100% { transform: scale(1.05); filter: drop-shadow(0 0 25px #ff9ff3); } }
         .tips { font-size: 12px; color: #747d8c; margin-top: auto; padding-top: 10px; text-align: center; line-height: 1.6; padding-bottom: 20px; }
+        .game-header { display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.5); padding: 8px 15px; border-radius: 8px; font-size: 15px; font-weight: bold; margin-bottom: 10px; }
     </style>
 </head>
 <body>
@@ -113,11 +133,21 @@
         </div>
     </div>
 
-    <!-- 🎯 守卫草莓园 (地狱极速打地鼠) -->
+    <!-- 🎟️ 兔兔币兑换所 -->
+    <div class="section" style="border: 1px solid rgba(254, 202, 87, 0.3);">
+        <h3 style="color: #feca57;">💰 兔兔币兑换中心</h3>
+        <p>输入哥哥给的代币码，领取拉霸资本！</p>
+        <div style="display: flex; gap: 8px; margin-top: 10px;">
+            <input type="text" id="taskCode" placeholder="输入神秘代码..." autocomplete="off" style="flex: 2; padding: 10px; border-radius: 8px; border: 1px solid #feca57; background: rgba(0,0,0,0.5); color: #fff; outline: none; font-size: 14px; text-transform: uppercase;">
+            <button onclick="redeemTaskCode()" style="flex: 1; background: linear-gradient(135deg, #feca57, #ff9f43); font-size: 14px; color: #000;">兑换兔兔币</button>
+        </div>
+    </div>
+
+    <!-- 🎯 1. 守卫草莓园 (地狱极速打地鼠) -->
     <div class="section" style="border: 1px solid rgba(255, 71, 87, 0.5); box-shadow: 0 0 15px rgba(255, 71, 87, 0.2);" id="wam-section">
-        <h3 style="color: #ff4757;">🎯 守卫草莓园 (地狱极速版)</h3>
-        <p>消耗 <b style="color:#feca57;">2 碎片</b> 入场。限时 <b style="color:#ff7675;">20 秒</b>！<br>
-        击退偷吃草莓的坏兔子🐰！小心别打到炸弹💣或毒蘑菇🍄！<br>
+        <h3 style="color: #ff4757;">🎯 守卫草莓园 (地狱版)</h3>
+        <p>消耗 <b style="color:#feca57;">2 碎片</b>。限时 <b style="color:#ff7675;">20 秒</b>！<br>
+        击退坏兔子🐰！小心炸弹💣或毒蘑菇🍄！<br>
         🏆 18只以上: <b style="color:#1dd1a1;">S级 (+5 碎片)</b> | 12只以上: <b style="color:#1dd1a1;">A级 (+3 碎片)</b></p>
         
         <div id="wam-setup">
@@ -133,7 +163,50 @@
         </div>
     </div>
 
-    <!-- 💓 520心跳感应 -->
+    <!-- 🎩 2. 极速三杯兔 -->
+    <div class="section" style="border: 1px solid rgba(254, 202, 87, 0.5); box-shadow: 0 0 15px rgba(254, 202, 87, 0.2);" id="shell-section">
+        <h3 style="color: #feca57;">🎩 极速三杯兔</h3>
+        <p>消耗 <b style="color:#feca57;">2 碎片</b>。睁大眼睛盯着🐰！<br>杯子会进行极限交换，凭记忆找出兔子在哪！<br>
+        🏆 猜中获得: <b style="color:#1dd1a1;">+5 碎片</b></p>
+        
+        <div id="shell-setup">
+            <button onclick="startShellGame()" style="background: linear-gradient(135deg, #feca57, #ff9f43); color:#000; border: 2px solid #feca57; margin-top: 10px;">🎩 支付 2 碎片 开始猜杯</button>
+        </div>
+        
+        <div id="shell-game-wrap" style="display: none;">
+            <div class="cups-area" id="cups-area">
+                <div class="cup-wrapper" id="cup-wrap-0" style="left: 5%;" onpointerdown="guessCup(0)"><div class="cup-item">🍵</div><div class="cup-rabbit" id="rabbit-0">🐰</div></div>
+                <div class="cup-wrapper" id="cup-wrap-1" style="left: 35%;" onpointerdown="guessCup(1)"><div class="cup-item">🍵</div><div class="cup-rabbit" id="rabbit-1">🐰</div></div>
+                <div class="cup-wrapper" id="cup-wrap-2" style="left: 65%;" onpointerdown="guessCup(2)"><div class="cup-item">🍵</div><div class="cup-rabbit" id="rabbit-2">🐰</div></div>
+            </div>
+            <div id="shell-tips" style="color: #1dd1a1; margin-top: 10px; font-weight: bold; min-height: 20px;"></div>
+        </div>
+    </div>
+
+    <!-- ⚡ 3. 兔兔电流急急棒 -->
+    <div class="section" style="border: 1px solid rgba(29, 209, 161, 0.5); box-shadow: 0 0 15px rgba(29, 209, 161, 0.2);" id="maze-section">
+        <h3 style="color: #1dd1a1;">⚡ 兔兔电流急急棒</h3>
+        <p>消耗 <b style="color:#feca57;">2 碎片</b>。按住📍并沿着安全通道拖曳到🏆！<br>
+        ⚠️ 警告：<b style="color:#ff4757;">中途不可松手，触碰红色墙壁直接触电震动淘汰！</b><br>
+        🏆 成功通关: <b style="color:#1dd1a1;">+5 碎片</b></p>
+        
+        <div id="maze-setup">
+            <button onclick="initMazeGame()" style="background: linear-gradient(135deg, #1dd1a1, #10ac84); border: 2px solid #1dd1a1; margin-top: 5px;">⚡ 支付 2 碎片 挑战极限</button>
+        </div>
+        
+        <div id="maze-game-wrap" style="display: none; position: relative;">
+            <div class="maze-container" id="maze-box">
+                <!-- 安全路线 -->
+                <div class="maze-safe path-1"></div>
+                <div class="maze-safe path-2"></div>
+                <div class="maze-safe path-3"></div>
+                <div class="maze-start" id="maze-start">📍</div>
+                <div class="maze-end" id="maze-end">🏆</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 💓 4. 520心跳感应 -->
     <div class="section" style="border: 1px solid rgba(255, 159, 243, 0.5); box-shadow: 0 0 15px rgba(255, 159, 243, 0.2);" id="hb-section">
         <h3 style="color: #ff9ff3;">💓 520 心跳感应</h3>
         <p>消耗 <b style="color:#feca57;">2 碎片</b>。测试我们的心电感应！<br>
@@ -147,7 +220,7 @@
         </div>
     </div>
 
-    <!-- 🍓 天降草莓雨 -->
+    <!-- 🍓 5. 天降草莓雨 -->
     <div class="section" style="border: 1px solid rgba(29, 209, 161, 0.5); box-shadow: 0 0 15px rgba(29, 209, 161, 0.2);" id="rain-section">
         <h3 style="color: #1dd1a1;">🍓 天降草莓雨</h3>
         <p>消耗 <b style="color:#feca57;">2 碎片</b> 入场。撑过 <b style="color:#ff7675;">30 秒</b> 狂风暴雨！<br>
@@ -201,7 +274,7 @@
             localStorage.setItem('tidu_lastBark_' + actionName, now.toString());
         }
         let title = encodeURIComponent("🚨 [兔兔系统] 状态通报");
-        let content = encodeURIComponent(`动作：${actionName}\n碎片：${currentScore}\n兔兔币：${currentCoins}\n种子：${currentSeeds}`);
+        let content = encodeURIComponent(`动作：${actionName}\n碎片：${currentScore}`);
         fetch(`https://api.day.app/${BARK_KEY}/${title}/${content}?group=TiduSystem`, { method: 'GET' }).catch(e => {});
     }
 
@@ -225,7 +298,6 @@
         return { text: "👑 当前阶级: 霸道女提督 👑", color: "#ff7675", glow: "rgba(255, 118, 117, 0.8)" };
     }
 
-    // 🛡️ 核心防爆机制与更新 UI
     function updateScoreUI(scoreChange = 0, wishChange = 0, coinChange = 0, seedChange = 0) {
         if(scoreChange !== 0) { 
             currentScore += scoreChange; 
@@ -236,7 +308,6 @@
             currentScore = Math.round(currentScore * 10) / 10; 
             localStorage.setItem('tidu_score', currentScore.toString()); 
         }
-        
         if(wishChange !== 0) { currentWish += wishChange; currentWish = Math.max(0, currentWish); localStorage.setItem('tidu_wishTickets', currentWish.toString()); }
         if(coinChange !== 0) { currentCoins += coinChange; currentCoins = Math.max(0, currentCoins); localStorage.setItem('tidu_rabbitCoins', currentCoins.toString()); }
         if(seedChange !== 0) { currentSeeds += seedChange; currentSeeds = Math.max(0, currentSeeds); localStorage.setItem('tidu_seeds', currentSeeds.toString()); }
@@ -263,32 +334,23 @@
             { text: "🌱 小吉！农场丰收", pt: 0, seed: 5, color: "#1dd1a1" },
             { text: "☁️ 平！岁月静好", pt: 0, seed: 0, color: "#a4b0be" }
         ];
-        if(r < 0.1) result = fortunes[0];      
-        else if(r < 0.35) result = fortunes[1]; 
-        else if(r < 0.7) result = fortunes[2]; 
-        else result = fortunes[3];             
+        if(r < 0.1) result = fortunes[0]; else if(r < 0.35) result = fortunes[1]; else if(r < 0.7) result = fortunes[2]; else result = fortunes[3];             
 
         updateScoreUI(result.pt, 0, 0, result.seed);
-        
         let resHtml = `<span style="color:${result.color}">${result.text}</span><br>`;
         if(result.pt > 0) resHtml += `<span style="font-size:13px; color:#1dd1a1;">获得 +${result.pt} 碎片</span><br>`;
         if(result.seed > 0) resHtml += `<span style="font-size:13px; color:#1dd1a1;">获得 +${result.seed} 种子</span>`;
         if(result.pt === 0 && result.seed === 0) resHtml += `<span style="font-size:13px; color:#a4b0be;">今天没有额外掉落哦~</span>`;
-        
         localStorage.setItem('tidu_dailyFortune', resHtml);
         document.getElementById('fortuneResult').innerHTML = resHtml; document.getElementById('btnFortune').style.display = 'none';
-        sendSilentReport("🔮 抽取了每日占卜");
         isSystemBusy = false;
     }
 
     // 🔴 ========================================================
-    // 🎯 游戏一：守卫草莓园 (地狱极速打地鼠) 
+    // 🎯 游戏一：守卫草莓园 (打地鼠) 
     // 🔴 ========================================================
     let wamTimerInt, wamSpawnInt;
-    let wamTime = 20; 
-    let wamScore = 0; 
-    let wamIsPlaying = false;
-    let wamHoles = [];
+    let wamTime = 20; let wamScore = 0; let wamIsPlaying = false; let wamHoles = [];
 
     function startWhackAMole() {
         if (isSystemBusy) return;
@@ -296,180 +358,242 @@
         if (!confirm("确定花费 2 碎片开始保卫战？\n⚠️ 警告：地狱模式开启！准备好你的手速！")) return;
 
         isSystemBusy = true; updateScoreUI(-2, 0, 0, 0); isSystemBusy = false;
-
-        document.getElementById('wam-setup').style.display = 'none';
-        document.getElementById('wam-game-wrap').style.display = 'block';
-        
+        document.getElementById('wam-setup').style.display = 'none'; document.getElementById('wam-game-wrap').style.display = 'block';
         wamTime = 20; wamScore = 0; wamIsPlaying = true;
-        document.getElementById('wam-timer-text').innerText = wamTime;
-        document.getElementById('wam-score').innerText = wamScore;
+        document.getElementById('wam-timer-text').innerText = wamTime; document.getElementById('wam-score').innerText = wamScore;
         
         initWamGrid();
-
-        wamTimerInt = setInterval(() => {
-            wamTime--;
-            document.getElementById('wam-timer-text').innerText = wamTime;
-            if (wamTime <= 0) endWhackAMole();
-        }, 1000);
-
-        wamSpawnInt = setInterval(spawnWamEntity, 350); 
+        wamTimerInt = setInterval(() => { wamTime--; document.getElementById('wam-timer-text').innerText = wamTime; if (wamTime <= 0) endWhackAMole(); }, 1000);
+        wamSpawnInt = setInterval(spawnWamEntity, 450); 
     }
 
     function initWamGrid() {
-        const grid = document.getElementById('wam-grid');
-        grid.innerHTML = '';
-        wamHoles = [];
+        const grid = document.getElementById('wam-grid'); grid.innerHTML = ''; wamHoles = [];
         for (let i = 0; i < 9; i++) {
-            grid.innerHTML += `
-                <div class="wam-hole" id="wam-hole-${i}">
-                    <div class="wam-entity" id="wam-entity-${i}" onpointerdown="hitWamEntity(${i})"></div>
-                </div>
-            `;
+            grid.innerHTML += `<div class="wam-hole" id="wam-hole-${i}"><div class="wam-entity" id="wam-entity-${i}" onpointerdown="hitWamEntity(${i})"></div></div>`;
             wamHoles.push({ active: false, type: '', timer: null });
         }
     }
 
     function spawnWamEntity() {
         if (!wamIsPlaying) return;
-        
         let emptyHoles = [];
         for(let i=0; i<9; i++) { if(!wamHoles[i].active) emptyHoles.push(i); }
         if (emptyHoles.length === 0) return;
 
         let idx = emptyHoles[Math.floor(Math.random() * emptyHoles.length)];
         let holeData = wamHoles[idx];
-        
-        let r = Math.random();
-        let type = 'rabbit'; let icon = '🐰';
-        if (r < 0.2) { type = 'bomb'; icon = '💣'; }
-        else if (r < 0.4) { type = 'mushroom'; icon = '🍄'; }
+        let r = Math.random(); let type = 'rabbit'; let icon = '🐰';
+        if (r < 0.2) { type = 'bomb'; icon = '💣'; } else if (r < 0.4) { type = 'mushroom'; icon = '🍄'; }
 
-        holeData.active = true;
-        holeData.type = type;
-        
+        holeData.active = true; holeData.type = type;
         let entityElem = document.getElementById(`wam-entity-${idx}`);
-        entityElem.innerText = icon;
-        entityElem.className = 'wam-entity up'; 
-
-        let duration = Math.floor(Math.random() * 150) + 350;
+        entityElem.innerText = icon; entityElem.className = 'wam-entity up'; 
         
-        holeData.timer = setTimeout(() => {
-            if (holeData.active) hideWamEntity(idx);
-        }, duration);
+        // ★ 稍微调高兔子停留时间 0.55秒 ~ 0.70秒 (增加 0.1~0.2秒容错率)
+        let duration = Math.floor(Math.random() * 150) + 550; 
+        holeData.timer = setTimeout(() => { if (holeData.active) hideWamEntity(idx); }, duration);
     }
 
     function hitWamEntity(idx) {
         if (!wamIsPlaying) return;
-        let holeData = wamHoles[idx];
-        if (!holeData.active) return; 
+        let holeData = wamHoles[idx]; if (!holeData.active) return; 
 
         let entityElem = document.getElementById(`wam-entity-${idx}`);
-        entityElem.classList.add('hit'); 
-        holeData.active = false; 
+        entityElem.classList.add('hit'); holeData.active = false; 
         
-        if (holeData.type === 'rabbit') {
-            wamScore++;
-        } else {
-            wamScore--;
-            let section = document.getElementById('wam-section');
-            section.classList.remove('wam-shake-active');
-            void section.offsetWidth; 
-            section.classList.add('wam-shake-active');
+        if (holeData.type === 'rabbit') { wamScore++; } 
+        else {
+            wamScore--; let section = document.getElementById('wam-section');
+            section.classList.remove('shake-active'); void section.offsetWidth; section.classList.add('shake-active');
+            if(navigator.vibrate) navigator.vibrate(200);
         }
-        
         document.getElementById('wam-score').innerText = wamScore;
-        clearTimeout(holeData.timer);
-        setTimeout(() => hideWamEntity(idx), 50); 
+        clearTimeout(holeData.timer); setTimeout(() => hideWamEntity(idx), 50); 
     }
 
     function hideWamEntity(idx) {
-        let holeData = wamHoles[idx];
-        let entityElem = document.getElementById(`wam-entity-${idx}`);
-        entityElem.className = 'wam-entity';
-        holeData.active = false;
+        let holeData = wamHoles[idx]; let entityElem = document.getElementById(`wam-entity-${idx}`);
+        entityElem.className = 'wam-entity'; holeData.active = false;
     }
 
     function endWhackAMole() {
-        wamIsPlaying = false;
-        clearInterval(wamTimerInt); clearInterval(wamSpawnInt);
+        wamIsPlaying = false; clearInterval(wamTimerInt); clearInterval(wamSpawnInt);
         for(let i=0; i<9; i++) { clearTimeout(wamHoles[i].timer); hideWamEntity(i); }
 
         setTimeout(() => {
             let reward = 0; let msg = "";
-            if (wamScore >= 18) {
-                reward = 5; msg = `🎉 S级评价！这手速绝了！\n击中: ${wamScore} 只\n获得奖励: +5 碎片！`;
-            } else if (wamScore >= 12) {
-                reward = 3; msg = `👍 A级评价！反应不错！\n击中: ${wamScore} 只\n获得奖励: +3 碎片！`;
-            } else {
-                msg = `💥 挑战失败...\n得分: ${wamScore} (目标: 12)\n慢吞吞的，连兔子都笑你啦！\n被扣除的 2 碎片化为灰烬～`;
-            }
+            if (wamScore >= 18) { reward = 5; msg = `🎉 S级评价！这手速绝了！\n击中: ${wamScore} 只\n获得奖励: +5 碎片！`; } 
+            else if (wamScore >= 12) { reward = 3; msg = `👍 A级评价！反应不错！\n击中: ${wamScore} 只\n获得奖励: +3 碎片！`; } 
+            else { msg = `💥 挑战失败...\n得分: ${wamScore} (目标: 12)\n慢吞吞的，连兔子都笑你啦！\n被扣除的 2 碎片化为灰烬～`; }
 
-            if (reward > 0) updateScoreUI(reward, 0, 0, 0);
-            alert(msg);
-            
-            document.getElementById('wam-setup').style.display = 'block';
-            document.getElementById('wam-game-wrap').style.display = 'none';
+            if (reward > 0) updateScoreUI(reward, 0, 0, 0); alert(msg);
+            document.getElementById('wam-setup').style.display = 'block'; document.getElementById('wam-game-wrap').style.display = 'none';
         }, 600);
     }
 
     // 🔴 ========================================================
-    // 💓 游戏二：520 心跳感应
+    // 🎩 游戏二：极速三杯兔
     // 🔴 ========================================================
-    let hbState = 'ready'; // ready -> running
-    let hbStart = 0; let hbInt;
+    let shellActive = false; let shellCanGuess = false; let rabbitCup = 0;
+    let cupPositions = [5, 35, 65]; 
+    let currentMap = [0, 1, 2]; 
+
+    function startShellGame() {
+        if (isSystemBusy || shellActive) return;
+        if (currentScore < 2) { alert(`❌ 余额不足！`); return; }
+        if (!confirm("⚠️ 扣除 2 碎片开始极速三杯兔。\n请死死盯住兔子藏在哪个杯子里！")) return;
+
+        updateScoreUI(-2, 0, 0, 0);
+        document.getElementById('shell-setup').style.display = 'none';
+        document.getElementById('shell-game-wrap').style.display = 'block';
+        document.getElementById('shell-tips').innerText = "🐰 兔子在这里...";
+        shellActive = true; shellCanGuess = false;
+        
+        rabbitCup = Math.floor(Math.random() * 3);
+        currentMap = [0, 1, 2];
+        for(let i=0; i<3; i++) { 
+            let wrap = document.getElementById(`cup-wrap-${i}`);
+            wrap.style.left = cupPositions[i] + '%'; 
+            wrap.classList.remove('reveal');
+            document.getElementById(`rabbit-${i}`).style.display = (i === rabbitCup) ? 'block' : 'none';
+        }
+
+        setTimeout(() => {
+            document.getElementById(`cup-wrap-${rabbitCup}`).classList.add('reveal');
+            setTimeout(() => {
+                document.getElementById(`cup-wrap-${rabbitCup}`).classList.remove('reveal');
+                document.getElementById('shell-tips').innerText = "💨 准备洗牌...";
+                setTimeout(() => {
+                    document.getElementById('shell-tips').innerText = "👀 盯紧了！";
+                    let shuffleCount = 0;
+                    let shuffleInt = setInterval(() => {
+                        let idx1 = Math.floor(Math.random() * 3);
+                        let idx2 = (idx1 + 1 + Math.floor(Math.random() * 2)) % 3;
+                        let temp = currentMap[idx1]; currentMap[idx1] = currentMap[idx2]; currentMap[idx2] = temp;
+                        document.getElementById(`cup-wrap-${idx1}`).style.left = cupPositions[currentMap[idx1]] + '%';
+                        document.getElementById(`cup-wrap-${idx2}`).style.left = cupPositions[currentMap[idx2]] + '%';
+                        shuffleCount++;
+                        if(shuffleCount > 15) { 
+                            clearInterval(shuffleInt);
+                            setTimeout(() => { document.getElementById('shell-tips').innerText = "👆 兔子在哪？快点出来！"; shellCanGuess = true; }, 300);
+                        }
+                    }, 280); 
+                }, 800);
+            }, 1000);
+        }, 500);
+    }
+
+    function guessCup(cupId) {
+        if (!shellCanGuess) return;
+        shellCanGuess = false;
+        document.getElementById(`cup-wrap-${cupId}`).classList.add('reveal');
+        
+        setTimeout(() => {
+            if (cupId === rabbitCup) {
+                updateScoreUI(5, 0, 0, 0); alert("🎉 猜中了！你这眼睛是装了雷达吗？\n获得奖励: +5 碎片！");
+            } else {
+                document.getElementById(`cup-wrap-${rabbitCup}`).classList.add('reveal'); 
+                if(navigator.vibrate) navigator.vibrate([100, 50, 100]);
+                alert("💥 猜错啦！\n兔子在另一个杯子里喔～被扣除的 2 碎片没收！");
+            }
+            setTimeout(() => {
+                document.getElementById('shell-setup').style.display = 'block';
+                document.getElementById('shell-game-wrap').style.display = 'none';
+                shellActive = false;
+            }, 800);
+        }, 500);
+    }
+
+    // 🔴 ========================================================
+    // ⚡ 游戏三：兔兔电流急急棒 
+    // 🔴 ========================================================
+    let mazeActive = false; let pointerIsDown = false;
+
+    function initMazeGame() {
+        if (isSystemBusy || mazeActive) return;
+        if (currentScore < 2) { alert(`❌ 余额不足！挑战急急棒需要 2 碎片。`); return; }
+        updateScoreUI(-2, 0, 0, 0);
+        
+        document.getElementById('maze-setup').style.display = 'none';
+        document.getElementById('maze-game-wrap').style.display = 'block';
+        alert("⚠️ 准备就绪！\n按住左下角的 📍 开始滑动。\n千万别松手，碰到红墙直接触电淘汰！");
+    }
+
+    document.getElementById('maze-start').addEventListener('pointerdown', (e) => {
+        if (document.getElementById('maze-game-wrap').style.display === 'none') return;
+        e.preventDefault(); mazeActive = true; pointerIsDown = true;
+        document.getElementById('maze-start').style.transform = "scale(0.8)";
+        document.getElementById('maze-box').style.boxShadow = "inset 0 0 20px rgba(29, 209, 161, 0.8)"; 
+    });
+
+    document.addEventListener('pointermove', (e) => {
+        if (!mazeActive || !pointerIsDown) return;
+        let elem = document.elementFromPoint(e.clientX, e.clientY);
+        if (!elem) return;
+        if (elem.id === 'maze-box') { triggerMazeFail("💥 哔哔哔——触碰墙壁！\n手太抖啦，电击淘汰！"); } 
+        else if (elem.id === 'maze-end') { triggerMazeWin(); }
+    });
+
+    document.addEventListener('pointerup', (e) => {
+        if (!mazeActive) return;
+        pointerIsDown = false; triggerMazeFail("💥 哔哔哔——松手警告！\n中途不能把手指拿起来喔，淘汰！");
+    });
+
+    document.addEventListener('pointercancel', () => { if (mazeActive) triggerMazeFail("💥 连接中断，淘汰！"); });
+
+    function triggerMazeFail(msg) {
+        mazeActive = false; pointerIsDown = false;
+        let box = document.getElementById('maze-box');
+        box.style.boxShadow = "inset 0 0 20px rgba(0,0,0,0.8)"; box.classList.add('maze-wall-hit');
+        if (navigator.vibrate) navigator.vibrate([300, 100, 300]);
+        setTimeout(() => { box.classList.remove('maze-wall-hit'); document.getElementById('maze-start').style.transform = "scale(1)"; alert(msg); resetMazeUI(); }, 300);
+    }
+
+    function triggerMazeWin() {
+        mazeActive = false; pointerIsDown = false;
+        let box = document.getElementById('maze-box');
+        box.style.boxShadow = "inset 0 0 20px rgba(0,0,0,0.8)"; document.getElementById('maze-start').style.transform = "scale(1)";
+        updateScoreUI(5, 0, 0, 0); alert("🎉 挑战成功！\n这么稳的手指，不去当外科医生可惜了！\n获得奖励: +5 碎片！"); resetMazeUI();
+    }
+
+    function resetMazeUI() {
+        document.getElementById('maze-setup').style.display = 'block'; document.getElementById('maze-game-wrap').style.display = 'none';
+    }
+
+    // 🔴 ========================================================
+    // 💓 游戏四：520 心跳感应
+    // 🔴 ========================================================
+    let hbState = 'ready'; let hbStart = 0; let hbInt;
 
     function toggleHeartbeat() {
         if (isSystemBusy) return;
-        let btn = document.getElementById('hb-btn');
-        let display = document.getElementById('hb-display');
-        
+        let btn = document.getElementById('hb-btn'); let display = document.getElementById('hb-display');
         if (hbState === 'ready') {
-            if (currentScore < 2) { alert(`❌ 余额不足！测试心跳需要 2 碎片。`); return; }
+            if (currentScore < 2) { alert(`❌ 余额不足！`); return; }
             updateScoreUI(-2, 0, 0, 0);
-            
-            hbStart = Date.now();
-            hbState = 'running';
-            btn.innerText = "🛑 停！";
-            btn.style.background = "linear-gradient(135deg, #1dd1a1, #10ac84)";
-            btn.style.borderColor = "#10ac84";
+            hbStart = Date.now(); hbState = 'running'; btn.innerText = "🛑 停！";
+            btn.style.background = "linear-gradient(135deg, #1dd1a1, #10ac84)"; btn.style.borderColor = "#10ac84";
             display.classList.add('heart-beat-anim');
-            
             hbInt = setInterval(() => {
                 let elapsed = (Date.now() - hbStart) / 1000;
-                if (elapsed <= 1.5) {
-                    display.innerText = elapsed.toFixed(2) + "s";
-                } else {
-                    display.innerText = "? . ? ? s"; 
-                }
+                if (elapsed <= 1.5) { display.innerText = elapsed.toFixed(2) + "s"; } else { display.innerText = "? . ? ? s"; }
             }, 10);
-            
         } else if (hbState === 'running') {
-            clearInterval(hbInt);
-            hbState = 'ready';
+            clearInterval(hbInt); hbState = 'ready';
             let elapsed = (Date.now() - hbStart) / 1000;
-            display.innerText = elapsed.toFixed(2) + "s";
-            display.classList.remove('heart-beat-anim');
-            btn.innerText = "💓 支付 2 碎片 开始";
-            btn.style.background = "linear-gradient(135deg, #ff4757, #ff6b81)";
-            btn.style.borderColor = "#ff4757";
-            
+            display.innerText = elapsed.toFixed(2) + "s"; display.classList.remove('heart-beat-anim');
+            btn.innerText = "💓 支付 2 碎片 开始"; btn.style.background = "linear-gradient(135deg, #ff4757, #ff6b81)"; btn.style.borderColor = "#ff4757";
             setTimeout(() => {
-                if (elapsed >= 5.15 && elapsed <= 5.25) {
-                    updateScoreUI(5, 0, 0, 0);
-                    alert(`💖 完美心电感应！时间：${elapsed.toFixed(2)} 秒！\n这也太默契了吧？\n获得奖励: +5 碎片！`);
-                } else if (elapsed >= 5.00 && elapsed <= 5.40) {
-                    updateScoreUI(3, 0, 0, 0);
-                    alert(`✨ A级感应！时间：${elapsed.toFixed(2)} 秒！\n只差一点点，还算有默契。\n获得奖励: +3 碎片！`);
-                } else {
-                    let msg = elapsed < 5.00 ? "按太早啦，是不是太心急了？" : "按太晚啦，跑去哪发呆了？";
-                    alert(`💔 感应失败...\n时间：${elapsed.toFixed(2)} 秒\n${msg}\n扣除 2 碎片！`);
-                }
+                if (elapsed >= 5.15 && elapsed <= 5.25) { updateScoreUI(5, 0, 0, 0); alert(`💖 完美心电感应！时间：${elapsed.toFixed(2)} 秒！\n这也太默契了吧？\n获得奖励: +5 碎片！`); } 
+                else if (elapsed >= 5.00 && elapsed <= 5.40) { updateScoreUI(3, 0, 0, 0); alert(`✨ A级感应！时间：${elapsed.toFixed(2)} 秒！\n只差一点点，还算有默契。\n获得奖励: +3 碎片！`); } 
+                else { let msg = elapsed < 5.00 ? "按太早啦，是不是太心急了？" : "按太晚啦，跑去哪发呆了？"; alert(`💔 感应失败...\n时间：${elapsed.toFixed(2)} 秒\n${msg}\n扣除 2 碎片！`); }
             }, 500);
         }
     }
 
     // 🔴 ========================================================
-    // 🍓 游戏三：天降草莓雨
+    // 🍓 游戏五：天降草莓雨
     // 🔴 ========================================================
     let rainInt, rainSpawnInt; let rainTime = 30; let rainMiss = 0; let rainActive = false;
 
@@ -479,82 +603,48 @@
         if (!confirm("⚠️ 警告：准备好你的多指连弹！\n漏接 3 个食物 或 碰 1 个炸弹直接死亡！")) return;
 
         updateScoreUI(-2, 0, 0, 0);
-        document.getElementById('rain-setup').style.display = 'none';
-        document.getElementById('rain-game-wrap').style.display = 'block';
-        document.getElementById('rain-area').innerHTML = '';
-        
+        document.getElementById('rain-setup').style.display = 'none'; document.getElementById('rain-game-wrap').style.display = 'block'; document.getElementById('rain-area').innerHTML = '';
         rainTime = 30; rainMiss = 0; rainActive = true;
-        document.getElementById('rain-timer').innerText = rainTime;
-        document.getElementById('rain-miss').innerText = rainMiss;
+        document.getElementById('rain-timer').innerText = rainTime; document.getElementById('rain-miss').innerText = rainMiss;
         
-        rainInt = setInterval(() => {
-            rainTime--;
-            document.getElementById('rain-timer').innerText = rainTime;
-            if (rainTime <= 0) endRain(true);
-        }, 1000);
-        
+        rainInt = setInterval(() => { rainTime--; document.getElementById('rain-timer').innerText = rainTime; if (rainTime <= 0) endRain(true); }, 1000);
         rainSpawnInt = setInterval(spawnRainItem, 400);
     }
 
     function spawnRainItem() {
         if (!rainActive) return;
-        let area = document.getElementById('rain-area');
-        let div = document.createElement('div');
-        div.className = 'rain-item';
+        let area = document.getElementById('rain-area'); let div = document.createElement('div'); div.className = 'rain-item';
+        let r = Math.random(); let type = 'good'; let icon = '🍓';
+        if (r < 0.2) { type = 'bomb'; icon = '💣'; } else if (r < 0.35) { type = 'fake'; icon = '🍄'; } else if (r < 0.5) { type = 'good'; icon = '🥕'; }
         
-        let r = Math.random();
-        let type = 'good'; let icon = '🍓';
-        if (r < 0.2) { type = 'bomb'; icon = '💣'; }
-        else if (r < 0.35) { type = 'fake'; icon = '🍄'; }
-        else if (r < 0.5) { type = 'good'; icon = '🥕'; }
-        
-        div.innerText = icon;
-        div.style.left = Math.floor(Math.random() * 85) + '%';
-        
-        let baseDur = rainTime > 15 ? 1.8 : 1.3;
-        let dur = baseDur + (Math.random() * 0.5);
+        div.innerText = icon; div.style.left = Math.floor(Math.random() * 85) + '%';
+        let baseDur = rainTime > 15 ? 1.8 : 1.3; let dur = baseDur + (Math.random() * 0.5);
         div.style.animation = `rainFall ${dur}s linear forwards`;
         
         div.onpointerdown = (e) => {
             e.stopPropagation(); 
             if (!rainActive) return;
-            if (type === 'good') {
-                div.classList.add('rain-hit');
-                setTimeout(() => div.remove(), 200);
-            } else {
-                endRain(false, `你点到了 ${icon}！`);
-            }
+            if (type === 'good') { div.classList.add('rain-hit'); setTimeout(() => div.remove(), 200); } 
+            else { endRain(false, `你点到了 ${icon}！`); }
         };
         
         div.onanimationend = () => {
             if (!rainActive) return;
             if (type === 'good' && !div.classList.contains('rain-hit')) {
-                rainMiss++;
-                document.getElementById('rain-miss').innerText = rainMiss;
-                if (rainMiss >= 3) {
-                    endRain(false, "漏接太多草莓啦！");
-                }
+                rainMiss++; document.getElementById('rain-miss').innerText = rainMiss;
+                if (rainMiss >= 3) { endRain(false, "漏接太多草莓啦！"); }
             }
             div.remove();
         };
-        
         area.appendChild(div);
     }
 
     function endRain(isWin, failReason = "") {
-        rainActive = false;
-        clearInterval(rainInt); clearInterval(rainSpawnInt);
-        document.getElementById('rain-area').innerHTML = ''; 
-        
+        rainActive = false; clearInterval(rainInt); clearInterval(rainSpawnInt); document.getElementById('rain-area').innerHTML = ''; 
         setTimeout(() => {
-            if (isWin) {
-                updateScoreUI(5, 0, 0, 0);
-                alert(`🎉 S级评价！超强动态视力！\n成功撑过 30 秒草莓雨！\n获得奖励: +5 碎片！`);
-            } else {
-                alert(`💥 挑战失败...\n原因：${failReason}\n手指打结了吧？被扣除的 2 碎片化为灰烬～`);
-            }
-            document.getElementById('rain-setup').style.display = 'block';
-            document.getElementById('rain-game-wrap').style.display = 'none';
+            if (isWin) { updateScoreUI(5, 0, 0, 0); alert(`🎉 S级评价！超强动态视力！\n成功撑过 30 秒草莓雨！\n获得奖励: +5 碎片！`); } 
+            else { alert(`💥 挑战失败...\n原因：${failReason}\n手指打结了吧？被扣除的 2 碎片化为灰烬～`); }
+            document.getElementById('rain-setup').style.display = 'block'; document.getElementById('rain-game-wrap').style.display = 'none';
         }, 100);
     }
 
