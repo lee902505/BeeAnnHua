@@ -352,8 +352,8 @@
         isSystemBusy = false;
     }
 
-// ==========================================
-    // 🎁 羁绊宝盒 (精算赌徒心理 + 真实赌场放血版 + 无缝连抽)
+    // ==========================================
+    // 🎁 羁绊宝盒 (浮动保底反侦察 + 真实赌场放血版)
     // ==========================================
     function openBondBox() {
         if (isSystemBusy) return;
@@ -361,7 +361,6 @@
         
         isSystemBusy = true; updateScoreUI(-3, 0, 0, 0);
         
-        // 加入 3 分钟防刷屏机制，防止她连抽时 Bark 通知炸爆你的手机！
         sendSilentReport("🎁 正在疯狂连抽羁绊宝盒...", 3);
 
         let icon = document.getElementById('bondIcon'); 
@@ -380,21 +379,24 @@
         let bondDraws = parseInt(localStorage.getItem('tidu_bondDraws') || '0');
         let boxPity = parseInt(localStorage.getItem('tidu_boxPity') || '0');
         
+        // ✨ 核心暗改：读取动态保底目标 (如果还没有，就随机生成一个 60~110 之间的数字)
+        let pityTarget = parseInt(localStorage.getItem('tidu_pityTarget') || (Math.floor(Math.random() * 51) + 60).toString());
+        
         bondDraws++; boxPity++;
 
         let rewards = [ 
-            { title: "命运交响", desc: "+200 碎片", color: "#ff7675", img: "images/007.png", pt: 200 }, // 0
-            { title: "时光羁绊", desc: "+80 碎片",  color: "#feca57", img: "images/006.png", pt: 80 },  // 1
-            { title: "心电共鸣", desc: "+20 碎片",  color: "#ff9ff3", img: "images/005.png", pt: 20 },  // 2
-            { title: "守护之翼", desc: "+10 碎片",  color: "#a29bfe", img: "images/004.png", pt: 10 },  // 3
-            { title: "甜蜜契约", desc: "+3.5 碎片", color: "#ff9ff3", img: "images/003.png", pt: 3.5 }, // 4 (假赢)
-            { title: "星光点点", desc: "+2 碎片",   color: "#48dbfb", img: "images/002.png", pt: 2 },   // 5
-            { title: "暖心陪伴", desc: "+0.5 碎片", color: "#a4b0be", img: "images/001.png", pt: 0.5 }  // 6
+            { title: "命运交响", desc: "+200 碎片", color: "#ff7675", img: "images/007.png", pt: 200 }, 
+            { title: "时光羁绊", desc: "+80 碎片",  color: "#feca57", img: "images/006.png", pt: 80 },  
+            { title: "心电共鸣", desc: "+20 碎片",  color: "#ff9ff3", img: "images/005.png", pt: 20 },  
+            { title: "守护之翼", desc: "+10 碎片",  color: "#a29bfe", img: "images/004.png", pt: 10 },  
+            { title: "甜蜜契约", desc: "+3.5 碎片", color: "#ff9ff3", img: "images/003.png", pt: 3.5 }, 
+            { title: "星光点点", desc: "+2 碎片",   color: "#48dbfb", img: "images/002.png", pt: 2 },   
+            { title: "暖心陪伴", desc: "+0.5 碎片", color: "#a4b0be", img: "images/001.png", pt: 0.5 }  
         ];
 
         let item;
 
-        // 🎯 阶段一：固定剧本蜜月期 (锁死前4抽，绝对诱捕)
+        // 🎯 阶段一：固定剧本蜜月期 (仅限前 4 抽)
         if (bondDraws === 2) {
             item = rewards[1]; // 第2抽必出 80
             boxPity = 0;
@@ -402,20 +404,35 @@
             item = rewards[2]; // 第4抽必出 20
             boxPity = 0;
         } 
-        // 🎯 阶段二：深渊保底机制 (花了240碎片，必定给一次回血大爆)
-        else if (boxPity >= 80) {
+        // 🎯 阶段二：动态深渊保底机制 (打破规律，让她算不出哪一抽是大奖)
+        else if (boxPity >= pityTarget) {
             let r = Math.random();
             item = (r < 0.1) ? rewards[0] : rewards[1]; // 10% 出200，90% 出80
+            
             boxPity = 0; // 中大奖，重置保底计数
+            
+            // ✨ 中大奖后，立刻洗牌！重新生成下一次的保底目标门槛 (60 到 110 之间)
+            let newTarget = Math.floor(Math.random() * 51) + 60;
+            localStorage.setItem('tidu_pityTarget', newTarget.toString());
         } 
-        // 🔪 阶段三：真实赌场放血池 (每 80 抽保证她净亏损 ~31 碎片)
+        // 🔪 阶段三：真实赌场放血池 (常态抽卡，伪造随机性)
         else {
             let r = Math.random();
-            if (r < 0.01) item = rewards[2];                         // 1% 出 20
-            else if (r < 0.03) item = rewards[3];                    // 2% 出 10
-            else if (r < 0.13) item = rewards[4];                    // 10% 出 3.5 (假赢核心，闪绿灯让她以为赚钱)
-            else if (r < 0.33) item = rewards[5];                    // 20% 出 2 (微亏，不痛)
-            else item = rewards[6];                                  // 67% 出 0.5 (真正的杀猪放血刀)
+            if (r < 0.001) { 
+                item = rewards[0]; 
+                boxPity = 0; // 狗屎运提早中 200，重置保底并重新洗牌保底目标
+                localStorage.setItem('tidu_pityTarget', (Math.floor(Math.random() * 51) + 60).toString());
+            }       
+            else if (r < 0.005) { 
+                item = rewards[1]; 
+                boxPity = 0; // 狗屎运提早中 80，重置保底并重新洗牌保底目标
+                localStorage.setItem('tidu_pityTarget', (Math.floor(Math.random() * 51) + 60).toString());
+            }  
+            else if (r < 0.02) item = rewards[2];                    // 1.5% 出 20
+            else if (r < 0.05) item = rewards[3];                    // 3% 出 10
+            else if (r < 0.13) item = rewards[4];                    // 8% 出 3.5 (假赢闪绿灯)
+            else if (r < 0.33) item = rewards[5];                    // 20% 出 2 
+            else item = rewards[6];                                  // 67% 出 0.5 (主力放血)
         }
 
         // 保存更新后的次数
