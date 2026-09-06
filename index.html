@@ -352,8 +352,8 @@
         isSystemBusy = false;
     }
 
-    // ==========================================
-    // 🎁 羁绊宝盒 (浮动保底反侦察 + 真实赌场放血版)
+// ==========================================
+    // 🎁 羁绊宝盒 (视觉丰富假象 + 真实赌场放血版)
     // ==========================================
     function openBondBox() {
         if (isSystemBusy) return;
@@ -379,7 +379,7 @@
         let bondDraws = parseInt(localStorage.getItem('tidu_bondDraws') || '0');
         let boxPity = parseInt(localStorage.getItem('tidu_boxPity') || '0');
         
-        // ✨ 核心暗改：读取动态保底目标 (如果还没有，就随机生成一个 60~110 之间的数字)
+        // ✨ 读取动态保底目标 (如果还没有，就随机生成一个 60~110 之间的数字)
         let pityTarget = parseInt(localStorage.getItem('tidu_pityTarget') || (Math.floor(Math.random() * 51) + 60).toString());
         
         bondDraws++; boxPity++;
@@ -415,7 +415,7 @@
             let newTarget = Math.floor(Math.random() * 51) + 60;
             localStorage.setItem('tidu_pityTarget', newTarget.toString());
         } 
-        // 🔪 阶段三：真实赌场放血池 (常态抽卡，伪造随机性)
+        // 🔪 阶段三：真实赌场放血池 (优化体验版：更多中奖错觉，EV = 2.63)
         else {
             let r = Math.random();
             if (r < 0.001) { 
@@ -423,16 +423,16 @@
                 boxPity = 0; // 狗屎运提早中 200，重置保底并重新洗牌保底目标
                 localStorage.setItem('tidu_pityTarget', (Math.floor(Math.random() * 51) + 60).toString());
             }       
-            else if (r < 0.005) { 
+            else if (r < 0.003) { 
                 item = rewards[1]; 
                 boxPity = 0; // 狗屎运提早中 80，重置保底并重新洗牌保底目标
                 localStorage.setItem('tidu_pityTarget', (Math.floor(Math.random() * 51) + 60).toString());
             }  
-            else if (r < 0.02) item = rewards[2];                    // 1.5% 出 20
-            else if (r < 0.05) item = rewards[3];                    // 3% 出 10
-            else if (r < 0.13) item = rewards[4];                    // 8% 出 3.5 (假赢闪绿灯)
-            else if (r < 0.33) item = rewards[5];                    // 20% 出 2 
-            else item = rewards[6];                                  // 67% 出 0.5 (主力放血)
+            else if (r < 0.015) item = rewards[2];                   // 1.2% 出 20 (偶尔小惊喜)
+            else if (r < 0.065) item = rewards[3];                   // 5.0% 出 10 (频率提升！让她觉得不错)
+            else if (r < 0.245) item = rewards[4];                   // 18.0% 出 3.5 (假赢闪绿灯)
+            else if (r < 0.595) item = rewards[5];                   // 35.0% 出 2 (微亏，不痛不痒)
+            else item = rewards[6];                                  // 40.5% 出 0.5 (主力放血，从67%大幅降到40%)
         }
 
         // 保存更新后的次数
