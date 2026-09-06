@@ -352,8 +352,8 @@
         isSystemBusy = false;
     }
 
-    // ==========================================
-    // 🎁 羁绊宝盒 (精算赌徒心理 + 真实赌场杀猪版 + 无缝连抽)
+// ==========================================
+    // 🎁 羁绊宝盒 (精算赌徒心理 + 真实赌场放血版 + 无缝连抽)
     // ==========================================
     function openBondBox() {
         if (isSystemBusy) return;
@@ -402,22 +402,20 @@
             item = rewards[2]; // 第4抽必出 20
             boxPity = 0;
         } 
-        // 🎯 阶段二：深渊保底机制 (花了240碎片，才给一次回血)
+        // 🎯 阶段二：深渊保底机制 (花了240碎片，必定给一次回血大爆)
         else if (boxPity >= 80) {
             let r = Math.random();
             item = (r < 0.1) ? rewards[0] : rewards[1]; // 10% 出200，90% 出80
             boxPity = 0; // 中大奖，重置保底计数
         } 
-        // 🔪 阶段三：真实赌场杀猪池 (EV = 2.64，成本 3，稳步慢性放血)
+        // 🔪 阶段三：真实赌场放血池 (每 80 抽保证她净亏损 ~31 碎片)
         else {
             let r = Math.random();
-            if (r < 0.001) { item = rewards[0]; boxPity = 0; }       // 0.1% 狗屎运出 200 (重置保底)
-            else if (r < 0.005) { item = rewards[1]; boxPity = 0; }  // 0.4% 狗屎运出 80  (重置保底)
-            else if (r < 0.02) item = rewards[2];                    // 1.5% 出 20
-            else if (r < 0.05) item = rewards[3];                    // 3% 出 10
-            else if (r < 0.25) item = rewards[4];                    // 20% 出 3.5 (假赢核心，让她疯狂上头)
-            else if (r < 0.55) item = rewards[5];                    // 30% 出 2 (微亏)
-            else item = rewards[6];                                  // 45% 出 0.5 (真正的杀猪刀)
+            if (r < 0.01) item = rewards[2];                         // 1% 出 20
+            else if (r < 0.03) item = rewards[3];                    // 2% 出 10
+            else if (r < 0.13) item = rewards[4];                    // 10% 出 3.5 (假赢核心，闪绿灯让她以为赚钱)
+            else if (r < 0.33) item = rewards[5];                    // 20% 出 2 (微亏，不痛)
+            else item = rewards[6];                                  // 67% 出 0.5 (真正的杀猪放血刀)
         }
 
         // 保存更新后的次数
