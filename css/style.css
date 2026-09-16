@@ -2869,3 +2869,46 @@ main { display: grid; gap: 0; }
     -webkit-overflow-scrolling: touch;
   }
 }
+
+
+/* ===== V0.10.2.2 IOS FORM WIDTH HOTFIX ===== */
+
+/* Prevent padding/native date-time controls from making 100%-wide inputs
+   overflow their grid/flex containers on iPhone Safari. */
+.astro-field,
+.synastry-form-pair,
+.astrology-form-grid {
+  min-width: 0;
+}
+
+.astro-field input,
+.astro-field select,
+.synastry-relation-box select {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+}
+
+/* iOS date/time inputs sometimes keep a native intrinsic minimum width. */
+.astro-field input[type="date"],
+.astro-field input[type="time"] {
+  display: block;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  width: 100% !important;
+}
+
+@media (max-width: 620px) {
+  .astrology-form-grid,
+  .synastry-form-pair {
+    width: 100%;
+    max-width: 100%;
+    overflow: hidden;
+  }
+
+  .astro-field {
+    width: 100%;
+    max-width: 100%;
+  }
+}
