@@ -1,0 +1,222 @@
+(() => {
+  const STORAGE_KEY = 'xingchen-player-profile-v1';
+  let pendingAction = null;
+
+  const TEXT = {
+    'zh-CN': {
+      title:'先设置你的星辰称呼',
+      intro:'第一次使用个人功能前，先留下一个简单称呼。资料只保存在这个浏览器里。',
+      name:'名称', namePlaceholder:'例如：弈弈',
+      nameHint:'请输入 2～5 个全形文字。',
+      gender:'性别', male:'男', female:'女',
+      save:'保存并继续', edit:'修改资料',
+      invalidName:'名称需要 2～5 个全形文字，例如「弈弈」。',
+      chooseGender:'请选择性别。'
+    },
+    'zh-TW': {
+      title:'先設定你的星辰稱呼',
+      intro:'第一次使用個人功能前，先留下一個簡單稱呼。資料只保存在這個瀏覽器裡。',
+      name:'名稱', namePlaceholder:'例如：弈弈',
+      nameHint:'請輸入 2～5 個全形文字。',
+      gender:'性別', male:'男', female:'女',
+      save:'儲存並繼續', edit:'修改資料',
+      invalidName:'名稱需要 2～5 個全形文字，例如「弈弈」。',
+      chooseGender:'請選擇性別。'
+    },
+    'en': {
+      title:'Set your display name',
+      intro:'Before using personal features, create a short local profile. It stays in this browser only.',
+      name:'Name', namePlaceholder:'2–5 full-width characters',
+      nameHint:'Use 2–5 full-width characters.',
+      gender:'Gender', male:'Male', female:'Female',
+      save:'Save & continue', edit:'Edit profile',
+      invalidName:'Please use 2–5 full-width characters.',
+      chooseGender:'Please select a gender.'
+    }
+  };
+
+  function lang() {
+    const v = localStorage.getItem('xingchen-language');
+    return ['zh-CN','zh-TW','en'].includes(v) ? v : 'zh-CN';
+  }
+  function t(k) { return TEXT[lang()]?.[k] ?? TEXT['zh-CN'][k] ?? k; }
+
+  function validName(name) {
+    const chars = Array.from(String(name || '').trim());
+    if (chars.length < 2 || chars.length > 5) return false;
+    return chars.every(ch => ch.codePointAt(0) > 0xFF && !/\s/u.test(ch));
+  }
+
+  function read() {
+    try {
+      const p = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null');
+      if (!p || !validName(p.name) || !['male','female'].includes(p.gender)) return null;
+      return p;
+    } catch {
+      return null;
+    }
+  }
+
+  function symbol(gender) { return gender === 'male' ? '♂' : '♀'; }
+  function label(p = read()) { return p ? `${p.name}${symbol(p.gender)}` : ''; }
+
+  function render() {
+    const p = read();
+    document.querySelectorAll('[data-player-profile]').forEach(el => {
+      if (!p) {
+        el.hidden = true;
+        el.textContent = '';
+        el.classList.remove('is-male','is-female');
+        return;
+      }
+      el.hidden = false;
+      el.textContent = label(p);
+      el.classList.toggle('is-male', p.gender === 'male');
+      el.classList.toggle('is-female', p.gender === 'female');
+      el.title = t('edit');
+    });
+  }
+
+  function modal() { return document.getElementById('xingchenProfileModal'); }
+
+  function injectModal() {
+    if (modal()) return;
+    const host = document.createElement('div');
+    host.innerHTML = `
+      <div class="player-profile-modal" id="xingchenProfileModal" hidden>
+        <div class="player-profile-backdrop"></div>
+        <section class="player-profile-dialog" role="dialog" aria-modal="true" aria-labelledby="profileModalTitle">
+          <button class="profile-modal-close" id="profileModalClose" type="button" aria-label="Close">×</button>
+          <span class="profile-modal-star">✦</span>
+          <h2 id="profileModalTitle"></h2>
+          <p id="profileModalIntro"></p>
+
+          <label class="profile-modal-field">
+            <span id="profileNameLabel"></span>
+            <input id="profileName" type="text" maxlength="10" autocomplete="off" />
+            <small id="profileNameHint"></small>
+          </label>
+
+          <div class="profile-modal-gender">
+            <span id="profileGenderLabel"></span>
+            <div>
+              <label class="profile-gender-option male-option">
+                <input type="radio" name="xingchenGender" value="male" />
+                <span>♂ <b id="profileMaleText"></b></span>
+              </label>
+              <label class="profile-gender-option female-option">
+                <input type="radio" name="xingchenGender" value="female" />
+                <span>♀ <b id="profileFemaleText"></b></span>
+              </label>
+            </div>
+          </div>
+
+          <p class="profile-modal-error" id="profileError"></p>
+          <button class="profile-save-btn" id="profileSaveBtn" type="button"></button>
+        </section>
+      </div>`;
+    document.body.appendChild(host.firstElementChild);
+
+    document.getElementById('profileSaveBtn').addEventListener('click', save);
+    document.getElementById('profileModalClose').addEventListener('click', () => {
+      pendingAction = null;
+      close();
+    });
+    document.getElementById('profileName').addEventListener('keydown', e => {
+      if (e.key === 'Enter') save();
+    });
+  }
+
+  function applyText() {
+    document.getElementById('profileModalTitle').textContent = t('title');
+    document.getElementById('profileModalIntro').textContent = t('intro');
+    document.getElementById('profileNameLabel').textContent = t('name');
+    document.getElementById('profileName').placeholder = t('namePlaceholder');
+    document.getElementById('profileNameHint').textContent = t('nameHint');
+    document.getElementById('profileGenderLabel').textContent = t('gender');
+    document.getElementById('profileMaleText').textContent = t('male');
+    document.getElementById('profileFemaleText').textContent = t('female');
+    document.getElementById('profileSaveBtn').textContent = t('save');
+  }
+
+  function open(callback = null) {
+    pendingAction = typeof callback === 'function' ? callback : null;
+    const p = read();
+    applyText();
+    document.getElementById('profileName').value = p?.name || '';
+    document.querySelectorAll('input[name="xingchenGender"]').forEach(input => {
+      input.checked = input.value === p?.gender;
+    });
+    document.getElementById('profileError').textContent = '';
+    modal().hidden = false;
+    document.body.classList.add('profile-modal-open');
+    requestAnimationFrame(() => {
+      document.getElementById('profileName')?.focus();
+      document.getElementById('profileName')?.select();
+    });
+  }
+
+  function close() {
+    if (modal()) modal().hidden = true;
+    document.body.classList.remove('profile-modal-open');
+  }
+
+  function save() {
+    const name = document.getElementById('profileName').value.trim();
+    const gender = document.querySelector('input[name="xingchenGender"]:checked')?.value;
+    const err = document.getElementById('profileError');
+
+    if (!validName(name)) {
+      err.textContent = t('invalidName');
+      return;
+    }
+    if (!['male','female'].includes(gender)) {
+      err.textContent = t('chooseGender');
+      return;
+    }
+
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({
+      name, gender, updatedAt:new Date().toISOString()
+    }));
+    render();
+    close();
+
+    const action = pendingAction;
+    pendingAction = null;
+    if (action) setTimeout(action, 0);
+  }
+
+  function ensure(callback) {
+    if (read()) return true;
+    open(callback);
+    return false;
+  }
+
+  function guardLinks() {
+    document.querySelectorAll('[data-profile-required]').forEach(link => {
+      link.addEventListener('click', e => {
+        if (read()) return;
+        e.preventDefault();
+        const href = link.getAttribute('href');
+        open(() => { if (href) window.location.href = href; });
+      });
+    });
+  }
+
+  function init() {
+    injectModal();
+    render();
+    guardLinks();
+    document.querySelectorAll('[data-player-profile]').forEach(el => {
+      el.addEventListener('click', () => open());
+    });
+  }
+
+  window.XingchenPlayer = {
+    getProfile:read,
+    hasProfile:() => Boolean(read()),
+    ensure, open, label, render
+  };
+
+  document.addEventListener('DOMContentLoaded', init);
+})();

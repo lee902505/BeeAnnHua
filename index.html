@@ -16,13 +16,16 @@
         <span class="brand-subtitle">Your Stars, Your Story</span>
       </a>
 
-      <nav class="language-switcher" aria-label="切换语言">
-        <button class="lang-btn active" type="button" data-lang="zh-CN">简体</button>
-        <span class="lang-separator" aria-hidden="true">|</span>
-        <button class="lang-btn" type="button" data-lang="zh-TW">繁體</button>
-        <span class="lang-separator" aria-hidden="true">|</span>
-        <button class="lang-btn" type="button" data-lang="en">EN</button>
-      </nav>
+      <div class="header-tools">
+        <button class="player-profile-badge" type="button" data-player-profile hidden></button>
+        <nav class="language-switcher" aria-label="切换语言">
+          <button class="lang-btn active" type="button" data-lang="zh-CN">简体</button>
+          <span class="lang-separator" aria-hidden="true">|</span>
+          <button class="lang-btn" type="button" data-lang="zh-TW">繁體</button>
+          <span class="lang-separator" aria-hidden="true">|</span>
+          <button class="lang-btn" type="button" data-lang="en">EN</button>
+        </nav>
+      </div>
     </header>
 
     <main>
@@ -32,7 +35,7 @@
           <h1 data-i18n="dailyTitle">每日运势</h1>
           <p class="panel-en">DAILY FORTUNE</p>
           <p class="panel-desc" data-i18n="dailyDesc">抽取属于今天的指引，看看星辰想对你说什么。</p>
-          <a class="primary-btn" href="pages/fortune.html">
+          <a class="primary-btn" href="pages/fortune.html" data-profile-required>
             <span data-i18n="dailyButton">立即抽取</span><span class="btn-arrow" aria-hidden="true">→</span>
           </a>
         </div>
@@ -46,7 +49,7 @@
           <h2 data-i18n="tarotTitle">塔罗牌占卜</h2>
           <p class="panel-en">TAROT READING</p>
           <p class="panel-desc" data-i18n="tarotDesc">让塔罗牌，为你指引下一步的方向。</p>
-          <a class="primary-btn" href="pages/tarot.html">
+          <a class="primary-btn" href="pages/tarot.html" data-profile-required>
             <span data-i18n="tarotButton">开始占卜</span><span class="btn-arrow" aria-hidden="true">→</span>
           </a>
         </div>
@@ -60,7 +63,7 @@
           <h2 data-i18n="astrologyTitle">星座测算</h2>
           <p class="panel-en">ASTROLOGY</p>
           <p class="panel-desc" data-i18n="astrologyDesc">认识自己，发现属于你的星辰密码。</p>
-          <a class="primary-btn" href="pages/astrology.html">
+          <a class="primary-btn" href="pages/astrology.html" data-profile-required>
             <span data-i18n="astrologyButton">开始测算</span><span class="btn-arrow" aria-hidden="true">→</span>
           </a>
         </div>
@@ -90,5 +93,6 @@
 
   <script src="js/i18n.js"></script>
   <script src="js/main.js"></script>
+  <script src="js/player-profile.js"></script>
 </body>
 </html>

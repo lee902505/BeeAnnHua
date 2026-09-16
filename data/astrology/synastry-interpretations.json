@@ -1,0 +1,114 @@
+{
+  "version": "0.10",
+  "bodyThemes": {
+    "sun": {
+      "zh-CN": "核心认同、意志与自我表达",
+      "zh-TW": "核心認同、意志與自我表達",
+      "en": "identity, will and self-expression"
+    },
+    "moon": {
+      "zh-CN": "情绪需要、安全感与本能反应",
+      "zh-TW": "情緒需要、安全感與本能反應",
+      "en": "emotional needs, security and instinctive reactions"
+    },
+    "mercury": {
+      "zh-CN": "思考、沟通、理解与信息交换",
+      "zh-TW": "思考、溝通、理解與資訊交換",
+      "en": "thinking, communication, understanding and information exchange"
+    },
+    "venus": {
+      "zh-CN": "喜欢的方式、关系价值、亲近与吸引",
+      "zh-TW": "喜歡的方式、關係價值、親近與吸引",
+      "en": "affection, relationship values, closeness and attraction"
+    },
+    "mars": {
+      "zh-CN": "行动、欲望、推进方式、冲突与界线",
+      "zh-TW": "行動、慾望、推進方式、衝突與界線",
+      "en": "action, desire, momentum, conflict and boundaries"
+    },
+    "jupiter": {
+      "zh-CN": "支持、成长、信念、扩张与机会",
+      "zh-TW": "支持、成長、信念、擴張與機會",
+      "en": "support, growth, belief, expansion and opportunity"
+    },
+    "saturn": {
+      "zh-CN": "责任、承诺、限制、现实与长期结构",
+      "zh-TW": "責任、承諾、限制、現實與長期結構",
+      "en": "responsibility, commitment, limits, reality and long-term structure"
+    },
+    "uranus": {
+      "zh-CN": "自由、变化、独立、突破与不按常规",
+      "zh-TW": "自由、變化、獨立、突破與不按常規",
+      "en": "freedom, change, independence, breakthrough and unconventionality"
+    },
+    "neptune": {
+      "zh-CN": "理想、共感、想象、投射与边界",
+      "zh-TW": "理想、共感、想像、投射與界線",
+      "en": "ideals, empathy, imagination, projection and boundaries"
+    },
+    "pluto": {
+      "zh-CN": "深层吸引、权力、控制、危机与转化",
+      "zh-TW": "深層吸引、權力、控制、危機與轉化",
+      "en": "deep attraction, power, control, crisis and transformation"
+    },
+    "ascendant": {
+      "zh-CN": "第一印象、外在方式与面对世界的自然反应",
+      "zh-TW": "第一印象、外在方式與面對世界的自然反應",
+      "en": "first impression, outward style and natural approach to the world"
+    }
+  },
+  "aspectDynamics": {
+    "conjunction": {
+      "zh-CN": "两股能量直接结合，彼此影响强、存在感高；表现顺不顺，要看参与的两种功能本身。",
+      "zh-TW": "兩股能量直接結合，彼此影響強、存在感高；表現順不順，要看參與的兩種功能本身。",
+      "en": "The two functions merge directly and strongly influence each other; whether this feels easy or demanding depends on the functions involved."
+    },
+    "sextile": {
+      "zh-CN": "两股能量之间有可使用的合作空间，通常需要一点主动，优势才会真正发挥。",
+      "zh-TW": "兩股能量之間有可使用的合作空間，通常需要一點主動，優勢才會真正發揮。",
+      "en": "The two functions offer cooperative potential that becomes more useful when actively engaged."
+    },
+    "square": {
+      "zh-CN": "两股能量形成摩擦与推动力，容易触发彼此，但也能迫使双方发展新的相处方式。",
+      "zh-TW": "兩股能量形成摩擦與推動力，容易觸發彼此，但也能迫使雙方發展新的相處方式。",
+      "en": "The two functions create friction and activation; they can trigger each other, while also pushing the relationship to develop new ways of relating."
+    },
+    "trine": {
+      "zh-CN": "两股能量较自然地流动，彼此容易理解或支持；优势明显，但也可能因为太自然而被当成理所当然。",
+      "zh-TW": "兩股能量較自然地流動，彼此容易理解或支持；優勢明顯，但也可能因為太自然而被當成理所當然。",
+      "en": "The two functions flow easily and tend to support or understand one another, though the ease can sometimes be taken for granted."
+    },
+    "opposition": {
+      "zh-CN": "两股能量位于一条轴线两端，容易互相吸引也容易拉扯，需要在差异、投射与互补之间找平衡。",
+      "zh-TW": "兩股能量位於一條軸線兩端，容易互相吸引也容易拉扯，需要在差異、投射與互補之間找平衡。",
+      "en": "The two functions sit at opposite ends of an axis, creating both attraction and tension that asks for balance between difference, projection and complementarity."
+    }
+  },
+  "relationshipLenses": {
+    "dating": {
+      "zh-CN": "恋爱／暧昧",
+      "zh-TW": "戀愛／曖昧",
+      "en": "Dating / Attraction"
+    },
+    "couple": {
+      "zh-CN": "情侣",
+      "zh-TW": "情侶",
+      "en": "Couple"
+    },
+    "married": {
+      "zh-CN": "夫妻／长期伴侣",
+      "zh-TW": "夫妻／長期伴侶",
+      "en": "Marriage / Long-term"
+    },
+    "friend": {
+      "zh-CN": "朋友",
+      "zh-TW": "朋友",
+      "en": "Friendship"
+    },
+    "work": {
+      "zh-CN": "工作伙伴",
+      "zh-TW": "工作夥伴",
+      "en": "Work partnership"
+    }
+  }
+}

@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#514a87" />
+  <title>两人合盘 | 星辰日记</title>
+  <link rel="stylesheet" href="../css/style.css" />
+</head>
+<body class="synastry-page-body" id="pageTop">
+  <div class="site-shell synastry-shell">
+    <header class="subpage-header synastry-subpage-header">
+      <a class="brand" href="../index.html">
+        <span class="brand-title" id="synBrandTitle">星辰日记</span>
+        <span class="brand-subtitle">Your Stars, Your Story</span>
+      </a>
+      <a class="back-link" href="astrology.html" id="synBackLink">← 返回星座测算</a>
+    </header>
+
+    <main class="synastry-main">
+      <section class="synastry-hero">
+        <p class="panel-number">04</p>
+        <p class="panel-en">SYNASTRY</p>
+        <h1 id="synTitle">两人合盘</h1>
+        <p class="synastry-intro" id="synIntro"></p>
+      </section>
+
+      <section class="synastry-form-section">
+        <div class="synastry-person-grid">
+          <article class="synastry-person-form" data-person="A">
+            <header><span>A</span><div><strong id="personATitle">A 的资料</strong><small id="personAHint">第一个人的出生资料</small></div></header>
+            <label class="astro-field"><span id="nameALabel">称呼</span><input id="nameA" type="text" maxlength="24" placeholder="A" /></label>
+            <div class="synastry-form-pair">
+              <label class="astro-field"><span id="dateALabel">出生日期</span><input id="dateA" type="date" min="1900-01-01" /></label>
+              <label class="astro-field"><span id="timeALabel">出生时间</span><input id="timeA" type="time" step="60" /></label>
+            </div>
+            <label class="astro-field astro-city-field">
+              <span id="cityALabel">出生城市</span>
+              <div class="astro-city-search"><input id="cityA" type="text" autocomplete="off" placeholder="城市" /><div class="astro-city-results" id="cityResultsA" hidden></div></div>
+              <small class="astro-city-selected" id="cityMetaA" hidden></small>
+            </label>
+            <label class="astro-check-row synastry-check"><input id="unknownA" type="checkbox" /><span><strong id="unknownALabel">不知道出生时间</strong><small id="unknownAHint"></small></span></label>
+          </article>
+
+          <article class="synastry-person-form" data-person="B">
+            <header><span>B</span><div><strong id="personBTitle">B 的资料</strong><small id="personBHint">第二个人的出生资料</small></div></header>
+            <label class="astro-field"><span id="nameBLabel">称呼</span><input id="nameB" type="text" maxlength="24" placeholder="B" /></label>
+            <div class="synastry-form-pair">
+              <label class="astro-field"><span id="dateBLabel">出生日期</span><input id="dateB" type="date" min="1900-01-01" /></label>
+              <label class="astro-field"><span id="timeBLabel">出生时间</span><input id="timeB" type="time" step="60" /></label>
+            </div>
+            <label class="astro-field astro-city-field">
+              <span id="cityBLabel">出生城市</span>
+              <div class="astro-city-search"><input id="cityB" type="text" autocomplete="off" placeholder="城市" /><div class="astro-city-results" id="cityResultsB" hidden></div></div>
+              <small class="astro-city-selected" id="cityMetaB" hidden></small>
+            </label>
+            <label class="astro-check-row synastry-check"><input id="unknownB" type="checkbox" /><span><strong id="unknownBLabel">不知道出生时间</strong><small id="unknownBHint"></small></span></label>
+          </article>
+        </div>
+
+        <div class="synastry-relation-box">
+          <label class="astro-field">
+            <span id="relationLabel">关系类型</span>
+            <select id="relationshipType">
+              <option value="dating">恋爱／暧昧</option>
+              <option value="couple">情侣</option>
+              <option value="married">夫妻／长期伴侣</option>
+              <option value="friend">朋友</option>
+              <option value="work">工作伙伴</option>
+            </select>
+          </label>
+          <p id="relationHint">同一组相位在恋爱、朋友和工作关系里，重点会不同。</p>
+        </div>
+
+        <p class="astrology-error" id="synError" hidden></p>
+        <button class="astrology-calculate-btn" id="calculateSynBtn" type="button">
+          <span aria-hidden="true">✦</span><span id="calculateSynText">开始合盘</span><span aria-hidden="true">→</span>
+        </button>
+      </section>
+
+      <section class="synastry-result" id="synResult" hidden>
+        <header class="synastry-result-header">
+          <div><p class="panel-en">TWO CHARTS · ONE RELATIONSHIP</p><h2 id="synResultTitle">你们的合盘</h2><p id="synResultIntro"></p></div>
+          <div class="synastry-pair-chip" id="pairChip"></div>
+        </header>
+
+
+        <section class="synastry-score-panel" id="compatibilityScorePanel">
+          <div class="synastry-score-main">
+            <div class="synastry-score-ring" id="compatibilityRing" style="--score:50">
+              <div>
+                <span id="compatibilityScore">50</span>
+                <small>/ 100</small>
+              </div>
+            </div>
+            <div class="synastry-score-copy">
+              <span class="synastry-score-kicker" id="compatibilityLabel">合拍指数</span>
+              <h3 id="compatibilityBand">—</h3>
+              <p id="compatibilitySummary"></p>
+              <small id="compatibilityDisclaimer"></small>
+            </div>
+          </div>
+
+          <div class="synastry-dimension-grid" id="dimensionScores"></div>
+
+          <details class="synastry-score-method">
+            <summary>
+              <span id="scoreMethodTitle">计分依据</span>
+              <span aria-hidden="true">＋</span>
+            </summary>
+            <div class="synastry-score-method-body">
+              <p id="scoreMethodIntro"></p>
+              <div class="synastry-weight-grid" id="relationshipWeightGrid"></div>
+              <p id="scoreOrbNote"></p>
+              <p id="scoreConjunctionNote"></p>
+            </div>
+          </details>
+        </section>
+
+        <section class="synastry-core-compare">
+          <article><h3 id="coreAName">A</h3><div id="coreA"></div></article>
+          <div class="synastry-center-symbol">✦</div>
+          <article><h3 id="coreBName">B</h3><div id="coreB"></div></article>
+        </section>
+
+        <article class="synastry-overview-strip" id="synOverview"></article>
+
+        <section class="synastry-sections">
+          <details class="astro-expand-section" open><summary><span class="astro-section-index">01</span><span><strong id="secCoreTitle">核心吸引</strong><small id="secCoreHint"></small></span><span class="astro-summary-toggle"></span></summary><div class="astro-expand-content"><div class="synastry-aspect-list" id="secCore"></div></div></details>
+          <details class="astro-expand-section" open><summary><span class="astro-section-index">02</span><span><strong id="secEmotionTitle">情绪相处</strong><small id="secEmotionHint"></small></span><span class="astro-summary-toggle"></span></summary><div class="astro-expand-content"><div class="synastry-aspect-list" id="secEmotion"></div></div></details>
+          <details class="astro-expand-section"><summary><span class="astro-section-index">03</span><span><strong id="secCommTitle">沟通方式</strong><small id="secCommHint"></small></span><span class="astro-summary-toggle"></span></summary><div class="astro-expand-content"><div class="synastry-aspect-list" id="secComm"></div></div></details>
+          <details class="astro-expand-section"><summary><span class="astro-section-index">04</span><span><strong id="secLoveTitle">亲密与吸引</strong><small id="secLoveHint"></small></span><span class="astro-summary-toggle"></span></summary><div class="astro-expand-content"><div class="synastry-aspect-list" id="secLove"></div></div></details>
+          <details class="astro-expand-section"><summary><span class="astro-section-index">05</span><span><strong id="secStableTitle">长期稳定</strong><small id="secStableHint"></small></span><span class="astro-summary-toggle"></span></summary><div class="astro-expand-content"><div class="synastry-aspect-list" id="secStable"></div></div></details>
+          <details class="astro-expand-section"><summary><span class="astro-section-index">06</span><span><strong id="secChallengeTitle">挑战与磨合</strong><small id="secChallengeHint"></small></span><span class="astro-summary-toggle"></span></summary><div class="astro-expand-content"><div class="synastry-aspect-list" id="secChallenge"></div></div></details>
+          <details class="astro-expand-section" open><summary><span class="astro-section-index">07</span><span><strong id="secSummaryTitle">整体合盘摘要</strong><small id="secSummaryHint"></small></span><span class="astro-summary-toggle"></span></summary><div class="astro-expand-content"><article class="synastry-summary-card" id="synSummary"></article></div></details>
+        </section>
+
+        <article class="astrology-method-card synastry-method"><h3 id="synMethodTitle">解读说明</h3><p id="synMethodText"></p><p class="astrology-symbolic-note" id="synNote"></p></article>
+      </section>
+
+      <nav class="tarot-bottom-nav astrology-bottom-nav" aria-label="Page navigation"><button class="tarot-bottom-action" type="button" onclick="window.scrollTo({top:0,behavior:'smooth'})"><span>↑</span><span>TOP</span></button><a class="tarot-bottom-action" href="../index.html"><span>⌂</span><span>HOME</span></a></nav>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/astronomy-engine@2.1.19/astronomy.browser.min.js"></script>
+  <script src="../js/astrology-engine.js"></script>
+  <script src="../js/synastry.js"></script>
+</body>
+</html>

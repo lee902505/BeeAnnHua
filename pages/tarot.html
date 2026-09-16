@@ -15,7 +15,10 @@
         <span class="brand-title" id="tarotBrandTitle">星辰日记</span>
         <span class="brand-subtitle">Your Stars, Your Story</span>
       </a>
-      <a class="back-link" href="../index.html" id="tarotBackLink">← 返回首页</a>
+      <div class="subpage-header-actions">
+        <button class="player-profile-badge" type="button" data-player-profile hidden></button>
+        <a class="back-link" href="../index.html" id="tarotBackLink">← 返回首页</a>
+      </div>
     </header>
 
     <main class="tarot-main">
@@ -142,16 +145,18 @@
       <nav class="tarot-bottom-nav" aria-label="页面导航">
         <button class="tarot-bottom-action" id="scrollTopBtn" type="button">
           <span aria-hidden="true">↑</span>
-          <span id="scrollTopText">回到顶部</span>
+          <span>TOP</span>
         </button>
         <a class="tarot-bottom-action" href="../index.html">
           <span aria-hidden="true">⌂</span>
-          <span id="bottomHomeText">返回首页</span>
+          <span>HOME</span>
         </a>
       </nav>
     </main>
   </div>
 
+  <script src="../js/player-profile.js"></script>
+  <script src="../js/bark.js"></script>
   <script src="../js/tarot.js"></script>
 </body>
 </html>

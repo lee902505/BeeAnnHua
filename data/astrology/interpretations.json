@@ -1,0 +1,210 @@
+{
+  "version": "0.8",
+  "method": "Original synthesis of conventional Western natal astrology references",
+  "interpretations": {
+    "aries": {
+      "sun": {
+        "zh-CN": "你的核心动力偏向直接、主动和自主。你通常需要先行动、再从经验中修正方向；勇气和开创力是优势，但真正成熟的白羊能把冲劲变成持续行动，而不是只凭一时热度。",
+        "zh-TW": "你的核心動力偏向直接、主動和自主。你通常需要先行動、再從經驗中修正方向；勇氣和開創力是優勢，但真正成熟的牡羊能把衝勁變成持續行動，而不是只憑一時熱度。",
+        "en": "Your core drive favors directness, initiative and autonomy. Courage and the willingness to begin are strengths; growth comes from turning impulse into sustained action rather than relying only on the first burst of energy."
+      },
+      "moon": {
+        "zh-CN": "你的情绪反应来得快，也需要一定的行动空间。比起长时间压抑，你更容易在把感受说出来、做点什么之后恢复；安全感来自自主、坦率以及不必一直猜测别人心意。",
+        "zh-TW": "你的情緒反應來得快，也需要一定的行動空間。比起長時間壓抑，你更容易在把感受說出來、做點什麼之後恢復；安全感來自自主、坦率以及不必一直猜測別人心意。",
+        "en": "Your feelings tend to react quickly and need room to move. Emotional security grows through honesty, autonomy and being able to act on what you feel instead of suppressing it for too long."
+      },
+      "ascendant": {
+        "zh-CN": "你面对陌生环境时常给人直接、利落、有行动力的第一印象。遇到新情况，你倾向先试、先推进；外在风格容易显得独立，但学习留出观察与协商空间，会让这种果断更有力量。",
+        "zh-TW": "你面對陌生環境時常給人直接、俐落、有行動力的第一印象。遇到新情況，你傾向先試、先推進；外在風格容易顯得獨立，但學習留出觀察與協商空間，會讓這種果斷更有力量。",
+        "en": "You often meet new situations with a direct, decisive and action-oriented style. Others may see independence first; leaving room for observation and collaboration helps your natural decisiveness work even better."
+      }
+    },
+    "taurus": {
+      "sun": {
+        "zh-CN": "你的核心动力重视稳定、实际与可持续。你通常不是为了速度而行动，而是希望事情有价值、能累积；耐心和执行力是优势，成长课题是避免把稳定变成对变化的过度抗拒。",
+        "zh-TW": "你的核心動力重視穩定、實際與可持續。你通常不是為了速度而行動，而是希望事情有價值、能累積；耐心和執行力是優勢，成長課題是避免把穩定變成對變化的過度抗拒。",
+        "en": "Your core drive values stability, practicality and what can last. Patience and steady execution are strengths; growth comes from keeping stability without turning it into excessive resistance to change."
+      },
+      "moon": {
+        "zh-CN": "你的情绪需要稳定节奏、熟悉感和身体层面的舒适。安全感往往来自可预测的关系与生活秩序；当压力增加时，你可能更需要时间消化，而不是被催着马上改变。",
+        "zh-TW": "你的情緒需要穩定節奏、熟悉感和身體層面的舒適。安全感往往來自可預測的關係與生活秩序；當壓力增加時，你可能更需要時間消化，而不是被催著馬上改變。",
+        "en": "Your emotional life needs steadiness, familiarity and physical comfort. Security often comes from dependable relationships and routines; under stress, you may need time to process rather than being pushed to change immediately."
+      },
+      "ascendant": {
+        "zh-CN": "你给人的第一印象通常沉稳、可靠、不急躁。面对环境时会先确认现实条件和安全感，再决定投入多少；这种稳定很有吸引力，但偶尔主动改变节奏，也能避免错过新机会。",
+        "zh-TW": "你給人的第一印象通常沉穩、可靠、不急躁。面對環境時會先確認現實條件和安全感，再決定投入多少；這種穩定很有吸引力，但偶爾主動改變節奏，也能避免錯過新機會。",
+        "en": "You often come across as calm, grounded and dependable. You tend to assess practical conditions before committing; this steadiness is attractive, though some deliberate flexibility can keep new opportunities open."
+      }
+    },
+    "gemini": {
+      "sun": {
+        "zh-CN": "你的核心动力来自好奇、交流和不断理解新东西。你善于快速连接信息、看到不同角度，也需要变化来保持活力；优势是思维灵活，课题则是把兴趣进一步沉淀成真正的深度。",
+        "zh-TW": "你的核心動力來自好奇、交流和不斷理解新東西。你善於快速連接資訊、看到不同角度，也需要變化來保持活力；優勢是思維靈活，課題則是把興趣進一步沉澱成真正的深度。",
+        "en": "Your core drive comes from curiosity, communication and making connections between ideas. Mental flexibility is a strength; growth comes from turning wide-ranging interests into sustained depth."
+      },
+      "moon": {
+        "zh-CN": "你往往需要理解自己的感受，才能真正放松。聊天、写下来、交换观点都会帮助你整理情绪；安全感来自保持心理流动，不过当想法太多时，也要给自己一点不分析的安静时间。",
+        "zh-TW": "你往往需要理解自己的感受，才能真正放鬆。聊天、寫下來、交換觀點都會幫助你整理情緒；安全感來自保持心理流動，不過當想法太多時，也要給自己一點不分析的安靜時間。",
+        "en": "You often need to understand or name a feeling before you can relax. Talking, writing and exchanging perspectives help you process emotions; quiet time without constant analysis can be equally restorative."
+      },
+      "ascendant": {
+        "zh-CN": "你容易给人机灵、好聊、反应快的第一印象。面对新环境会先观察信息和人际线索，适应速度很快；你能自然切换表达方式，但维持一致感会让别人更容易真正认识你。",
+        "zh-TW": "你容易給人機靈、好聊、反應快的第一印象。面對新環境會先觀察資訊和人際線索，適應速度很快；你能自然切換表達方式，但維持一致感會讓別人更容易真正認識你。",
+        "en": "You often make a quick, curious and conversational first impression. You adapt by reading information and social cues; consistency helps others see the person beneath your flexible presentation."
+      }
+    },
+    "cancer": {
+      "sun": {
+        "zh-CN": "你的核心动力和情感连结、保护欲与归属感密切相关。你很容易记住人与环境带来的感受；直觉与照顾能力是优势，而成长在于建立界线，让关心别人不等于忽略自己。",
+        "zh-TW": "你的核心動力和情感連結、保護欲與歸屬感密切相關。你很容易記住人與環境帶來的感受；直覺與照顧能力是優勢，而成長在於建立界線，讓關心別人不等於忽略自己。",
+        "en": "Your core drive is closely tied to emotional connection, protection and belonging. Intuition and care are strengths; growth comes from building boundaries so caring for others does not mean neglecting yourself."
+      },
+      "moon": {
+        "zh-CN": "月亮在巨蟹很强调情绪记忆和归属需要。你需要可信任的人、熟悉空间以及被理解的感觉；敏感不是弱点，但当情绪起伏时，把需要说清楚会比期待别人自动察觉更有效。",
+        "zh-TW": "月亮在巨蟹很強調情緒記憶和歸屬需要。你需要可信任的人、熟悉空間以及被理解的感覺；敏感不是弱點，但當情緒起伏時，把需要說清楚會比期待別人自動察覺更有效。",
+        "en": "Cancer Moon strongly emphasizes emotional memory and belonging. Trusted people and familiar spaces matter; sensitivity is a strength, especially when needs are communicated instead of expected to be silently understood."
+      },
+      "ascendant": {
+        "zh-CN": "你的第一印象可能温和、谨慎、很会观察气氛。你会先确认环境是否安全，再逐渐展现自己；这种保护性让人感到亲切，但不要因为怕受伤而把真实反应全部藏起来。",
+        "zh-TW": "你的第一印象可能溫和、謹慎、很會觀察氣氛。你會先確認環境是否安全，再逐漸展現自己；這種保護性讓人感到親切，但不要因為怕受傷而把真實反應全部藏起來。",
+        "en": "You may first appear gentle, cautious and sensitive to atmosphere. You open after assessing safety; this protective style feels caring, but it works best when self-protection does not hide every genuine reaction."
+      }
+    },
+    "leo": {
+      "sun": {
+        "zh-CN": "你的核心动力来自创造、表达和被真正看见。你通常希望做的事有个人色彩，也愿意带动气氛；自信与热情是优势，成长在于让价值感来自真实创造，而不只依赖外界回应。",
+        "zh-TW": "你的核心動力來自創造、表達和被真正看見。你通常希望做的事有個人色彩，也願意帶動氣氛；自信與熱情是優勢，成長在於讓價值感來自真實創造，而不只依賴外界回應。",
+        "en": "Your core drive is creative, expressive and wants to be genuinely seen. Warmth and confidence are strengths; growth comes from grounding self-worth in authentic creation rather than only external response."
+      },
+      "moon": {
+        "zh-CN": "你的情绪需要被重视、被肯定，也需要有表达感受的空间。你对真诚的温暖很有反应；安全感来自忠诚和心意明确，不过受伤时别让自尊阻止你说出真正需要。",
+        "zh-TW": "你的情緒需要被重視、被肯定，也需要有表達感受的空間。你對真誠的溫暖很有反應；安全感來自忠誠和心意明確，不過受傷時別讓自尊阻止你說出真正需要。",
+        "en": "Your emotional life needs recognition, warmth and room for self-expression. Loyalty and clear affection feel safe; when hurt, do not let pride prevent you from naming what you genuinely need."
+      },
+      "ascendant": {
+        "zh-CN": "你容易给人有存在感、热情或自信的第一印象。进入新环境时，往往自然地希望做出有个人特色的表达；你的光芒很明显，而真正持久的魅力来自慷慨和稳定的自信。",
+        "zh-TW": "你容易給人有存在感、熱情或自信的第一印象。進入新環境時，往往自然地希望做出有個人特色的表達；你的光芒很明顯，而真正持久的魅力來自慷慨和穩定的自信。",
+        "en": "You often make a noticeable, warm or confident first impression. You naturally add personal style to new situations; lasting magnetism comes from generosity and secure confidence rather than performance alone."
+      }
+    },
+    "virgo": {
+      "sun": {
+        "zh-CN": "你的核心动力来自理解细节、改善系统和让事情变得更好。你重视实用、逻辑与可执行性；分析力是优势，成长则是接受「够好」有时比无限修正更能推动结果。",
+        "zh-TW": "你的核心動力來自理解細節、改善系統和讓事情變得更好。你重視實用、邏輯與可執行性；分析力是優勢，成長則是接受「夠好」有時比無限修正更能推動結果。",
+        "en": "Your core drive is to understand details, improve systems and make things work better. Analysis and practicality are strengths; growth includes recognizing when “good enough” moves life forward better than endless correction."
+      },
+      "moon": {
+        "zh-CN": "你的情绪常会通过分析、整理和解决问题来恢复稳定。安全感来自秩序、可靠与知道自己能做什么；当压力大时，容易把情绪变成自我要求，记得感受不一定都需要立刻被修好。",
+        "zh-TW": "你的情緒常會透過分析、整理和解決問題來恢復穩定。安全感來自秩序、可靠與知道自己能做什麼；當壓力大時，容易把情緒變成自我要求，記得感受不一定都需要立刻被修好。",
+        "en": "You often regain emotional balance by analyzing, organizing and solving problems. Order and usefulness feel safe; under stress, remember that feelings do not always need to be fixed immediately."
+      },
+      "ascendant": {
+        "zh-CN": "你给人的第一印象常是细心、克制、观察力强。面对新环境时会快速扫描细节，判断哪里需要调整；可靠是你的优势，但不需要一开始就把自己放进「必须表现正确」的压力里。",
+        "zh-TW": "你給人的第一印象常是細心、克制、觀察力強。面對新環境時會快速掃描細節，判斷哪裡需要調整；可靠是你的優勢，但不需要一開始就把自己放進「必須表現正確」的壓力裡。",
+        "en": "You often come across as observant, careful and composed. You scan details quickly and notice what can be improved; reliability is a strength, but you need not enter every situation under pressure to perform perfectly."
+      }
+    },
+    "libra": {
+      "sun": {
+        "zh-CN": "你的核心动力重视关系、平衡、公平与审美上的协调。你擅长同时看到多方立场；合作能力是优势，成长则是即使无法让所有人满意，也能做出属于自己的决定。",
+        "zh-TW": "你的核心動力重視關係、平衡、公平與審美上的協調。你擅長同時看到多方立場；合作能力是優勢，成長則是即使無法讓所有人滿意，也能做出屬於自己的決定。",
+        "en": "Your core drive values relationship, balance, fairness and harmony. Seeing multiple perspectives is a strength; growth comes from making your own decision even when not everyone can be pleased."
+      },
+      "moon": {
+        "zh-CN": "你的情绪需要和谐、尊重和可沟通的关系环境。冲突容易让你消耗，所以你会本能地找平衡；真正的安全感不是没有矛盾，而是知道关系里可以把不同意见说出来。",
+        "zh-TW": "你的情緒需要和諧、尊重和可溝通的關係環境。衝突容易讓你消耗，所以你會本能地找平衡；真正的安全感不是沒有矛盾，而是知道關係裡可以把不同意見說出來。",
+        "en": "Your emotional life needs harmony, respect and room for dialogue. Conflict can be draining, yet real security comes not from avoiding disagreement but from knowing differences can be expressed safely."
+      },
+      "ascendant": {
+        "zh-CN": "你常给人有礼、好相处、注重分寸的第一印象。你会自然观察别人并调整互动方式；这种社交敏感度很强，但越能明确表达自己的偏好，关系就越不容易只停在表面和谐。",
+        "zh-TW": "你常給人有禮、好相處、注重分寸的第一印象。你會自然觀察別人並調整互動方式；這種社交敏感度很強，但越能明確表達自己的偏好，關係就越不容易只停在表面和諧。",
+        "en": "You often seem courteous, approachable and socially aware. You naturally adjust to others; the more clearly you express your own preferences, the less likely harmony remains merely surface-level."
+      }
+    },
+    "scorpio": {
+      "sun": {
+        "zh-CN": "你的核心动力追求深度、真实与掌控自己生命中的重要部分。你不太满足于表面答案，面对危机也常有很强的恢复力；洞察力是优势，成长在于让信任与开放和自我保护保持平衡。",
+        "zh-TW": "你的核心動力追求深度、真實與掌控自己生命中的重要部分。你不太滿足於表面答案，面對危機也常有很強的恢復力；洞察力是優勢，成長在於讓信任與開放和自我保護保持平衡。",
+        "en": "Your core drive seeks depth, truth and ownership of what matters. Insight and resilience are strengths; growth comes from balancing self-protection with trust and openness."
+      },
+      "moon": {
+        "zh-CN": "你的情绪体验通常很深，不一定会马上让别人看见。安全感来自忠诚、真诚和可以承受复杂情绪的关系；你有强大的恢复能力，但越愿意承认脆弱，就越不需要用控制感保护自己。",
+        "zh-TW": "你的情緒體驗通常很深，不一定會馬上讓別人看見。安全感來自忠誠、真誠和可以承受複雜情緒的關係；你有強大的恢復能力，但越願意承認脆弱，就越不需要用控制感保護自己。",
+        "en": "Your emotional experience tends to run deep and is not always immediately visible. Loyalty and emotional honesty feel safe; allowing vulnerability reduces the need to rely on control for protection."
+      },
+      "ascendant": {
+        "zh-CN": "你容易给人安静、有穿透力、界线明确的第一印象。进入陌生环境时会先观察动机和气氛，不轻易完全暴露自己；这种洞察很强，但不必把每次接触都当成需要防守的局面。",
+        "zh-TW": "你容易給人安靜、有穿透力、界線明確的第一印象。進入陌生環境時會先觀察動機和氣氛，不輕易完全暴露自己；這種洞察很強，但不必把每次接觸都當成需要防守的局面。",
+        "en": "You may appear quiet, intense and strongly bounded. You tend to read motives and atmosphere before revealing yourself; your perception is powerful, though not every encounter needs to be treated as a situation to defend against."
+      }
+    },
+    "sagittarius": {
+      "sun": {
+        "zh-CN": "你的核心动力来自成长、探索与扩大视野。你通常需要目标感和自由度，才会真正有活力；乐观和远见是优势，成长则是让理想落地，并认真处理那些看起来不够有趣的细节。",
+        "zh-TW": "你的核心動力來自成長、探索與擴大視野。你通常需要目標感和自由度，才會真正有活力；樂觀和遠見是優勢，成長則是讓理想落地，並認真處理那些看起來不夠有趣的細節。",
+        "en": "Your core drive comes from growth, exploration and a wider horizon. Optimism and vision are strengths; growth means grounding ideals and attending to the less exciting details that make them real."
+      },
+      "moon": {
+        "zh-CN": "你的情绪需要空间、希望感和某种向前看的意义。被困住或长期重复很容易消耗你；安全感来自诚实与自由，不过真正的自由也包含承担选择后的责任。",
+        "zh-TW": "你的情緒需要空間、希望感和某種向前看的意義。被困住或長期重複很容易消耗你；安全感來自誠實與自由，不過真正的自由也包含承擔選擇後的責任。",
+        "en": "Your emotional life needs space, hope and a sense of meaning ahead. Honesty and freedom feel safe; mature freedom also includes taking responsibility for the choices you make."
+      },
+      "ascendant": {
+        "zh-CN": "你常给人开朗、直接、愿意尝试的第一印象。面对陌生环境时容易先看到可能性，而不是先担心限制；这种开放感很有感染力，但记得别人未必跟得上你的速度和直率。",
+        "zh-TW": "你常給人開朗、直接、願意嘗試的第一印象。面對陌生環境時容易先看到可能性，而不是先擔心限制；這種開放感很有感染力，但記得別人未必跟得上你的速度和直率。",
+        "en": "You often come across as open, direct and willing to explore. You notice possibilities before limitations; this optimism is infectious, though others may not always move at your speed or prefer the same degree of bluntness."
+      }
+    },
+    "capricorn": {
+      "sun": {
+        "zh-CN": "你的核心动力来自目标、责任与建立长期成果。你通常愿意为真正重要的事延迟满足；耐力和现实判断是优势，成长在于不让「必须有用、必须成功」成为评价自己的唯一标准。",
+        "zh-TW": "你的核心動力來自目標、責任與建立長期成果。你通常願意為真正重要的事延遲滿足；耐力和現實判斷是優勢，成長在於不讓「必須有用、必須成功」成為評價自己的唯一標準。",
+        "en": "Your core drive centers on goals, responsibility and lasting achievement. Endurance and realism are strengths; growth comes from not making usefulness or success the only measure of personal worth."
+      },
+      "moon": {
+        "zh-CN": "你的情绪常需要可控、可靠和有结构的环境。面对压力时，你可能先处理责任，再处理感受；安全感来自能力与稳定，但允许自己偶尔依赖别人，不会削弱你的成熟。",
+        "zh-TW": "你的情緒常需要可控、可靠和有結構的環境。面對壓力時，你可能先處理責任，再處理感受；安全感來自能力與穩定，但允許自己偶爾依賴別人，不會削弱你的成熟。",
+        "en": "Your emotional life needs reliability, structure and a sense of control. You may handle responsibility before feelings; security grows through competence, but allowing support from others does not make you less capable."
+      },
+      "ascendant": {
+        "zh-CN": "你给人的第一印象通常稳重、克制、有责任感。进入新环境时会先观察规则与现实要求，再决定如何行动；这种成熟让人信任，但也别让严肃感盖过你本来就有的幽默和温度。",
+        "zh-TW": "你給人的第一印象通常穩重、克制、有責任感。進入新環境時會先觀察規則與現實要求，再決定如何行動；這種成熟讓人信任，但也別讓嚴肅感蓋過你本來就有的幽默和溫度。",
+        "en": "You often appear composed, responsible and serious about what matters. You assess rules and practical demands before acting; this maturity builds trust, though your warmth and humor deserve room to show as well."
+      }
+    },
+    "aquarius": {
+      "sun": {
+        "zh-CN": "你的核心动力来自独立思考、创新和看见不同可能。你往往不喜欢因为「大家都这样」就接受一个答案；客观与原创是优势，成长则是让理念和真实情感、人际需要保持连接。",
+        "zh-TW": "你的核心動力來自獨立思考、創新和看見不同可能。你往往不喜歡因為「大家都這樣」就接受一個答案；客觀與原創是優勢，成長則是讓理念和真實情感、人際需要保持連結。",
+        "en": "Your core drive values independent thought, innovation and alternative possibilities. Originality and objectivity are strengths; growth comes from keeping ideas connected to real feelings and human needs."
+      },
+      "moon": {
+        "zh-CN": "你的情绪需要空间、理解和不被过度定义。你可能先用理性观察感受，再决定要不要表达；安全感来自可以做自己、可以保留独立性，同时也需要记得亲密不等于失去自由。",
+        "zh-TW": "你的情緒需要空間、理解和不被過度定義。你可能先用理性觀察感受，再決定要不要表達；安全感來自可以做自己、可以保留獨立性，同時也需要記得親密不等於失去自由。",
+        "en": "Your emotional life needs space, understanding and freedom from being overdefined. You may observe feelings intellectually before sharing them; intimacy works best when it is not mistaken for loss of independence."
+      },
+      "ascendant": {
+        "zh-CN": "你容易给人独特、理性、带一点距离感的第一印象。面对环境时会先看整体系统和不寻常的可能性；这种独立视角很鲜明，而当你愿意让别人看见真实温度时，会更有亲和力。",
+        "zh-TW": "你容易給人獨特、理性、帶一點距離感的第一印象。面對環境時會先看整體系統和不尋常的可能性；這種獨立視角很鮮明，而當你願意讓別人看見真實溫度時，會更有親和力。",
+        "en": "You may first appear original, rational and slightly detached. You notice systems and unusual possibilities; your independent perspective becomes more approachable when others can also see your genuine warmth."
+      }
+    },
+    "pisces": {
+      "sun": {
+        "zh-CN": "你的核心动力来自感受力、想象力与对更大意义的连接。你容易捕捉细微气氛，也可能有很强的创造或同理能力；成长在于建立实际界线，让敏感成为资源，而不是让自己不断被外界带走。",
+        "zh-TW": "你的核心動力來自感受力、想像力與對更大意義的連結。你容易捕捉細微氣氛，也可能有很強的創造或同理能力；成長在於建立實際界線，讓敏感成為資源，而不是讓自己不斷被外界帶走。",
+        "en": "Your core drive grows from sensitivity, imagination and connection to larger meaning. Empathy and creativity are strengths; practical boundaries help sensitivity become a resource rather than something that continually pulls you off course."
+      },
+      "moon": {
+        "zh-CN": "你的情绪很容易吸收环境与他人的气氛，需要独处、音乐、创作或安静空间来重新整理自己。安全感来自被理解和允许柔软；清楚区分「我的感受」与「别人的感受」尤其重要。",
+        "zh-TW": "你的情緒很容易吸收環境與他人的氣氛，需要獨處、音樂、創作或安靜空間來重新整理自己。安全感來自被理解和允許柔軟；清楚區分「我的感受」與「別人的感受」尤其重要。",
+        "en": "You easily absorb atmosphere and other people's moods, so solitude, music, creativity or quiet can help you reset. Feeling understood matters, and distinguishing your feelings from everyone else's is especially important."
+      },
+      "ascendant": {
+        "zh-CN": "你容易给人柔和、敏感、直觉型的第一印象。面对陌生环境时会先感受气氛，再决定如何回应；这种流动性让你很会适应，但清楚的界线和现实节奏能让你不容易被环境牵着走。",
+        "zh-TW": "你容易給人柔和、敏感、直覺型的第一印象。面對陌生環境時會先感受氣氛，再決定如何回應；這種流動性讓你很會適應，但清楚的界線和現實節奏能讓你不容易被環境牽著走。",
+        "en": "You often make a gentle, receptive and intuitive first impression. You feel the atmosphere before deciding how to respond; clear boundaries and practical rhythms keep adaptability from turning into being swept along by the environment."
+      }
+    }
+  }
+}

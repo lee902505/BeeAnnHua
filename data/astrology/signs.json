@@ -1,0 +1,213 @@
+{
+  "version": "0.8",
+  "zodiac": "tropical",
+  "signs": [
+    {
+      "index": 0,
+      "key": "aries",
+      "name": {
+        "zh-CN": "白羊座",
+        "zh-TW": "牡羊座",
+        "en": "Aries"
+      },
+      "glyph": "♈",
+      "element": "fire",
+      "modality": "cardinal",
+      "startLongitude": 0,
+      "endLongitude": 30
+    },
+    {
+      "index": 1,
+      "key": "taurus",
+      "name": {
+        "zh-CN": "金牛座",
+        "zh-TW": "金牛座",
+        "en": "Taurus"
+      },
+      "glyph": "♉",
+      "element": "earth",
+      "modality": "fixed",
+      "startLongitude": 30,
+      "endLongitude": 60
+    },
+    {
+      "index": 2,
+      "key": "gemini",
+      "name": {
+        "zh-CN": "双子座",
+        "zh-TW": "雙子座",
+        "en": "Gemini"
+      },
+      "glyph": "♊",
+      "element": "air",
+      "modality": "mutable",
+      "startLongitude": 60,
+      "endLongitude": 90
+    },
+    {
+      "index": 3,
+      "key": "cancer",
+      "name": {
+        "zh-CN": "巨蟹座",
+        "zh-TW": "巨蟹座",
+        "en": "Cancer"
+      },
+      "glyph": "♋",
+      "element": "water",
+      "modality": "cardinal",
+      "startLongitude": 90,
+      "endLongitude": 120
+    },
+    {
+      "index": 4,
+      "key": "leo",
+      "name": {
+        "zh-CN": "狮子座",
+        "zh-TW": "獅子座",
+        "en": "Leo"
+      },
+      "glyph": "♌",
+      "element": "fire",
+      "modality": "fixed",
+      "startLongitude": 120,
+      "endLongitude": 150
+    },
+    {
+      "index": 5,
+      "key": "virgo",
+      "name": {
+        "zh-CN": "处女座",
+        "zh-TW": "處女座",
+        "en": "Virgo"
+      },
+      "glyph": "♍",
+      "element": "earth",
+      "modality": "mutable",
+      "startLongitude": 150,
+      "endLongitude": 180
+    },
+    {
+      "index": 6,
+      "key": "libra",
+      "name": {
+        "zh-CN": "天秤座",
+        "zh-TW": "天秤座",
+        "en": "Libra"
+      },
+      "glyph": "♎",
+      "element": "air",
+      "modality": "cardinal",
+      "startLongitude": 180,
+      "endLongitude": 210
+    },
+    {
+      "index": 7,
+      "key": "scorpio",
+      "name": {
+        "zh-CN": "天蝎座",
+        "zh-TW": "天蠍座",
+        "en": "Scorpio"
+      },
+      "glyph": "♏",
+      "element": "water",
+      "modality": "fixed",
+      "startLongitude": 210,
+      "endLongitude": 240
+    },
+    {
+      "index": 8,
+      "key": "sagittarius",
+      "name": {
+        "zh-CN": "射手座",
+        "zh-TW": "射手座",
+        "en": "Sagittarius"
+      },
+      "glyph": "♐",
+      "element": "fire",
+      "modality": "mutable",
+      "startLongitude": 240,
+      "endLongitude": 270
+    },
+    {
+      "index": 9,
+      "key": "capricorn",
+      "name": {
+        "zh-CN": "摩羯座",
+        "zh-TW": "摩羯座",
+        "en": "Capricorn"
+      },
+      "glyph": "♑",
+      "element": "earth",
+      "modality": "cardinal",
+      "startLongitude": 270,
+      "endLongitude": 300
+    },
+    {
+      "index": 10,
+      "key": "aquarius",
+      "name": {
+        "zh-CN": "水瓶座",
+        "zh-TW": "水瓶座",
+        "en": "Aquarius"
+      },
+      "glyph": "♒",
+      "element": "air",
+      "modality": "fixed",
+      "startLongitude": 300,
+      "endLongitude": 330
+    },
+    {
+      "index": 11,
+      "key": "pisces",
+      "name": {
+        "zh-CN": "双鱼座",
+        "zh-TW": "雙魚座",
+        "en": "Pisces"
+      },
+      "glyph": "♓",
+      "element": "water",
+      "modality": "mutable",
+      "startLongitude": 330,
+      "endLongitude": 360
+    }
+  ],
+  "elements": {
+    "fire": {
+      "zh-CN": "火象",
+      "zh-TW": "火象",
+      "en": "Fire"
+    },
+    "earth": {
+      "zh-CN": "土象",
+      "zh-TW": "土象",
+      "en": "Earth"
+    },
+    "air": {
+      "zh-CN": "风象",
+      "zh-TW": "風象",
+      "en": "Air"
+    },
+    "water": {
+      "zh-CN": "水象",
+      "zh-TW": "水象",
+      "en": "Water"
+    }
+  },
+  "modalities": {
+    "cardinal": {
+      "zh-CN": "开创",
+      "zh-TW": "開創",
+      "en": "Cardinal"
+    },
+    "fixed": {
+      "zh-CN": "固定",
+      "zh-TW": "固定",
+      "en": "Fixed"
+    },
+    "mutable": {
+      "zh-CN": "变动",
+      "zh-TW": "變動",
+      "en": "Mutable"
+    }
+  }
+}

@@ -1,1 +1,246 @@
-<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>astrology | 星辰日记</title><link rel="stylesheet" href="../css/style.css"></head><body><div class="site-shell"><section class="home-panel panel-astrology" style="border-radius:32px"><div class="panel-content"><h1>功能页面已建立</h1><p class="panel-desc">V0.1 先建立入口，正式功能下一阶段接入。</p><a class="primary-btn" href="../index.html">返回首页 →</a></div></section></div></body></html>
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#5966a4" />
+  <title>星座测算 | 星辰日记</title>
+  <link rel="stylesheet" href="../css/style.css" />
+</head>
+<body class="astrology-page-body">
+  <div class="site-shell astrology-shell">
+    <header class="subpage-header astrology-subpage-header">
+      <a class="brand" href="../index.html">
+        <span class="brand-title" id="astroBrandTitle">星辰日记</span>
+        <span class="brand-subtitle">Your Stars, Your Story</span>
+      </a>
+      <div class="subpage-header-actions">
+        <button class="player-profile-badge" type="button" data-player-profile hidden></button>
+        <a class="back-link" href="../index.html" id="astroBackLink">← 返回首页</a>
+      </div>
+    </header>
+
+    <main class="astrology-main">
+      <section class="astrology-hero">
+        <p class="panel-number">03</p>
+        <p class="panel-en">ASTROLOGY</p>
+        <h1 id="astroTitle">星座测算</h1>
+        <p class="astrology-intro" id="astroIntro"></p>
+        <a class="astrology-synastry-entry" href="synastry.html"><span>✦</span><span id="synastryEntryText">两人合盘</span><span>→</span></a>
+      </section>
+
+      <section class="astrology-form-section">
+        <div class="astrology-form-grid">
+          <label class="astro-field">
+            <span id="dateLabel">出生日期</span>
+            <input id="birthDate" type="date" min="1900-01-01" />
+          </label>
+
+          <label class="astro-field">
+            <span id="timeLabel">出生时间</span>
+            <input id="birthTime" type="time" step="60" />
+          </label>
+
+          <label class="astro-field astro-city-field">
+            <span id="cityLabelText">出生城市</span>
+            <div class="astro-city-search">
+              <input id="birthCity" type="text" autocomplete="off" placeholder="城市" />
+              <div class="astro-city-results" id="cityResults" hidden></div>
+            </div>
+            <small id="cityHint"></small>
+            <small class="astro-city-selected" id="citySelectedMeta" hidden></small>
+          </label>
+        </div>
+
+        <label class="astro-check-row">
+          <input id="unknownTime" type="checkbox" />
+          <span>
+            <strong id="unknownLabel">不知道出生时间</strong>
+            <small id="unknownNote"></small>
+          </span>
+        </label>
+
+        <label class="astro-check-row astro-manual-toggle">
+          <input id="manualToggle" type="checkbox" />
+          <span><strong id="manualLabel">找不到城市？手动输入坐标</strong></span>
+        </label>
+
+        <div class="astro-manual-location" id="manualLocation" hidden>
+          <label class="astro-field">
+            <span id="latLabel">纬度</span>
+            <input id="manualLat" type="number" step="0.0001" min="-89.9" max="89.9" placeholder="22.9999" />
+          </label>
+          <label class="astro-field">
+            <span id="lonLabel">经度</span>
+            <input id="manualLon" type="number" step="0.0001" min="-180" max="180" placeholder="120.2269" />
+          </label>
+          <label class="astro-field">
+            <span id="timezoneLabelText">IANA 时区</span>
+            <input id="manualTimezone" type="text" placeholder="Asia/Taipei" />
+          </label>
+        </div>
+
+        <p class="astrology-error" id="astroError" hidden></p>
+
+        <button class="astrology-calculate-btn" id="calculateBtn" type="button">
+          <span aria-hidden="true">✦</span>
+          <span id="calculateBtnText">开始测算</span>
+          <span aria-hidden="true">→</span>
+        </button>
+      </section>
+
+      <section class="astrology-result" id="astroResult" hidden>
+        <header class="astrology-result-header">
+          <div>
+            <p class="panel-en">SUN · MOON · ASCENDANT</p>
+            <h2 id="resultTitle">你的核心三要素</h2>
+            <p id="resultIntro"></p>
+          </div>
+          <div class="astrology-result-location">
+            <strong id="resultLocation"></strong>
+            <span id="resultTimezone"></span>
+          </div>
+        </header>
+
+        <div class="astrology-core-grid">
+          <article class="astro-result-card" id="sunCard">
+            <div class="astro-result-top">
+              <span class="astro-result-glyph">☉</span>
+              <div>
+                <span class="astro-result-type" id="sunTitle">太阳</span>
+                <small id="sunRole">核心自我</small>
+              </div>
+            </div>
+            <h3 class="astro-result-sign"></h3>
+            <p class="astro-result-degree"></p>
+            <p class="astro-result-meta"></p>
+            <p class="astro-result-interpretation"></p>
+            <p class="astro-result-note"></p>
+          </article>
+
+          <article class="astro-result-card" id="moonCard">
+            <div class="astro-result-top">
+              <span class="astro-result-glyph">☽</span>
+              <div>
+                <span class="astro-result-type" id="moonTitle">月亮</span>
+                <small id="moonRole">情绪与安全感</small>
+              </div>
+            </div>
+            <h3 class="astro-result-sign"></h3>
+            <p class="astro-result-degree"></p>
+            <p class="astro-result-meta"></p>
+            <p class="astro-result-interpretation"></p>
+            <p class="astro-result-note"></p>
+          </article>
+
+          <article class="astro-result-card" id="ascCard">
+            <div class="astro-result-top">
+              <span class="astro-result-glyph">ASC</span>
+              <div>
+                <span class="astro-result-type" id="ascTitle">上升</span>
+                <small id="ascRole">外在方式与第一反应</small>
+              </div>
+            </div>
+            <h3 class="astro-result-sign"></h3>
+            <p class="astro-result-degree"></p>
+            <p class="astro-result-meta"></p>
+            <p class="astro-result-interpretation"></p>
+            <p class="astro-result-note"></p>
+          </article>
+        </div>
+
+        <article class="astrology-summary-card">
+          <span class="astro-summary-label" id="summaryHeading">三要素摘要</span>
+          <p id="summaryText"></p>
+        </article>
+
+
+        <section class="astrology-full-chart" id="fullNatalChart">
+          <details class="astro-expand-section" open>
+            <summary>
+              <span class="astro-section-index">02</span>
+              <span>
+                <strong id="planetSectionTitle">行星位置</strong>
+                <small id="planetSectionHint">十颗主要星体的星座、度数、宫位与逆行状态</small>
+              </span>
+              <span class="astro-summary-toggle" aria-hidden="true"></span>
+            </summary>
+            <div class="astro-expand-content">
+              <div class="astro-planet-list" id="planetList"></div>
+            </div>
+          </details>
+
+          <details class="astro-expand-section" id="housesDetails">
+            <summary>
+              <span class="astro-section-index">03</span>
+              <span>
+                <strong id="houseSectionTitle">四轴与十二宫</strong>
+                <small id="houseSectionHint">ASC / DSC / MC / IC、12 宫宫头与行星落宫</small>
+              </span>
+              <span class="astro-summary-toggle" aria-hidden="true"></span>
+            </summary>
+            <div class="astro-expand-content">
+              <div id="houseUnavailable" class="astro-section-unavailable" hidden></div>
+              <div id="houseContent">
+                <div class="astro-house-system" id="houseSystemLabel"></div>
+                <div class="astro-angle-grid" id="angleGrid"></div>
+                <div class="astro-house-list" id="houseList"></div>
+              </div>
+            </div>
+          </details>
+
+          <details class="astro-expand-section" id="aspectsDetails">
+            <summary>
+              <span class="astro-section-index">04</span>
+              <span>
+                <strong id="aspectSectionTitle">主要相位</strong>
+                <small id="aspectSectionHint">合相、六分、四分、三分与对分，以及实际容许度</small>
+              </span>
+              <span class="astro-summary-toggle" aria-hidden="true"></span>
+            </summary>
+            <div class="astro-expand-content">
+              <div class="astro-aspect-list" id="aspectList"></div>
+            </div>
+          </details>
+
+          <details class="astro-expand-section" open>
+            <summary>
+              <span class="astro-section-index">05</span>
+              <span>
+                <strong id="overviewSectionTitle">完整摘要</strong>
+                <small id="overviewSectionHint">元素、模式、宫位重点、逆行与紧密相位的整体观察</small>
+              </span>
+              <span class="astro-summary-toggle" aria-hidden="true"></span>
+            </summary>
+            <div class="astro-expand-content">
+              <article class="astro-overview-card" id="chartOverview"></article>
+            </div>
+          </details>
+        </section>
+
+        <article class="astrology-method-card">
+          <h3 id="methodHeading">计算说明</h3>
+          <p id="methodText"></p>
+          <p class="astrology-symbolic-note" id="interpretiveNote"></p>
+        </article>
+      </section>
+
+      <nav class="tarot-bottom-nav astrology-bottom-nav" aria-label="页面导航">
+        <button class="tarot-bottom-action" type="button" onclick="window.scrollTo({top:0,behavior:'smooth'})">
+          <span aria-hidden="true">↑</span><span>TOP</span>
+        </button>
+        <a class="tarot-bottom-action" href="../index.html">
+          <span aria-hidden="true">⌂</span><span>HOME</span>
+        </a>
+      </nav>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/astronomy-engine@2.1.19/astronomy.browser.min.js"></script>
+  <script src="../js/astrology-engine.js"></script>
+  <script src="../js/astrology-full.js"></script>
+  <script src="../js/player-profile.js"></script>
+  <script src="../js/bark.js"></script>
+  <script src="../js/astrology.js"></script>
+</body>
+</html>

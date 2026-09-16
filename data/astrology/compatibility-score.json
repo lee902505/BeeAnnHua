@@ -1,0 +1,124 @@
+{
+  "version": "0.10.1",
+  "name": "Stellar Compatibility Index",
+  "scoreRange": [
+    0,
+    100
+  ],
+  "dimensions": {
+    "emotion": {
+      "zh-CN": "情绪默契",
+      "zh-TW": "情緒默契",
+      "en": "Emotional Fit"
+    },
+    "communication": {
+      "zh-CN": "沟通理解",
+      "zh-TW": "溝通理解",
+      "en": "Communication"
+    },
+    "attraction": {
+      "zh-CN": "亲密吸引",
+      "zh-TW": "親密吸引",
+      "en": "Attraction"
+    },
+    "stability": {
+      "zh-CN": "长期稳定",
+      "zh-TW": "長期穩定",
+      "en": "Stability"
+    },
+    "growth": {
+      "zh-CN": "成长互补",
+      "zh-TW": "成長互補",
+      "en": "Growth"
+    }
+  },
+  "relationshipWeights": {
+    "dating": {
+      "emotion": 25,
+      "communication": 15,
+      "attraction": 30,
+      "stability": 15,
+      "growth": 15
+    },
+    "couple": {
+      "emotion": 25,
+      "communication": 20,
+      "attraction": 25,
+      "stability": 20,
+      "growth": 10
+    },
+    "married": {
+      "emotion": 25,
+      "communication": 20,
+      "attraction": 15,
+      "stability": 30,
+      "growth": 10
+    },
+    "friend": {
+      "emotion": 25,
+      "communication": 30,
+      "attraction": 5,
+      "stability": 15,
+      "growth": 25
+    },
+    "work": {
+      "emotion": 10,
+      "communication": 35,
+      "attraction": 5,
+      "stability": 30,
+      "growth": 20
+    }
+  },
+  "aspectBase": {
+    "trine": 0.95,
+    "sextile": 0.72,
+    "square": -0.82,
+    "opposition": -0.62,
+    "conjunction": 0.0
+  },
+  "orbModel": {
+    "description": "Exact aspects receive full strength. Influence tapers toward the configured orb limit but never abruptly drops inside the accepted orb.",
+    "floor": 0.22,
+    "exponent": 1.35
+  },
+  "scoreModel": {
+    "neutralBaseline": 50,
+    "scale": 46,
+    "confidenceBuffer": 0.85,
+    "minimum": 0,
+    "maximum": 100
+  },
+  "pairWeights": {
+    "sun|moon": 1.35,
+    "moon|moon": 1.45,
+    "sun|sun": 1.1,
+    "venus|mars": 1.4,
+    "venus|venus": 1.15,
+    "mars|mars": 0.95,
+    "mercury|mercury": 1.3,
+    "mercury|moon": 1.18,
+    "mercury|mars": 1.05,
+    "sun|venus": 1.16,
+    "moon|venus": 1.3,
+    "moon|mars": 1.18,
+    "sun|mars": 1.05,
+    "saturn|sun": 1.2,
+    "saturn|moon": 1.3,
+    "saturn|venus": 1.18,
+    "saturn|mars": 1.05,
+    "jupiter|sun": 1.05,
+    "jupiter|moon": 1.08,
+    "jupiter|venus": 1.04,
+    "pluto|moon": 1.1,
+    "pluto|venus": 1.05,
+    "ascendant|sun": 0.95,
+    "ascendant|moon": 1.0,
+    "ascendant|venus": 1.08,
+    "ascendant|mars": 1.05
+  },
+  "note": {
+    "zh-CN": "分数表示占星互动的自然顺畅度与磨合强度，不是关系成功率、婚姻概率或现实结果保证。",
+    "zh-TW": "分數表示占星互動的自然順暢度與磨合強度，不是關係成功率、婚姻機率或現實結果保證。",
+    "en": "The score represents astrological ease and adjustment pressure, not relationship success probability or a guarantee of real-world outcomes."
+  }
+}

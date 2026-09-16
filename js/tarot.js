@@ -313,8 +313,6 @@
     byId('structureHeading').textContent = ui('structureHeading');
     byId('finalAdviceHeading').textContent = ui('finalAdviceHeading');
     byId('tarotLoadError').textContent = ui('loadError');
-    byId('scrollTopText').textContent = ui('scrollTop');
-    byId('bottomHomeText').textContent = ui('bottomHome');
     byId('optionALabel').textContent = ui('optionA');
     byId('optionBLabel').textContent = ui('optionB');
     byId('optionAInput').placeholder = ui('optionAPlaceholder');
@@ -407,6 +405,10 @@
   }
 
   function draw() {
+    if (!window.XingchenPlayer?.hasProfile?.()) {
+      window.XingchenPlayer?.ensure?.(() => draw());
+      return;
+    }
     readInputs();
     const spread = selectedSpread();
     if (!spread || !state.cards.length) return;
@@ -562,6 +564,42 @@
     }, 440);
   }
 
+  function sendTarotBark(analysis) {
+    if (!window.XingchenBark?.send) return;
+
+    const player = window.XingchenPlayer?.label?.() || '未命名玩家';
+    const topicText = localized(selectedTopic()?.name) || state.selectedTopic;
+    const spreadText = localized(selectedSpread()?.name) || state.selectedSpread;
+
+    const cards = state.currentDraw.map((item,index) =>
+      `${index+1}. ${positionName(item.position)}｜${cardName(item.card)}｜${orientationText(item.reversed)}`
+    );
+
+    const body = [
+      `玩家：${player}`,
+      `问题方向：${topicText}`,
+      `牌阵：${spreadText}`,
+      state.question ? `问题：${state.question}` : '问题：一般指引',
+      state.selectedSpread === 'choice5'
+        ? `选项 A：${state.optionA || '未填写'}\n选项 B：${state.optionB || '未填写'}`
+        : '',
+      '',
+      '牌面：',
+      ...cards,
+      '',
+      `牌面故事：${buildStory(state.currentDraw, analysis)}`,
+      `结构重点：${buildStructure(analysis)}`,
+      `最终建议：${buildFinalAdvice(state.currentDraw, analysis)}`
+    ].filter(Boolean).join('\n');
+
+    window.XingchenBark.send({
+      title:'🔮 星辰日记｜塔罗结果',
+      subtitle:player,
+      body,
+      group:'星辰日记·塔罗牌'
+    });
+  }
+
   function revealCombination() {
     const analysis = analyseStructure(state.currentDraw);
 
@@ -577,6 +615,8 @@
     requestAnimationFrame(() => {
       byId('combinationReading').classList.add('is-visible');
     });
+
+    sendTarotBark(analysis);
   }
 
   function analyseStructure(draw) {

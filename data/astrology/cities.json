@@ -1,0 +1,1579 @@
+{
+  "version": "0.8",
+  "cities": [
+    {
+      "id": "taipei",
+      "name": {
+        "zh-CN": "台北",
+        "zh-TW": "臺北",
+        "en": "Taipei"
+      },
+      "country": {
+        "zh-CN": "台湾",
+        "zh-TW": "台湾",
+        "en": "Taiwan"
+      },
+      "lat": 25.033,
+      "lon": 121.5654,
+      "timezone": "Asia/Taipei",
+      "aliases": [
+        "台北",
+        "臺北",
+        "Taipei",
+        "taipei"
+      ]
+    },
+    {
+      "id": "new-taipei",
+      "name": {
+        "zh-CN": "新北",
+        "zh-TW": "新北",
+        "en": "New Taipei"
+      },
+      "country": {
+        "zh-CN": "台湾",
+        "zh-TW": "台湾",
+        "en": "Taiwan"
+      },
+      "lat": 25.0169,
+      "lon": 121.4628,
+      "timezone": "Asia/Taipei",
+      "aliases": [
+        "新北",
+        "New Taipei",
+        "new taipei"
+      ]
+    },
+    {
+      "id": "keelung",
+      "name": {
+        "zh-CN": "基隆",
+        "zh-TW": "基隆",
+        "en": "Keelung"
+      },
+      "country": {
+        "zh-CN": "台湾",
+        "zh-TW": "台湾",
+        "en": "Taiwan"
+      },
+      "lat": 25.1276,
+      "lon": 121.7392,
+      "timezone": "Asia/Taipei",
+      "aliases": [
+        "基隆",
+        "Keelung",
+        "keelung"
+      ]
+    },
+    {
+      "id": "taoyuan",
+      "name": {
+        "zh-CN": "桃园",
+        "zh-TW": "桃園",
+        "en": "Taoyuan"
+      },
+      "country": {
+        "zh-CN": "台湾",
+        "zh-TW": "台湾",
+        "en": "Taiwan"
+      },
+      "lat": 24.9937,
+      "lon": 121.301,
+      "timezone": "Asia/Taipei",
+      "aliases": [
+        "桃园",
+        "桃園",
+        "Taoyuan",
+        "taoyuan"
+      ]
+    },
+    {
+      "id": "hsinchu",
+      "name": {
+        "zh-CN": "新竹",
+        "zh-TW": "新竹",
+        "en": "Hsinchu"
+      },
+      "country": {
+        "zh-CN": "台湾",
+        "zh-TW": "台湾",
+        "en": "Taiwan"
+      },
+      "lat": 24.8138,
+      "lon": 120.9675,
+      "timezone": "Asia/Taipei",
+      "aliases": [
+        "新竹",
+        "Hsinchu",
+        "hsinchu"
+      ]
+    },
+    {
+      "id": "miaoli",
+      "name": {
+        "zh-CN": "苗栗",
+        "zh-TW": "苗栗",
+        "en": "Miaoli"
+      },
+      "country": {
+        "zh-CN": "台湾",
+        "zh-TW": "台湾",
+        "en": "Taiwan"
+      },
+      "lat": 24.5602,
+      "lon": 120.8214,
+      "timezone": "Asia/Taipei",
+      "aliases": [
+        "苗栗",
+        "Miaoli",
+        "miaoli"
+      ]
+    },
+    {
+      "id": "taichung",
+      "name": {
+        "zh-CN": "台中",
+        "zh-TW": "臺中",
+        "en": "Taichung"
+      },
+      "country": {
+        "zh-CN": "台湾",
+        "zh-TW": "台湾",
+        "en": "Taiwan"
+      },
+      "lat": 24.1477,
+      "lon": 120.6736,
+      "timezone": "Asia/Taipei",
+      "aliases": [
+        "台中",
+        "臺中",
+        "Taichung",
+        "taichung"
+      ]
+    },
+    {
+      "id": "changhua",
+      "name": {
+        "zh-CN": "彰化",
+        "zh-TW": "彰化",
+        "en": "Changhua"
+      },
+      "country": {
+        "zh-CN": "台湾",
+        "zh-TW": "台湾",
+        "en": "Taiwan"
+      },
+      "lat": 24.0756,
+      "lon": 120.544,
+      "timezone": "Asia/Taipei",
+      "aliases": [
+        "彰化",
+        "Changhua",
+        "changhua"
+      ]
+    },
+    {
+      "id": "nantou",
+      "name": {
+        "zh-CN": "南投",
+        "zh-TW": "南投",
+        "en": "Nantou"
+      },
+      "country": {
+        "zh-CN": "台湾",
+        "zh-TW": "台湾",
+        "en": "Taiwan"
+      },
+      "lat": 23.9609,
+      "lon": 120.9719,
+      "timezone": "Asia/Taipei",
+      "aliases": [
+        "南投",
+        "Nantou",
+        "nantou"
+      ]
+    },
+    {
+      "id": "yunlin",
+      "name": {
+        "zh-CN": "云林",
+        "zh-TW": "雲林",
+        "en": "Yunlin"
+      },
+      "country": {
+        "zh-CN": "台湾",
+        "zh-TW": "台湾",
+        "en": "Taiwan"
+      },
+      "lat": 23.7092,
+      "lon": 120.4313,
+      "timezone": "Asia/Taipei",
+      "aliases": [
+        "云林",
+        "雲林",
+        "Yunlin",
+        "yunlin"
+      ]
+    },
+    {
+      "id": "chiayi",
+      "name": {
+        "zh-CN": "嘉义",
+        "zh-TW": "嘉義",
+        "en": "Chiayi"
+      },
+      "country": {
+        "zh-CN": "台湾",
+        "zh-TW": "台湾",
+        "en": "Taiwan"
+      },
+      "lat": 23.4801,
+      "lon": 120.4491,
+      "timezone": "Asia/Taipei",
+      "aliases": [
+        "嘉义",
+        "嘉義",
+        "Chiayi",
+        "chiayi"
+      ]
+    },
+    {
+      "id": "tainan",
+      "name": {
+        "zh-CN": "台南",
+        "zh-TW": "臺南",
+        "en": "Tainan"
+      },
+      "country": {
+        "zh-CN": "台湾",
+        "zh-TW": "台湾",
+        "en": "Taiwan"
+      },
+      "lat": 22.9999,
+      "lon": 120.2269,
+      "timezone": "Asia/Taipei",
+      "aliases": [
+        "台南",
+        "臺南",
+        "Tainan",
+        "tainan"
+      ]
+    },
+    {
+      "id": "kaohsiung",
+      "name": {
+        "zh-CN": "高雄",
+        "zh-TW": "高雄",
+        "en": "Kaohsiung"
+      },
+      "country": {
+        "zh-CN": "台湾",
+        "zh-TW": "台湾",
+        "en": "Taiwan"
+      },
+      "lat": 22.6273,
+      "lon": 120.3014,
+      "timezone": "Asia/Taipei",
+      "aliases": [
+        "高雄",
+        "Kaohsiung",
+        "kaohsiung"
+      ]
+    },
+    {
+      "id": "pingtung",
+      "name": {
+        "zh-CN": "屏东",
+        "zh-TW": "屏東",
+        "en": "Pingtung"
+      },
+      "country": {
+        "zh-CN": "台湾",
+        "zh-TW": "台湾",
+        "en": "Taiwan"
+      },
+      "lat": 22.5519,
+      "lon": 120.5488,
+      "timezone": "Asia/Taipei",
+      "aliases": [
+        "屏东",
+        "屏東",
+        "Pingtung",
+        "pingtung"
+      ]
+    },
+    {
+      "id": "yilan",
+      "name": {
+        "zh-CN": "宜兰",
+        "zh-TW": "宜蘭",
+        "en": "Yilan"
+      },
+      "country": {
+        "zh-CN": "台湾",
+        "zh-TW": "台湾",
+        "en": "Taiwan"
+      },
+      "lat": 24.7021,
+      "lon": 121.7378,
+      "timezone": "Asia/Taipei",
+      "aliases": [
+        "宜兰",
+        "宜蘭",
+        "Yilan",
+        "yilan"
+      ]
+    },
+    {
+      "id": "hualien",
+      "name": {
+        "zh-CN": "花莲",
+        "zh-TW": "花蓮",
+        "en": "Hualien"
+      },
+      "country": {
+        "zh-CN": "台湾",
+        "zh-TW": "台湾",
+        "en": "Taiwan"
+      },
+      "lat": 23.9911,
+      "lon": 121.6112,
+      "timezone": "Asia/Taipei",
+      "aliases": [
+        "花莲",
+        "花蓮",
+        "Hualien",
+        "hualien"
+      ]
+    },
+    {
+      "id": "taitung",
+      "name": {
+        "zh-CN": "台东",
+        "zh-TW": "臺東",
+        "en": "Taitung"
+      },
+      "country": {
+        "zh-CN": "台湾",
+        "zh-TW": "台湾",
+        "en": "Taiwan"
+      },
+      "lat": 22.7554,
+      "lon": 121.15,
+      "timezone": "Asia/Taipei",
+      "aliases": [
+        "台东",
+        "臺東",
+        "Taitung",
+        "taitung"
+      ]
+    },
+    {
+      "id": "penghu",
+      "name": {
+        "zh-CN": "澎湖",
+        "zh-TW": "澎湖",
+        "en": "Penghu"
+      },
+      "country": {
+        "zh-CN": "台湾",
+        "zh-TW": "台湾",
+        "en": "Taiwan"
+      },
+      "lat": 23.5712,
+      "lon": 119.5793,
+      "timezone": "Asia/Taipei",
+      "aliases": [
+        "澎湖",
+        "Penghu",
+        "penghu"
+      ]
+    },
+    {
+      "id": "kinmen",
+      "name": {
+        "zh-CN": "金门",
+        "zh-TW": "金門",
+        "en": "Kinmen"
+      },
+      "country": {
+        "zh-CN": "台湾",
+        "zh-TW": "台湾",
+        "en": "Taiwan"
+      },
+      "lat": 24.4494,
+      "lon": 118.3767,
+      "timezone": "Asia/Taipei",
+      "aliases": [
+        "金门",
+        "金門",
+        "Kinmen",
+        "kinmen"
+      ]
+    },
+    {
+      "id": "beijing",
+      "name": {
+        "zh-CN": "北京",
+        "zh-TW": "北京",
+        "en": "Beijing"
+      },
+      "country": {
+        "zh-CN": "中国",
+        "zh-TW": "中国",
+        "en": "China"
+      },
+      "lat": 39.9042,
+      "lon": 116.4074,
+      "timezone": "Asia/Shanghai",
+      "aliases": [
+        "北京",
+        "Beijing",
+        "beijing"
+      ]
+    },
+    {
+      "id": "shanghai",
+      "name": {
+        "zh-CN": "上海",
+        "zh-TW": "上海",
+        "en": "Shanghai"
+      },
+      "country": {
+        "zh-CN": "中国",
+        "zh-TW": "中国",
+        "en": "China"
+      },
+      "lat": 31.2304,
+      "lon": 121.4737,
+      "timezone": "Asia/Shanghai",
+      "aliases": [
+        "上海",
+        "Shanghai",
+        "shanghai"
+      ]
+    },
+    {
+      "id": "guangzhou",
+      "name": {
+        "zh-CN": "广州",
+        "zh-TW": "廣州",
+        "en": "Guangzhou"
+      },
+      "country": {
+        "zh-CN": "中国",
+        "zh-TW": "中国",
+        "en": "China"
+      },
+      "lat": 23.1291,
+      "lon": 113.2644,
+      "timezone": "Asia/Shanghai",
+      "aliases": [
+        "广州",
+        "廣州",
+        "Guangzhou",
+        "guangzhou"
+      ]
+    },
+    {
+      "id": "shenzhen",
+      "name": {
+        "zh-CN": "深圳",
+        "zh-TW": "深圳",
+        "en": "Shenzhen"
+      },
+      "country": {
+        "zh-CN": "中国",
+        "zh-TW": "中国",
+        "en": "China"
+      },
+      "lat": 22.5431,
+      "lon": 114.0579,
+      "timezone": "Asia/Shanghai",
+      "aliases": [
+        "深圳",
+        "Shenzhen",
+        "shenzhen"
+      ]
+    },
+    {
+      "id": "changsha",
+      "name": {
+        "zh-CN": "长沙",
+        "zh-TW": "長沙",
+        "en": "Changsha"
+      },
+      "country": {
+        "zh-CN": "中国",
+        "zh-TW": "中国",
+        "en": "China"
+      },
+      "lat": 28.2282,
+      "lon": 112.9388,
+      "timezone": "Asia/Shanghai",
+      "aliases": [
+        "长沙",
+        "長沙",
+        "Changsha",
+        "changsha"
+      ]
+    },
+    {
+      "id": "wuhan",
+      "name": {
+        "zh-CN": "武汉",
+        "zh-TW": "武漢",
+        "en": "Wuhan"
+      },
+      "country": {
+        "zh-CN": "中国",
+        "zh-TW": "中国",
+        "en": "China"
+      },
+      "lat": 30.5928,
+      "lon": 114.3055,
+      "timezone": "Asia/Shanghai",
+      "aliases": [
+        "武汉",
+        "武漢",
+        "Wuhan",
+        "wuhan"
+      ]
+    },
+    {
+      "id": "chengdu",
+      "name": {
+        "zh-CN": "成都",
+        "zh-TW": "成都",
+        "en": "Chengdu"
+      },
+      "country": {
+        "zh-CN": "中国",
+        "zh-TW": "中国",
+        "en": "China"
+      },
+      "lat": 30.5728,
+      "lon": 104.0668,
+      "timezone": "Asia/Shanghai",
+      "aliases": [
+        "成都",
+        "Chengdu",
+        "chengdu"
+      ]
+    },
+    {
+      "id": "chongqing",
+      "name": {
+        "zh-CN": "重庆",
+        "zh-TW": "重慶",
+        "en": "Chongqing"
+      },
+      "country": {
+        "zh-CN": "中国",
+        "zh-TW": "中国",
+        "en": "China"
+      },
+      "lat": 29.563,
+      "lon": 106.5516,
+      "timezone": "Asia/Shanghai",
+      "aliases": [
+        "重庆",
+        "重慶",
+        "Chongqing",
+        "chongqing"
+      ]
+    },
+    {
+      "id": "nanjing",
+      "name": {
+        "zh-CN": "南京",
+        "zh-TW": "南京",
+        "en": "Nanjing"
+      },
+      "country": {
+        "zh-CN": "中国",
+        "zh-TW": "中国",
+        "en": "China"
+      },
+      "lat": 32.0603,
+      "lon": 118.7969,
+      "timezone": "Asia/Shanghai",
+      "aliases": [
+        "南京",
+        "Nanjing",
+        "nanjing"
+      ]
+    },
+    {
+      "id": "hangzhou",
+      "name": {
+        "zh-CN": "杭州",
+        "zh-TW": "杭州",
+        "en": "Hangzhou"
+      },
+      "country": {
+        "zh-CN": "中国",
+        "zh-TW": "中国",
+        "en": "China"
+      },
+      "lat": 30.2741,
+      "lon": 120.1551,
+      "timezone": "Asia/Shanghai",
+      "aliases": [
+        "杭州",
+        "Hangzhou",
+        "hangzhou"
+      ]
+    },
+    {
+      "id": "xiamen",
+      "name": {
+        "zh-CN": "厦门",
+        "zh-TW": "廈門",
+        "en": "Xiamen"
+      },
+      "country": {
+        "zh-CN": "中国",
+        "zh-TW": "中国",
+        "en": "China"
+      },
+      "lat": 24.4798,
+      "lon": 118.0894,
+      "timezone": "Asia/Shanghai",
+      "aliases": [
+        "厦门",
+        "廈門",
+        "Xiamen",
+        "xiamen"
+      ]
+    },
+    {
+      "id": "fuzhou",
+      "name": {
+        "zh-CN": "福州",
+        "zh-TW": "福州",
+        "en": "Fuzhou"
+      },
+      "country": {
+        "zh-CN": "中国",
+        "zh-TW": "中国",
+        "en": "China"
+      },
+      "lat": 26.0745,
+      "lon": 119.2965,
+      "timezone": "Asia/Shanghai",
+      "aliases": [
+        "福州",
+        "Fuzhou",
+        "fuzhou"
+      ]
+    },
+    {
+      "id": "suzhou",
+      "name": {
+        "zh-CN": "苏州",
+        "zh-TW": "蘇州",
+        "en": "Suzhou"
+      },
+      "country": {
+        "zh-CN": "中国",
+        "zh-TW": "中国",
+        "en": "China"
+      },
+      "lat": 31.2989,
+      "lon": 120.5853,
+      "timezone": "Asia/Shanghai",
+      "aliases": [
+        "苏州",
+        "蘇州",
+        "Suzhou",
+        "suzhou"
+      ]
+    },
+    {
+      "id": "xian",
+      "name": {
+        "zh-CN": "西安",
+        "zh-TW": "西安",
+        "en": "Xi'an"
+      },
+      "country": {
+        "zh-CN": "中国",
+        "zh-TW": "中国",
+        "en": "China"
+      },
+      "lat": 34.3416,
+      "lon": 108.9398,
+      "timezone": "Asia/Shanghai",
+      "aliases": [
+        "西安",
+        "Xi'an",
+        "xian"
+      ]
+    },
+    {
+      "id": "zhengzhou",
+      "name": {
+        "zh-CN": "郑州",
+        "zh-TW": "鄭州",
+        "en": "Zhengzhou"
+      },
+      "country": {
+        "zh-CN": "中国",
+        "zh-TW": "中国",
+        "en": "China"
+      },
+      "lat": 34.7466,
+      "lon": 113.6254,
+      "timezone": "Asia/Shanghai",
+      "aliases": [
+        "郑州",
+        "鄭州",
+        "Zhengzhou",
+        "zhengzhou"
+      ]
+    },
+    {
+      "id": "tianjin",
+      "name": {
+        "zh-CN": "天津",
+        "zh-TW": "天津",
+        "en": "Tianjin"
+      },
+      "country": {
+        "zh-CN": "中国",
+        "zh-TW": "中国",
+        "en": "China"
+      },
+      "lat": 39.3434,
+      "lon": 117.3616,
+      "timezone": "Asia/Shanghai",
+      "aliases": [
+        "天津",
+        "Tianjin",
+        "tianjin"
+      ]
+    },
+    {
+      "id": "qingdao",
+      "name": {
+        "zh-CN": "青岛",
+        "zh-TW": "青島",
+        "en": "Qingdao"
+      },
+      "country": {
+        "zh-CN": "中国",
+        "zh-TW": "中国",
+        "en": "China"
+      },
+      "lat": 36.0671,
+      "lon": 120.3826,
+      "timezone": "Asia/Shanghai",
+      "aliases": [
+        "青岛",
+        "青島",
+        "Qingdao",
+        "qingdao"
+      ]
+    },
+    {
+      "id": "shenyang",
+      "name": {
+        "zh-CN": "沈阳",
+        "zh-TW": "瀋陽",
+        "en": "Shenyang"
+      },
+      "country": {
+        "zh-CN": "中国",
+        "zh-TW": "中国",
+        "en": "China"
+      },
+      "lat": 41.8057,
+      "lon": 123.4315,
+      "timezone": "Asia/Shanghai",
+      "aliases": [
+        "沈阳",
+        "瀋陽",
+        "Shenyang",
+        "shenyang"
+      ]
+    },
+    {
+      "id": "harbin",
+      "name": {
+        "zh-CN": "哈尔滨",
+        "zh-TW": "哈爾濱",
+        "en": "Harbin"
+      },
+      "country": {
+        "zh-CN": "中国",
+        "zh-TW": "中国",
+        "en": "China"
+      },
+      "lat": 45.8038,
+      "lon": 126.535,
+      "timezone": "Asia/Shanghai",
+      "aliases": [
+        "哈尔滨",
+        "哈爾濱",
+        "Harbin",
+        "harbin"
+      ]
+    },
+    {
+      "id": "kunming",
+      "name": {
+        "zh-CN": "昆明",
+        "zh-TW": "昆明",
+        "en": "Kunming"
+      },
+      "country": {
+        "zh-CN": "中国",
+        "zh-TW": "中国",
+        "en": "China"
+      },
+      "lat": 25.0389,
+      "lon": 102.7183,
+      "timezone": "Asia/Shanghai",
+      "aliases": [
+        "昆明",
+        "Kunming",
+        "kunming"
+      ]
+    },
+    {
+      "id": "nanning",
+      "name": {
+        "zh-CN": "南宁",
+        "zh-TW": "南寧",
+        "en": "Nanning"
+      },
+      "country": {
+        "zh-CN": "中国",
+        "zh-TW": "中国",
+        "en": "China"
+      },
+      "lat": 22.817,
+      "lon": 108.3665,
+      "timezone": "Asia/Shanghai",
+      "aliases": [
+        "南宁",
+        "南寧",
+        "Nanning",
+        "nanning"
+      ]
+    },
+    {
+      "id": "guiyang",
+      "name": {
+        "zh-CN": "贵阳",
+        "zh-TW": "貴陽",
+        "en": "Guiyang"
+      },
+      "country": {
+        "zh-CN": "中国",
+        "zh-TW": "中国",
+        "en": "China"
+      },
+      "lat": 26.647,
+      "lon": 106.6302,
+      "timezone": "Asia/Shanghai",
+      "aliases": [
+        "贵阳",
+        "貴陽",
+        "Guiyang",
+        "guiyang"
+      ]
+    },
+    {
+      "id": "haikou",
+      "name": {
+        "zh-CN": "海口",
+        "zh-TW": "海口",
+        "en": "Haikou"
+      },
+      "country": {
+        "zh-CN": "中国",
+        "zh-TW": "中国",
+        "en": "China"
+      },
+      "lat": 20.044,
+      "lon": 110.1999,
+      "timezone": "Asia/Shanghai",
+      "aliases": [
+        "海口",
+        "Haikou",
+        "haikou"
+      ]
+    },
+    {
+      "id": "sanya",
+      "name": {
+        "zh-CN": "三亚",
+        "zh-TW": "三亞",
+        "en": "Sanya"
+      },
+      "country": {
+        "zh-CN": "中国",
+        "zh-TW": "中国",
+        "en": "China"
+      },
+      "lat": 18.2528,
+      "lon": 109.5119,
+      "timezone": "Asia/Shanghai",
+      "aliases": [
+        "三亚",
+        "三亞",
+        "Sanya",
+        "sanya"
+      ]
+    },
+    {
+      "id": "urumqi",
+      "name": {
+        "zh-CN": "乌鲁木齐",
+        "zh-TW": "烏魯木齊",
+        "en": "Urumqi"
+      },
+      "country": {
+        "zh-CN": "中国",
+        "zh-TW": "中国",
+        "en": "China"
+      },
+      "lat": 43.8256,
+      "lon": 87.6168,
+      "timezone": "Asia/Shanghai",
+      "aliases": [
+        "乌鲁木齐",
+        "烏魯木齊",
+        "Urumqi",
+        "urumqi"
+      ]
+    },
+    {
+      "id": "lhasa",
+      "name": {
+        "zh-CN": "拉萨",
+        "zh-TW": "拉薩",
+        "en": "Lhasa"
+      },
+      "country": {
+        "zh-CN": "中国",
+        "zh-TW": "中国",
+        "en": "China"
+      },
+      "lat": 29.652,
+      "lon": 91.1721,
+      "timezone": "Asia/Shanghai",
+      "aliases": [
+        "拉萨",
+        "拉薩",
+        "Lhasa",
+        "lhasa"
+      ]
+    },
+    {
+      "id": "huhhot",
+      "name": {
+        "zh-CN": "呼和浩特",
+        "zh-TW": "呼和浩特",
+        "en": "Hohhot"
+      },
+      "country": {
+        "zh-CN": "中国",
+        "zh-TW": "中国",
+        "en": "China"
+      },
+      "lat": 40.8426,
+      "lon": 111.7492,
+      "timezone": "Asia/Shanghai",
+      "aliases": [
+        "呼和浩特",
+        "Hohhot",
+        "huhhot"
+      ]
+    },
+    {
+      "id": "hong-kong",
+      "name": {
+        "zh-CN": "香港",
+        "zh-TW": "香港",
+        "en": "Hong Kong"
+      },
+      "country": {
+        "zh-CN": "香港",
+        "zh-TW": "香港",
+        "en": "Hong Kong"
+      },
+      "lat": 22.3193,
+      "lon": 114.1694,
+      "timezone": "Asia/Hong_Kong",
+      "aliases": [
+        "香港",
+        "Hong Kong",
+        "hong kong"
+      ]
+    },
+    {
+      "id": "macau",
+      "name": {
+        "zh-CN": "澳门",
+        "zh-TW": "澳門",
+        "en": "Macau"
+      },
+      "country": {
+        "zh-CN": "澳门",
+        "zh-TW": "澳门",
+        "en": "Macau"
+      },
+      "lat": 22.1987,
+      "lon": 113.5439,
+      "timezone": "Asia/Macau",
+      "aliases": [
+        "澳门",
+        "澳門",
+        "Macau",
+        "macau"
+      ]
+    },
+    {
+      "id": "tokyo",
+      "name": {
+        "zh-CN": "东京",
+        "zh-TW": "東京",
+        "en": "Tokyo"
+      },
+      "country": {
+        "zh-CN": "日本",
+        "zh-TW": "日本",
+        "en": "Japan"
+      },
+      "lat": 35.6762,
+      "lon": 139.6503,
+      "timezone": "Asia/Tokyo",
+      "aliases": [
+        "东京",
+        "東京",
+        "Tokyo",
+        "tokyo"
+      ]
+    },
+    {
+      "id": "osaka",
+      "name": {
+        "zh-CN": "大阪",
+        "zh-TW": "大阪",
+        "en": "Osaka"
+      },
+      "country": {
+        "zh-CN": "日本",
+        "zh-TW": "日本",
+        "en": "Japan"
+      },
+      "lat": 34.6937,
+      "lon": 135.5023,
+      "timezone": "Asia/Tokyo",
+      "aliases": [
+        "大阪",
+        "Osaka",
+        "osaka"
+      ]
+    },
+    {
+      "id": "kyoto",
+      "name": {
+        "zh-CN": "京都",
+        "zh-TW": "京都",
+        "en": "Kyoto"
+      },
+      "country": {
+        "zh-CN": "日本",
+        "zh-TW": "日本",
+        "en": "Japan"
+      },
+      "lat": 35.0116,
+      "lon": 135.7681,
+      "timezone": "Asia/Tokyo",
+      "aliases": [
+        "京都",
+        "Kyoto",
+        "kyoto"
+      ]
+    },
+    {
+      "id": "sapporo",
+      "name": {
+        "zh-CN": "札幌",
+        "zh-TW": "札幌",
+        "en": "Sapporo"
+      },
+      "country": {
+        "zh-CN": "日本",
+        "zh-TW": "日本",
+        "en": "Japan"
+      },
+      "lat": 43.0618,
+      "lon": 141.3545,
+      "timezone": "Asia/Tokyo",
+      "aliases": [
+        "札幌",
+        "Sapporo",
+        "sapporo"
+      ]
+    },
+    {
+      "id": "fukuoka",
+      "name": {
+        "zh-CN": "福冈",
+        "zh-TW": "福岡",
+        "en": "Fukuoka"
+      },
+      "country": {
+        "zh-CN": "日本",
+        "zh-TW": "日本",
+        "en": "Japan"
+      },
+      "lat": 33.5904,
+      "lon": 130.4017,
+      "timezone": "Asia/Tokyo",
+      "aliases": [
+        "福冈",
+        "福岡",
+        "Fukuoka",
+        "fukuoka"
+      ]
+    },
+    {
+      "id": "naha",
+      "name": {
+        "zh-CN": "冲绳那霸",
+        "zh-TW": "沖繩那霸",
+        "en": "Naha"
+      },
+      "country": {
+        "zh-CN": "日本",
+        "zh-TW": "日本",
+        "en": "Japan"
+      },
+      "lat": 26.2124,
+      "lon": 127.6809,
+      "timezone": "Asia/Tokyo",
+      "aliases": [
+        "冲绳那霸",
+        "沖繩那霸",
+        "Naha",
+        "naha"
+      ]
+    },
+    {
+      "id": "seoul",
+      "name": {
+        "zh-CN": "首尔",
+        "zh-TW": "首爾",
+        "en": "Seoul"
+      },
+      "country": {
+        "zh-CN": "韩国",
+        "zh-TW": "韩国",
+        "en": "South Korea"
+      },
+      "lat": 37.5665,
+      "lon": 126.978,
+      "timezone": "Asia/Seoul",
+      "aliases": [
+        "首尔",
+        "首爾",
+        "Seoul",
+        "seoul"
+      ]
+    },
+    {
+      "id": "busan",
+      "name": {
+        "zh-CN": "釜山",
+        "zh-TW": "釜山",
+        "en": "Busan"
+      },
+      "country": {
+        "zh-CN": "韩国",
+        "zh-TW": "韩国",
+        "en": "South Korea"
+      },
+      "lat": 35.1796,
+      "lon": 129.0756,
+      "timezone": "Asia/Seoul",
+      "aliases": [
+        "釜山",
+        "Busan",
+        "busan"
+      ]
+    },
+    {
+      "id": "singapore",
+      "name": {
+        "zh-CN": "新加坡",
+        "zh-TW": "新加坡",
+        "en": "Singapore"
+      },
+      "country": {
+        "zh-CN": "新加坡",
+        "zh-TW": "新加坡",
+        "en": "Singapore"
+      },
+      "lat": 1.3521,
+      "lon": 103.8198,
+      "timezone": "Asia/Singapore",
+      "aliases": [
+        "新加坡",
+        "Singapore",
+        "singapore"
+      ]
+    },
+    {
+      "id": "kuala-lumpur",
+      "name": {
+        "zh-CN": "吉隆坡",
+        "zh-TW": "吉隆坡",
+        "en": "Kuala Lumpur"
+      },
+      "country": {
+        "zh-CN": "马来西亚",
+        "zh-TW": "马来西亚",
+        "en": "Malaysia"
+      },
+      "lat": 3.139,
+      "lon": 101.6869,
+      "timezone": "Asia/Kuala_Lumpur",
+      "aliases": [
+        "吉隆坡",
+        "Kuala Lumpur",
+        "kuala lumpur"
+      ]
+    },
+    {
+      "id": "bangkok",
+      "name": {
+        "zh-CN": "曼谷",
+        "zh-TW": "曼谷",
+        "en": "Bangkok"
+      },
+      "country": {
+        "zh-CN": "泰国",
+        "zh-TW": "泰国",
+        "en": "Thailand"
+      },
+      "lat": 13.7563,
+      "lon": 100.5018,
+      "timezone": "Asia/Bangkok",
+      "aliases": [
+        "曼谷",
+        "Bangkok",
+        "bangkok"
+      ]
+    },
+    {
+      "id": "manila",
+      "name": {
+        "zh-CN": "马尼拉",
+        "zh-TW": "馬尼拉",
+        "en": "Manila"
+      },
+      "country": {
+        "zh-CN": "菲律宾",
+        "zh-TW": "菲律宾",
+        "en": "Philippines"
+      },
+      "lat": 14.5995,
+      "lon": 120.9842,
+      "timezone": "Asia/Manila",
+      "aliases": [
+        "马尼拉",
+        "馬尼拉",
+        "Manila",
+        "manila"
+      ]
+    },
+    {
+      "id": "new-york",
+      "name": {
+        "zh-CN": "纽约",
+        "zh-TW": "紐約",
+        "en": "New York"
+      },
+      "country": {
+        "zh-CN": "美国",
+        "zh-TW": "美国",
+        "en": "USA"
+      },
+      "lat": 40.7128,
+      "lon": -74.006,
+      "timezone": "America/New_York",
+      "aliases": [
+        "纽约",
+        "紐約",
+        "New York",
+        "new york"
+      ]
+    },
+    {
+      "id": "los-angeles",
+      "name": {
+        "zh-CN": "洛杉矶",
+        "zh-TW": "洛杉磯",
+        "en": "Los Angeles"
+      },
+      "country": {
+        "zh-CN": "美国",
+        "zh-TW": "美国",
+        "en": "USA"
+      },
+      "lat": 34.0522,
+      "lon": -118.2437,
+      "timezone": "America/Los_Angeles",
+      "aliases": [
+        "洛杉矶",
+        "洛杉磯",
+        "Los Angeles",
+        "los angeles"
+      ]
+    },
+    {
+      "id": "san-francisco",
+      "name": {
+        "zh-CN": "旧金山",
+        "zh-TW": "舊金山",
+        "en": "San Francisco"
+      },
+      "country": {
+        "zh-CN": "美国",
+        "zh-TW": "美国",
+        "en": "USA"
+      },
+      "lat": 37.7749,
+      "lon": -122.4194,
+      "timezone": "America/Los_Angeles",
+      "aliases": [
+        "旧金山",
+        "舊金山",
+        "San Francisco",
+        "san francisco"
+      ]
+    },
+    {
+      "id": "chicago",
+      "name": {
+        "zh-CN": "芝加哥",
+        "zh-TW": "芝加哥",
+        "en": "Chicago"
+      },
+      "country": {
+        "zh-CN": "美国",
+        "zh-TW": "美国",
+        "en": "USA"
+      },
+      "lat": 41.8781,
+      "lon": -87.6298,
+      "timezone": "America/Chicago",
+      "aliases": [
+        "芝加哥",
+        "Chicago",
+        "chicago"
+      ]
+    },
+    {
+      "id": "honolulu",
+      "name": {
+        "zh-CN": "檀香山",
+        "zh-TW": "檀香山",
+        "en": "Honolulu"
+      },
+      "country": {
+        "zh-CN": "美国",
+        "zh-TW": "美国",
+        "en": "USA"
+      },
+      "lat": 21.3099,
+      "lon": -157.8581,
+      "timezone": "Pacific/Honolulu",
+      "aliases": [
+        "檀香山",
+        "Honolulu",
+        "honolulu"
+      ]
+    },
+    {
+      "id": "vancouver",
+      "name": {
+        "zh-CN": "温哥华",
+        "zh-TW": "溫哥華",
+        "en": "Vancouver"
+      },
+      "country": {
+        "zh-CN": "加拿大",
+        "zh-TW": "加拿大",
+        "en": "Canada"
+      },
+      "lat": 49.2827,
+      "lon": -123.1207,
+      "timezone": "America/Vancouver",
+      "aliases": [
+        "温哥华",
+        "溫哥華",
+        "Vancouver",
+        "vancouver"
+      ]
+    },
+    {
+      "id": "toronto",
+      "name": {
+        "zh-CN": "多伦多",
+        "zh-TW": "多倫多",
+        "en": "Toronto"
+      },
+      "country": {
+        "zh-CN": "加拿大",
+        "zh-TW": "加拿大",
+        "en": "Canada"
+      },
+      "lat": 43.6532,
+      "lon": -79.3832,
+      "timezone": "America/Toronto",
+      "aliases": [
+        "多伦多",
+        "多倫多",
+        "Toronto",
+        "toronto"
+      ]
+    },
+    {
+      "id": "london",
+      "name": {
+        "zh-CN": "伦敦",
+        "zh-TW": "倫敦",
+        "en": "London"
+      },
+      "country": {
+        "zh-CN": "英国",
+        "zh-TW": "英国",
+        "en": "UK"
+      },
+      "lat": 51.5074,
+      "lon": -0.1278,
+      "timezone": "Europe/London",
+      "aliases": [
+        "伦敦",
+        "倫敦",
+        "London",
+        "london"
+      ]
+    },
+    {
+      "id": "paris",
+      "name": {
+        "zh-CN": "巴黎",
+        "zh-TW": "巴黎",
+        "en": "Paris"
+      },
+      "country": {
+        "zh-CN": "法国",
+        "zh-TW": "法国",
+        "en": "France"
+      },
+      "lat": 48.8566,
+      "lon": 2.3522,
+      "timezone": "Europe/Paris",
+      "aliases": [
+        "巴黎",
+        "Paris",
+        "paris"
+      ]
+    },
+    {
+      "id": "berlin",
+      "name": {
+        "zh-CN": "柏林",
+        "zh-TW": "柏林",
+        "en": "Berlin"
+      },
+      "country": {
+        "zh-CN": "德国",
+        "zh-TW": "德国",
+        "en": "Germany"
+      },
+      "lat": 52.52,
+      "lon": 13.405,
+      "timezone": "Europe/Berlin",
+      "aliases": [
+        "柏林",
+        "Berlin",
+        "berlin"
+      ]
+    },
+    {
+      "id": "rome",
+      "name": {
+        "zh-CN": "罗马",
+        "zh-TW": "羅馬",
+        "en": "Rome"
+      },
+      "country": {
+        "zh-CN": "意大利",
+        "zh-TW": "意大利",
+        "en": "Italy"
+      },
+      "lat": 41.9028,
+      "lon": 12.4964,
+      "timezone": "Europe/Rome",
+      "aliases": [
+        "罗马",
+        "羅馬",
+        "Rome",
+        "rome"
+      ]
+    },
+    {
+      "id": "sydney",
+      "name": {
+        "zh-CN": "悉尼",
+        "zh-TW": "雪梨",
+        "en": "Sydney"
+      },
+      "country": {
+        "zh-CN": "澳大利亚",
+        "zh-TW": "澳大利亚",
+        "en": "Australia"
+      },
+      "lat": -33.8688,
+      "lon": 151.2093,
+      "timezone": "Australia/Sydney",
+      "aliases": [
+        "悉尼",
+        "雪梨",
+        "Sydney",
+        "sydney"
+      ]
+    },
+    {
+      "id": "melbourne",
+      "name": {
+        "zh-CN": "墨尔本",
+        "zh-TW": "墨爾本",
+        "en": "Melbourne"
+      },
+      "country": {
+        "zh-CN": "澳大利亚",
+        "zh-TW": "澳大利亚",
+        "en": "Australia"
+      },
+      "lat": -37.8136,
+      "lon": 144.9631,
+      "timezone": "Australia/Melbourne",
+      "aliases": [
+        "墨尔本",
+        "墨爾本",
+        "Melbourne",
+        "melbourne"
+      ]
+    }
+  ]
+}

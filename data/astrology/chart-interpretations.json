@@ -1,0 +1,416 @@
+{
+  "version": "0.9",
+  "method": "Original compositional interpretation layer for the Stellar Diary project.",
+  "planets": {
+    "sun": {
+      "name": {
+        "zh-CN": "太阳",
+        "zh-TW": "太陽",
+        "en": "Sun"
+      },
+      "glyph": "☉",
+      "focus": {
+        "zh-CN": "核心认同、生命力、意志与创造表达",
+        "zh-TW": "核心認同、生命力、意志與創造表達",
+        "en": "identity, vitality, will and creative expression"
+      }
+    },
+    "moon": {
+      "name": {
+        "zh-CN": "月亮",
+        "zh-TW": "月亮",
+        "en": "Moon"
+      },
+      "glyph": "☽",
+      "focus": {
+        "zh-CN": "情绪需要、安全感、习惯与本能反应",
+        "zh-TW": "情緒需要、安全感、習慣與本能反應",
+        "en": "emotional needs, security, habits and instinctive reactions"
+      }
+    },
+    "mercury": {
+      "name": {
+        "zh-CN": "水星",
+        "zh-TW": "水星",
+        "en": "Mercury"
+      },
+      "glyph": "☿",
+      "focus": {
+        "zh-CN": "思考方式、学习、表达与信息交换",
+        "zh-TW": "思考方式、學習、表達與資訊交換",
+        "en": "thinking, learning, expression and information exchange"
+      }
+    },
+    "venus": {
+      "name": {
+        "zh-CN": "金星",
+        "zh-TW": "金星",
+        "en": "Venus"
+      },
+      "glyph": "♀",
+      "focus": {
+        "zh-CN": "关系偏好、吸引力、价值感、审美与享受",
+        "zh-TW": "關係偏好、吸引力、價值感、審美與享受",
+        "en": "relationship style, attraction, values, aesthetics and pleasure"
+      }
+    },
+    "mars": {
+      "name": {
+        "zh-CN": "火星",
+        "zh-TW": "火星",
+        "en": "Mars"
+      },
+      "glyph": "♂",
+      "focus": {
+        "zh-CN": "行动力、欲望、竞争方式、愤怒与界线",
+        "zh-TW": "行動力、慾望、競爭方式、憤怒與界線",
+        "en": "action, desire, competition, anger and boundaries"
+      }
+    },
+    "jupiter": {
+      "name": {
+        "zh-CN": "木星",
+        "zh-TW": "木星",
+        "en": "Jupiter"
+      },
+      "glyph": "♃",
+      "focus": {
+        "zh-CN": "成长、信念、扩张、机会与意义感",
+        "zh-TW": "成長、信念、擴張、機會與意義感",
+        "en": "growth, belief, expansion, opportunity and meaning"
+      }
+    },
+    "saturn": {
+      "name": {
+        "zh-CN": "土星",
+        "zh-TW": "土星",
+        "en": "Saturn"
+      },
+      "glyph": "♄",
+      "focus": {
+        "zh-CN": "责任、结构、限制、长期建设与成熟",
+        "zh-TW": "責任、結構、限制、長期建設與成熟",
+        "en": "responsibility, structure, limits, long-term building and maturity"
+      }
+    },
+    "uranus": {
+      "name": {
+        "zh-CN": "天王星",
+        "zh-TW": "天王星",
+        "en": "Uranus"
+      },
+      "glyph": "♅",
+      "focus": {
+        "zh-CN": "独立、突破、创新、突然变化与非传统选择",
+        "zh-TW": "獨立、突破、創新、突然變化與非傳統選擇",
+        "en": "independence, breakthrough, innovation, sudden change and unconventional choices"
+      }
+    },
+    "neptune": {
+      "name": {
+        "zh-CN": "海王星",
+        "zh-TW": "海王星",
+        "en": "Neptune"
+      },
+      "glyph": "♆",
+      "focus": {
+        "zh-CN": "想象、理想、同理、灵感、边界模糊与投射",
+        "zh-TW": "想像、理想、同理、靈感、界線模糊與投射",
+        "en": "imagination, ideals, empathy, inspiration, porous boundaries and projection"
+      }
+    },
+    "pluto": {
+      "name": {
+        "zh-CN": "冥王星",
+        "zh-TW": "冥王星",
+        "en": "Pluto"
+      },
+      "glyph": "♇",
+      "focus": {
+        "zh-CN": "深层转化、权力、控制、危机与重生",
+        "zh-TW": "深層轉化、權力、控制、危機與重生",
+        "en": "deep transformation, power, control, crisis and renewal"
+      }
+    }
+  },
+  "signStyles": {
+    "aries": {
+      "zh-CN": "直接、主动、迅速、敢于先开始再修正",
+      "zh-TW": "直接、主動、迅速、敢於先開始再修正",
+      "en": "directly, proactively and quickly, with a willingness to begin first and adjust later"
+    },
+    "taurus": {
+      "zh-CN": "稳定、实际、耐心，重视安全感与可以长期累积的价值",
+      "zh-TW": "穩定、實際、耐心，重視安全感與可以長期累積的價值",
+      "en": "steadily and practically, valuing security, patience and what can be built over time"
+    },
+    "gemini": {
+      "zh-CN": "好奇、灵活、善于连接信息，并透过交流理解世界",
+      "zh-TW": "好奇、靈活、善於連接資訊，並透過交流理解世界",
+      "en": "with curiosity, flexibility and a strong instinct to connect information through communication"
+    },
+    "cancer": {
+      "zh-CN": "敏感、保护、重视情感记忆、归属与安全的连结",
+      "zh-TW": "敏感、保護、重視情感記憶、歸屬與安全的連結",
+      "en": "sensitively and protectively, emphasizing emotional memory, belonging and safety"
+    },
+    "leo": {
+      "zh-CN": "热情、创造、重视自我表达、真诚与被看见的感觉",
+      "zh-TW": "熱情、創造、重視自我表達、真誠與被看見的感覺",
+      "en": "warmly and creatively, with a need for authentic self-expression and recognition"
+    },
+    "virgo": {
+      "zh-CN": "分析、细致、务实，习惯透过整理与改善让事情更有效率",
+      "zh-TW": "分析、細緻、務實，習慣透過整理與改善讓事情更有效率",
+      "en": "analytically and practically, improving systems through detail, refinement and useful action"
+    },
+    "libra": {
+      "zh-CN": "关系导向、讲求平衡、公平、协调与合宜的互动方式",
+      "zh-TW": "關係導向、講求平衡、公平、協調與合宜的互動方式",
+      "en": "relationally, seeking balance, fairness, harmony and an appropriate way to engage others"
+    },
+    "scorpio": {
+      "zh-CN": "深度、专注、强烈，倾向看穿表面并认真处理信任与控制议题",
+      "zh-TW": "深度、專注、強烈，傾向看穿表面並認真處理信任與控制議題",
+      "en": "with depth, intensity and focus, looking beneath the surface at trust, vulnerability and control"
+    },
+    "sagittarius": {
+      "zh-CN": "开放、探索、追求成长与更大的视野，重视诚实和自由",
+      "zh-TW": "開放、探索、追求成長與更大的視野，重視誠實和自由",
+      "en": "openly and exploratively, seeking growth, meaning, honesty and a wider horizon"
+    },
+    "capricorn": {
+      "zh-CN": "有目标、克制、现实，重视责任、成果与长期可持续性",
+      "zh-TW": "有目標、克制、現實，重視責任、成果與長期可持續性",
+      "en": "strategically and realistically, valuing responsibility, achievement and long-term sustainability"
+    },
+    "aquarius": {
+      "zh-CN": "独立、理性、创新，习惯从系统与不同角度寻找新可能",
+      "zh-TW": "獨立、理性、創新，習慣從系統與不同角度尋找新可能",
+      "en": "independently and inventively, looking at systems from unusual angles and seeking new possibilities"
+    },
+    "pisces": {
+      "zh-CN": "直觉、想象、共感，容易接收环境气氛并追求更大的意义",
+      "zh-TW": "直覺、想像、共感，容易接收環境氣氛並追求更大的意義",
+      "en": "intuitively and imaginatively, absorbing atmosphere and searching for emotional or symbolic meaning"
+    }
+  },
+  "houses": {
+    "1": {
+      "name": {
+        "zh-CN": "自我与外在方式",
+        "zh-TW": "自我與外在方式",
+        "en": "Self & Approach"
+      },
+      "theme": {
+        "zh-CN": "身份、身体、外在气质、第一反应与主动展开生活的方式",
+        "zh-TW": "身份、身體、外在氣質、第一反應與主動展開生活的方式",
+        "en": "identity, body, appearance, first reactions and how life is actively approached"
+      }
+    },
+    "2": {
+      "name": {
+        "zh-CN": "金钱与价值",
+        "zh-TW": "金錢與價值",
+        "en": "Money & Values"
+      },
+      "theme": {
+        "zh-CN": "收入、资源、拥有感、自我价值与稳定基础",
+        "zh-TW": "收入、資源、擁有感、自我價值與穩定基礎",
+        "en": "income, resources, possessions, self-worth and material stability"
+      }
+    },
+    "3": {
+      "name": {
+        "zh-CN": "学习与沟通",
+        "zh-TW": "學習與溝通",
+        "en": "Learning & Communication"
+      },
+      "theme": {
+        "zh-CN": "思考、学习、语言、日常移动、手足与近距离环境",
+        "zh-TW": "思考、學習、語言、日常移動、手足與近距離環境",
+        "en": "thinking, learning, language, everyday movement, siblings and the immediate environment"
+      }
+    },
+    "4": {
+      "name": {
+        "zh-CN": "家庭与根基",
+        "zh-TW": "家庭與根基",
+        "en": "Home & Roots"
+      },
+      "theme": {
+        "zh-CN": "家庭、居所、私人空间、原生经验、情绪根基与内在归属",
+        "zh-TW": "家庭、居所、私人空間、原生經驗、情緒根基與內在歸屬",
+        "en": "home, family, private life, origins, emotional roots and belonging"
+      }
+    },
+    "5": {
+      "name": {
+        "zh-CN": "创造与恋爱",
+        "zh-TW": "創造與戀愛",
+        "en": "Creativity & Romance"
+      },
+      "theme": {
+        "zh-CN": "创造力、恋爱、兴趣、玩乐、表现欲与孩子相关主题",
+        "zh-TW": "創造力、戀愛、興趣、玩樂、表現欲與孩子相關主題",
+        "en": "creativity, romance, pleasure, play, self-expression and themes involving children"
+      }
+    },
+    "6": {
+      "name": {
+        "zh-CN": "日常与工作",
+        "zh-TW": "日常與工作",
+        "en": "Routine & Work"
+      },
+      "theme": {
+        "zh-CN": "工作流程、服务、习惯、健康管理、技能与每天需要处理的现实事务",
+        "zh-TW": "工作流程、服務、習慣、健康管理、技能與每天需要處理的現實事務",
+        "en": "work routines, service, habits, health management, skills and everyday responsibilities"
+      }
+    },
+    "7": {
+      "name": {
+        "zh-CN": "关系与合作",
+        "zh-TW": "關係與合作",
+        "en": "Partnership"
+      },
+      "theme": {
+        "zh-CN": "伴侣、合作、一对一关系、契约、投射与如何面对他人",
+        "zh-TW": "伴侶、合作、一對一關係、契約、投射與如何面對他人",
+        "en": "partners, one-to-one bonds, agreements, projection and how the other is encountered"
+      }
+    },
+    "8": {
+      "name": {
+        "zh-CN": "共享与转化",
+        "zh-TW": "共享與轉化",
+        "en": "Sharing & Transformation"
+      },
+      "theme": {
+        "zh-CN": "共享资源、亲密、债务、危机、心理深层、失去与重整",
+        "zh-TW": "共享資源、親密、債務、危機、心理深層、失去與重整",
+        "en": "shared resources, intimacy, debt, crisis, psychological depth, loss and regeneration"
+      }
+    },
+    "9": {
+      "name": {
+        "zh-CN": "远行与信念",
+        "zh-TW": "遠行與信念",
+        "en": "Belief & Exploration"
+      },
+      "theme": {
+        "zh-CN": "高等学习、远行、世界观、信念、出版、法律与寻找更大意义",
+        "zh-TW": "高等學習、遠行、世界觀、信念、出版、法律與尋找更大意義",
+        "en": "higher learning, long-distance travel, worldview, belief, publishing, law and the search for meaning"
+      }
+    },
+    "10": {
+      "name": {
+        "zh-CN": "事业与公众角色",
+        "zh-TW": "事業與公眾角色",
+        "en": "Career & Public Role"
+      },
+      "theme": {
+        "zh-CN": "事业方向、社会角色、责任、名声、目标与希望建立的长期成就",
+        "zh-TW": "事業方向、社會角色、責任、名聲、目標與希望建立的長期成就",
+        "en": "career direction, public role, responsibility, reputation, goals and long-term achievement"
+      }
+    },
+    "11": {
+      "name": {
+        "zh-CN": "社群与未来",
+        "zh-TW": "社群與未來",
+        "en": "Community & Future"
+      },
+      "theme": {
+        "zh-CN": "朋友、团队、社群、人脉、共同理想、长期愿景与未来计划",
+        "zh-TW": "朋友、團隊、社群、人脈、共同理想、長期願景與未來計畫",
+        "en": "friends, groups, networks, shared ideals, long-range hopes and future plans"
+      }
+    },
+    "12": {
+      "name": {
+        "zh-CN": "潜意识与内在",
+        "zh-TW": "潛意識與內在",
+        "en": "Inner & Unconscious"
+      },
+      "theme": {
+        "zh-CN": "潜意识、退隐、独处、隐藏模式、结束、精神世界与需要放下的事",
+        "zh-TW": "潛意識、退隱、獨處、隱藏模式、結束、精神世界與需要放下的事",
+        "en": "the unconscious, retreat, solitude, hidden patterns, endings, spirituality and release"
+      }
+    }
+  },
+  "aspects": {
+    "conjunction": {
+      "name": {
+        "zh-CN": "合相",
+        "zh-TW": "合相",
+        "en": "Conjunction"
+      },
+      "symbol": "☌",
+      "angle": 0,
+      "effect": {
+        "zh-CN": "两股能量被强力结合，会彼此放大，也较难分开运作。",
+        "zh-TW": "兩股能量被強力結合，會彼此放大，也較難分開運作。",
+        "en": "The two functions are strongly fused, amplifying each other and operating as one combined theme."
+      }
+    },
+    "sextile": {
+      "name": {
+        "zh-CN": "六分相",
+        "zh-TW": "六分相",
+        "en": "Sextile"
+      },
+      "symbol": "⚹",
+      "angle": 60,
+      "effect": {
+        "zh-CN": "两股能量之间有可利用的机会与合作空间，需要主动使用才更明显。",
+        "zh-TW": "兩股能量之間有可利用的機會與合作空間，需要主動使用才更明顯。",
+        "en": "The two functions have cooperative potential and opportunities that become clearer when actively used."
+      }
+    },
+    "square": {
+      "name": {
+        "zh-CN": "四分相",
+        "zh-TW": "四分相",
+        "en": "Square"
+      },
+      "symbol": "□",
+      "angle": 90,
+      "effect": {
+        "zh-CN": "两股能量形成摩擦与推动力，常透过压力逼出调整、行动与成长。",
+        "zh-TW": "兩股能量形成摩擦與推動力，常透過壓力逼出調整、行動與成長。",
+        "en": "The two functions create friction and pressure that demand adjustment, action and growth."
+      }
+    },
+    "trine": {
+      "name": {
+        "zh-CN": "三分相",
+        "zh-TW": "三分相",
+        "en": "Trine"
+      },
+      "symbol": "△",
+      "angle": 120,
+      "effect": {
+        "zh-CN": "两股能量较自然地流动与支持彼此，优势容易发挥，但也可能因为太顺而被忽略。",
+        "zh-TW": "兩股能量較自然地流動與支持彼此，優勢容易發揮，但也可能因為太順而被忽略。",
+        "en": "The two functions flow easily and support each other; the talent may feel so natural that it can be taken for granted."
+      }
+    },
+    "opposition": {
+      "name": {
+        "zh-CN": "对分相",
+        "zh-TW": "對分相",
+        "en": "Opposition"
+      },
+      "symbol": "☍",
+      "angle": 180,
+      "effect": {
+        "zh-CN": "两股能量落在一条轴线的两端，需要在拉扯、投射与互补之间寻找平衡。",
+        "zh-TW": "兩股能量落在一條軸線的兩端，需要在拉扯、投射與互補之間尋找平衡。",
+        "en": "The two functions sit at opposite ends of an axis and ask for balance between tension, projection and complementarity."
+      }
+    }
+  }
+}
