@@ -1,5 +1,5 @@
 {
-  "version": "0.6",
+  "version": "0.7",
   "topics": [
     {
       "key": "general",
@@ -9,9 +9,9 @@
         "en": "General"
       },
       "description": {
-        "zh-CN": "从整体状态出发，观察当前最重要的主题。",
-        "zh-TW": "從整體狀態出發，觀察當前最重要的主題。",
-        "en": "Read the overall pattern and the theme asking for attention."
+        "zh-CN": "从整体状态出发，观察当前最值得关注的主题。",
+        "zh-TW": "從整體狀態出發，觀察當前最值得關注的主題。",
+        "en": "Read the overall pattern and the theme that deserves attention now."
       }
     },
     {
@@ -22,9 +22,9 @@
         "en": "Love"
       },
       "description": {
-        "zh-CN": "聚焦关系、情绪、互动与彼此的真实需要。",
-        "zh-TW": "聚焦關係、情緒、互動與彼此的真實需要。",
-        "en": "Focus on relationships, emotions, interaction and real needs."
+        "zh-CN": "聚焦关系、情绪、互动、界线与彼此真实的需要。",
+        "zh-TW": "聚焦關係、情緒、互動、界線與彼此真實的需要。",
+        "en": "Focus on relationships, emotions, interaction, boundaries and real needs."
       }
     },
     {
@@ -37,7 +37,7 @@
       "description": {
         "zh-CN": "观察行动、机会、合作、选择与长期方向。",
         "zh-TW": "觀察行動、機會、合作、選擇與長期方向。",
-        "en": "Look at action, opportunities, collaboration, choices and direction."
+        "en": "Look at action, opportunities, collaboration, choices and long-term direction."
       }
     },
     {
@@ -48,8 +48,8 @@
         "en": "Money"
       },
       "description": {
-        "zh-CN": "聚焦资源、收支、风险与实际可执行的判断。",
-        "zh-TW": "聚焦資源、收支、風險與實際可執行的判斷。",
+        "zh-CN": "聚焦资源、收支、风险与现实可执行的判断。",
+        "zh-TW": "聚焦資源、收支、風險與現實可執行的判斷。",
         "en": "Focus on resources, cash flow, risk and practical decisions."
       }
     },
@@ -187,20 +187,139 @@
           }
         }
       ]
+    },
+    {
+      "key": "relationship5",
+      "count": 5,
+      "name": {
+        "zh-CN": "关系互动指引",
+        "zh-TW": "關係互動指引",
+        "en": "Interaction Guidance"
+      },
+      "subtitle": {
+        "zh-CN": "自身状态 → 对方／环境 → 互动核心 → 阻碍 → 发展建议",
+        "zh-TW": "自身狀態 → 對方／環境 → 互動核心 → 阻礙 → 發展建議",
+        "en": "Self → Other / Environment → Core Interaction → Obstacle → Direction"
+      },
+      "positions": [
+        {
+          "key": "self",
+          "name": {
+            "zh-CN": "自身状态",
+            "zh-TW": "自身狀態",
+            "en": "My State"
+          }
+        },
+        {
+          "key": "other",
+          "name": {
+            "zh-CN": "对方／环境",
+            "zh-TW": "對方／環境",
+            "en": "Other / Environment"
+          }
+        },
+        {
+          "key": "core",
+          "name": {
+            "zh-CN": "互动核心",
+            "zh-TW": "互動核心",
+            "en": "Core Interaction"
+          }
+        },
+        {
+          "key": "obstacle",
+          "name": {
+            "zh-CN": "主要阻碍",
+            "zh-TW": "主要阻礙",
+            "en": "Main Obstacle"
+          }
+        },
+        {
+          "key": "direction",
+          "name": {
+            "zh-CN": "发展建议",
+            "zh-TW": "發展建議",
+            "en": "Direction"
+          }
+        }
+      ]
+    },
+    {
+      "key": "choice5",
+      "count": 5,
+      "needsOptions": true,
+      "name": {
+        "zh-CN": "二选一指引",
+        "zh-TW": "二選一指引",
+        "en": "Two-Path Guidance"
+      },
+      "subtitle": {
+        "zh-CN": "目前状态 → 选项 A → A 的发展 → 选项 B → B 的发展",
+        "zh-TW": "目前狀態 → 選項 A → A 的發展 → 選項 B → B 的發展",
+        "en": "Current state → A → A outcome → B → B outcome"
+      },
+      "positions": [
+        {
+          "key": "current",
+          "name": {
+            "zh-CN": "目前状态",
+            "zh-TW": "目前狀態",
+            "en": "Current State"
+          }
+        },
+        {
+          "key": "optionA",
+          "name": {
+            "zh-CN": "选项 A",
+            "zh-TW": "選項 A",
+            "en": "Option A"
+          }
+        },
+        {
+          "key": "optionAOutcome",
+          "name": {
+            "zh-CN": "A 的发展",
+            "zh-TW": "A 的發展",
+            "en": "A Outcome"
+          }
+        },
+        {
+          "key": "optionB",
+          "name": {
+            "zh-CN": "选项 B",
+            "zh-TW": "選項 B",
+            "en": "Option B"
+          }
+        },
+        {
+          "key": "optionBOutcome",
+          "name": {
+            "zh-CN": "B 的发展",
+            "zh-TW": "B 的發展",
+            "en": "B Outcome"
+          }
+        }
+      ]
     }
   ],
   "interpretationModel": {
     "base": "Rider-Waite-Smith traditional symbolism",
     "rules": [
+      "question context",
       "position meaning",
       "upright/reversed meaning",
       "question topic lens",
       "major arcana concentration",
       "upright/reversed balance",
-      "suit concentration",
-      "element concentration",
-      "sequence / narrative flow"
+      "suit and element concentration",
+      "court-card concentration",
+      "multiple aces or tens",
+      "repeated numbers",
+      "consecutive number sequences",
+      "adjacent Major Arcana runs",
+      "orientation flow across the spread",
+      "spread-specific relationship / choice logic"
     ],
-    "note": "牌义文案为本项目重新撰写；组合引擎不复制单一网站的现成解读。"
+    "note": "牌义与组合文案由本项目重新编写；引擎以 RWS 传统象征为骨架，不复制单一网站的现成占卜结果。"
   }
 }

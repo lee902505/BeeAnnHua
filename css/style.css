@@ -1315,3 +1315,374 @@ main { display: grid; gap: 0; }
     padding-inline: 12px;
   }
 }
+
+
+/* ===== V0.7 TAROT QUESTION + FLIP EXPERIENCE ===== */
+
+.tarot-question-field {
+  position: relative;
+  display: block;
+}
+
+.tarot-question-field textarea {
+  width: 100%;
+  min-height: 104px;
+  resize: vertical;
+  padding: 16px 18px 30px;
+  border: 1px solid rgba(235, 205, 174, .22);
+  border-radius: 18px;
+  outline: none;
+  color: #fff7f0;
+  background: rgba(255,255,255,.045);
+  line-height: 1.75;
+  font: inherit;
+  transition: border-color 180ms ease, box-shadow 180ms ease, background 180ms ease;
+}
+
+.tarot-question-field textarea::placeholder {
+  color: rgba(229, 214, 219, .44);
+}
+
+.tarot-question-field textarea:focus {
+  border-color: rgba(238, 202, 152, .54);
+  background: rgba(255,255,255,.06);
+  box-shadow: 0 0 0 3px rgba(218, 172, 118, .07);
+}
+
+.tarot-char-counter {
+  position: absolute;
+  right: 14px;
+  bottom: 10px;
+  color: #9d8993;
+  font-size: .72rem;
+}
+
+.tarot-choice-fields {
+  margin-top: 18px;
+  padding: 17px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  border-radius: 18px;
+  border: 1px dashed rgba(238, 202, 152, .22);
+  background: rgba(255,255,255,.025);
+}
+
+.tarot-choice-fields[hidden] {
+  display: none;
+}
+
+.tarot-choice-fields label {
+  display: grid;
+  gap: 7px;
+  color: #d9c8cf;
+  font-size: .86rem;
+}
+
+.tarot-choice-fields input {
+  width: 100%;
+  min-width: 0;
+  padding: 12px 13px;
+  border: 1px solid rgba(235, 205, 174, .18);
+  border-radius: 13px;
+  outline: none;
+  color: #fff7ef;
+  background: rgba(255,255,255,.045);
+  font: inherit;
+}
+
+.tarot-choice-fields input:focus {
+  border-color: rgba(238, 202, 152, .52);
+  box-shadow: 0 0 0 3px rgba(218, 172, 118, .07);
+}
+
+.tarot-choice-fields.needs-attention {
+  animation: tarotAttention .85s ease;
+}
+
+@keyframes tarotAttention {
+  0%, 100% { border-color: rgba(238, 202, 152, .22); }
+  35% { border-color: rgba(246, 180, 126, .8); box-shadow: 0 0 0 4px rgba(246, 180, 126, .08); }
+}
+
+.tarot-question-summary {
+  width: fit-content;
+  max-width: min(760px, 100%);
+  margin: 12px 0 0 !important;
+  padding: 9px 13px;
+  border-radius: 12px;
+  color: #775f6a !important;
+  background: #f8ecef;
+  line-height: 1.6;
+}
+
+.tarot-reveal-guide {
+  margin: 0 0 24px;
+  padding: 15px 18px;
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  border-radius: 17px;
+  color: #6f5963;
+  background: linear-gradient(135deg, #f8edef, #fff8f1);
+  border: 1px solid #ead9dd;
+}
+
+.tarot-reveal-guide-star {
+  flex: 0 0 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  color: #c99c68;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 6px 16px rgba(93, 62, 76, .07);
+}
+
+.tarot-reveal-guide strong,
+.tarot-reveal-guide small {
+  display: block;
+}
+
+.tarot-reveal-guide small {
+  margin-top: 3px;
+  color: #99858e;
+  line-height: 1.55;
+}
+
+.tarot-flip-grid .tarot-spread-card {
+  overflow: visible;
+}
+
+.tarot-flip-card {
+  width: min(100%, 210px);
+  aspect-ratio: 2 / 3.45;
+  margin: 0 auto;
+  display: block;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  perspective: 1200px;
+  cursor: pointer;
+}
+
+.tarot-spread-grid[data-count="5"] .tarot-flip-card {
+  width: min(100%, 155px);
+}
+
+.tarot-flip-card:disabled {
+  cursor: default;
+}
+
+.tarot-flip-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: block;
+  transform-style: preserve-3d;
+  transition: transform 620ms cubic-bezier(.2,.72,.2,1);
+}
+
+.tarot-flip-card.is-flipped .tarot-flip-inner {
+  transform: rotateY(180deg);
+}
+
+.tarot-flip-face {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  border-radius: 15px;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  box-shadow: 0 14px 30px rgba(62, 40, 52, .17);
+}
+
+.tarot-flip-face img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+}
+
+.tarot-flip-back {
+  border: 1px solid rgba(124, 87, 104, .28);
+  background: #3e2c42;
+}
+
+.tarot-flip-back::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 50% 44%, rgba(255,228,181,.12), transparent 25%),
+    linear-gradient(180deg, transparent, rgba(25, 14, 27, .18));
+}
+
+.tarot-flip-card.is-ready .tarot-flip-back {
+  animation: tarotReadyGlow 1.9s ease-in-out infinite;
+}
+
+@keyframes tarotReadyGlow {
+  0%,100% { box-shadow: 0 13px 28px rgba(62,40,52,.16), 0 0 0 rgba(211,165,111,0); }
+  50% { box-shadow: 0 14px 32px rgba(62,40,52,.2), 0 0 24px rgba(211,165,111,.22); }
+}
+
+.tarot-flip-card.is-waiting {
+  opacity: .68;
+  filter: saturate(.72);
+}
+
+.tarot-flip-prompt {
+  position: absolute;
+  left: 50%;
+  bottom: 12px;
+  z-index: 2;
+  max-width: 84%;
+  transform: translateX(-50%);
+  padding: 6px 9px;
+  border-radius: 999px;
+  color: #fff2df;
+  background: rgba(39, 24, 40, .68);
+  border: 1px solid rgba(255,238,207,.14);
+  font-size: .7rem;
+  white-space: nowrap;
+  backdrop-filter: blur(5px);
+}
+
+.tarot-flip-front {
+  transform: rotateY(180deg);
+  background: #fff;
+}
+
+.tarot-flip-front.is-reversed img {
+  transform: rotate(180deg);
+}
+
+.tarot-card-reveal-caption {
+  margin-top: 11px;
+  text-align: center;
+}
+
+.tarot-card-reveal-caption[hidden],
+.tarot-spread-card-reading[hidden],
+.tarot-combination-reading[hidden] {
+  display: none !important;
+}
+
+.tarot-reveal-item .tarot-spread-card-reading {
+  animation: tarotReadingIn 420ms ease both;
+}
+
+@keyframes tarotReadingIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.tarot-combination-reading.is-visible {
+  animation: tarotCombinationIn 560ms ease both;
+}
+
+@keyframes tarotCombinationIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.tarot-spread-options {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.tarot-spread-choice {
+  min-width: 0;
+}
+
+.tarot-spread-choice small {
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 980px) {
+  .tarot-spread-options {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .tarot-spread-grid[data-count="5"] .tarot-flip-card {
+    width: min(100%, 210px);
+  }
+}
+
+@media (max-width: 760px) {
+  .tarot-choice-fields {
+    grid-template-columns: 1fr;
+  }
+
+  .tarot-spread-options {
+    grid-template-columns: 1fr;
+  }
+
+  .tarot-flip-card,
+  .tarot-spread-grid[data-count="5"] .tarot-flip-card {
+    width: min(64vw, 245px);
+  }
+
+  .tarot-reveal-guide {
+    align-items: flex-start;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tarot-flip-inner,
+  .tarot-combination-reading,
+  .tarot-reveal-item .tarot-spread-card-reading {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+
+/* ===== V0.7.1 SPREAD CARD ICONS ===== */
+.tarot-spread-icon {
+  position: relative;
+  flex: 0 0 48px;
+  width: 48px;
+  height: 62px;
+  display: grid;
+  place-items: center;
+  border-radius: 11px;
+  background: rgba(235, 199, 146, .05);
+  border: 1px solid rgba(235, 199, 146, .16);
+  overflow: visible;
+}
+
+.tarot-spread-icon::before {
+  content: "";
+  position: absolute;
+  width: 31px;
+  height: 48px;
+  left: 7px;
+  top: 7px;
+  border-radius: 5px;
+  background: rgba(234, 202, 158, .12);
+  border: 1px solid rgba(234, 202, 158, .16);
+  transform: rotate(-7deg);
+}
+
+.tarot-spread-icon img {
+  position: relative;
+  z-index: 1;
+  width: 31px;
+  height: 48px;
+  object-fit: cover;
+  border-radius: 5px;
+  box-shadow: 0 5px 11px rgba(15, 9, 17, .28);
+}
+
+.tarot-spread-choice:hover .tarot-spread-icon img,
+.tarot-spread-choice.active .tarot-spread-icon img {
+  transform: translateY(-1px) rotate(2deg);
+}
+
+.tarot-spread-icon img {
+  transition: transform 180ms ease;
+}

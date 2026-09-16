@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#201822" />
-  <meta name="description" content="星辰日记塔罗牌占卜：78 张 Rider-Waite-Smith 系塔罗牌，支持单张、三张与五张牌阵，并结合正逆位、牌位、主题与整体牌面结构进行解读。" />
+  <meta name="description" content="星辰日记塔罗牌占卜：78 张 Rider-Waite-Smith 系塔罗牌，支持单张、本周、本月、感情关系与二选一牌阵，并结合正逆位、牌位、问题与整体牌面结构进行组合解读。" />
   <title>塔罗牌占卜 | 星辰日记</title>
   <link rel="stylesheet" href="../css/style.css" />
 </head>
@@ -24,19 +24,33 @@
         <p class="panel-en">TAROT READING</p>
         <h1 id="tarotPageTitle">塔罗牌占卜</h1>
         <p class="tarot-intro" id="tarotIntro">
-          先选择你想看的主题与牌阵。每一张牌都会结合牌位、正逆位与问题主题解读；
-          三张与五张牌还会进一步分析大阿尔克那比例、正逆位分布、花色与元素集中，以及前后牌面的发展关系。
+          写下想问的事情，再选择问题方向与占卜类型。多张牌会结合牌位、正逆位、花色、元素、数字与牌面发展关系一起解读。
         </p>
-        <p class="load-error" id="tarotLoadError" hidden>牌库暂时无法读取，请确认你正在使用 Go Live 或 GitHub Pages 开启网站。</p>
+        <p class="load-error" id="tarotLoadError" hidden></p>
       </section>
 
       <section class="tarot-setup" aria-label="塔罗占卜设定">
-        <div class="tarot-control-group">
+        <div class="tarot-control-group tarot-question-group">
           <div class="tarot-control-heading">
             <span class="tarot-control-step">01</span>
             <div>
-              <strong id="topicHeading">选择主题</strong>
-              <small id="topicHint">同一张牌，在不同问题里会强调不同面向。</small>
+              <strong id="questionHeading">输入问题</strong>
+              <small id="questionHint">把真正想知道的事情写下来，会更容易专注在同一个问题上。</small>
+            </div>
+          </div>
+          <label class="tarot-question-field">
+            <textarea id="questionInput" maxlength="160" rows="3" placeholder="例如：我和对方接下来会如何发展？"></textarea>
+            <span class="tarot-char-counter"><span id="questionCount">0</span>/160</span>
+          </label>
+          <p class="tarot-selection-note" id="questionNote">问题可以留空；留空时会以你选择的方向进行一般指引。</p>
+        </div>
+
+        <div class="tarot-control-group">
+          <div class="tarot-control-heading">
+            <span class="tarot-control-step">02</span>
+            <div>
+              <strong id="topicHeading">选择问题</strong>
+              <small id="topicHint">先选择你想询问的方向，同一张牌在不同问题里会强调不同面向。</small>
             </div>
           </div>
           <div class="tarot-option-row" id="topicOptions"></div>
@@ -45,13 +59,24 @@
 
         <div class="tarot-control-group">
           <div class="tarot-control-heading">
-            <span class="tarot-control-step">02</span>
+            <span class="tarot-control-step">03</span>
             <div>
-              <strong id="spreadHeading">选择牌阵</strong>
-              <small id="spreadHint">单张看核心；三张看本周走势；五张看本月发展。</small>
+              <strong id="spreadHeading">选择类型</strong>
+              <small id="spreadHint">单张看核心；本周、本月、关系与二选一会读取更多牌面结构。</small>
             </div>
           </div>
           <div class="tarot-spread-options" id="spreadOptions"></div>
+
+          <div class="tarot-choice-fields" id="choiceFields" hidden>
+            <label>
+              <span id="optionALabel">选项 A</span>
+              <input id="optionAInput" type="text" maxlength="48" placeholder="例如：留在现在的工作" />
+            </label>
+            <label>
+              <span id="optionBLabel">选项 B</span>
+              <input id="optionBInput" type="text" maxlength="48" placeholder="例如：接受新的工作机会" />
+            </label>
+          </div>
         </div>
       </section>
 
@@ -62,24 +87,33 @@
             <span class="deck-shadow deck-shadow-2"></span>
             <img id="cardBackImage" src="../images/tarot/cards/CardBacks.jpg" alt="" />
           </span>
-          <strong id="drawButtonText">开始抽牌</strong>
-          <small id="drawButtonHint">在心里确认问题，然后点击牌堆</small>
+          <strong id="drawButtonText">开始抽盘</strong>
+          <small id="drawButtonHint">在心里确认问题，默念三次，然后点击牌堆</small>
         </button>
       </section>
 
       <section class="tarot-multi-result" id="tarotResult" hidden>
         <header class="tarot-result-heading">
           <div>
-            <p class="panel-en" id="resultModeEn">TAROT SPREAD</p>
+            <p class="panel-en">TAROT SPREAD</p>
             <h2 id="resultTitle">你的牌阵</h2>
             <p id="resultSubtitle"></p>
+            <p class="tarot-question-summary" id="questionSummary" hidden></p>
           </div>
-          <button class="tarot-compact-redraw" id="drawTarotAgainBtn" type="button">重新抽牌 ↻</button>
+          <button class="tarot-compact-redraw" id="drawTarotAgainBtn" type="button">重新抽盘 ↻</button>
         </header>
 
-        <div class="tarot-spread-grid" id="tarotSpreadGrid"></div>
+        <div class="tarot-reveal-guide" id="revealGuide">
+          <span class="tarot-reveal-guide-star">✦</span>
+          <div>
+            <strong id="revealGuideTitle">依序翻开牌面</strong>
+            <small id="revealGuideText">从第一张开始点击牌背。全部翻开后，才会显示完整的组合解读。</small>
+          </div>
+        </div>
 
-        <article class="tarot-combination-reading" id="combinationReading">
+        <div class="tarot-spread-grid tarot-flip-grid" id="tarotSpreadGrid"></div>
+
+        <article class="tarot-combination-reading tarot-combination-locked" id="combinationReading" hidden>
           <div class="tarot-combination-head">
             <div>
               <span class="tarot-reading-label" id="combinationLabel">整体组合解读</span>
@@ -115,7 +149,6 @@
           <span id="bottomHomeText">返回首页</span>
         </a>
       </nav>
-
     </main>
   </div>
 
