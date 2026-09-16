@@ -1,3 +1,32 @@
+# 星辰日记 Web V0.10.3.2
+
+## iPhone 原生日期/时间 + 城市结果修正版
+
+根据 iPhone 实机截图确认，前一版问题并不是普通 grid 宽度，而是：
+
+1. iOS Safari 原生 `input[type=date] / input[type=time]` 仍保留内部 intrinsic width，导致右侧圆角被推出 viewport。
+2. 城市搜索结果采用 absolute 浮层，手机键盘开启时容易与下方控件重叠；经纬度 / 时区第二行也可能被视觉上吃掉。
+
+本版修正：
+
+- 日期与时间加入 `.astro-native-input-shell` 外层。
+- 可见圆角、边框、背景由普通 HTML 容器绘制，原生 input 被安全裁切在容器内。
+- 保留 `type=date / type=time`，点击仍使用 iOS 原生日期与时间选择器。
+- 手机版星盘输入 grid 改为 block flow，彻底避开 WebKit grid intrinsic width。
+- 城市建议列表在手机改为 normal flow，不再浮在后续项目上。
+- 城市建议每笔强制保留：
+  - 城市 / 国家
+  - 经纬度
+  - IANA 时区
+- 选定城市后，经纬度与时区显示为独立资讯条。
+- 同样修复两人合盘 A / B 的日期与时间输入。
+- 手机触控城市选择改用 Pointer Event / touch fallback。
+- CSS 与全部本地 JS 使用 `?v=0.10.3.2` 强制刷新，避免 Safari / GitHub Pages 使用旧缓存。
+
+V0.10.3 的 12 宫深度解读、宫主星、行星落宫、Bark、玩家资料等全部保留。
+
+---
+
 # 星辰日记 Web V0.10.3.1
 
 ## iPhone / Safari 出生资料表单修正

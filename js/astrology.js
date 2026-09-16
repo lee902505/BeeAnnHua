@@ -199,9 +199,14 @@
     box.hidden = false;
 
     box.querySelectorAll('[data-city-result]').forEach(button => {
-      button.addEventListener('mousedown', (event) => {
+      const choose = (event) => {
         event.preventDefault();
         selectCity(results[Number(button.dataset.cityResult)]);
+      };
+      if (window.PointerEvent) button.addEventListener('pointerdown', choose);
+      else button.addEventListener('touchstart', choose, {passive:false});
+      button.addEventListener('click', (event) => {
+        if (event.detail === 0) choose(event); // keyboard accessibility
       });
     });
   }

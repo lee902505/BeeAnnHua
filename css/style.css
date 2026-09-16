@@ -3155,3 +3155,150 @@ main { display: grid; gap: 0; }
     }
   }
 }
+
+
+/* ===== V0.10.3.2 IOS NATIVE INPUT + CITY RESULT FIX ===== */
+
+/* The visible border/background is now owned by a normal span shell,
+   not the iOS native date/time control. This prevents WebKit's intrinsic
+   input width from pushing the right rounded corner outside the viewport. */
+.astro-native-input-shell {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid rgba(231,202,180,.2);
+  border-radius: 14px;
+  color: #fff8f1;
+  background: rgba(255,255,255,.045);
+  transition: border-color 160ms ease, box-shadow 160ms ease;
+}
+
+.astro-native-input-shell:focus-within {
+  border-color: rgba(238,202,152,.56);
+  box-shadow: 0 0 0 3px rgba(218,172,118,.07);
+}
+
+.astro-native-input-shell > input[type="date"],
+.astro-native-input-shell > input[type="time"] {
+  display: block !important;
+  box-sizing: border-box !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  inline-size: 100% !important;
+  max-inline-size: 100% !important;
+  min-inline-size: 0 !important;
+  margin: 0 !important;
+  padding: 14px 15px !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  outline: 0 !important;
+  color: #fff8f1 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  font: inherit !important;
+  font-size: 16px !important;
+  -webkit-appearance: none;
+  appearance: none;
+  -webkit-min-logical-width: 0 !important;
+  overflow: hidden;
+}
+
+.astro-native-input-shell > input[type="date"]::-webkit-date-and-time-value,
+.astro-native-input-shell > input[type="time"]::-webkit-date-and-time-value {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  text-align: left;
+}
+
+/* Selected location should always be visible as a separate information bar. */
+.astro-city-selected {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  margin-top: 2px;
+  padding: 8px 11px;
+  border: 1px solid rgba(231,202,180,.11);
+  border-radius: 10px;
+  color: #c9b4be !important;
+  background: rgba(255,255,255,.025);
+  line-height: 1.5 !important;
+  overflow-wrap: anywhere;
+}
+.astro-city-selected[hidden] {
+  display: none !important;
+}
+
+/* Give every city item enough room for both lines even under iOS text sizing. */
+.astro-city-result {
+  min-height: 70px;
+  padding: 11px 12px 12px;
+  line-height: 1.35;
+}
+.astro-city-result strong {
+  line-height: 1.4;
+}
+.astro-city-result small {
+  margin-top: 6px;
+  line-height: 1.45;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+/* On phones the suggestion list joins normal document flow.
+   This prevents it from floating over / hiding the controls below it. */
+@media (max-width: 760px) {
+  .astrology-form-grid {
+    display: block !important;
+    width: 100%;
+  }
+
+  .astrology-form-grid > .astro-field {
+    display: block !important;
+    width: 100% !important;
+    margin: 0 0 20px;
+  }
+
+  .astrology-form-grid > .astro-field > span:first-child {
+    display: block;
+    margin-bottom: 8px;
+  }
+
+  .astro-native-input-shell {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  .astro-city-search {
+    display: block;
+    width: 100%;
+  }
+
+  .astro-city-results {
+    position: static !important;
+    inset: auto !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    max-height: 250px;
+    margin-top: 8px;
+    overflow-y: auto;
+    border-radius: 14px;
+    box-shadow: 0 10px 24px rgba(10,7,14,.24);
+  }
+
+  .astro-city-results[hidden] {
+    display: none !important;
+  }
+
+  /* Leave enough scrollable room while the iOS keyboard is open. */
+  .astrology-form-section,
+  .synastry-form-section {
+    padding-bottom: max(72px, env(safe-area-inset-bottom));
+  }
+}
+
