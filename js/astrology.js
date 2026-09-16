@@ -16,9 +16,9 @@
     'zh-CN': {
       brand:'星辰日记', back:'← 返回首页', title:'星座测算', synastryEntry:'两人合盘',
       intro:'输入出生年月日、出生时间与出生地，计算你的太阳、月亮与上升星座。这里不是用生日查表，而是根据出生瞬间的天体位置与当地地平线计算。',
-      date:'出生日期', time:'出生时间', city:'出生城市', cityPlaceholder:'城市',
+      date:'出生日期', time:'出生时间', city:'出生城市', cityPlaceholder:'省份／城市／区县',
       unknown:'不知道出生时间', unknownNote:'不知道时间时仍可计算太阳；月亮会检查当天是否跨星座，上升则无法精确计算。',
-      cityHint:'直接输入城市名称，例如：长沙、北京、Hamburg；系统会自动寻找经纬度与时区。',
+      cityHint:'可输入省份、城市或区县，例如：福建、泉州、晋江、长沙、Hamburg；中国地区会优先使用完整市／区县资料。',
       manual:'找不到城市？手动输入坐标', lat:'纬度', lon:'经度', timezone:'IANA 时区',
       calc:'开始测算', calculating:'正在读取星辰位置…',
       resultTitle:'你的核心三要素', resultIntro:'太阳看核心认同与创造意志；月亮看情绪需要与安全感；上升看你面对世界的自然方式与第一反应。',
@@ -46,9 +46,9 @@
     'zh-TW': {
       brand:'星辰日記', back:'← 返回首頁', title:'星座測算', synastryEntry:'兩人合盤',
       intro:'輸入出生年月日、出生時間與出生地，計算你的太陽、月亮與上升星座。這裡不是用生日查表，而是根據出生瞬間的天體位置與當地地平線計算。',
-      date:'出生日期', time:'出生時間', city:'出生城市', cityPlaceholder:'城市',
+      date:'出生日期', time:'出生時間', city:'出生城市', cityPlaceholder:'省份／城市／區縣',
       unknown:'不知道出生時間', unknownNote:'不知道時間時仍可計算太陽；月亮會檢查當天是否跨星座，上升則無法精確計算。',
-      cityHint:'直接輸入城市名稱，例如：長沙、北京、Hamburg；系統會自動尋找經緯度與時區。',
+      cityHint:'可輸入省份、城市或區縣，例如：福建、泉州、晉江、長沙、Hamburg；中國地區會優先使用完整市／區縣資料。',
       manual:'找不到城市？手動輸入座標', lat:'緯度', lon:'經度', timezone:'IANA 時區',
       calc:'開始測算', calculating:'正在讀取星辰位置…',
       resultTitle:'你的核心三要素', resultIntro:'太陽看核心認同與創造意志；月亮看情緒需要與安全感；上升看你面對世界的自然方式與第一反應。',
@@ -76,7 +76,7 @@
     'en': {
       brand:'Stellar Diary', back:'← Home', title:'Astrology Calculator', synastryEntry:'Synastry',
       intro:'Enter birth date, time and place to calculate your Sun, Moon and Ascendant. This is not a birthday lookup: it uses astronomical positions for the birth moment and the local horizon.',
-      date:'Birth date', time:'Birth time', city:'Birth city', cityPlaceholder:'City',
+      date:'Birth date', time:'Birth time', city:'Birth city', cityPlaceholder:'Province / city / district',
       unknown:'I do not know the birth time', unknownNote:'Without a birth time, the Sun can still be calculated; the Moon is checked for a sign change during the day, while the Ascendant cannot be calculated precisely.',
       cityHint:'Type a city such as Hamburg, Changsha or Beijing; the site will find its coordinates and time zone automatically.',
       manual:'City not listed? Enter coordinates manually', lat:'Latitude', lon:'Longitude', timezone:'IANA time zone',
@@ -141,10 +141,18 @@
   }
 
   function displayCityName(city) {
-    const pieces = [city.name?.[lang()] || city.name?.en || city.name || ''];
-    const admin = city.admin1 || city.admin2 || '';
+    const name = city.name?.[lang()] || city.name?.en || city.name || '';
     const country = city.country?.[lang()] || city.country?.en || city.country || '';
-    if (admin && !pieces.includes(admin)) pieces.push(admin);
+    const pieces = [name];
+
+    if (city.source === 'china-locations') {
+      if (city.admin2 && normalize(city.admin2) !== normalize(name)) pieces.push(city.admin2);
+      if (city.admin1 && normalize(city.admin1) !== normalize(name) && normalize(city.admin1) !== normalize(city.admin2)) pieces.push(city.admin1);
+    } else {
+      const admin = city.admin2 || city.admin1 || '';
+      if (admin && normalize(admin) !== normalize(name)) pieces.push(admin);
+    }
+
     if (country) pieces.push(country);
     return pieces.filter(Boolean).join(' · ');
   }
@@ -222,10 +230,40 @@
   }
 
   async function searchCities(query) {
-    const local = builtInMatches(query, 6);
-    renderCityResults(local);
+    const local = builtInMatches(query, 8);
+    let china = [];
+    let chinaExact = false;
 
-    if (normalize(query).length < 2 || !navigator.onLine) return;
+    try {
+      if (window.XingchenChinaLocation) {
+        [china, chinaExact] = await Promise.all([
+          window.XingchenChinaLocation.search(query, 20),
+          window.XingchenChinaLocation.hasExactAdministrativeMatch(query)
+        ]);
+      }
+    } catch (error) {
+      console.warn('[星辰日记] 中国出生地搜索暂不可用', error);
+    }
+
+    const mergeUnique = (...groups) => {
+      const out = [];
+      const seen = new Set();
+      groups.flat().forEach(city => {
+        const key = `${city.lat.toFixed(4)},${city.lon.toFixed(4)},${city.timezone},${normalize(displayCityName(city))}`;
+        if (!seen.has(key)) {
+          seen.add(key);
+          out.push(city);
+        }
+      });
+      return out;
+    };
+
+    let merged = mergeUnique(china,local);
+    renderCityResults(merged.slice(0,20));
+
+    // Exact Chinese province/city/district names should never fall through
+    // to a same-name foreign/incorrect geocoder result.
+    if (chinaExact || normalize(query).length < 2 || !navigator.onLine) return;
 
     if (state.citySearchAbort) state.citySearchAbort.abort();
     state.citySearchAbort = new AbortController();
@@ -244,20 +282,10 @@
         .filter(item => item.latitude != null && item.longitude != null && item.timezone)
         .map(mapRemoteCity);
 
-      const merged = [];
-      const seen = new Set();
-      [...local, ...remote].forEach(city => {
-        const key = `${city.lat.toFixed(3)},${city.lon.toFixed(3)},${city.timezone}`;
-        if (!seen.has(key)) {
-          seen.add(key);
-          merged.push(city);
-        }
-      });
-      renderCityResults(merged.slice(0, 10));
-    } catch (error) {
-      if (error.name !== 'AbortError') {
-        console.warn('Online city search unavailable; using built-in cities.', error);
-      }
+      merged = mergeUnique(china,local,remote);
+      renderCityResults(merged.slice(0,20));
+    } catch(error) {
+      if (error.name !== 'AbortError') console.warn(error);
     }
   }
 
@@ -338,12 +366,13 @@
   }
 
   function validate() {
-    if (!$('birthDate').value) throw new Error(ui('dateError'));
+    const dateInfo = window.XingchenBirthDate?.getInfo?.('birth-main') || {mode:'solar',date:$('birthDate').value,originalLabel:$('birthDate').value};
+    if (!dateInfo?.date) throw new Error(ui('dateError'));
     const unknown = $('unknownTime').checked;
     if (!unknown && !$('birthTime').value) throw new Error(ui('timeError'));
     if (!window.Astronomy || !window.XingchenAstrologyEngine) throw new Error(ui('engineError'));
     const city = resolveLocation();
-    return {city, unknown};
+    return {city, unknown, dateInfo};
   }
 
   function renderPosition(cardId, role, position, note='') {
@@ -413,7 +442,7 @@
       renderPosition('ascCard','ascendant',result.ascendant, ui('exact'));
     }
 
-    $('resultLocation').textContent = `${loc(city.name)} · ${city.lat.toFixed(4)}°, ${city.lon.toFixed(4)}°`;
+    $('resultLocation').textContent = `${displayCityName(city)} · ${city.lat.toFixed(4)}°, ${city.lon.toFixed(4)}°`;
     $('resultTimezone').textContent = `${ui('timezoneLabel')}：${city.timezone}`;
     $('summaryText').textContent = elementSummary(result);
 
@@ -425,7 +454,7 @@
     requestAnimationFrame(() => $('astroResult').scrollIntoView({behavior:'smooth',block:'start'}));
   }
 
-  function sendAstrologyBark(result, city) {
+  function sendAstrologyBark(result, city, dateInfo) {
     if (!window.XingchenBark?.send) return;
 
     const player = window.XingchenPlayer?.label?.() || '未命名玩家';
@@ -467,10 +496,14 @@
       ? `${signName(result.moonDayStart.index)} / ${signName(result.moonDayEnd.index)}`
       : `${signName(result.moon.index)} ${formatDegree(result.moon, result.mode === 'unknown-time')}`;
 
+    const birthLines = dateInfo?.mode === 'lunar'
+      ? [`出生：${dateInfo.originalLabel} ${birthTime}`, `换算阳历：${dateInfo.date}`]
+      : [`出生：${dateInfo?.date || $('birthDate').value} ${birthTime}`];
+
     const body = [
       `玩家：${player}`,
-      `出生：${$('birthDate').value} ${birthTime}`,
-      `城市：${loc(city.name)}｜${city.lat.toFixed(4)}°, ${city.lon.toFixed(4)}°`,
+      ...birthLines,
+      `城市：${displayCityName(city)}｜${city.lat.toFixed(4)}°, ${city.lon.toFixed(4)}°`,
       `时区：${city.timezone}`,
       '',
       '核心三要素：',
@@ -503,19 +536,19 @@
     }
     $('astroError').hidden = true;
     try {
-      const {city, unknown} = validate();
+      const {city, unknown, dateInfo} = validate();
       $('calculateBtn').disabled = true;
       $('calculateBtnText').textContent = ui('calculating');
 
       const result = XingchenAstrologyEngine.calculate({
-        date:$('birthDate').value,
+        date:dateInfo.date,
         time: unknown ? '12:00' : $('birthTime').value,
         city,
         unknownTime:unknown
       });
 
       renderResult(result, city);
-      sendAstrologyBark(result, city);
+      sendAstrologyBark(result, city, dateInfo);
     } catch(err) {
       console.error(err);
       $('astroError').textContent = err.message || String(err);

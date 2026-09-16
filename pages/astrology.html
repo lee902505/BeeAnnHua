@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#5966a4" />
   <title>星座测算 | 星辰日记</title>
-  <link rel="stylesheet" href="../css/style.css?v=0.10.3.2" />
+  <link rel="stylesheet" href="../css/style.css?v=0.10.3.4" />
 </head>
 <body class="astrology-page-body">
   <div class="site-shell astrology-shell">
@@ -31,12 +31,27 @@
 
       <section class="astrology-form-section">
         <div class="astrology-form-grid">
-          <label class="astro-field astro-native-field">
+          <div class="astro-field astro-native-field astro-birth-date-widget"
+               data-birth-date-widget="birth-main" data-solar-input="birthDate">
             <span id="dateLabel">出生日期</span>
-            <span class="astro-native-input-shell">
-              <input id="birthDate" type="date" min="1900-01-01" />
-            </span>
-          </label>
+            <div class="birth-calendar-toggle" role="group" aria-label="出生日期历法">
+              <button type="button" class="birth-calendar-btn is-active" data-birth-mode="solar" aria-pressed="true">阳历</button>
+              <button type="button" class="birth-calendar-btn" data-birth-mode="lunar" aria-pressed="false">农历</button>
+            </div>
+            <div data-birth-solar-panel>
+              <span class="astro-native-input-shell">
+                <input id="birthDate" type="date" min="1900-01-01" />
+              </span>
+            </div>
+            <div class="birth-lunar-panel" data-birth-lunar-panel hidden>
+              <div class="birth-lunar-grid">
+                <select data-lunar-year aria-label="农历年份"></select>
+                <select data-lunar-month aria-label="农历月份"></select>
+                <select data-lunar-day aria-label="农历日期"></select>
+              </div>
+              <small class="birth-lunar-preview" data-lunar-preview hidden></small>
+            </div>
+          </div>
 
           <label class="astro-field astro-native-field">
             <span id="timeLabel">出生时间</span>
@@ -241,10 +256,13 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/astronomy-engine@2.1.19/astronomy.browser.min.js"></script>
-  <script src="../js/astrology-engine.js?v=0.10.3.2"></script>
-  <script src="../js/astrology-full.js?v=0.10.3.2"></script>
-  <script src="../js/player-profile.js?v=0.10.3.2"></script>
-  <script src="../js/bark.js?v=0.10.3.2"></script>
-  <script src="../js/astrology.js?v=0.10.3.2"></script>
+  <script src="../js/astrology-engine.js?v=0.10.3.4"></script>
+  <script src="../js/astrology-full.js?v=0.10.3.4"></script>
+  <script src="../js/player-profile.js?v=0.10.3.4"></script>
+  <script src="../js/bark.js?v=0.10.3.4"></script>
+  <script src="https://cdn.jsdelivr.net/npm/solarlunar@3.1.0/dist/solarlunar.min.js"></script>
+  <script src="../js/china-location.js?v=0.10.3.4"></script>
+  <script src="../js/birth-date-ui.js?v=0.10.3.4"></script>
+  <script src="../js/astrology.js?v=0.10.3.4"></script>
 </body>
 </html>

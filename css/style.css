@@ -3302,3 +3302,151 @@ main { display: grid; gap: 0; }
   }
 }
 
+
+
+/* ===== V0.10.3.3 MOBILE FIELD HEIGHT NORMALIZATION ===== */
+
+/*
+  iOS Safari can render an empty native date/time input with a shorter
+  internal line box than the same control after it has a value.
+  Keep the shell at the same visual height as the city text field in all states.
+*/
+.astro-native-input-shell {
+  box-sizing: border-box;
+  height: 52px !important;
+  min-height: 52px !important;
+  max-height: 52px !important;
+  font-size: inherit;
+}
+
+.astro-native-input-shell > input[type="date"],
+.astro-native-input-shell > input[type="time"] {
+  box-sizing: border-box !important;
+  height: 50px !important;
+  min-height: 50px !important;
+  max-height: 50px !important;
+  line-height: 22px !important;
+  padding-top: 14px !important;
+  padding-bottom: 14px !important;
+}
+
+/* Match city / manual-location inputs to the same visual rhythm. */
+.astro-city-field input,
+.astro-manual-location input,
+.synastry-person-form .astro-field input:not([type="date"]):not([type="time"]),
+.astrology-form-grid .astro-field input:not([type="date"]):not([type="time"]) {
+  min-height: 52px;
+}
+
+/* Keep all three primary natal fields visually aligned on phones. */
+@media (max-width: 760px) {
+  .astro-native-input-shell,
+  .astro-city-field input {
+    height: 52px !important;
+    min-height: 52px !important;
+  }
+
+  .astrology-form-grid > .astro-field {
+    margin-bottom: 20px;
+  }
+}
+
+
+/* ===== V0.10.3.4 SOLAR/LUNAR + COMPLETE BIRTHPLACE ===== */
+.astro-birth-date-widget {
+  min-width: 0;
+}
+
+.birth-calendar-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  width: fit-content;
+  margin: 7px 0 9px;
+  padding: 3px;
+  border: 1px solid rgba(231,202,180,.13);
+  border-radius: 999px;
+  background: rgba(255,255,255,.035);
+}
+
+.birth-calendar-toggle.compact {
+  margin-top: 6px;
+}
+
+.birth-calendar-btn {
+  min-width: 58px;
+  padding: 6px 11px;
+  border: 0;
+  border-radius: 999px;
+  color: #bbaab3;
+  background: transparent;
+  cursor: pointer;
+  font: inherit;
+  font-size: .76rem;
+  transition: background .16s ease,color .16s ease,box-shadow .16s ease;
+}
+
+.birth-calendar-btn.is-active {
+  color: #fff7f0;
+  background: rgba(224,188,151,.18);
+  box-shadow: inset 0 0 0 1px rgba(231,202,180,.18);
+}
+
+.birth-lunar-panel {
+  min-width: 0;
+}
+
+.birth-lunar-panel[hidden] {
+  display: none !important;
+}
+
+.birth-lunar-grid {
+  display: grid;
+  grid-template-columns: minmax(0,1.15fr) minmax(0,1fr) minmax(0,1fr);
+  gap: 8px;
+  min-width: 0;
+}
+
+.birth-lunar-grid select {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  height: 52px;
+  padding: 0 10px;
+  border: 1px solid rgba(231,202,180,.2);
+  border-radius: 14px;
+  outline: 0;
+  color: #fff8f1;
+  background: rgba(255,255,255,.045);
+  font: inherit;
+  font-size: 16px;
+}
+
+.birth-lunar-preview {
+  display: block;
+  margin-top: 8px;
+  color: #d7bdc8;
+  line-height: 1.55;
+}
+
+.birth-lunar-preview[hidden] {
+  display: none !important;
+}
+
+.birth-lunar-preview.is-error {
+  color: #e7a9ad;
+}
+
+.astro-city-result strong {
+  display: block;
+}
+
+@media(max-width:520px) {
+  .birth-lunar-grid {
+    grid-template-columns: minmax(0,1fr);
+  }
+
+  .birth-lunar-grid select {
+    height: 50px;
+  }
+}

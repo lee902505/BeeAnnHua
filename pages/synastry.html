@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#514a87" />
   <title>两人合盘 | 星辰日记</title>
-  <link rel="stylesheet" href="../css/style.css?v=0.10.3.2" />
+  <link rel="stylesheet" href="../css/style.css?v=0.10.3.4" />
 </head>
 <body class="synastry-page-body" id="pageTop">
   <div class="site-shell synastry-shell">
@@ -31,7 +31,18 @@
             <header><span>A</span><div><strong id="personATitle">A 的资料</strong><small id="personAHint">第一个人的出生资料</small></div></header>
             <label class="astro-field"><span id="nameALabel">称呼</span><input id="nameA" type="text" maxlength="24" placeholder="A" /></label>
             <div class="synastry-form-pair">
-              <label class="astro-field astro-native-field"><span id="dateALabel">出生日期</span><span class="astro-native-input-shell"><input id="dateA" type="date" min="1900-01-01" /></span></label>
+              <div class="astro-field astro-native-field astro-birth-date-widget" data-birth-date-widget="birth-A" data-solar-input="dateA">
+                <span id="dateALabel">出生日期</span>
+                <div class="birth-calendar-toggle compact" role="group" aria-label="出生日期历法">
+                  <button type="button" class="birth-calendar-btn is-active" data-birth-mode="solar" aria-pressed="true">阳历</button>
+                  <button type="button" class="birth-calendar-btn" data-birth-mode="lunar" aria-pressed="false">农历</button>
+                </div>
+                <div data-birth-solar-panel><span class="astro-native-input-shell"><input id="dateA" type="date" min="1900-01-01" /></span></div>
+                <div class="birth-lunar-panel" data-birth-lunar-panel hidden>
+                  <div class="birth-lunar-grid"><select data-lunar-year></select><select data-lunar-month></select><select data-lunar-day></select></div>
+                  <small class="birth-lunar-preview" data-lunar-preview hidden></small>
+                </div>
+              </div>
               <label class="astro-field astro-native-field"><span id="timeALabel">出生时间</span><span class="astro-native-input-shell"><input id="timeA" type="time" step="60" /></span></label>
             </div>
             <label class="astro-field astro-city-field">
@@ -46,7 +57,18 @@
             <header><span>B</span><div><strong id="personBTitle">B 的资料</strong><small id="personBHint">第二个人的出生资料</small></div></header>
             <label class="astro-field"><span id="nameBLabel">称呼</span><input id="nameB" type="text" maxlength="24" placeholder="B" /></label>
             <div class="synastry-form-pair">
-              <label class="astro-field astro-native-field"><span id="dateBLabel">出生日期</span><span class="astro-native-input-shell"><input id="dateB" type="date" min="1900-01-01" /></span></label>
+              <div class="astro-field astro-native-field astro-birth-date-widget" data-birth-date-widget="birth-B" data-solar-input="dateB">
+                <span id="dateBLabel">出生日期</span>
+                <div class="birth-calendar-toggle compact" role="group" aria-label="出生日期历法">
+                  <button type="button" class="birth-calendar-btn is-active" data-birth-mode="solar" aria-pressed="true">阳历</button>
+                  <button type="button" class="birth-calendar-btn" data-birth-mode="lunar" aria-pressed="false">农历</button>
+                </div>
+                <div data-birth-solar-panel><span class="astro-native-input-shell"><input id="dateB" type="date" min="1900-01-01" /></span></div>
+                <div class="birth-lunar-panel" data-birth-lunar-panel hidden>
+                  <div class="birth-lunar-grid"><select data-lunar-year></select><select data-lunar-month></select><select data-lunar-day></select></div>
+                  <small class="birth-lunar-preview" data-lunar-preview hidden></small>
+                </div>
+              </div>
               <label class="astro-field astro-native-field"><span id="timeBLabel">出生时间</span><span class="astro-native-input-shell"><input id="timeB" type="time" step="60" /></span></label>
             </div>
             <label class="astro-field astro-city-field">
@@ -143,7 +165,10 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/astronomy-engine@2.1.19/astronomy.browser.min.js"></script>
-  <script src="../js/astrology-engine.js?v=0.10.3.2"></script>
-  <script src="../js/synastry.js?v=0.10.3.2"></script>
+  <script src="../js/astrology-engine.js?v=0.10.3.4"></script>
+  <script src="https://cdn.jsdelivr.net/npm/solarlunar@3.1.0/dist/solarlunar.min.js"></script>
+  <script src="../js/china-location.js?v=0.10.3.4"></script>
+  <script src="../js/birth-date-ui.js?v=0.10.3.4"></script>
+  <script src="../js/synastry.js?v=0.10.3.4"></script>
 </body>
 </html>

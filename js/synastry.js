@@ -41,15 +41,45 @@
     const select=$('relationshipType'); const current=select.value; select.innerHTML=Object.entries(state.meta?.relationshipLenses||{}).map(([k,v])=>`<option value="${k}">${esc(loc(v))}</option>`).join(''); if(current&&select.querySelector(`option[value="${current}"]`))select.value=current;
   }
 
-  function cityDisplay(c){const n=c.name?.[lang()]||c.name?.en||c.name||'';const country=c.country?.[lang()]||c.country?.en||c.country||'';return [n,c.admin1||'',country].filter(Boolean).join(' · ');}
+  function cityDisplay(c){const n=c.name?.[lang()]||c.name?.en||c.name||'';const country=c.country?.[lang()]||c.country?.en||c.country||'';const parts=[n];if(c.source==='china-locations'){if(c.admin2&&normalize(c.admin2)!==normalize(n))parts.push(c.admin2);if(c.admin1&&normalize(c.admin1)!==normalize(n)&&normalize(c.admin1)!==normalize(c.admin2))parts.push(c.admin1);}else if(c.admin2||c.admin1){const a=c.admin2||c.admin1;if(normalize(a)!==normalize(n))parts.push(a);}if(country)parts.push(country);return parts.filter(Boolean).join(' · ');}
   function localMatches(q){q=normalize(q);if(q.length<2)return[];return state.cities.filter(c=>[c.id,...c.aliases,c.name['zh-CN'],c.name['zh-TW'],c.name.en].some(v=>normalize(v).includes(q))).slice(0,6);}
   function mapRemote(i){return{id:`geo-${i.id}`,name:{'zh-CN':i.name,'zh-TW':i.name,'en':i.name},country:{'zh-CN':i.country||'','zh-TW':i.country||'','en':i.country||''},admin1:i.admin1||'',lat:+i.latitude,lon:+i.longitude,timezone:i.timezone,aliases:[i.name,i.admin1||'',i.country||''].filter(Boolean)};}
   function renderCityResults(person,items){const box=$(`cityResults${person}`);if(!items.length){box.hidden=true;box.innerHTML='';return;}box.innerHTML=items.map((c,i)=>`<button type="button" class="astro-city-result" data-i="${i}"><strong>${esc(cityDisplay(c))}</strong><small>${c.lat.toFixed(4)}°, ${c.lon.toFixed(4)}° · ${esc(c.timezone)}</small></button>`).join('');box.hidden=false;box.querySelectorAll('[data-i]').forEach(b=>b.addEventListener('mousedown',e=>{e.preventDefault();selectCity(person,items[+b.dataset.i]);}));}
   function selectCity(person,c){state[`city${person}`]=c;$(`city${person}`).value=cityDisplay(c);$(`cityResults${person}`).hidden=true;$(`cityMeta${person}`).hidden=false;$(`cityMeta${person}`).textContent=`${c.lat.toFixed(4)}°, ${c.lon.toFixed(4)}° · ${c.timezone}`;}
-  async function searchCity(person,q){const local=localMatches(q);renderCityResults(person,local);if(normalize(q).length<2||!navigator.onLine)return;const abortKey=`abort${person}`;if(state[abortKey])state[abortKey].abort();state[abortKey]=new AbortController();try{const u=new URL('https://geocoding-api.open-meteo.com/v1/search');u.searchParams.set('name',q.trim());u.searchParams.set('count','8');u.searchParams.set('language',lang()==='en'?'en':'zh');u.searchParams.set('format','json');const r=await fetch(u,{signal:state[abortKey].signal});const d=await r.json();const remote=(d.results||[]).filter(i=>i.timezone).map(mapRemote);const seen=new Set(),merged=[];[...local,...remote].forEach(c=>{const k=`${c.lat.toFixed(3)},${c.lon.toFixed(3)},${c.timezone}`;if(!seen.has(k)){seen.add(k);merged.push(c);}});renderCityResults(person,merged.slice(0,10));}catch(e){if(e.name!=='AbortError')console.warn(e);}}
+  async function searchCity(person,q){
+    const local=localMatches(q);
+    let china=[],chinaExact=false;
+    try{
+      if(window.XingchenChinaLocation){
+        [china,chinaExact]=await Promise.all([
+          window.XingchenChinaLocation.search(q,20),
+          window.XingchenChinaLocation.hasExactAdministrativeMatch(q)
+        ]);
+      }
+    }catch(e){console.warn('[星辰日记] 中国出生地搜索暂不可用',e);}
+    const merge=(...groups)=>{const seen=new Set(),out=[];groups.flat().forEach(c=>{const k=`${c.lat.toFixed(4)},${c.lon.toFixed(4)},${c.timezone},${normalize(cityDisplay(c))}`;if(!seen.has(k)){seen.add(k);out.push(c);}});return out;};
+    let merged=merge(china,local);
+    renderCityResults(person,merged.slice(0,20));
+    if(chinaExact||normalize(q).length<2||!navigator.onLine)return;
+    const abortKey=`abort${person}`;
+    if(state[abortKey])state[abortKey].abort();
+    state[abortKey]=new AbortController();
+    try{
+      const u=new URL('https://geocoding-api.open-meteo.com/v1/search');
+      u.searchParams.set('name',q.trim());
+      u.searchParams.set('count','8');
+      u.searchParams.set('language',lang()==='en'?'en':'zh');
+      u.searchParams.set('format','json');
+      const r=await fetch(u,{signal:state[abortKey].signal});
+      const d=await r.json();
+      const remote=(d.results||[]).filter(i=>i.timezone).map(mapRemote);
+      merged=merge(china,local,remote);
+      renderCityResults(person,merged.slice(0,20));
+    }catch(e){if(e.name!=='AbortError')console.warn(e);}
+  }
   function setupCity(person){const input=$(`city${person}`);input.addEventListener('focus',e=>{e.target.select();if(e.target.value.trim().length>=2)searchCity(person,e.target.value);});input.addEventListener('input',e=>{state[`city${person}`]=null;$(`cityMeta${person}`).hidden=true;clearTimeout(state[`timer${person}`]);state[`timer${person}`]=setTimeout(()=>searchCity(person,e.target.value),250);});input.addEventListener('blur',()=>setTimeout(()=>$(`cityResults${person}`).hidden=true,120));input.addEventListener('keydown',e=>{if(e.key==='Enter'){const first=$(`cityResults${person}`).querySelector('[data-i="0"]');if(first){e.preventDefault();first.dispatchEvent(new MouseEvent('mousedown',{bubbles:true}));}}});}
   function exactBuiltIn(q){q=normalize(q);return state.cities.find(c=>[c.id,...c.aliases,c.name['zh-CN'],c.name['zh-TW'],c.name.en].some(v=>normalize(v)===q))||null;}
-  function personData(person){const date=$(`date${person}`).value,unknown=$(`unknown${person}`).checked,time=$(`time${person}`).value;let city=state[`city${person}`]||exactBuiltIn($(`city${person}`).value);if(!date)throw new Error(ui('dateError'));if(!unknown&&!time)throw new Error(ui('timeError'));if(!city)throw new Error(ui('cityError'));const name=$(`name${person}`).value.trim()||person;return{name,date,time:unknown?'12:00':time,unknown,city};}
+  function personData(person){const dateInfo=window.XingchenBirthDate?.getInfo?.(`birth-${person}`)||{mode:'solar',date:$(`date${person}`).value,originalLabel:$(`date${person}`).value};const date=dateInfo?.date||'';const unknown=$(`unknown${person}`).checked,time=$(`time${person}`).value;let city=state[`city${person}`]||exactBuiltIn($(`city${person}`).value);if(!date)throw new Error(ui('dateError'));if(!unknown&&!time)throw new Error(ui('timeError'));if(!city)throw new Error(ui('cityError'));const name=$(`name${person}`).value.trim()||person;return{name,date,dateInfo,time:unknown?'12:00':time,unknown,city};}
   function anglePoint(result){return result.ascendant?{key:'ascendant',longitude:result.ascendant.longitude,index:result.ascendant.index,degree:result.ascendant.degree}:null;}
   function aspectFor(bodyA,pA,bodyB,pB){const sep=separation(pA.longitude,pB.longitude);const lum=['sun','moon'].includes(bodyA)||['sun','moon'].includes(bodyB);const angle=bodyA==='ascendant'||bodyB==='ascendant';let best=null;ASPECTS.forEach(def=>{const orb=Math.abs(sep-def.angle),limit=angle?def.angleOrb:(lum?def.luminary:def.normal);if(orb<=limit&&(!best||orb<best.orb))best={...def,orb,limit,separation:sep,bodyA,bodyB};});return best;}
   function crossAspects(a,b){const aPoints={...a.planets},bPoints={...b.planets};const aa=anglePoint(a),bb=anglePoint(b);if(aa)aPoints.ascendant=aa;if(bb)bPoints.ascendant=bb;const out=[];Object.entries(aPoints).forEach(([ka,pa])=>Object.entries(bPoints).forEach(([kb,pb])=>{const asp=aspectFor(ka,pa,kb,pb);if(asp)out.push(asp);}));return out.sort((x,y)=>x.orb-y.orb);}

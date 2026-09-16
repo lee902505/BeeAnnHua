@@ -104,3 +104,22 @@ Reference framework cross-checked:
   https://cafeastrology.com/natal/rulersofhousesinhouses.html
 
 All V0.10.3 prose is original Stellar Diary text. Astrological interpretations are traditional / symbolic frameworks, not scientific personality diagnosis or prediction.
+
+
+## V0.10.3.4 Birth-data expansion
+
+China birthplace coordinate search:
+- public-wheels/china-cities, `china_cities.txt`
+  https://github.com/public-wheels/china-cities
+  Runtime CDN:
+  https://cdn.jsdelivr.net/gh/public-wheels/china-cities@master/china_cities.txt
+
+The file provides Chinese place names, province / parent-city fields, latitude and longitude.
+Mainland China entries use the civil timezone `Asia/Shanghai`.
+
+Solar / Lunar conversion:
+- solarlunar 3.1.0
+  https://www.npmjs.com/package/solarlunar
+  Supports Gregorian / Chinese lunar conversion for 1900–2100 and leap-month input.
+
+The converted Gregorian date is what is passed to the existing astronomical calculation engine.
