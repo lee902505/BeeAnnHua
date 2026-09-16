@@ -193,23 +193,40 @@
   }
 
   function guardLinks() {
-    document.querySelectorAll('[data-profile-required]').forEach(link => {
-      link.addEventListener('click', e => {
-        if (read()) return;
-        e.preventDefault();
-        const href = link.getAttribute('href');
-        open(() => { if (href) window.location.href = href; });
+    // Use one capture-phase delegated listener instead of relying only on
+    // individual anchor listeners. This is more robust on mobile Safari
+    // and also covers links inserted or changed after initialization.
+    document.addEventListener('click', event => {
+      const link = event.target.closest?.('[data-profile-required]');
+      if (!link) return;
+      if (read()) return;
+
+      event.preventDefault();
+      event.stopPropagation();
+
+      const href = link.getAttribute('href');
+      open(() => {
+        if (href) window.location.assign(href);
       });
-    });
+    }, true);
   }
 
+  let initialized = false;
+
   function init() {
+    if (initialized) return;
+    initialized = true;
+
     injectModal();
     render();
     guardLinks();
-    document.querySelectorAll('[data-player-profile]').forEach(el => {
-      el.addEventListener('click', () => open());
-    });
+
+    document.addEventListener('click', event => {
+      const badge = event.target.closest?.('[data-player-profile]');
+      if (!badge) return;
+      event.preventDefault();
+      open();
+    }, true);
   }
 
   window.XingchenPlayer = {
@@ -218,5 +235,12 @@
     ensure, open, label, render
   };
 
-  document.addEventListener('DOMContentLoaded', init);
+  // On cached/mobile navigation this script may execute after DOMContentLoaded.
+  // Initialize immediately in that case instead of waiting for an event that
+  // has already happened.
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init, { once:true });
+  } else {
+    init();
+  }
 })();

@@ -1,3 +1,15 @@
+# 星辰日记 Web V0.10.2.1
+
+## 手机玩家资料弹窗修正
+- 首页 `player-profile.js` 提前载入。
+- 个人功能入口改用 capture-phase delegated click 拦截。
+- 支持脚本在 DOMContentLoaded 之后才载入的手机 / 快取情况。
+- 功能页面原有二次玩家资料检查继续保留。
+- 加入 iOS Safari `touch-action` 与 `100dvh` 弹窗兼容处理。
+- Bark、每日运势、塔罗、星盘功能逻辑均不变。
+
+---
+
 # 星辰日记 Web V0.10.2
 
 ## 玩家资料

@@ -2842,3 +2842,30 @@ main { display: grid; gap: 0; }
   .player-profile-dialog { padding:25px 20px; }
   .profile-modal-gender>div { grid-template-columns:1fr; }
 }
+
+
+/* ===== V0.10.2.1 MOBILE PROFILE HOTFIX ===== */
+[data-profile-required],
+.player-profile-badge,
+.profile-save-btn,
+.profile-modal-close,
+.profile-gender-option {
+  touch-action: manipulation;
+}
+
+.player-profile-modal,
+.player-profile-dialog {
+  -webkit-transform: translateZ(0);
+}
+
+@supports (-webkit-touch-callout: none) {
+  .player-profile-modal {
+    min-height: 100dvh;
+  }
+
+  .player-profile-dialog {
+    max-height: calc(100dvh - 32px);
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
