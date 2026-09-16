@@ -79,3 +79,28 @@ Reference framework consulted during product design:
 - Conventional Western synastry emphasis on exactness (orb), luminaries, personal planets, Saturn and cross-chart aspects.
 
 All numeric calibration, normalization, weighting and text in the implementation are original to this project.
+
+
+## V0.10.3 Deep natal interpretation layer
+
+The long-form interpretation layer follows the conventional synthesis model:
+- Planets describe psychological / behavioral functions.
+- Signs describe how those functions are expressed.
+- Houses describe the life fields where they are expressed.
+- A house cusp sign describes the style used in that life area.
+- The ruler of the cusp sign links that house to the house occupied by the ruler.
+- An empty house is still interpreted through its cusp sign and ruler.
+
+Reference framework cross-checked:
+- Astrodienst Astrowiki — House:
+  https://www.astro.com/astrowiki/en/House
+- Astrology.com — Houses in Birth Chart:
+  https://www.astrology.com/article/houses-in-birth-chart/
+- Cafe Astrology — Planets in the Houses:
+  https://cafeastrology.com/natal/planetsinhouses.html
+- Cafe Astrology — Houses:
+  https://cafeastrology.com/houses.html
+- Cafe Astrology — House Rulers in Houses:
+  https://cafeastrology.com/natal/rulersofhousesinhouses.html
+
+All V0.10.3 prose is original Stellar Diary text. Astrological interpretations are traditional / symbolic frameworks, not scientific personality diagnosis or prediction.

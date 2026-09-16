@@ -1,0 +1,1115 @@
+{
+  "version": "0.10.3",
+  "method": "Original long-form synthesis based on conventional Western natal astrology structure.",
+  "houses": {
+    "1": {
+      "keywords": {
+        "zh-CN": "身份、自我、身体、第一印象、主动性",
+        "zh-TW": "身份、自我、身體、第一印象、主動性",
+        "en": "identity, self, body, first impression, initiative"
+      },
+      "core": {
+        "zh-CN": "第一宫描述你怎样进入世界：第一反应、外在气质、身体感、自我定义，以及你如何主动开始事情。它不是全部性格，却常决定别人为什么会先这样认识你。",
+        "zh-TW": "第一宮描述你怎樣進入世界：第一反應、外在氣質、身體感、自我定義，以及你如何主動開始事情。它不是全部性格，卻常決定別人為什麼會先這樣認識你。",
+        "en": "The first house describes how you enter the world: first reactions, outward presence, embodiment, self-definition and how you initiate."
+      },
+      "personality": {
+        "zh-CN": "这里强的人通常更在意自主权与个人选择，也更容易把环境的即时反馈带进自我评价。",
+        "zh-TW": "這裡強的人通常更在意自主權與個人選擇，也更容易把環境的即時回饋帶進自我評價。",
+        "en": "Strong first-house emphasis often heightens autonomy and sensitivity to how the environment responds to you."
+      },
+      "strength": {
+        "zh-CN": "主动、辨识度高、敢开始",
+        "zh-TW": "主動、辨識度高、敢開始",
+        "en": "initiative, presence, courage to begin"
+      },
+      "challenge": {
+        "zh-CN": "容易只靠自己，或过度在意别人怎么看你",
+        "zh-TW": "容易只靠自己，或過度在意別人怎麼看你",
+        "en": "over-reliance on self or on others' immediate reactions"
+      },
+      "growth": {
+        "zh-CN": "建立稳定自我感，也允许自己在经验中更新",
+        "zh-TW": "建立穩定自我感，也允許自己在經驗中更新",
+        "en": "build a stable identity while allowing growth"
+      },
+      "lifeArea": {
+        "zh-CN": "身份、身体、外在气质、第一反应与主动展开生活的方式",
+        "zh-TW": "身份、身體、外在氣質、第一反應與主動展開生活的方式",
+        "en": "identity, body, appearance, first reactions and how life is actively approached"
+      },
+      "name": {
+        "zh-CN": "自我与外在方式",
+        "zh-TW": "自我與外在方式",
+        "en": "Self & Approach"
+      }
+    },
+    "2": {
+      "keywords": {
+        "zh-CN": "金钱、资源、自我价值、安全感、拥有",
+        "zh-TW": "金錢、資源、自我價值、安全感、擁有",
+        "en": "money, resources, self-worth, security, possession"
+      },
+      "core": {
+        "zh-CN": "第二宫不只谈钱，更谈「什么对我有价值」。它连接收入、资源、才能、自我价值与生活基础，也显示你怎样累积、保存与使用拥有的东西。",
+        "zh-TW": "第二宮不只談錢，更談「什麼對我有價值」。它連結收入、資源、才能、自我價值與生活基礎，也顯示你怎樣累積、保存與使用擁有的東西。",
+        "en": "The second house is not only money; it describes value, income, resources, talents, self-worth and how you build stability."
+      },
+      "personality": {
+        "zh-CN": "这里强的人往往很在意可持续、值得与安全，会自然思考投入和回报。",
+        "zh-TW": "這裡強的人往往很在意可持續、值得與安全，會自然思考投入和回報。",
+        "en": "Strong second-house emphasis often values sustainability, worth and dependable return."
+      },
+      "strength": {
+        "zh-CN": "现实、资源管理、长期累积",
+        "zh-TW": "現實、資源管理、長期累積",
+        "en": "practicality, resource management, accumulation"
+      },
+      "challenge": {
+        "zh-CN": "把拥有多少等同于自己的价值",
+        "zh-TW": "把擁有多少等同於自己的價值",
+        "en": "equating possessions with worth"
+      },
+      "growth": {
+        "zh-CN": "让安全感有现实基础，但不被物质完全定义",
+        "zh-TW": "讓安全感有現實基礎，但不被物質完全定義",
+        "en": "ground security in reality without being defined by possessions"
+      },
+      "lifeArea": {
+        "zh-CN": "收入、资源、拥有感、自我价值与稳定基础",
+        "zh-TW": "收入、資源、擁有感、自我價值與穩定基礎",
+        "en": "income, resources, possessions, self-worth and material stability"
+      },
+      "name": {
+        "zh-CN": "金钱与价值",
+        "zh-TW": "金錢與價值",
+        "en": "Money & Values"
+      }
+    },
+    "3": {
+      "keywords": {
+        "zh-CN": "思考、语言、学习、手足、日常信息",
+        "zh-TW": "思考、語言、學習、手足、日常資訊",
+        "en": "thinking, language, learning, siblings, daily information"
+      },
+      "core": {
+        "zh-CN": "第三宫描述你如何收集和整理日常信息：学习、提问、说话、写作、移动，以及怎样理解身边的人与环境。",
+        "zh-TW": "第三宮描述你如何收集和整理日常資訊：學習、提問、說話、寫作、移動，以及怎樣理解身邊的人與環境。",
+        "en": "The third house describes how you gather and organize everyday information: learning, questioning, speaking, writing and local connections."
+      },
+      "personality": {
+        "zh-CN": "这里强的人脑中通常保持较高的信息流动，表达与理解能力会直接影响自信。",
+        "zh-TW": "這裡強的人腦中通常保持較高的資訊流動，表達與理解能力會直接影響自信。",
+        "en": "Strong third-house emphasis often keeps the mind active; communication and understanding directly affect confidence."
+      },
+      "strength": {
+        "zh-CN": "学习快、连接信息、观察细",
+        "zh-TW": "學習快、連接資訊、觀察細",
+        "en": "quick learning, connecting information, observation"
+      },
+      "challenge": {
+        "zh-CN": "信息过载、想得太碎、只收集不整合",
+        "zh-TW": "資訊過載、想得太碎、只收集不整合",
+        "en": "overload, fragmentation, collecting without integrating"
+      },
+      "growth": {
+        "zh-CN": "把好奇心沉淀成真正的理解",
+        "zh-TW": "把好奇心沉澱成真正的理解",
+        "en": "turn curiosity into understanding"
+      },
+      "lifeArea": {
+        "zh-CN": "思考、学习、语言、日常移动、手足与近距离环境",
+        "zh-TW": "思考、學習、語言、日常移動、手足與近距離環境",
+        "en": "thinking, learning, language, everyday movement, siblings and the immediate environment"
+      },
+      "name": {
+        "zh-CN": "学习与沟通",
+        "zh-TW": "學習與溝通",
+        "en": "Learning & Communication"
+      }
+    },
+    "4": {
+      "keywords": {
+        "zh-CN": "家庭、居所、根源、私生活、情绪根基",
+        "zh-TW": "家庭、居所、根源、私生活、情緒根基",
+        "en": "home, family, roots, private life, emotional foundations"
+      },
+      "core": {
+        "zh-CN": "第四宫是星盘的根，描述家庭、原生经验、居所、归属感，以及你在没有外界目光时真正需要什么。",
+        "zh-TW": "第四宮是星盤的根，描述家庭、原生經驗、居所、歸屬感，以及你在沒有外界目光時真正需要什麼。",
+        "en": "The fourth house is the chart's root: family, origins, home, belonging and what you need in private."
+      },
+      "personality": {
+        "zh-CN": "这里强的人往往需要一个真正能卸下防备的地方，家庭经验也较容易深刻影响成年后的安全感。",
+        "zh-TW": "這裡強的人往往需要一個真正能卸下防備的地方，家庭經驗也較容易深刻影響成年後的安全感。",
+        "en": "Strong fourth-house emphasis needs a true private refuge; early family patterns often shape adult security."
+      },
+      "strength": {
+        "zh-CN": "建立归属、理解情绪根源",
+        "zh-TW": "建立歸屬、理解情緒根源",
+        "en": "belonging, understanding emotional roots"
+      },
+      "challenge": {
+        "zh-CN": "背负过多家庭情绪，或难离开熟悉模式",
+        "zh-TW": "背負過多家庭情緒，或難離開熟悉模式",
+        "en": "carrying family emotion or staying trapped in familiar patterns"
+      },
+      "growth": {
+        "zh-CN": "让过去成为根基，而不是枷锁",
+        "zh-TW": "讓過去成為根基，而不是枷鎖",
+        "en": "let the past become a foundation rather than a cage"
+      },
+      "lifeArea": {
+        "zh-CN": "家庭、居所、私人空间、原生经验、情绪根基与内在归属",
+        "zh-TW": "家庭、居所、私人空間、原生經驗、情緒根基與內在歸屬",
+        "en": "home, family, private life, origins, emotional roots and belonging"
+      },
+      "name": {
+        "zh-CN": "家庭与根基",
+        "zh-TW": "家庭與根基",
+        "en": "Home & Roots"
+      }
+    },
+    "5": {
+      "keywords": {
+        "zh-CN": "创造、恋爱、兴趣、乐趣、表现",
+        "zh-TW": "創造、戀愛、興趣、樂趣、表現",
+        "en": "creativity, romance, hobbies, pleasure, expression"
+      },
+      "core": {
+        "zh-CN": "第五宫谈「什么让我觉得活着」。它连接创造、恋爱、兴趣、玩乐、表现欲、冒险与孩子，也反映你怎样享受自己。",
+        "zh-TW": "第五宮談「什麼讓我覺得活著」。它連結創造、戀愛、興趣、玩樂、表現欲、冒險與孩子，也反映你怎樣享受自己。",
+        "en": "The fifth house asks what makes you feel alive: creativity, romance, play, self-expression, risk and children."
+      },
+      "personality": {
+        "zh-CN": "这里强的人不能只活得正确，还需要活得有趣、有个人风格。",
+        "zh-TW": "這裡強的人不能只活得正確，還需要活得有趣、有個人風格。",
+        "en": "Strong fifth-house emphasis needs life to feel vivid, expressive and personally meaningful."
+      },
+      "strength": {
+        "zh-CN": "创造力、感染力、浪漫与表现",
+        "zh-TW": "創造力、感染力、浪漫與表現",
+        "en": "creativity, charisma, romance, expression"
+      },
+      "challenge": {
+        "zh-CN": "过度需要被看见，或把恋爱当成自我证明",
+        "zh-TW": "過度需要被看見，或把戀愛當成自我證明",
+        "en": "needing validation or using romance as proof of worth"
+      },
+      "growth": {
+        "zh-CN": "为了真实表达而创造，不只为了掌声",
+        "zh-TW": "為了真實表達而創造，不只為了掌聲",
+        "en": "create for authentic expression, not only applause"
+      },
+      "lifeArea": {
+        "zh-CN": "创造力、恋爱、兴趣、玩乐、表现欲与孩子相关主题",
+        "zh-TW": "創造力、戀愛、興趣、玩樂、表現欲與孩子相關主題",
+        "en": "creativity, romance, pleasure, play, self-expression and themes involving children"
+      },
+      "name": {
+        "zh-CN": "创造与恋爱",
+        "zh-TW": "創造與戀愛",
+        "en": "Creativity & Romance"
+      }
+    },
+    "6": {
+      "keywords": {
+        "zh-CN": "工作流程、技能、健康、服务、习惯",
+        "zh-TW": "工作流程、技能、健康、服務、習慣",
+        "en": "work routines, skills, health, service, habits"
+      },
+      "core": {
+        "zh-CN": "第六宫处理每天怎么运作：工作流程、责任、技能、作息、身体维护，以及那些长期决定生活品质的细节。",
+        "zh-TW": "第六宮處理每天怎麼運作：工作流程、責任、技能、作息、身體維護，以及那些長期決定生活品質的細節。",
+        "en": "The sixth house describes how daily life works: workflow, responsibility, skills, routines and bodily maintenance."
+      },
+      "personality": {
+        "zh-CN": "这里强的人常透过「把事情处理好」获得价值感，也很容易看见哪里需要改善。",
+        "zh-TW": "這裡強的人常透過「把事情處理好」獲得價值感，也很容易看見哪裡需要改善。",
+        "en": "Strong sixth-house emphasis often gains value through competence and improvement."
+      },
+      "strength": {
+        "zh-CN": "可靠、细致、建立有用技能",
+        "zh-TW": "可靠、細緻、建立有用技能",
+        "en": "reliability, detail, useful skill"
+      },
+      "challenge": {
+        "zh-CN": "完美主义、过劳、只在有用时肯定自己",
+        "zh-TW": "完美主義、過勞、只在有用時肯定自己",
+        "en": "perfectionism, overwork, valuing yourself only when useful"
+      },
+      "growth": {
+        "zh-CN": "让规律服务于生命，而不是吞没生命",
+        "zh-TW": "讓規律服務於生命，而不是吞沒生命",
+        "en": "let routine support life rather than consume it"
+      },
+      "lifeArea": {
+        "zh-CN": "工作流程、服务、习惯、健康管理、技能与每天需要处理的现实事务",
+        "zh-TW": "工作流程、服務、習慣、健康管理、技能與每天需要處理的現實事務",
+        "en": "work routines, service, habits, health management, skills and everyday responsibilities"
+      },
+      "name": {
+        "zh-CN": "日常与工作",
+        "zh-TW": "日常與工作",
+        "en": "Routine & Work"
+      }
+    },
+    "7": {
+      "keywords": {
+        "zh-CN": "伴侣、合作、一对一、契约、投射",
+        "zh-TW": "伴侶、合作、一對一、契約、投射",
+        "en": "partners, cooperation, one-to-one bonds, agreements, projection"
+      },
+      "core": {
+        "zh-CN": "第七宫是「我」对面的「你」。它描述重要关系里你寻找什么、怎样协商合作，也反映容易投射给别人的特质。",
+        "zh-TW": "第七宮是「我」對面的「你」。它描述重要關係裡你尋找什麼、怎樣協商合作，也反映容易投射給別人的特質。",
+        "en": "The seventh house is the 'you' opposite the first-house 'me': partnership needs, cooperation and projection."
+      },
+      "personality": {
+        "zh-CN": "这里强的人常会透过伴侣或合作对象认识自己，关系像一面镜子。",
+        "zh-TW": "這裡強的人常會透過伴侶或合作對象認識自己，關係像一面鏡子。",
+        "en": "Strong seventh-house emphasis often understands the self through significant others."
+      },
+      "strength": {
+        "zh-CN": "协商、合作、理解不同立场",
+        "zh-TW": "協商、合作、理解不同立場",
+        "en": "negotiation, cooperation, perspective-taking"
+      },
+      "challenge": {
+        "zh-CN": "过度迁就、把决定权交给别人、反复投射",
+        "zh-TW": "過度遷就、把決定權交給別人、反覆投射",
+        "en": "over-accommodation, giving away agency, repeated projection"
+      },
+      "growth": {
+        "zh-CN": "在关系里保持自我，也真正看见对方",
+        "zh-TW": "在關係裡保持自我，也真正看見對方",
+        "en": "keep a self in relationship while seeing the other clearly"
+      },
+      "lifeArea": {
+        "zh-CN": "伴侣、合作、一对一关系、契约、投射与如何面对他人",
+        "zh-TW": "伴侶、合作、一對一關係、契約、投射與如何面對他人",
+        "en": "partners, one-to-one bonds, agreements, projection and how the other is encountered"
+      },
+      "name": {
+        "zh-CN": "关系与合作",
+        "zh-TW": "關係與合作",
+        "en": "Partnership"
+      }
+    },
+    "8": {
+      "keywords": {
+        "zh-CN": "亲密、共享资源、信任、危机、转化",
+        "zh-TW": "親密、共享資源、信任、危機、轉化",
+        "en": "intimacy, shared resources, trust, crisis, transformation"
+      },
+      "core": {
+        "zh-CN": "第八宫处理共享金钱、亲密、信任、依赖、权力、危机、失去与重生，常把经验带到表面之下。",
+        "zh-TW": "第八宮處理共享金錢、親密、信任、依賴、權力、危機、失去與重生，常把經驗帶到表面之下。",
+        "en": "The eighth house deals with shared resources, intimacy, trust, power, crisis, loss and renewal."
+      },
+      "personality": {
+        "zh-CN": "这里强的人通常不满足于浅层连结，对忠诚、真实与控制感较敏感。",
+        "zh-TW": "這裡強的人通常不滿足於淺層連結，對忠誠、真實與控制感較敏感。",
+        "en": "Strong eighth-house emphasis seeks depth and is sensitive to loyalty, truth and control."
+      },
+      "strength": {
+        "zh-CN": "洞察、心理韧性、危机后重建",
+        "zh-TW": "洞察、心理韌性、危機後重建",
+        "en": "insight, resilience, rebuilding after crisis"
+      },
+      "challenge": {
+        "zh-CN": "控制、猜疑、害怕依赖，把强烈当成亲密",
+        "zh-TW": "控制、猜疑、害怕依賴，把強烈當成親密",
+        "en": "control, suspicion, fear of dependency, mistaking intensity for intimacy"
+      },
+      "growth": {
+        "zh-CN": "在深度关系里同时拥有信任与界线",
+        "zh-TW": "在深度關係裡同時擁有信任與界線",
+        "en": "hold both trust and boundaries in deep relationships"
+      },
+      "lifeArea": {
+        "zh-CN": "共享资源、亲密、债务、危机、心理深层、失去与重整",
+        "zh-TW": "共享資源、親密、債務、危機、心理深層、失去與重整",
+        "en": "shared resources, intimacy, debt, crisis, psychological depth, loss and regeneration"
+      },
+      "name": {
+        "zh-CN": "共享与转化",
+        "zh-TW": "共享與轉化",
+        "en": "Sharing & Transformation"
+      }
+    },
+    "9": {
+      "keywords": {
+        "zh-CN": "高等学习、世界观、远行、信念、意义",
+        "zh-TW": "高等學習、世界觀、遠行、信念、意義",
+        "en": "higher learning, worldview, travel, belief, meaning"
+      },
+      "core": {
+        "zh-CN": "第九宫把日常事实拉向「这些事情意味着什么」。它关联高等教育、哲学、信念、跨文化经验、远行与更大的世界观。",
+        "zh-TW": "第九宮把日常事實拉向「這些事情意味著什麼」。它關聯高等教育、哲學、信念、跨文化經驗、遠行與更大的世界觀。",
+        "en": "The ninth house moves from facts toward meaning: higher learning, philosophy, belief, travel and worldview."
+      },
+      "personality": {
+        "zh-CN": "这里强的人需要感觉自己在成长，重复太久容易失去精神动力。",
+        "zh-TW": "這裡強的人需要感覺自己在成長，重複太久容易失去精神動力。",
+        "en": "Strong ninth-house emphasis needs growth and a wider horizon."
+      },
+      "strength": {
+        "zh-CN": "远见、开放、整合知识",
+        "zh-TW": "遠見、開放、整合知識",
+        "en": "vision, openness, integration of knowledge"
+      },
+      "challenge": {
+        "zh-CN": "把信念当绝对真理，或只追远方忽略现实",
+        "zh-TW": "把信念當絕對真理，或只追遠方忽略現實",
+        "en": "dogmatism or chasing horizons while neglecting reality"
+      },
+      "growth": {
+        "zh-CN": "让信念保持开放，也把远方经验带回生活",
+        "zh-TW": "讓信念保持開放，也把遠方經驗帶回生活",
+        "en": "keep beliefs open and bring discoveries back into daily life"
+      },
+      "lifeArea": {
+        "zh-CN": "高等学习、远行、世界观、信念、出版、法律与寻找更大意义",
+        "zh-TW": "高等學習、遠行、世界觀、信念、出版、法律與尋找更大意義",
+        "en": "higher learning, long-distance travel, worldview, belief, publishing, law and the search for meaning"
+      },
+      "name": {
+        "zh-CN": "远行与信念",
+        "zh-TW": "遠行與信念",
+        "en": "Belief & Exploration"
+      }
+    },
+    "10": {
+      "keywords": {
+        "zh-CN": "事业、目标、名声、公众角色、成就",
+        "zh-TW": "事業、目標、名聲、公眾角色、成就",
+        "en": "career, goals, reputation, public role, achievement"
+      },
+      "core": {
+        "zh-CN": "第十宫位于星盘最高处，描述事业方向、社会角色、责任、公众形象与希望留下的长期成果。",
+        "zh-TW": "第十宮位於星盤最高處，描述事業方向、社會角色、責任、公眾形象與希望留下的長期成果。",
+        "en": "The tenth house sits at the public top of the chart: career direction, role, responsibility, reputation and long-term contribution."
+      },
+      "personality": {
+        "zh-CN": "这里强的人通常很难完全不在乎是否做出成果，专业感与被信任容易成为自我认同来源。",
+        "zh-TW": "這裡強的人通常很難完全不在乎是否做出成果，專業感與被信任容易成為自我認同來源。",
+        "en": "Strong tenth-house emphasis often cares deeply about visible contribution, competence and credibility."
+      },
+      "strength": {
+        "zh-CN": "目标感、责任心、长期规划",
+        "zh-TW": "目標感、責任心、長期規劃",
+        "en": "direction, responsibility, long-range planning"
+      },
+      "challenge": {
+        "zh-CN": "用工作证明自己、害怕失败、过度在意公众评价",
+        "zh-TW": "用工作證明自己、害怕失敗、過度在意公眾評價",
+        "en": "proving yourself through work, fear of failure, public judgment"
+      },
+      "growth": {
+        "zh-CN": "建立属于自己的成功定义",
+        "zh-TW": "建立屬於自己的成功定義",
+        "en": "define success on your own terms"
+      },
+      "lifeArea": {
+        "zh-CN": "事业方向、社会角色、责任、名声、目标与希望建立的长期成就",
+        "zh-TW": "事業方向、社會角色、責任、名聲、目標與希望建立的長期成就",
+        "en": "career direction, public role, responsibility, reputation, goals and long-term achievement"
+      },
+      "name": {
+        "zh-CN": "事业与公众角色",
+        "zh-TW": "事業與公眾角色",
+        "en": "Career & Public Role"
+      }
+    },
+    "11": {
+      "keywords": {
+        "zh-CN": "朋友、团队、社群、人脉、愿景",
+        "zh-TW": "朋友、團隊、社群、人脈、願景",
+        "en": "friends, teams, community, networks, vision"
+      },
+      "core": {
+        "zh-CN": "第十一宫处理你与更大群体的关系：朋友、社群、团队、网络、共同理想与未来愿景。",
+        "zh-TW": "第十一宮處理你與更大群體的關係：朋友、社群、團隊、網絡、共同理想與未來願景。",
+        "en": "The eleventh house describes your relationship to the larger group: friends, networks, teams, shared ideals and future vision."
+      },
+      "personality": {
+        "zh-CN": "这里强的人常会思考自己属于哪一群人，以及什么样的共同理念值得投入。",
+        "zh-TW": "這裡強的人常會思考自己屬於哪一群人，以及什麼樣的共同理念值得投入。",
+        "en": "Strong eleventh-house emphasis often asks where you belong and which shared ideals deserve commitment."
+      },
+      "strength": {
+        "zh-CN": "连接资源、团队协作、看见趋势",
+        "zh-TW": "連接資源、團隊協作、看見趨勢",
+        "en": "networking, teamwork, seeing trends"
+      },
+      "challenge": {
+        "zh-CN": "为了群体认同压抑自己，或只有理想没有执行",
+        "zh-TW": "為了群體認同壓抑自己，或只有理想沒有執行",
+        "en": "suppressing individuality for belonging or lacking execution"
+      },
+      "growth": {
+        "zh-CN": "找到既保留个体性又能贡献群体的位置",
+        "zh-TW": "找到既保留個體性又能貢獻群體的位置",
+        "en": "contribute to groups without losing individuality"
+      },
+      "lifeArea": {
+        "zh-CN": "朋友、团队、社群、人脉、共同理想、长期愿景与未来计划",
+        "zh-TW": "朋友、團隊、社群、人脈、共同理想、長期願景與未來計畫",
+        "en": "friends, groups, networks, shared ideals, long-range hopes and future plans"
+      },
+      "name": {
+        "zh-CN": "社群与未来",
+        "zh-TW": "社群與未來",
+        "en": "Community & Future"
+      }
+    },
+    "12": {
+      "keywords": {
+        "zh-CN": "潜意识、独处、隐藏模式、结束、疗愈",
+        "zh-TW": "潛意識、獨處、隱藏模式、結束、療癒",
+        "en": "unconscious, solitude, hidden patterns, endings, healing"
+      },
+      "core": {
+        "zh-CN": "第十二宫是最不容易直接看见的区域，涉及潜意识、独处、梦、退隐、秘密、结束、精神性与需要放下的模式。",
+        "zh-TW": "第十二宮是最不容易直接看見的區域，涉及潛意識、獨處、夢、退隱、秘密、結束、精神性與需要放下的模式。",
+        "en": "The twelfth house is the least visible field: unconscious patterns, solitude, dreams, retreat, endings, spirituality and release."
+      },
+      "personality": {
+        "zh-CN": "这里强的人通常需要更多独处与心理缓冲，也容易感受到环境里没有被说出来的东西。",
+        "zh-TW": "這裡強的人通常需要更多獨處與心理緩衝，也容易感受到環境裡沒有被說出來的東西。",
+        "en": "Strong twelfth-house emphasis often needs more solitude and senses what remains unspoken."
+      },
+      "strength": {
+        "zh-CN": "直觉、想象、同理、深层自我观察",
+        "zh-TW": "直覺、想像、同理、深層自我觀察",
+        "en": "intuition, imagination, empathy, self-observation"
+      },
+      "challenge": {
+        "zh-CN": "界线模糊、逃避现实、无意识重复旧模式",
+        "zh-TW": "界線模糊、逃避現實、無意識重複舊模式",
+        "en": "porous boundaries, avoidance, unconscious repetition"
+      },
+      "growth": {
+        "zh-CN": "分辨哪些感受属于自己，并把混乱整理成理解",
+        "zh-TW": "分辨哪些感受屬於自己，並把混亂整理成理解",
+        "en": "identify what is yours and turn diffuse experience into understanding"
+      },
+      "lifeArea": {
+        "zh-CN": "潜意识、退隐、独处、隐藏模式、结束、精神世界与需要放下的事",
+        "zh-TW": "潛意識、退隱、獨處、隱藏模式、結束、精神世界與需要放下的事",
+        "en": "the unconscious, retreat, solitude, hidden patterns, endings, spirituality and release"
+      },
+      "name": {
+        "zh-CN": "潜意识与内在",
+        "zh-TW": "潛意識與內在",
+        "en": "Inner & Unconscious"
+      }
+    }
+  },
+  "signs": {
+    "aries": {
+      "ruler": "mars",
+      "traditional": "mars",
+      "approach": {
+        "zh-CN": "直接、迅速、先行动再调整",
+        "zh-TW": "直接、迅速、先行動再調整",
+        "en": "directly and quickly, acting first then adjusting"
+      },
+      "strength": {
+        "zh-CN": "主动、敢决定、能打破停滞",
+        "zh-TW": "主動、敢決定、能打破停滯",
+        "en": "initiative, decisiveness and breaking stagnation"
+      },
+      "challenge": {
+        "zh-CN": "急于推进、耐心不足",
+        "zh-TW": "急於推進、耐心不足",
+        "en": "impatience and rushing"
+      },
+      "growth": {
+        "zh-CN": "保留行动力，同时增加观察与持续性",
+        "zh-TW": "保留行動力，同時增加觀察與持續性",
+        "en": "keep initiative while adding observation and follow-through"
+      }
+    },
+    "taurus": {
+      "ruler": "venus",
+      "traditional": "venus",
+      "approach": {
+        "zh-CN": "稳定、实际、慢慢确认并持续累积",
+        "zh-TW": "穩定、實際、慢慢確認並持續累積",
+        "en": "steadily and practically through gradual consolidation"
+      },
+      "strength": {
+        "zh-CN": "耐心、可靠、能长期经营",
+        "zh-TW": "耐心、可靠、能長期經營",
+        "en": "patience, reliability and sustained effort"
+      },
+      "challenge": {
+        "zh-CN": "对变化较谨慎，安全感受威胁时容易僵住",
+        "zh-TW": "對變化較謹慎，安全感受威脅時容易僵住",
+        "en": "caution toward change and rigidity under threat"
+      },
+      "growth": {
+        "zh-CN": "保留稳定，也练习必要时主动更新",
+        "zh-TW": "保留穩定，也練習必要時主動更新",
+        "en": "keep stability while updating when needed"
+      }
+    },
+    "gemini": {
+      "ruler": "mercury",
+      "traditional": "mercury",
+      "approach": {
+        "zh-CN": "透过信息、比较、提问与交流来理解",
+        "zh-TW": "透過資訊、比較、提問與交流來理解",
+        "en": "through information, comparison, questions and exchange"
+      },
+      "strength": {
+        "zh-CN": "反应快、适应高、能看不同角度",
+        "zh-TW": "反應快、適應高、能看不同角度",
+        "en": "quick response, adaptability and multiple perspectives"
+      },
+      "challenge": {
+        "zh-CN": "容易分散，知道很多却未必深入",
+        "zh-TW": "容易分散，知道很多卻未必深入",
+        "en": "scattered attention or breadth without depth"
+      },
+      "growth": {
+        "zh-CN": "把广度沉淀成结构，让好奇变成理解",
+        "zh-TW": "把廣度沉澱成結構，讓好奇變成理解",
+        "en": "turn breadth into structure and curiosity into understanding"
+      }
+    },
+    "cancer": {
+      "ruler": "moon",
+      "traditional": "moon",
+      "approach": {
+        "zh-CN": "先感受安全与情绪气氛，再决定如何投入",
+        "zh-TW": "先感受安全與情緒氣氛，再決定如何投入",
+        "en": "by sensing safety and emotional atmosphere first"
+      },
+      "strength": {
+        "zh-CN": "记忆细、保护性强、能察觉真实需要",
+        "zh-TW": "記憶細、保護性強、能察覺真實需要",
+        "en": "strong memory, protection and sensitivity to needs"
+      },
+      "challenge": {
+        "zh-CN": "怕受伤时容易防御，也会把旧经验带进新情境",
+        "zh-TW": "怕受傷時容易防禦，也會把舊經驗帶進新情境",
+        "en": "defensiveness and carrying old emotional history forward"
+      },
+      "growth": {
+        "zh-CN": "让敏感成为判断力，并清楚表达需求与界线",
+        "zh-TW": "讓敏感成為判斷力，並清楚表達需求與界線",
+        "en": "turn sensitivity into discernment and state needs clearly"
+      }
+    },
+    "leo": {
+      "ruler": "sun",
+      "traditional": "sun",
+      "approach": {
+        "zh-CN": "用个人风格、热情与明确表达创造存在感",
+        "zh-TW": "用個人風格、熱情與明確表達創造存在感",
+        "en": "through personal style, warmth and visible expression"
+      },
+      "strength": {
+        "zh-CN": "自信、创造、愿意带动气氛",
+        "zh-TW": "自信、創造、願意帶動氣氛",
+        "en": "confidence, creativity and energizing others"
+      },
+      "challenge": {
+        "zh-CN": "过度在意认可，受忽视时容易用自尊保护自己",
+        "zh-TW": "過度在意認可，受忽視時容易用自尊保護自己",
+        "en": "over-reliance on recognition and pride as protection"
+      },
+      "growth": {
+        "zh-CN": "让自信来自真实创造，而不是持续等待掌声",
+        "zh-TW": "讓自信來自真實創造，而不是持續等待掌聲",
+        "en": "root confidence in authentic creation"
+      }
+    },
+    "virgo": {
+      "ruler": "mercury",
+      "traditional": "mercury",
+      "approach": {
+        "zh-CN": "先观察细节、分析问题，再寻找可执行的改善",
+        "zh-TW": "先觀察細節、分析問題，再尋找可執行的改善",
+        "en": "by observing details, analyzing and improving practically"
+      },
+      "strength": {
+        "zh-CN": "细致、可靠、善于整理复杂信息",
+        "zh-TW": "細緻、可靠、善於整理複雜資訊",
+        "en": "precision, reliability and organization"
+      },
+      "challenge": {
+        "zh-CN": "容易挑错、过度修正，觉得永远还不够好",
+        "zh-TW": "容易挑錯、過度修正，覺得永遠還不夠好",
+        "en": "fault-finding, over-correction and never feeling finished"
+      },
+      "growth": {
+        "zh-CN": "保留判断力，也允许事情在够好时继续向前",
+        "zh-TW": "保留判斷力，也允許事情在夠好時繼續向前",
+        "en": "keep discernment while allowing good-enough progress"
+      }
+    },
+    "libra": {
+      "ruler": "venus",
+      "traditional": "venus",
+      "approach": {
+        "zh-CN": "先观察双方立场与关系平衡，再寻找合宜做法",
+        "zh-TW": "先觀察雙方立場與關係平衡，再尋找合宜做法",
+        "en": "by weighing both sides and seeking balance"
+      },
+      "strength": {
+        "zh-CN": "协调、审美、人际敏感度高",
+        "zh-TW": "協調、審美、人際敏感度高",
+        "en": "coordination, aesthetics and relational awareness"
+      },
+      "challenge": {
+        "zh-CN": "为了和谐而延迟决定，或过度参考别人意见",
+        "zh-TW": "為了和諧而延遲決定，或過度參考別人意見",
+        "en": "delaying decisions or over-relying on others' views"
+      },
+      "growth": {
+        "zh-CN": "在考虑关系的同时明确自己的偏好",
+        "zh-TW": "在考慮關係的同時明確自己的偏好",
+        "en": "consider relationships while naming your own preference"
+      }
+    },
+    "scorpio": {
+      "ruler": "pluto",
+      "traditional": "mars",
+      "approach": {
+        "zh-CN": "深入观察、测试真实度，并谨慎决定信任",
+        "zh-TW": "深入觀察、測試真實度，並謹慎決定信任",
+        "en": "by looking beneath the surface and testing authenticity"
+      },
+      "strength": {
+        "zh-CN": "专注、洞察、韧性强",
+        "zh-TW": "專注、洞察、韌性強",
+        "en": "focus, insight and resilience"
+      },
+      "challenge": {
+        "zh-CN": "防备过强、猜测动机，或把控制当安全感",
+        "zh-TW": "防備過強、猜測動機，或把控制當安全感",
+        "en": "defensiveness, motive-reading and control"
+      },
+      "growth": {
+        "zh-CN": "保留深度，同时练习透明、信任与适度放手",
+        "zh-TW": "保留深度，同時練習透明、信任與適度放手",
+        "en": "keep depth while practicing trust and release"
+      }
+    },
+    "sagittarius": {
+      "ruler": "jupiter",
+      "traditional": "jupiter",
+      "approach": {
+        "zh-CN": "从大方向、可能性与成长空间出发",
+        "zh-TW": "從大方向、可能性與成長空間出發",
+        "en": "from the big picture, possibility and growth"
+      },
+      "strength": {
+        "zh-CN": "乐观、坦率、愿意探索",
+        "zh-TW": "樂觀、坦率、願意探索",
+        "en": "optimism, candor and exploration"
+      },
+      "challenge": {
+        "zh-CN": "忽略细节、承诺过多，把自由理解成没有限制",
+        "zh-TW": "忽略細節、承諾過多，把自由理解成沒有限制",
+        "en": "missing detail, over-promising or mistaking freedom for no limits"
+      },
+      "growth": {
+        "zh-CN": "让理想有落地步骤，让自由与责任并存",
+        "zh-TW": "讓理想有落地步驟，讓自由與責任並存",
+        "en": "ground ideals and combine freedom with responsibility"
+      }
+    },
+    "capricorn": {
+      "ruler": "saturn",
+      "traditional": "saturn",
+      "approach": {
+        "zh-CN": "从现实条件、责任、长期目标与结构出发",
+        "zh-TW": "從現實條件、責任、長期目標與結構出發",
+        "en": "through practical conditions, responsibility and long-range structure"
+      },
+      "strength": {
+        "zh-CN": "自律、耐久、现实判断强",
+        "zh-TW": "自律、耐久、現實判斷強",
+        "en": "discipline, endurance and realism"
+      },
+      "challenge": {
+        "zh-CN": "过度严肃、害怕犯错，把价值绑在成果上",
+        "zh-TW": "過度嚴肅、害怕犯錯，把價值綁在成果上",
+        "en": "over-seriousness, fear of mistakes and achievement-based worth"
+      },
+      "growth": {
+        "zh-CN": "建立结构但保留弹性，让成就服务人生",
+        "zh-TW": "建立結構但保留彈性，讓成就服務人生",
+        "en": "build structure with flexibility"
+      }
+    },
+    "aquarius": {
+      "ruler": "uranus",
+      "traditional": "saturn",
+      "approach": {
+        "zh-CN": "从独立观点、系统逻辑和不同于惯例的角度切入",
+        "zh-TW": "從獨立觀點、系統邏輯和不同於慣例的角度切入",
+        "en": "through independent thinking, systems and unconventional angles"
+      },
+      "strength": {
+        "zh-CN": "原创、理性、能跳出框架",
+        "zh-TW": "原創、理性、能跳出框架",
+        "en": "originality, objectivity and innovation"
+      },
+      "challenge": {
+        "zh-CN": "为了自由而拉开距离，或过早否定传统",
+        "zh-TW": "為了自由而拉開距離，或過早否定傳統",
+        "en": "creating distance for freedom or rejecting tradition too quickly"
+      },
+      "growth": {
+        "zh-CN": "让创新能被现实使用，也保留对人的温度",
+        "zh-TW": "讓創新能被現實使用，也保留對人的溫度",
+        "en": "make innovation usable and retain human warmth"
+      }
+    },
+    "pisces": {
+      "ruler": "neptune",
+      "traditional": "jupiter",
+      "approach": {
+        "zh-CN": "凭直觉、想象与整体气氛来回应",
+        "zh-TW": "憑直覺、想像與整體氣氛來回應",
+        "en": "through intuition, imagination and sensitivity to atmosphere"
+      },
+      "strength": {
+        "zh-CN": "共感、创造、包容，能感知细微层次",
+        "zh-TW": "共感、創造、包容，能感知細微層次",
+        "en": "empathy, creativity and subtle sensitivity"
+      },
+      "challenge": {
+        "zh-CN": "界线模糊、理想化，或在压力下逃避",
+        "zh-TW": "界線模糊、理想化，或在壓力下逃避",
+        "en": "porous boundaries, idealization or avoidance"
+      },
+      "growth": {
+        "zh-CN": "保留感受力，同时用边界、事实与规律保护自己",
+        "zh-TW": "保留感受力，同時用邊界、事實與規律保護自己",
+        "en": "keep sensitivity while using boundaries, facts and routine"
+      }
+    }
+  },
+  "planets": {
+    "sun": {
+      "pattern": {
+        "zh-CN": "太阳落在第{house}宫，会让自我认同与「{area}」高度连结。你通常需要在这个领域做出自己的选择、被看见或留下成果，才更容易感到「这就是我」。",
+        "zh-TW": "太陽落在第{house}宮，會讓自我認同與「{area}」高度連結。你通常需要在這個領域做出自己的選擇、被看見或留下成果，才更容易感到「這就是我」。",
+        "en": "Sun in House {house} links identity strongly with {area}. You often need personal choice, recognition or visible contribution here to feel fully yourself."
+      },
+      "strength": {
+        "zh-CN": "形成主心骨、方向感与领导意识",
+        "zh-TW": "形成主心骨、方向感與領導意識",
+        "en": "purpose, direction and leadership"
+      },
+      "challenge": {
+        "zh-CN": "把这里的成败当成自我价值判决",
+        "zh-TW": "把這裡的成敗當成自我價值判決",
+        "en": "treating outcomes here as a verdict on worth"
+      },
+      "growth": {
+        "zh-CN": "让表达来自真实意愿，而不是持续证明自己",
+        "zh-TW": "讓表達來自真實意願，而不是持續證明自己",
+        "en": "let expression come from genuine intention rather than self-proof"
+      }
+    },
+    "moon": {
+      "pattern": {
+        "zh-CN": "月亮落在第{house}宫，表示情绪安全感很容易受「{area}」影响。这里稳定时你更放松；发生变化时，也更容易产生本能反应。",
+        "zh-TW": "月亮落在第{house}宮，表示情緒安全感很容易受「{area}」影響。這裡穩定時你更放鬆；發生變化時，也更容易產生本能反應。",
+        "en": "Moon in House {house} makes emotional security especially responsive to {area}. Stability here calms you; change here triggers instinctive reactions."
+      },
+      "strength": {
+        "zh-CN": "直觉很快读懂这个领域真正需要什么",
+        "zh-TW": "直覺很快讀懂這個領域真正需要什麼",
+        "en": "quick intuition about what this area needs"
+      },
+      "challenge": {
+        "zh-CN": "把当下感受当成全部事实，或重复旧习惯求安全",
+        "zh-TW": "把當下感受當成全部事實，或重複舊習慣求安全",
+        "en": "mistaking current feeling for all the facts or repeating habits for safety"
+      },
+      "growth": {
+        "zh-CN": "先承认感受，再决定它需要满足、安抚还是重新理解",
+        "zh-TW": "先承認感受，再決定它需要滿足、安撫還是重新理解",
+        "en": "acknowledge feeling first, then decide whether it needs fulfillment, soothing or reframing"
+      }
+    },
+    "mercury": {
+      "pattern": {
+        "zh-CN": "水星落在第{house}宫，你会在「{area}」投入大量思考、沟通、学习与信息处理。这个领域越需要理解与说明，你的大脑越容易自动上线。",
+        "zh-TW": "水星落在第{house}宮，你會在「{area}」投入大量思考、溝通、學習與資訊處理。這個領域越需要理解與說明，你的大腦越容易自動上線。",
+        "en": "Mercury in House {house} directs thinking, learning and communication toward {area}. The more this field needs explanation, the more automatically the mind engages."
+      },
+      "strength": {
+        "zh-CN": "透过分析、语言和连接信息找到办法",
+        "zh-TW": "透過分析、語言和連接資訊找到辦法",
+        "en": "solving through analysis, language and connected information"
+      },
+      "challenge": {
+        "zh-CN": "想太多、解释太多，或把感受全部变成脑内问题",
+        "zh-TW": "想太多、解釋太多，或把感受全部變成腦內問題",
+        "en": "overthinking, over-explaining or intellectualizing feelings"
+      },
+      "growth": {
+        "zh-CN": "让思考帮助行动与理解，而不是无限延迟决定",
+        "zh-TW": "讓思考幫助行動與理解，而不是無限延遲決定",
+        "en": "use thought to support action rather than delay decisions"
+      }
+    },
+    "venus": {
+      "pattern": {
+        "zh-CN": "金星落在第{house}宫，你会希望「{area}」带来和谐、舒服、喜欢与价值感，也较容易在这里展现魅力、建立连接或追求美感。",
+        "zh-TW": "金星落在第{house}宮，你會希望「{area}」帶來和諧、舒服、喜歡與價值感，也較容易在這裡展現魅力、建立連結或追求美感。",
+        "en": "Venus in House {house} seeks harmony, pleasure and value through {area}, often adding charm, connection or aesthetic sensitivity."
+      },
+      "strength": {
+        "zh-CN": "让这个领域更有吸引力，也更容易合作",
+        "zh-TW": "讓這個領域更有吸引力，也更容易合作",
+        "en": "making this area more attractive and cooperative"
+      },
+      "challenge": {
+        "zh-CN": "为了舒服回避必要冲突，或因喜欢忽略现实成本",
+        "zh-TW": "為了舒服迴避必要衝突，或因喜歡忽略現實成本",
+        "en": "avoiding necessary conflict or ignoring practical costs"
+      },
+      "growth": {
+        "zh-CN": "让关系与享受建立在真实价值，而不只即时好感",
+        "zh-TW": "讓關係與享受建立在真實價值，而不只即時好感",
+        "en": "build pleasure and relationship on real values"
+      }
+    },
+    "mars": {
+      "pattern": {
+        "zh-CN": "火星落在第{house}宫，会把行动力、欲望与竞争感带进「{area}」。你在这个领域通常不太愿意完全被动，遇到阻力时也更容易直接反应。",
+        "zh-TW": "火星落在第{house}宮，會把行動力、慾望與競爭感帶進「{area}」。你在這個領域通常不太願意完全被動，遇到阻力時也更容易直接反應。",
+        "en": "Mars in House {house} brings drive, desire and competitive energy into {area}. You are less willing to remain passive here and react quickly to obstruction."
+      },
+      "strength": {
+        "zh-CN": "推动力强，能在别人犹豫时先开始",
+        "zh-TW": "推動力強，能在別人猶豫時先開始",
+        "en": "strong momentum and willingness to act"
+      },
+      "challenge": {
+        "zh-CN": "急、硬推，或把普通差异升级成冲突",
+        "zh-TW": "急、硬推，或把普通差異升級成衝突",
+        "en": "rushing, pushing too hard or escalating differences"
+      },
+      "growth": {
+        "zh-CN": "把攻击性转成有效行动，并练习清楚不过度的界线",
+        "zh-TW": "把攻擊性轉成有效行動，並練習清楚不過度的界線",
+        "en": "turn aggression into effective action and proportionate boundaries"
+      }
+    },
+    "jupiter": {
+      "pattern": {
+        "zh-CN": "木星落在第{house}宫，会让你倾向在「{area}」寻找成长、机会与更大的可能性。经验越多，越容易在这里建立信心与宽广视角。",
+        "zh-TW": "木星落在第{house}宮，會讓你傾向在「{area}」尋找成長、機會與更大的可能性。經驗越多，越容易在這裡建立信心與寬廣視角。",
+        "en": "Jupiter in House {house} seeks growth, opportunity and a larger horizon through {area}. Experience here tends to build confidence."
+      },
+      "strength": {
+        "zh-CN": "看见机会、愿意尝试，也能给别人希望",
+        "zh-TW": "看見機會、願意嘗試，也能給別人希望",
+        "en": "seeing possibility, taking chances and giving hope"
+      },
+      "challenge": {
+        "zh-CN": "过度乐观、放大判断，或忽略细节",
+        "zh-TW": "過度樂觀、放大判斷，或忽略細節",
+        "en": "over-optimism, exaggeration or neglect of detail"
+      },
+      "growth": {
+        "zh-CN": "让信心与现实验证并存，把扩张建立在可持续基础",
+        "zh-TW": "讓信心與現實驗證並存，把擴張建立在可持續基礎",
+        "en": "combine confidence with reality checks"
+      }
+    },
+    "saturn": {
+      "pattern": {
+        "zh-CN": "土星落在第{house}宫，常让「{area}」成为必须认真学习、承担责任或慢慢建立能力的地方。早期可能压力较大，成熟后却往往很可靠。",
+        "zh-TW": "土星落在第{house}宮，常讓「{area}」成為必須認真學習、承擔責任或慢慢建立能力的地方。早期可能壓力較大，成熟後卻往往很可靠。",
+        "en": "Saturn in House {house} makes {area} a field of responsibility, patience and earned competence. It can feel heavy early on but becomes dependable with maturity."
+      },
+      "strength": {
+        "zh-CN": "耐力、边界、现实感与长期建设",
+        "zh-TW": "耐力、界線、現實感與長期建設",
+        "en": "endurance, boundaries, realism and long-term construction"
+      },
+      "challenge": {
+        "zh-CN": "害怕失败、过度谨慎，或先假设自己不够资格",
+        "zh-TW": "害怕失敗、過度謹慎，或先假設自己不夠資格",
+        "en": "fear of failure, excessive caution or self-doubt"
+      },
+      "growth": {
+        "zh-CN": "把压力转成结构，让能力通过时间累积",
+        "zh-TW": "把壓力轉成結構，讓能力透過時間累積",
+        "en": "turn pressure into structure and let competence accumulate"
+      }
+    },
+    "uranus": {
+      "pattern": {
+        "zh-CN": "天王星落在第{house}宫，表示你在「{area}」很难完全照传统脚本走。这里常需要自由、变化或创新，也可能出现突然转向。",
+        "zh-TW": "天王星落在第{house}宮，表示你在「{area}」很難完全照傳統腳本走。這裡常需要自由、變化或創新，也可能出現突然轉向。",
+        "en": "Uranus in House {house} makes it difficult to follow a conventional script in {area}; freedom, innovation and sudden redirection matter here."
+      },
+      "strength": {
+        "zh-CN": "打破僵局、看见新路线，建立更适合自己的规则",
+        "zh-TW": "打破僵局、看見新路線，建立更適合自己的規則",
+        "en": "breaking stagnation and creating new rules"
+      },
+      "challenge": {
+        "zh-CN": "为了自由频繁切断，或稳定形成时突然想逃",
+        "zh-TW": "為了自由頻繁切斷，或穩定形成時突然想逃",
+        "en": "cutting off too quickly or fleeing stability"
+      },
+      "growth": {
+        "zh-CN": "让自由建立在清楚选择，而不是只靠反抗",
+        "zh-TW": "讓自由建立在清楚選擇，而不是只靠反抗",
+        "en": "build freedom through conscious choice rather than rebellion"
+      }
+    },
+    "neptune": {
+      "pattern": {
+        "zh-CN": "海王星落在第{house}宫，会让「{area}」带有理想、想象、共感或模糊感。你可能在这里很有灵感，也更需要分辨事实、期待与投射。",
+        "zh-TW": "海王星落在第{house}宮，會讓「{area}」帶有理想、想像、共感或模糊感。你可能在這裡很有靈感，也更需要分辨事實、期待與投射。",
+        "en": "Neptune in House {house} gives {area} an idealistic, imaginative or diffuse quality, increasing both inspiration and the need for reality checks."
+      },
+      "strength": {
+        "zh-CN": "想象力、共感、艺术感与细微感受",
+        "zh-TW": "想像力、共感、藝術感與細微感受",
+        "en": "imagination, empathy, artistry and subtle sensitivity"
+      },
+      "challenge": {
+        "zh-CN": "理想化、界线不清、逃避事实或替别人承担",
+        "zh-TW": "理想化、界線不清、逃避事實或替別人承擔",
+        "en": "idealization, blurred boundaries, avoidance or over-responsibility"
+      },
+      "growth": {
+        "zh-CN": "保留灵感，同时持续核对事实、承诺与边界",
+        "zh-TW": "保留靈感，同時持續核對事實、承諾與界線",
+        "en": "keep inspiration while checking facts, promises and boundaries"
+      }
+    },
+    "pluto": {
+      "pattern": {
+        "zh-CN": "冥王星落在第{house}宫，会让「{area}」成为体验深度、权力、失去与重建的重要领域。你通常很难只用轻描淡写的方式处理这里的事情。",
+        "zh-TW": "冥王星落在第{house}宮，會讓「{area}」成為體驗深度、權力、失去與重建的重要領域。你通常很難只用輕描淡寫的方式處理這裡的事情。",
+        "en": "Pluto in House {house} makes {area} an important field for depth, power, loss and rebuilding. Experiences here are rarely superficial."
+      },
+      "strength": {
+        "zh-CN": "看见问题核心、承受转化并重新建立力量",
+        "zh-TW": "看見問題核心、承受轉化並重新建立力量",
+        "en": "seeing the core, enduring transformation and rebuilding power"
+      },
+      "challenge": {
+        "zh-CN": "控制、极端化、难放手，或因为怕失去而抓更紧",
+        "zh-TW": "控制、極端化、難放手，或因為怕失去而抓更緊",
+        "en": "control, extremity, difficulty releasing and fear of loss"
+      },
+      "growth": {
+        "zh-CN": "把力量用于改变自己与现实，而不是争夺控制权",
+        "zh-TW": "把力量用於改變自己與現實，而不是爭奪控制權",
+        "en": "use power to transform rather than fight for control"
+      }
+    }
+  },
+  "elements": {
+    "fire": {
+      "gift": {
+        "zh-CN": "行动、热情、直觉式信心与推动力",
+        "zh-TW": "行動、熱情、直覺式信心與推動力",
+        "en": "action, enthusiasm, instinctive confidence and momentum"
+      },
+      "shadow": {
+        "zh-CN": "容易先冲再想，热度高但需要持续性",
+        "zh-TW": "容易先衝再想，熱度高但需要持續性",
+        "en": "can act before reflecting and needs follow-through"
+      }
+    },
+    "earth": {
+      "gift": {
+        "zh-CN": "现实感、稳定、执行与把想法落地",
+        "zh-TW": "現實感、穩定、執行與把想法落地",
+        "en": "practicality, stability, execution and grounding ideas"
+      },
+      "shadow": {
+        "zh-CN": "容易依赖可控条件，对变化较谨慎",
+        "zh-TW": "容易依賴可控條件，對變化較謹慎",
+        "en": "can depend heavily on control and be cautious about change"
+      }
+    },
+    "air": {
+      "gift": {
+        "zh-CN": "思考、交流、客观比较与连接观点",
+        "zh-TW": "思考、交流、客觀比較與連接觀點",
+        "en": "thinking, communication, comparison and connecting viewpoints"
+      },
+      "shadow": {
+        "zh-CN": "容易用分析代替感受，或在选择之间来回",
+        "zh-TW": "容易用分析代替感受，或在選擇之間來回",
+        "en": "can analyze instead of feel or stay between options too long"
+      }
+    },
+    "water": {
+      "gift": {
+        "zh-CN": "共感、直觉、情绪深度与关系感受力",
+        "zh-TW": "共感、直覺、情緒深度與關係感受力",
+        "en": "empathy, intuition, emotional depth and relational sensitivity"
+      },
+      "shadow": {
+        "zh-CN": "容易吸收环境情绪，需要更清楚的界线",
+        "zh-TW": "容易吸收環境情緒，需要更清楚的界線",
+        "en": "can absorb atmosphere and needs clearer boundaries"
+      }
+    }
+  },
+  "modalities": {
+    "cardinal": {
+      "gift": {
+        "zh-CN": "发起、决定、推动改变",
+        "zh-TW": "發起、決定、推動改變",
+        "en": "initiating, deciding and moving change"
+      },
+      "shadow": {
+        "zh-CN": "容易不断开启新局，却未必喜欢维持",
+        "zh-TW": "容易不斷開啟新局，卻未必喜歡維持",
+        "en": "can keep starting without enjoying maintenance"
+      }
+    },
+    "fixed": {
+      "gift": {
+        "zh-CN": "持续、专注、稳定与守住方向",
+        "zh-TW": "持續、專注、穩定與守住方向",
+        "en": "persistence, focus, stability and holding direction"
+      },
+      "shadow": {
+        "zh-CN": "认定后较难松动，也可能把坚持变成固执",
+        "zh-TW": "認定後較難鬆動，也可能把堅持變成固執",
+        "en": "can resist movement and turn persistence into rigidity"
+      }
+    },
+    "mutable": {
+      "gift": {
+        "zh-CN": "适应、调整、学习与转换视角",
+        "zh-TW": "適應、調整、學習與轉換視角",
+        "en": "adaptation, adjustment, learning and shifting perspective"
+      },
+      "shadow": {
+        "zh-CN": "变化太多时容易分散，决定后仍不断重评",
+        "zh-TW": "變化太多時容易分散，決定後仍不斷重評",
+        "en": "can scatter under too much change and keep reassessing"
+      }
+    }
+  },
+  "emptyHouseNote": {
+    "zh-CN": "这个宫没有主要行星，并不代表这里没有事情。空宫仍然要看宫头星座与宫主星的位置，它们会告诉你这个人生领域以什么方式运作，以及主题会被带到哪里。",
+    "zh-TW": "這個宮沒有主要行星，並不代表這裡沒有事情。空宮仍然要看宮頭星座與宮主星的位置，它們會告訴你這個人生領域以什麼方式運作，以及主題會被帶到哪裡。",
+    "en": "An empty house does not mean nothing happens there. The cusp sign and its ruler still describe how the area operates and where its themes are carried."
+  }
+}

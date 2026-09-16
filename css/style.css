@@ -2912,3 +2912,246 @@ main { display: grid; gap: 0; }
     max-width: 100%;
   }
 }
+
+
+/* ===== V0.10.3 DEEP NATAL INTERPRETATION ===== */
+.astro-house-row-deep > summary {
+  min-height: 68px;
+}
+
+.astro-house-description-deep {
+  padding: 0 17px 18px;
+}
+
+.astro-house-keywords {
+  margin: 0 0 13px;
+  padding: 9px 12px;
+  border-radius: 11px;
+  color: #8b717d;
+  background: #f6edef;
+  font-size: .72rem;
+  letter-spacing: .04em;
+}
+
+.astro-deep-subsection {
+  margin-top: 11px;
+  padding: 15px;
+  border: 1px solid #eadfe3;
+  border-radius: 15px;
+  background: rgba(255,255,255,.82);
+}
+
+.astro-deep-subsection h5,
+.astro-deep-three h5 {
+  margin: 0 0 8px;
+  color: #705964;
+  font-size: .82rem;
+}
+
+.astro-deep-subsection p,
+.astro-deep-three p {
+  margin: 0;
+  color: #6f5c66;
+  line-height: 1.85;
+}
+
+.astro-deep-subsection p + p {
+  margin-top: 9px;
+}
+
+.astro-deep-three {
+  margin-top: 11px;
+  display: grid;
+  grid-template-columns: repeat(3,1fr);
+  gap: 9px;
+}
+
+.astro-deep-three > section {
+  padding: 14px;
+  border-radius: 14px;
+  background: #f8f2f3;
+}
+
+.astro-deep-planet {
+  margin-top: 8px;
+  background: #fffcfb;
+}
+
+.astro-empty-house-note {
+  color: #8c7580;
+  background: #faf4f5;
+}
+
+.astro-house-integration {
+  margin-top: 13px;
+  padding: 16px;
+  border-radius: 16px;
+  color: #f4eaf0;
+  background: linear-gradient(135deg,#392f3b,#292331);
+}
+
+.astro-house-integration strong {
+  display: block;
+  color: #e8cba5;
+  font-size: .78rem;
+  letter-spacing: .05em;
+}
+
+.astro-house-integration p {
+  margin: 8px 0 0;
+  color: #e1d4da;
+  line-height: 1.9;
+}
+
+.astro-personality-synthesis {
+  margin-top: 13px;
+  padding: 18px;
+  border-radius: 19px;
+  color: #f3e9ef;
+  background:
+    radial-gradient(circle at 88% 0%,rgba(176,151,220,.14),transparent 30%),
+    linear-gradient(135deg,#362d39,#27212f);
+}
+
+.astro-personality-synthesis > h3 {
+  margin: 0 0 13px;
+  color: #ebcfa8;
+  font-size: 1rem;
+  font-weight: 550;
+}
+
+.astro-personality-synthesis > div {
+  display: grid;
+  grid-template-columns: repeat(3,1fr);
+  gap: 9px;
+}
+
+.astro-personality-synthesis article {
+  padding: 14px;
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 14px;
+  background: rgba(255,255,255,.035);
+}
+
+.astro-personality-synthesis h4 {
+  margin: 0 0 8px;
+  color: #d9bcc9;
+  font-size: .78rem;
+}
+
+.astro-personality-synthesis p {
+  margin: 0;
+  color: #ddd0d7;
+  line-height: 1.8;
+  font-size: .87rem;
+}
+
+@media(max-width:820px) {
+  .astro-deep-three,
+  .astro-personality-synthesis > div {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media(max-width:520px) {
+  .astro-house-description-deep {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+
+  .astro-deep-subsection,
+  .astro-house-integration,
+  .astro-personality-synthesis {
+    padding: 13px;
+  }
+}
+
+
+/* ===== V0.10.3.1 IOS FORM WIDTH + CACHE TEST ===== */
+
+/* Every level of the astrology/synastry input layout must be allowed
+   to shrink below its min-content width on Safari. */
+.astrology-form-section,
+.astrology-form-grid,
+.astro-field,
+.astro-city-field,
+.astro-city-search,
+.astro-manual-location,
+.synastry-form-section,
+.synastry-person-grid,
+.synastry-person-form,
+.synastry-form-pair {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.astro-city-search {
+  width: 100%;
+}
+
+/* Native iOS date/time controls can keep an intrinsic logical width even
+   after normal width/min-width rules, so constrain both physical and
+   logical dimensions. */
+.astro-field input,
+.astro-field select,
+.synastry-relation-box select {
+  box-sizing: border-box !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  inline-size: 100% !important;
+  max-inline-size: 100% !important;
+  min-inline-size: 0 !important;
+}
+
+.astro-field input[type="date"],
+.astro-field input[type="time"] {
+  display: block;
+  inline-size: 100% !important;
+  max-inline-size: 100% !important;
+  min-inline-size: 0 !important;
+  -webkit-min-logical-width: 0 !important;
+  font-size: 16px;
+}
+
+/* Keep the WebKit inner date/time content from imposing a wider box. */
+.astro-field input[type="date"]::-webkit-date-and-time-value,
+.astro-field input[type="time"]::-webkit-date-and-time-value {
+  min-width: 0;
+  text-align: left;
+}
+
+/* Explicitly use minmax(0,1fr), not just 1fr. On WebKit this avoids the
+   grid track inheriting a native input's min-content width. */
+@media (max-width: 620px) {
+  .astrology-form-grid,
+  .astro-manual-location,
+  .synastry-form-pair {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  .astrology-form-section,
+  .synastry-form-section {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: clip;
+  }
+
+  .astro-field,
+  .astro-city-field,
+  .astro-city-search {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+  }
+}
+
+/* Fallback for older iOS versions that do not support overflow: clip. */
+@supports not (overflow: clip) {
+  @media (max-width: 620px) {
+    .astrology-form-section,
+    .synastry-form-section {
+      overflow-x: hidden;
+    }
+  }
+}

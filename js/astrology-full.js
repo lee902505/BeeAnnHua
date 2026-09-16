@@ -3,7 +3,8 @@ window.XingchenAstrologyFull = (() => {
     signs:[],
     elements:{},
     modalities:{},
-    meta:null
+    meta:null,
+    deep:null
   };
 
   const $ = id => document.getElementById(id);
@@ -14,7 +15,9 @@ window.XingchenAstrologyFull = (() => {
       houses:'四轴与十二宫', housesHint:'ASC / DSC / MC / IC、12 宫宫头与行星落宫',
       aspects:'主要相位', aspectsHint:'合相、六分、四分、三分与对分，以及实际容许度',
       overview:'完整摘要', overviewHint:'元素、模式、宫位重点、逆行与紧密相位的整体观察',
-      interpretation:'展开解读', retrograde:'逆行', house:'第 {n} 宫', unknownHouse:'宫位需准确出生时间',
+      interpretation:'展开解读', deepCore:'这一宫在看什么', cuspStyle:'宫头星座', rulerLabel:'宫主星', planetsHere:'宫内行星',
+      strengths:'优势', challenges:'容易卡住', growthDirection:'成长方向', emptyHouse:'空宫说明',
+      integratedPersonality:'性格整合', corePersonality:'核心人格骨架', dominantPattern:'主要能量模式', practicalAdvice:'整合建议', retrograde:'逆行', house:'第 {n} 宫', unknownHouse:'宫位需准确出生时间',
       unknownTimeHouses:'出生时间未知，因此不计算 ASC、MC 与十二宫。行星和相位仍以当地中午作为近似参考。',
       placidus:'Placidus 宫制', whole:'Whole Sign 整宫制',
       fallback:'由于出生纬度较高，Placidus 在此位置可能失去数学定义，因此自动改用 Whole Sign。',
@@ -43,7 +46,9 @@ window.XingchenAstrologyFull = (() => {
       houses:'四軸與十二宮', housesHint:'ASC / DSC / MC / IC、12 宮宮頭與行星落宮',
       aspects:'主要相位', aspectsHint:'合相、六分、四分、三分與對分，以及實際容許度',
       overview:'完整摘要', overviewHint:'元素、模式、宮位重點、逆行與緊密相位的整體觀察',
-      interpretation:'展開解讀', retrograde:'逆行', house:'第 {n} 宮', unknownHouse:'宮位需準確出生時間',
+      interpretation:'展開解讀', deepCore:'這一宮在看什麼', cuspStyle:'宮頭星座', rulerLabel:'宮主星', planetsHere:'宮內行星',
+      strengths:'優勢', challenges:'容易卡住', growthDirection:'成長方向', emptyHouse:'空宮說明',
+      integratedPersonality:'性格整合', corePersonality:'核心人格骨架', dominantPattern:'主要能量模式', practicalAdvice:'整合建議', retrograde:'逆行', house:'第 {n} 宮', unknownHouse:'宮位需準確出生時間',
       unknownTimeHouses:'出生時間未知，因此不計算 ASC、MC 與十二宮。行星和相位仍以當地中午作為近似參考。',
       placidus:'Placidus 宮制', whole:'Whole Sign 整宮制',
       fallback:'由於出生緯度較高，Placidus 在此位置可能失去數學定義，因此自動改用 Whole Sign。',
@@ -72,7 +77,9 @@ window.XingchenAstrologyFull = (() => {
       houses:'Angles & 12 Houses', housesHint:'ASC / DSC / MC / IC, twelve cusps and planets by house',
       aspects:'Major Aspects', aspectsHint:'Conjunction, sextile, square, trine and opposition with actual orb',
       overview:'Full Summary', overviewHint:'Elements, modalities, house emphasis, retrogrades and tight aspects',
-      interpretation:'Open interpretation', retrograde:'Retrograde', house:'House {n}', unknownHouse:'House requires an accurate birth time',
+      interpretation:'Open interpretation', deepCore:'What this house describes', cuspStyle:'Cusp sign', rulerLabel:'House ruler', planetsHere:'Planets in this house',
+      strengths:'Strengths', challenges:'Potential friction', growthDirection:'Growth direction', emptyHouse:'Empty house',
+      integratedPersonality:'Personality integration', corePersonality:'Core personality pattern', dominantPattern:'Dominant pattern', practicalAdvice:'Integration advice', retrograde:'Retrograde', house:'House {n}', unknownHouse:'House requires an accurate birth time',
       unknownTimeHouses:'Birth time is unknown, so ASC, MC and houses are not calculated. Planets and aspects use local noon as an approximate reference.',
       placidus:'Placidus houses', whole:'Whole Sign houses',
       fallback:'At this high latitude Placidus can become mathematically undefined, so Whole Sign is used automatically.',
@@ -117,12 +124,17 @@ window.XingchenAstrologyFull = (() => {
     fetch('../data/astrology/chart-interpretations.json',{cache:'no-store'}).then(r => {
       if (!r.ok) throw new Error('chart interpretations load failed');
       return r.json();
+    }),
+    fetch('../data/astrology/deep-interpretations.json',{cache:'no-store'}).then(r => {
+      if (!r.ok) throw new Error('deep interpretations load failed');
+      return r.json();
     })
-  ]).then(([signs, meta]) => {
+  ]).then(([signs, meta, deep]) => {
     state.signs = signs.signs;
     state.elements = signs.elements;
     state.modalities = signs.modalities;
     state.meta = meta;
+    state.deep = deep;
     setStaticText();
   }).catch(error => console.error(error));
 
@@ -158,6 +170,95 @@ window.XingchenAstrologyFull = (() => {
 
   function planetMeta(key){ return state.meta.planets[key]; }
 
+  function deepHouse(number){ return state.deep?.houses?.[String(number)] || null; }
+  function deepSignByIndex(index){
+    const key = signMeta(index)?.key;
+    return key ? state.deep?.signs?.[key] : null;
+  }
+  function deepPlanet(key){ return state.deep?.planets?.[key] || null; }
+
+  function planetHouseTextLegacy(key, houseNumber) {
+    if (!houseNumber) return '';
+    const planet = planetMeta(key);
+    const house = state.meta.houses[String(houseNumber)];
+    return tpl(ui('planetHouseIntro'), {
+      planet:loc(planet.name),
+      house:String(houseNumber),
+      theme:loc(house.name)
+    }) + ' ' + loc(house.theme) + '。';
+  }
+
+  function deepPlanetHouseText(key, houseNumber) {
+    const p = deepPlanet(key);
+    const h = deepHouse(houseNumber);
+    if (!p || !h) return planetHouseTextLegacy(key, houseNumber);
+    const pattern = loc(p.pattern)
+      .replaceAll('{house}', String(houseNumber))
+      .replaceAll('{area}', loc(h.lifeArea));
+    const sep = lang()==='en' ? ' ' : ' ';
+    return `${pattern}${sep}${ui('strengths')}：${loc(p.strength)} ${ui('challenges')}：${loc(p.challenge)} ${ui('growthDirection')}：${loc(p.growth)}`;
+  }
+
+  function cuspInterpretation(houseNumber, cusp) {
+    const h = deepHouse(houseNumber);
+    const s = deepSignByIndex(cusp.index);
+    if (!h || !s) return '';
+    if (lang()==='en') {
+      return `With ${signName(cusp.index)} on the cusp of House ${houseNumber}, you tend to approach ${loc(h.lifeArea)} ${loc(s.approach)}. Strength: ${loc(s.strength)}. Watch for: ${loc(s.challenge)}. Growth: ${loc(s.growth)}.`;
+    }
+    if (lang()==='zh-TW') {
+      return `${signName(cusp.index)}落在第${houseNumber}宮宮頭，代表你面對「${loc(h.lifeArea)}」時，傾向${loc(s.approach)}。${ui('strengths')}：${loc(s.strength)}。${ui('challenges')}：${loc(s.challenge)}。${ui('growthDirection')}：${loc(s.growth)}。`;
+    }
+    return `${signName(cusp.index)}落在第${houseNumber}宫宫头，代表你面对「${loc(h.lifeArea)}」时，倾向${loc(s.approach)}。${ui('strengths')}：${loc(s.strength)}。${ui('challenges')}：${loc(s.challenge)}。${ui('growthDirection')}：${loc(s.growth)}。`;
+  }
+
+  function rulerInterpretation(result, houseNumber, cusp) {
+    const s = deepSignByIndex(cusp.index);
+    if (!s) return '';
+    const modernKey = s.ruler;
+    const traditionalKey = s.traditional;
+    const modern = result.planets?.[modernKey];
+    if (!modern) return '';
+
+    const modernName = loc(planetMeta(modernKey)?.name);
+    const traditionalName = traditionalKey && traditionalKey !== modernKey
+      ? loc(planetMeta(traditionalKey)?.name) : '';
+    const rulerHouse = modern.house;
+    const target = rulerHouse ? deepHouse(rulerHouse) : null;
+
+    if (lang()==='en') {
+      const label = traditionalName ? `${modernName} (traditional co-ruler: ${traditionalName})` : modernName;
+      return rulerHouse
+        ? `The cusp ruler is ${label}. ${modernName} falls in House ${rulerHouse} (${loc(target.name)}), so themes of House ${houseNumber} are often carried into ${loc(target.lifeArea)}.`
+        : `The cusp ruler is ${label}. Its house position requires an accurate birth time.`;
+    }
+
+    if (lang()==='zh-TW') {
+      const label = traditionalName ? `${modernName}（傳統主星：${traditionalName}）` : modernName;
+      return rulerHouse
+        ? `這一宮的主星是${label}。${modernName}落在第${rulerHouse}宮「${loc(target.name)}」，因此第${houseNumber}宮的主題常會透過「${loc(target.lifeArea)}」被帶出來。`
+        : `這一宮的主星是${label}。宮主星落宮需要準確出生時間才能判斷。`;
+    }
+
+    const label = traditionalName ? `${modernName}（传统主星：${traditionalName}）` : modernName;
+    return rulerHouse
+      ? `这一宫的主星是${label}。${modernName}落在第${rulerHouse}宫「${loc(target.name)}」，因此第${houseNumber}宫的主题常会透过「${loc(target.lifeArea)}」被带出来。`
+      : `这一宫的主星是${label}。宫主星落宫需要准确出生时间才能判断。`;
+  }
+
+  function houseIntegrationText(result, houseNumber, cusp, occupants) {
+    const signPart = cuspInterpretation(houseNumber,cusp);
+    const rulerPart = rulerInterpretation(result,houseNumber,cusp);
+    if (!occupants.length) return `${signPart} ${rulerPart} ${loc(state.deep.emptyHouseNote)}`;
+    const names = occupants.map(k=>loc(planetMeta(k).name)).join(lang()==='en'?', ':'、');
+    if (lang()==='en') {
+      return `${signPart} ${rulerPart} With ${names} in this house, this life area carries direct planetary emphasis and tends to be experienced more consciously.`;
+    }
+    return lang()==='zh-TW'
+      ? `${signPart} ${rulerPart} 這一宮同時有${names}，表示這個人生領域不只是背景設定，而是更容易被你直接感受到、反覆經歷與主動發展的重點。`
+      : `${signPart} ${rulerPart} 这一宫同时有${names}，表示这个人生领域不只是背景设定，而是更容易被你直接感受到、反复经历与主动发展的重点。`;
+  }
+
   function planetSignText(key, position) {
     const planet = planetMeta(key);
     const sign = signMeta(position.index);
@@ -170,14 +271,7 @@ window.XingchenAstrologyFull = (() => {
   }
 
   function planetHouseText(key, houseNumber) {
-    if (!houseNumber) return '';
-    const planet = planetMeta(key);
-    const house = state.meta.houses[String(houseNumber)];
-    return tpl(ui('planetHouseIntro'), {
-      planet:loc(planet.name),
-      house:String(houseNumber),
-      theme:loc(house.name)
-    }) + ' ' + loc(house.theme) + '。';
+    return deepPlanetHouseText(key, houseNumber);
   }
 
   function positionDisplay(p) {
@@ -284,25 +378,75 @@ window.XingchenAstrologyFull = (() => {
 
     $('houseList').innerHTML = h.cusps.map((cusp,index) => {
       const n = index + 1;
-      const house = state.meta.houses[String(n)];
+      const legacy = state.meta.houses[String(n)];
+      const profile = deepHouse(n);
       const occupants = housePlanets(result,n);
+
       const occupantHtml = occupants.length
         ? occupants.map(key => `<span class="astro-house-planet-chip">${planetMeta(key).glyph} ${esc(loc(planetMeta(key).name))}</span>`).join('')
         : `<span class="astro-house-empty">—</span>`;
 
+      const planetSections = occupants.length
+        ? occupants.map(key => {
+            const meta = planetMeta(key);
+            return `
+              <section class="astro-deep-subsection astro-deep-planet">
+                <h5>${meta.glyph} ${esc(loc(meta.name))} · ${esc(ui('house').replace('{n}',String(n)))}</h5>
+                <p>${esc(planetHouseText(key,n))}</p>
+              </section>`;
+          }).join('')
+        : `
+          <section class="astro-deep-subsection astro-empty-house-note">
+            <h5>${esc(ui('emptyHouse'))}</h5>
+            <p>${esc(loc(state.deep.emptyHouseNote))}</p>
+          </section>`;
+
       return `
-        <details class="astro-house-row">
+        <details class="astro-house-row astro-house-row-deep">
           <summary>
             <span class="astro-house-number">${String(n).padStart(2,'0')}</span>
             <span class="astro-house-cusp">
-              <strong>${esc(loc(house.name))}</strong>
+              <strong>${esc(profile ? loc(profile.name) : loc(legacy.name))}</strong>
               <small>${esc(signName(cusp.index))} · ${esc(formatDegree(cusp))}</small>
             </span>
             <span class="astro-house-occupants">${occupantHtml}</span>
           </summary>
-          <div class="astro-house-description">
-            <p>${esc(loc(house.theme))}</p>
-            ${occupants.map(key => `<p><b>${planetMeta(key).glyph} ${esc(loc(planetMeta(key).name))}</b>：${esc(planetHouseText(key,n))}</p>`).join('')}
+
+          <div class="astro-house-description astro-house-description-deep">
+            <div class="astro-house-keywords">${esc(profile ? loc(profile.keywords) : loc(legacy.theme))}</div>
+
+            ${profile ? `
+            <section class="astro-deep-subsection">
+              <h5>${esc(ui('deepCore'))}</h5>
+              <p>${esc(loc(profile.core))}</p>
+              <p>${esc(loc(profile.personality))}</p>
+            </section>
+
+            <div class="astro-deep-three">
+              <section><h5>${esc(ui('strengths'))}</h5><p>${esc(loc(profile.strength))}</p></section>
+              <section><h5>${esc(ui('challenges'))}</h5><p>${esc(loc(profile.challenge))}</p></section>
+              <section><h5>${esc(ui('growthDirection'))}</h5><p>${esc(loc(profile.growth))}</p></section>
+            </div>` : ''}
+
+            <section class="astro-deep-subsection">
+              <h5>${esc(ui('cuspStyle'))} · ${esc(signName(cusp.index))}</h5>
+              <p>${esc(cuspInterpretation(n,cusp))}</p>
+            </section>
+
+            <section class="astro-deep-subsection">
+              <h5>${esc(ui('rulerLabel'))}</h5>
+              <p>${esc(rulerInterpretation(result,n,cusp))}</p>
+            </section>
+
+            <section class="astro-deep-subsection">
+              <h5>${esc(ui('planetsHere'))}</h5>
+              ${planetSections}
+            </section>
+
+            <section class="astro-house-integration">
+              <strong>${esc(ui('integratedPersonality'))}</strong>
+              <p>${esc(houseIntegrationText(result,n,cusp,occupants))}</p>
+            </section>
           </div>
         </details>
       `;
@@ -368,6 +512,60 @@ window.XingchenAstrologyFull = (() => {
       .sort((a,b) => b[1]-a[1])
       .map(([key,count]) => `<span>${esc(loc(labels[key]))} <b>${count}</b></span>`)
       .join('');
+  }
+
+  function dominantKeys(counts) {
+    const vals = Object.values(counts);
+    if (!vals.length) return [];
+    const max = Math.max(...vals);
+    return Object.keys(counts).filter(k => counts[k] === max);
+  }
+
+  function personalitySynthesis(result,elements,modalities,signCounts) {
+    const sun = result.sun;
+    const moon = result.moon;
+    const asc = result.ascendant;
+    const sunDeep = deepSignByIndex(sun.index);
+    const moonDeep = deepSignByIndex(moon.index);
+    const ascDeep = asc ? deepSignByIndex(asc.index) : null;
+    const sunName = signName(sun.index);
+    const moonName = result.moonSignUncertain ? ui('possible') : signName(moon.index);
+    const ascName = asc ? signName(asc.index) : null;
+
+    let core;
+    if (lang()==='en') {
+      core = `Sun in ${sunName} gives a core style that tends to operate ${loc(sunDeep.approach)}. Moon in ${moonName} processes emotional security ${loc(moonDeep.approach)}.`;
+      if (asc) core += ` ${ascName} rising colors first reactions and outward behavior ${loc(ascDeep.approach)}.`;
+    } else {
+      core = `太陽${sunName}讓核心自我傾向${loc(sunDeep.approach)}；月亮${moonName}讓情緒與安全感更常透過「${loc(moonDeep.approach)}」被處理。`;
+      if (asc) core += ` 上升${ascName}則讓你面對外界時，第一反應更傾向${loc(ascDeep.approach)}。`;
+    }
+
+    const eKeys = dominantKeys(elements);
+    const mKeys = dominantKeys(modalities);
+    const eGift = eKeys.map(k=>loc(state.deep.elements[k]?.gift)).filter(Boolean).join(lang()==='en'?', ':'、');
+    const eShadow = eKeys.map(k=>loc(state.deep.elements[k]?.shadow)).filter(Boolean).join(lang()==='en'?', ':'；');
+    const mGift = mKeys.map(k=>loc(state.deep.modalities[k]?.gift)).filter(Boolean).join(lang()==='en'?', ':'、');
+    const mShadow = mKeys.map(k=>loc(state.deep.modalities[k]?.shadow)).filter(Boolean).join(lang()==='en'?', ':'；');
+
+    const pattern = lang()==='en'
+      ? `The strongest element pattern emphasizes ${eGift}; its balancing task is that it ${eShadow}. The dominant modality emphasizes ${mGift}, with a watchpoint that it ${mShadow}.`
+      : `元素分布最突出的傾向是「${eGift}」；相對需要留意的是「${eShadow}」。模式分布則強調「${mGift}」，它的另一面可能是「${mShadow}」。`;
+
+    const concentration = Object.entries(signCounts).filter(([,c])=>c>=3).sort((a,b)=>b[1]-a[1])[0];
+    let advice;
+    if (concentration) {
+      const sign = state.signs.find(s=>s.key===concentration[0]);
+      const sd = state.deep.signs[concentration[0]];
+      advice = lang()==='en'
+        ? `${concentration[1]} major bodies in ${loc(sign.name)} create a clear concentration. This strengthens ${loc(sd.strength)}; growth comes from ${loc(sd.growth)}.`
+        : `${loc(sign.name)}聚集了${concentration[1]}顆主要星體，是明顯的集中點。它會放大「${loc(sd.strength)}」的優勢，同時也更需要練習「${loc(sd.growth)}」。`;
+    } else {
+      advice = lang()==='en'
+        ? 'No single zodiac sign dominates strongly, so personality is more likely to shift among several modes depending on context.'
+        : '沒有單一星座形成特別強的集中，因此你的性格更容易依情境切換不同模式，而不是只被一種氣質主導。';
+    }
+    return {core,pattern,advice};
   }
 
   function renderOverview(result) {
@@ -455,6 +653,17 @@ window.XingchenAstrologyFull = (() => {
 
       ${concentrations.length ? `<div class="astro-overview-text"><h4>${esc(ui('signConcentration'))}</h4>${concentrationHtml}</div>` : ''}
       ${houseModeText ? `<div class="astro-overview-text"><h4>${esc(ui('houseEmphasis'))}</h4><p>${esc(houseModeText)}</p></div>` : ''}
+      ${(() => {
+        const synthesis = personalitySynthesis(result,elements,modalities,signCounts);
+        return `<section class="astro-personality-synthesis">
+          <h3>${esc(ui('integratedPersonality'))}</h3>
+          <div>
+            <article><h4>${esc(ui('corePersonality'))}</h4><p>${esc(synthesis.core)}</p></article>
+            <article><h4>${esc(ui('dominantPattern'))}</h4><p>${esc(synthesis.pattern)}</p></article>
+            <article><h4>${esc(ui('practicalAdvice'))}</h4><p>${esc(synthesis.advice)}</p></article>
+          </div>
+        </section>`;
+      })()}
       <p class="astro-overview-source">${esc(ui('sourceNote'))}</p>
     `;
   }
