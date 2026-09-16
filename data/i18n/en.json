@@ -1,0 +1,20 @@
+{
+  "siteName": "Stellar Diary",
+  "dailyTitle": "Daily Fortune",
+  "dailyDesc": "Draw today’s guidance and see what the stars have to say.",
+  "dailyButton": "Draw Now",
+  "dailyQuote": "Every day deserves a little tenderness.",
+  "tarotTitle": "Tarot Reading",
+  "tarotDesc": "Let the cards illuminate your next step.",
+  "tarotButton": "Begin Reading",
+  "tarotQuote": "The answer has always been within you.",
+  "astrologyTitle": "Astrology Chart",
+  "astrologyDesc": "Know yourself and uncover the language of your stars.",
+  "astrologyButton": "Start Reading",
+  "astrologyQuote": "Knowing yourself is a beautiful journey.",
+  "farmTitle": "Stellar Farm",
+  "farmDesc": "Plant small moments of comfort in your own little farm.",
+  "farmButton": "Enter Farm",
+  "farmQuote": "Plant starlight, harvest joy.",
+  "footer": "Walk with the stars, and meet a better you ♡"
+}

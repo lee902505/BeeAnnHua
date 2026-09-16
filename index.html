@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#24284f" />
+  <meta name="description" content="星辰日记：每日运势、塔罗牌占卜、星座测算与星辰农场。" />
+  <title>星辰日记</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <div class="site-shell">
+    <header class="site-header" id="top">
+      <a class="brand" href="#top" aria-label="星辰日记首页">
+        <span class="brand-title" data-i18n="siteName">星辰日记</span>
+        <span class="brand-subtitle">Your Stars, Your Story</span>
+      </a>
+
+      <nav class="language-switcher" aria-label="切换语言">
+        <button class="lang-btn active" type="button" data-lang="zh-CN">简体</button>
+        <span class="lang-separator" aria-hidden="true">|</span>
+        <button class="lang-btn" type="button" data-lang="zh-TW">繁體</button>
+        <span class="lang-separator" aria-hidden="true">|</span>
+        <button class="lang-btn" type="button" data-lang="en">EN</button>
+      </nav>
+    </header>
+
+    <main>
+      <section class="home-panel panel-daily" id="daily">
+        <div class="panel-content">
+          <p class="panel-number">01</p>
+          <h1 data-i18n="dailyTitle">每日运势</h1>
+          <p class="panel-en">DAILY FORTUNE</p>
+          <p class="panel-desc" data-i18n="dailyDesc">抽取属于今天的指引，看看星辰想对你说什么。</p>
+          <a class="primary-btn" href="pages/fortune.html">
+            <span data-i18n="dailyButton">立即抽取</span><span class="btn-arrow" aria-hidden="true">→</span>
+          </a>
+        </div>
+        <div class="visual-placeholder visual-orbit" aria-hidden="true"><span>✦</span></div>
+        <p class="panel-quote" data-i18n="dailyQuote">每一天，都值得被温柔以待。</p>
+      </section>
+
+      <section class="home-panel panel-tarot" id="tarot">
+        <div class="panel-content">
+          <p class="panel-number">02</p>
+          <h2 data-i18n="tarotTitle">塔罗牌占卜</h2>
+          <p class="panel-en">TAROT READING</p>
+          <p class="panel-desc" data-i18n="tarotDesc">让塔罗牌，为你指引下一步的方向。</p>
+          <a class="primary-btn" href="pages/tarot.html">
+            <span data-i18n="tarotButton">开始占卜</span><span class="btn-arrow" aria-hidden="true">→</span>
+          </a>
+        </div>
+        <div class="visual-placeholder visual-card" aria-hidden="true"><span>☾</span></div>
+        <p class="panel-quote" data-i18n="tarotQuote">答案，一直在你心里。</p>
+      </section>
+
+      <section class="home-panel panel-astrology" id="astrology">
+        <div class="panel-content">
+          <p class="panel-number">03</p>
+          <h2 data-i18n="astrologyTitle">星座测算</h2>
+          <p class="panel-en">ASTROLOGY</p>
+          <p class="panel-desc" data-i18n="astrologyDesc">认识自己，发现属于你的星辰密码。</p>
+          <a class="primary-btn" href="pages/astrology.html">
+            <span data-i18n="astrologyButton">开始测算</span><span class="btn-arrow" aria-hidden="true">→</span>
+          </a>
+        </div>
+        <div class="visual-placeholder visual-zodiac" aria-hidden="true"><span>✺</span></div>
+        <p class="panel-quote" data-i18n="astrologyQuote">认识自己，是最浪漫的旅程。</p>
+      </section>
+
+      <section class="home-panel panel-farm" id="farm">
+        <div class="panel-content">
+          <p class="panel-number">04</p>
+          <h2 data-i18n="farmTitle">星辰农场</h2>
+          <p class="panel-en">MY FARM</p>
+          <p class="panel-desc" data-i18n="farmDesc">在属于你的农场里，种下疗愈的小确幸。</p>
+          <a class="primary-btn" href="pages/farm.html">
+            <span data-i18n="farmButton">进入农场</span><span class="btn-arrow" aria-hidden="true">→</span>
+          </a>
+        </div>
+        <div class="visual-placeholder visual-farm" aria-hidden="true"><span>❀</span></div>
+        <p class="panel-quote" data-i18n="farmQuote">种下星光，收获快乐。</p>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <p data-i18n="footer">与星辰同行，遇见更好的自己 ♡</p>
+    </footer>
+  </div>
+
+  <script src="js/i18n.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>

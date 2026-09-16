@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#25294d" />
+  <title>每日运势 | 星辰日记</title>
+  <link rel="stylesheet" href="../css/style.css" />
+</head>
+<body class="fortune-page">
+  <div class="site-shell fortune-shell">
+    <header class="subpage-header">
+      <a class="brand" href="../index.html">
+        <span class="brand-title">星辰日记</span>
+        <span class="brand-subtitle">Your Stars, Your Story</span>
+      </a>
+      <a class="text-back" href="../index.html">← 返回首页</a>
+    </header>
+
+    <main class="fortune-main">
+      <section class="fortune-hero">
+        <p class="panel-number">01</p>
+        <p class="panel-en">STELLAR SIXTY FORTUNES</p>
+        <h1>每日运势</h1>
+        <p class="fortune-intro">每日运势以六十甲子为灵感，共 60 支签。静下心，抽一支属于今天的指引，看看今天的星光落在哪里。</p>
+        <p class="load-error" id="loadError" hidden>签文资料读取失败，请确认网站已由本机服务器或 GitHub Pages 开启。</p>
+      </section>
+
+      <section class="fortune-stage" id="resultEmpty">
+        <button class="fortune-draw-stage" id="drawFortuneBtn" type="button" disabled aria-label="抽取星辰签">
+          <span class="fortune-cylinder" aria-hidden="true">
+            <span class="fortune-sticks">
+              <i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+            </span>
+            <span class="fortune-cylinder-rim"></span>
+            <span class="fortune-cylinder-body">签</span>
+          </span>
+          <strong>抽取今日签</strong>
+          <small>静下心，点击签筒</small>
+        </button>
+      </section>
+
+      <article class="fortune-result" id="fortuneResult" hidden>
+        <div class="fortune-result-head">
+          <div>
+            <p class="fortune-no" id="fortuneNo"></p>
+            <div class="fortune-level-row">
+              <span class="fortune-level" id="fortuneLevel"></span>
+              <span class="fortune-keyword" id="fortuneKeyword"></span>
+            </div>
+          </div>
+          <div class="fortune-score-wrap"><strong id="fortuneScore">--</strong><span>/ 100</span></div>
+        </div>
+
+        <div class="easter-egg" id="easterEgg" hidden></div>
+
+        <div class="fortune-poem" id="fortunePoem"></div>
+        <p class="fortune-summary" id="fortuneSummary"></p>
+
+        <div class="fortune-ratings">
+          <div><span>整体</span><b id="overallStars"></b></div>
+          <div><span>感情</span><b id="loveStars"></b></div>
+          <div><span>事业</span><b id="careerStars"></b></div>
+          <div><span>财运</span><b id="wealthStars"></b></div>
+        </div>
+
+        <div class="fortune-grid">
+          <section><h2>感情</h2><p id="loveText"></p></section>
+          <section><h2>事业 / 学业</h2><p id="careerText"></p></section>
+          <section><h2>财运</h2><p id="wealthText"></p></section>
+          <section><h2>人际</h2><p id="socialText"></p></section>
+        </div>
+
+        <section class="fortune-advice">
+          <span>今日提醒</span>
+          <strong id="adviceText"></strong>
+        </section>
+
+        <div class="fortune-lucky">
+          <div><span>幸运色</span><strong id="luckyColor"></strong></div>
+          <div><span>幸运数字</span><strong id="luckyNumber"></strong></div>
+          <div><span>幸运时段</span><strong id="luckyTime"></strong></div>
+        </div>
+
+        <button class="primary-btn fortune-redraw-btn" id="drawAgainBtn" type="button">
+          <span>再抽一签</span><span class="btn-arrow">↻</span>
+        </button>
+      </article>
+    </main>
+  </div>
+
+  <script src="../js/fortune-config.js"></script>
+  <script src="../js/fortune.js"></script>
+</body>
+</html>

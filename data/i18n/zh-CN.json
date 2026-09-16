@@ -1,0 +1,20 @@
+{
+  "siteName": "星辰日记",
+  "dailyTitle": "每日运势",
+  "dailyDesc": "抽取属于今天的指引，看看星辰想对你说什么。",
+  "dailyButton": "立即抽取",
+  "dailyQuote": "每一天，都值得被温柔以待。",
+  "tarotTitle": "塔罗牌占卜",
+  "tarotDesc": "让塔罗牌，为你指引下一步的方向。",
+  "tarotButton": "开始占卜",
+  "tarotQuote": "答案，一直在你心里。",
+  "astrologyTitle": "星座测算",
+  "astrologyDesc": "认识自己，发现属于你的星辰密码。",
+  "astrologyButton": "开始测算",
+  "astrologyQuote": "认识自己，是最浪漫的旅程。",
+  "farmTitle": "星辰农场",
+  "farmDesc": "在属于你的农场里，种下疗愈的小确幸。",
+  "farmButton": "进入农场",
+  "farmQuote": "种下星光，收获快乐。",
+  "footer": "与星辰同行，遇见更好的自己 ♡"
+}

@@ -1,0 +1,1021 @@
+{
+  "version": "0.2",
+  "cardCount": 78,
+  "cardBack": "images/tarot/cards/CardBacks.jpg",
+  "cards": [
+    {
+      "id": 0,
+      "key": "thefool",
+      "arcana": "major",
+      "suit": null,
+      "rank": 0,
+      "name": {
+        "zh-CN": "愚人",
+        "zh-TW": "愚人",
+        "en": "The Fool"
+      },
+      "image": "images/tarot/cards/00-TheFool.jpg"
+    },
+    {
+      "id": 1,
+      "key": "themagician",
+      "arcana": "major",
+      "suit": null,
+      "rank": 1,
+      "name": {
+        "zh-CN": "魔术师",
+        "zh-TW": "魔術師",
+        "en": "The Magician"
+      },
+      "image": "images/tarot/cards/01-TheMagician.jpg"
+    },
+    {
+      "id": 2,
+      "key": "thehighpriestess",
+      "arcana": "major",
+      "suit": null,
+      "rank": 2,
+      "name": {
+        "zh-CN": "女祭司",
+        "zh-TW": "女祭司",
+        "en": "The High Priestess"
+      },
+      "image": "images/tarot/cards/02-TheHighPriestess.jpg"
+    },
+    {
+      "id": 3,
+      "key": "theempress",
+      "arcana": "major",
+      "suit": null,
+      "rank": 3,
+      "name": {
+        "zh-CN": "皇后",
+        "zh-TW": "皇后",
+        "en": "The Empress"
+      },
+      "image": "images/tarot/cards/03-TheEmpress.jpg"
+    },
+    {
+      "id": 4,
+      "key": "theemperor",
+      "arcana": "major",
+      "suit": null,
+      "rank": 4,
+      "name": {
+        "zh-CN": "皇帝",
+        "zh-TW": "皇帝",
+        "en": "The Emperor"
+      },
+      "image": "images/tarot/cards/04-TheEmperor.jpg"
+    },
+    {
+      "id": 5,
+      "key": "thehierophant",
+      "arcana": "major",
+      "suit": null,
+      "rank": 5,
+      "name": {
+        "zh-CN": "教皇",
+        "zh-TW": "教皇",
+        "en": "The Hierophant"
+      },
+      "image": "images/tarot/cards/05-TheHierophant.jpg"
+    },
+    {
+      "id": 6,
+      "key": "thelovers",
+      "arcana": "major",
+      "suit": null,
+      "rank": 6,
+      "name": {
+        "zh-CN": "恋人",
+        "zh-TW": "戀人",
+        "en": "The Lovers"
+      },
+      "image": "images/tarot/cards/06-TheLovers.jpg"
+    },
+    {
+      "id": 7,
+      "key": "thechariot",
+      "arcana": "major",
+      "suit": null,
+      "rank": 7,
+      "name": {
+        "zh-CN": "战车",
+        "zh-TW": "戰車",
+        "en": "The Chariot"
+      },
+      "image": "images/tarot/cards/07-TheChariot.jpg"
+    },
+    {
+      "id": 8,
+      "key": "strength",
+      "arcana": "major",
+      "suit": null,
+      "rank": 8,
+      "name": {
+        "zh-CN": "力量",
+        "zh-TW": "力量",
+        "en": "Strength"
+      },
+      "image": "images/tarot/cards/08-Strength.jpg"
+    },
+    {
+      "id": 9,
+      "key": "thehermit",
+      "arcana": "major",
+      "suit": null,
+      "rank": 9,
+      "name": {
+        "zh-CN": "隐者",
+        "zh-TW": "隱者",
+        "en": "The Hermit"
+      },
+      "image": "images/tarot/cards/09-TheHermit.jpg"
+    },
+    {
+      "id": 10,
+      "key": "wheeloffortune",
+      "arcana": "major",
+      "suit": null,
+      "rank": 10,
+      "name": {
+        "zh-CN": "命运之轮",
+        "zh-TW": "命運之輪",
+        "en": "Wheel of Fortune"
+      },
+      "image": "images/tarot/cards/10-WheelOfFortune.jpg"
+    },
+    {
+      "id": 11,
+      "key": "justice",
+      "arcana": "major",
+      "suit": null,
+      "rank": 11,
+      "name": {
+        "zh-CN": "正义",
+        "zh-TW": "正義",
+        "en": "Justice"
+      },
+      "image": "images/tarot/cards/11-Justice.jpg"
+    },
+    {
+      "id": 12,
+      "key": "thehangedman",
+      "arcana": "major",
+      "suit": null,
+      "rank": 12,
+      "name": {
+        "zh-CN": "倒吊人",
+        "zh-TW": "倒吊人",
+        "en": "The Hanged Man"
+      },
+      "image": "images/tarot/cards/12-TheHangedMan.jpg"
+    },
+    {
+      "id": 13,
+      "key": "death",
+      "arcana": "major",
+      "suit": null,
+      "rank": 13,
+      "name": {
+        "zh-CN": "死神",
+        "zh-TW": "死神",
+        "en": "Death"
+      },
+      "image": "images/tarot/cards/13-Death.jpg"
+    },
+    {
+      "id": 14,
+      "key": "temperance",
+      "arcana": "major",
+      "suit": null,
+      "rank": 14,
+      "name": {
+        "zh-CN": "节制",
+        "zh-TW": "節制",
+        "en": "Temperance"
+      },
+      "image": "images/tarot/cards/14-Temperance.jpg"
+    },
+    {
+      "id": 15,
+      "key": "thedevil",
+      "arcana": "major",
+      "suit": null,
+      "rank": 15,
+      "name": {
+        "zh-CN": "恶魔",
+        "zh-TW": "惡魔",
+        "en": "The Devil"
+      },
+      "image": "images/tarot/cards/15-TheDevil.jpg"
+    },
+    {
+      "id": 16,
+      "key": "thetower",
+      "arcana": "major",
+      "suit": null,
+      "rank": 16,
+      "name": {
+        "zh-CN": "高塔",
+        "zh-TW": "高塔",
+        "en": "The Tower"
+      },
+      "image": "images/tarot/cards/16-TheTower.jpg"
+    },
+    {
+      "id": 17,
+      "key": "thestar",
+      "arcana": "major",
+      "suit": null,
+      "rank": 17,
+      "name": {
+        "zh-CN": "星星",
+        "zh-TW": "星星",
+        "en": "The Star"
+      },
+      "image": "images/tarot/cards/17-TheStar.jpg"
+    },
+    {
+      "id": 18,
+      "key": "themoon",
+      "arcana": "major",
+      "suit": null,
+      "rank": 18,
+      "name": {
+        "zh-CN": "月亮",
+        "zh-TW": "月亮",
+        "en": "The Moon"
+      },
+      "image": "images/tarot/cards/18-TheMoon.jpg"
+    },
+    {
+      "id": 19,
+      "key": "thesun",
+      "arcana": "major",
+      "suit": null,
+      "rank": 19,
+      "name": {
+        "zh-CN": "太阳",
+        "zh-TW": "太陽",
+        "en": "The Sun"
+      },
+      "image": "images/tarot/cards/19-TheSun.jpg"
+    },
+    {
+      "id": 20,
+      "key": "judgement",
+      "arcana": "major",
+      "suit": null,
+      "rank": 20,
+      "name": {
+        "zh-CN": "审判",
+        "zh-TW": "審判",
+        "en": "Judgement"
+      },
+      "image": "images/tarot/cards/20-Judgement.jpg"
+    },
+    {
+      "id": 21,
+      "key": "theworld",
+      "arcana": "major",
+      "suit": null,
+      "rank": 21,
+      "name": {
+        "zh-CN": "世界",
+        "zh-TW": "世界",
+        "en": "The World"
+      },
+      "image": "images/tarot/cards/21-TheWorld.jpg"
+    },
+    {
+      "id": 22,
+      "key": "cups_01",
+      "arcana": "minor",
+      "suit": "cups",
+      "rank": 1,
+      "name": {
+        "zh-CN": "圣杯一",
+        "zh-TW": "聖杯一",
+        "en": "Ace of Cups"
+      },
+      "image": "images/tarot/cards/Cups01.jpg"
+    },
+    {
+      "id": 23,
+      "key": "cups_02",
+      "arcana": "minor",
+      "suit": "cups",
+      "rank": 2,
+      "name": {
+        "zh-CN": "圣杯二",
+        "zh-TW": "聖杯二",
+        "en": "Two of Cups"
+      },
+      "image": "images/tarot/cards/Cups02.jpg"
+    },
+    {
+      "id": 24,
+      "key": "cups_03",
+      "arcana": "minor",
+      "suit": "cups",
+      "rank": 3,
+      "name": {
+        "zh-CN": "圣杯三",
+        "zh-TW": "聖杯三",
+        "en": "Three of Cups"
+      },
+      "image": "images/tarot/cards/Cups03.jpg"
+    },
+    {
+      "id": 25,
+      "key": "cups_04",
+      "arcana": "minor",
+      "suit": "cups",
+      "rank": 4,
+      "name": {
+        "zh-CN": "圣杯四",
+        "zh-TW": "聖杯四",
+        "en": "Four of Cups"
+      },
+      "image": "images/tarot/cards/Cups04.jpg"
+    },
+    {
+      "id": 26,
+      "key": "cups_05",
+      "arcana": "minor",
+      "suit": "cups",
+      "rank": 5,
+      "name": {
+        "zh-CN": "圣杯五",
+        "zh-TW": "聖杯五",
+        "en": "Five of Cups"
+      },
+      "image": "images/tarot/cards/Cups05.jpg"
+    },
+    {
+      "id": 27,
+      "key": "cups_06",
+      "arcana": "minor",
+      "suit": "cups",
+      "rank": 6,
+      "name": {
+        "zh-CN": "圣杯六",
+        "zh-TW": "聖杯六",
+        "en": "Six of Cups"
+      },
+      "image": "images/tarot/cards/Cups06.jpg"
+    },
+    {
+      "id": 28,
+      "key": "cups_07",
+      "arcana": "minor",
+      "suit": "cups",
+      "rank": 7,
+      "name": {
+        "zh-CN": "圣杯七",
+        "zh-TW": "聖杯七",
+        "en": "Seven of Cups"
+      },
+      "image": "images/tarot/cards/Cups07.jpg"
+    },
+    {
+      "id": 29,
+      "key": "cups_08",
+      "arcana": "minor",
+      "suit": "cups",
+      "rank": 8,
+      "name": {
+        "zh-CN": "圣杯八",
+        "zh-TW": "聖杯八",
+        "en": "Eight of Cups"
+      },
+      "image": "images/tarot/cards/Cups08.jpg"
+    },
+    {
+      "id": 30,
+      "key": "cups_09",
+      "arcana": "minor",
+      "suit": "cups",
+      "rank": 9,
+      "name": {
+        "zh-CN": "圣杯九",
+        "zh-TW": "聖杯九",
+        "en": "Nine of Cups"
+      },
+      "image": "images/tarot/cards/Cups09.jpg"
+    },
+    {
+      "id": 31,
+      "key": "cups_10",
+      "arcana": "minor",
+      "suit": "cups",
+      "rank": 10,
+      "name": {
+        "zh-CN": "圣杯十",
+        "zh-TW": "聖杯十",
+        "en": "Ten of Cups"
+      },
+      "image": "images/tarot/cards/Cups10.jpg"
+    },
+    {
+      "id": 32,
+      "key": "cups_11",
+      "arcana": "minor",
+      "suit": "cups",
+      "rank": 11,
+      "name": {
+        "zh-CN": "圣杯侍从",
+        "zh-TW": "聖杯侍從",
+        "en": "Page of Cups"
+      },
+      "image": "images/tarot/cards/Cups11.jpg"
+    },
+    {
+      "id": 33,
+      "key": "cups_12",
+      "arcana": "minor",
+      "suit": "cups",
+      "rank": 12,
+      "name": {
+        "zh-CN": "圣杯骑士",
+        "zh-TW": "聖杯騎士",
+        "en": "Knight of Cups"
+      },
+      "image": "images/tarot/cards/Cups12.jpg"
+    },
+    {
+      "id": 34,
+      "key": "cups_13",
+      "arcana": "minor",
+      "suit": "cups",
+      "rank": 13,
+      "name": {
+        "zh-CN": "圣杯王后",
+        "zh-TW": "聖杯王后",
+        "en": "Queen of Cups"
+      },
+      "image": "images/tarot/cards/Cups13.jpg"
+    },
+    {
+      "id": 35,
+      "key": "cups_14",
+      "arcana": "minor",
+      "suit": "cups",
+      "rank": 14,
+      "name": {
+        "zh-CN": "圣杯国王",
+        "zh-TW": "聖杯國王",
+        "en": "King of Cups"
+      },
+      "image": "images/tarot/cards/Cups14.jpg"
+    },
+    {
+      "id": 36,
+      "key": "pentacles_01",
+      "arcana": "minor",
+      "suit": "pentacles",
+      "rank": 1,
+      "name": {
+        "zh-CN": "星币一",
+        "zh-TW": "星幣一",
+        "en": "Ace of Pentacles"
+      },
+      "image": "images/tarot/cards/Pentacles01.jpg"
+    },
+    {
+      "id": 37,
+      "key": "pentacles_02",
+      "arcana": "minor",
+      "suit": "pentacles",
+      "rank": 2,
+      "name": {
+        "zh-CN": "星币二",
+        "zh-TW": "星幣二",
+        "en": "Two of Pentacles"
+      },
+      "image": "images/tarot/cards/Pentacles02.jpg"
+    },
+    {
+      "id": 38,
+      "key": "pentacles_03",
+      "arcana": "minor",
+      "suit": "pentacles",
+      "rank": 3,
+      "name": {
+        "zh-CN": "星币三",
+        "zh-TW": "星幣三",
+        "en": "Three of Pentacles"
+      },
+      "image": "images/tarot/cards/Pentacles03.jpg"
+    },
+    {
+      "id": 39,
+      "key": "pentacles_04",
+      "arcana": "minor",
+      "suit": "pentacles",
+      "rank": 4,
+      "name": {
+        "zh-CN": "星币四",
+        "zh-TW": "星幣四",
+        "en": "Four of Pentacles"
+      },
+      "image": "images/tarot/cards/Pentacles04.jpg"
+    },
+    {
+      "id": 40,
+      "key": "pentacles_05",
+      "arcana": "minor",
+      "suit": "pentacles",
+      "rank": 5,
+      "name": {
+        "zh-CN": "星币五",
+        "zh-TW": "星幣五",
+        "en": "Five of Pentacles"
+      },
+      "image": "images/tarot/cards/Pentacles05.jpg"
+    },
+    {
+      "id": 41,
+      "key": "pentacles_06",
+      "arcana": "minor",
+      "suit": "pentacles",
+      "rank": 6,
+      "name": {
+        "zh-CN": "星币六",
+        "zh-TW": "星幣六",
+        "en": "Six of Pentacles"
+      },
+      "image": "images/tarot/cards/Pentacles06.jpg"
+    },
+    {
+      "id": 42,
+      "key": "pentacles_07",
+      "arcana": "minor",
+      "suit": "pentacles",
+      "rank": 7,
+      "name": {
+        "zh-CN": "星币七",
+        "zh-TW": "星幣七",
+        "en": "Seven of Pentacles"
+      },
+      "image": "images/tarot/cards/Pentacles07.jpg"
+    },
+    {
+      "id": 43,
+      "key": "pentacles_08",
+      "arcana": "minor",
+      "suit": "pentacles",
+      "rank": 8,
+      "name": {
+        "zh-CN": "星币八",
+        "zh-TW": "星幣八",
+        "en": "Eight of Pentacles"
+      },
+      "image": "images/tarot/cards/Pentacles08.jpg"
+    },
+    {
+      "id": 44,
+      "key": "pentacles_09",
+      "arcana": "minor",
+      "suit": "pentacles",
+      "rank": 9,
+      "name": {
+        "zh-CN": "星币九",
+        "zh-TW": "星幣九",
+        "en": "Nine of Pentacles"
+      },
+      "image": "images/tarot/cards/Pentacles09.jpg"
+    },
+    {
+      "id": 45,
+      "key": "pentacles_10",
+      "arcana": "minor",
+      "suit": "pentacles",
+      "rank": 10,
+      "name": {
+        "zh-CN": "星币十",
+        "zh-TW": "星幣十",
+        "en": "Ten of Pentacles"
+      },
+      "image": "images/tarot/cards/Pentacles10.jpg"
+    },
+    {
+      "id": 46,
+      "key": "pentacles_11",
+      "arcana": "minor",
+      "suit": "pentacles",
+      "rank": 11,
+      "name": {
+        "zh-CN": "星币侍从",
+        "zh-TW": "星幣侍從",
+        "en": "Page of Pentacles"
+      },
+      "image": "images/tarot/cards/Pentacles11.jpg"
+    },
+    {
+      "id": 47,
+      "key": "pentacles_12",
+      "arcana": "minor",
+      "suit": "pentacles",
+      "rank": 12,
+      "name": {
+        "zh-CN": "星币骑士",
+        "zh-TW": "星幣騎士",
+        "en": "Knight of Pentacles"
+      },
+      "image": "images/tarot/cards/Pentacles12.jpg"
+    },
+    {
+      "id": 48,
+      "key": "pentacles_13",
+      "arcana": "minor",
+      "suit": "pentacles",
+      "rank": 13,
+      "name": {
+        "zh-CN": "星币王后",
+        "zh-TW": "星幣王后",
+        "en": "Queen of Pentacles"
+      },
+      "image": "images/tarot/cards/Pentacles13.jpg"
+    },
+    {
+      "id": 49,
+      "key": "pentacles_14",
+      "arcana": "minor",
+      "suit": "pentacles",
+      "rank": 14,
+      "name": {
+        "zh-CN": "星币国王",
+        "zh-TW": "星幣國王",
+        "en": "King of Pentacles"
+      },
+      "image": "images/tarot/cards/Pentacles14.jpg"
+    },
+    {
+      "id": 50,
+      "key": "swords_01",
+      "arcana": "minor",
+      "suit": "swords",
+      "rank": 1,
+      "name": {
+        "zh-CN": "宝剑一",
+        "zh-TW": "寶劍一",
+        "en": "Ace of Swords"
+      },
+      "image": "images/tarot/cards/Swords01.jpg"
+    },
+    {
+      "id": 51,
+      "key": "swords_02",
+      "arcana": "minor",
+      "suit": "swords",
+      "rank": 2,
+      "name": {
+        "zh-CN": "宝剑二",
+        "zh-TW": "寶劍二",
+        "en": "Two of Swords"
+      },
+      "image": "images/tarot/cards/Swords02.jpg"
+    },
+    {
+      "id": 52,
+      "key": "swords_03",
+      "arcana": "minor",
+      "suit": "swords",
+      "rank": 3,
+      "name": {
+        "zh-CN": "宝剑三",
+        "zh-TW": "寶劍三",
+        "en": "Three of Swords"
+      },
+      "image": "images/tarot/cards/Swords03.jpg"
+    },
+    {
+      "id": 53,
+      "key": "swords_04",
+      "arcana": "minor",
+      "suit": "swords",
+      "rank": 4,
+      "name": {
+        "zh-CN": "宝剑四",
+        "zh-TW": "寶劍四",
+        "en": "Four of Swords"
+      },
+      "image": "images/tarot/cards/Swords04.jpg"
+    },
+    {
+      "id": 54,
+      "key": "swords_05",
+      "arcana": "minor",
+      "suit": "swords",
+      "rank": 5,
+      "name": {
+        "zh-CN": "宝剑五",
+        "zh-TW": "寶劍五",
+        "en": "Five of Swords"
+      },
+      "image": "images/tarot/cards/Swords05.jpg"
+    },
+    {
+      "id": 55,
+      "key": "swords_06",
+      "arcana": "minor",
+      "suit": "swords",
+      "rank": 6,
+      "name": {
+        "zh-CN": "宝剑六",
+        "zh-TW": "寶劍六",
+        "en": "Six of Swords"
+      },
+      "image": "images/tarot/cards/Swords06.jpg"
+    },
+    {
+      "id": 56,
+      "key": "swords_07",
+      "arcana": "minor",
+      "suit": "swords",
+      "rank": 7,
+      "name": {
+        "zh-CN": "宝剑七",
+        "zh-TW": "寶劍七",
+        "en": "Seven of Swords"
+      },
+      "image": "images/tarot/cards/Swords07.jpg"
+    },
+    {
+      "id": 57,
+      "key": "swords_08",
+      "arcana": "minor",
+      "suit": "swords",
+      "rank": 8,
+      "name": {
+        "zh-CN": "宝剑八",
+        "zh-TW": "寶劍八",
+        "en": "Eight of Swords"
+      },
+      "image": "images/tarot/cards/Swords08.jpg"
+    },
+    {
+      "id": 58,
+      "key": "swords_09",
+      "arcana": "minor",
+      "suit": "swords",
+      "rank": 9,
+      "name": {
+        "zh-CN": "宝剑九",
+        "zh-TW": "寶劍九",
+        "en": "Nine of Swords"
+      },
+      "image": "images/tarot/cards/Swords09.jpg"
+    },
+    {
+      "id": 59,
+      "key": "swords_10",
+      "arcana": "minor",
+      "suit": "swords",
+      "rank": 10,
+      "name": {
+        "zh-CN": "宝剑十",
+        "zh-TW": "寶劍十",
+        "en": "Ten of Swords"
+      },
+      "image": "images/tarot/cards/Swords10.jpg"
+    },
+    {
+      "id": 60,
+      "key": "swords_11",
+      "arcana": "minor",
+      "suit": "swords",
+      "rank": 11,
+      "name": {
+        "zh-CN": "宝剑侍从",
+        "zh-TW": "寶劍侍從",
+        "en": "Page of Swords"
+      },
+      "image": "images/tarot/cards/Swords11.jpg"
+    },
+    {
+      "id": 61,
+      "key": "swords_12",
+      "arcana": "minor",
+      "suit": "swords",
+      "rank": 12,
+      "name": {
+        "zh-CN": "宝剑骑士",
+        "zh-TW": "寶劍騎士",
+        "en": "Knight of Swords"
+      },
+      "image": "images/tarot/cards/Swords12.jpg"
+    },
+    {
+      "id": 62,
+      "key": "swords_13",
+      "arcana": "minor",
+      "suit": "swords",
+      "rank": 13,
+      "name": {
+        "zh-CN": "宝剑王后",
+        "zh-TW": "寶劍王后",
+        "en": "Queen of Swords"
+      },
+      "image": "images/tarot/cards/Swords13.jpg"
+    },
+    {
+      "id": 63,
+      "key": "swords_14",
+      "arcana": "minor",
+      "suit": "swords",
+      "rank": 14,
+      "name": {
+        "zh-CN": "宝剑国王",
+        "zh-TW": "寶劍國王",
+        "en": "King of Swords"
+      },
+      "image": "images/tarot/cards/Swords14.jpg"
+    },
+    {
+      "id": 64,
+      "key": "wands_01",
+      "arcana": "minor",
+      "suit": "wands",
+      "rank": 1,
+      "name": {
+        "zh-CN": "权杖一",
+        "zh-TW": "權杖一",
+        "en": "Ace of Wands"
+      },
+      "image": "images/tarot/cards/Wands01.jpg"
+    },
+    {
+      "id": 65,
+      "key": "wands_02",
+      "arcana": "minor",
+      "suit": "wands",
+      "rank": 2,
+      "name": {
+        "zh-CN": "权杖二",
+        "zh-TW": "權杖二",
+        "en": "Two of Wands"
+      },
+      "image": "images/tarot/cards/Wands02.jpg"
+    },
+    {
+      "id": 66,
+      "key": "wands_03",
+      "arcana": "minor",
+      "suit": "wands",
+      "rank": 3,
+      "name": {
+        "zh-CN": "权杖三",
+        "zh-TW": "權杖三",
+        "en": "Three of Wands"
+      },
+      "image": "images/tarot/cards/Wands03.jpg"
+    },
+    {
+      "id": 67,
+      "key": "wands_04",
+      "arcana": "minor",
+      "suit": "wands",
+      "rank": 4,
+      "name": {
+        "zh-CN": "权杖四",
+        "zh-TW": "權杖四",
+        "en": "Four of Wands"
+      },
+      "image": "images/tarot/cards/Wands04.jpg"
+    },
+    {
+      "id": 68,
+      "key": "wands_05",
+      "arcana": "minor",
+      "suit": "wands",
+      "rank": 5,
+      "name": {
+        "zh-CN": "权杖五",
+        "zh-TW": "權杖五",
+        "en": "Five of Wands"
+      },
+      "image": "images/tarot/cards/Wands05.jpg"
+    },
+    {
+      "id": 69,
+      "key": "wands_06",
+      "arcana": "minor",
+      "suit": "wands",
+      "rank": 6,
+      "name": {
+        "zh-CN": "权杖六",
+        "zh-TW": "權杖六",
+        "en": "Six of Wands"
+      },
+      "image": "images/tarot/cards/Wands06.jpg"
+    },
+    {
+      "id": 70,
+      "key": "wands_07",
+      "arcana": "minor",
+      "suit": "wands",
+      "rank": 7,
+      "name": {
+        "zh-CN": "权杖七",
+        "zh-TW": "權杖七",
+        "en": "Seven of Wands"
+      },
+      "image": "images/tarot/cards/Wands07.jpg"
+    },
+    {
+      "id": 71,
+      "key": "wands_08",
+      "arcana": "minor",
+      "suit": "wands",
+      "rank": 8,
+      "name": {
+        "zh-CN": "权杖八",
+        "zh-TW": "權杖八",
+        "en": "Eight of Wands"
+      },
+      "image": "images/tarot/cards/Wands08.jpg"
+    },
+    {
+      "id": 72,
+      "key": "wands_09",
+      "arcana": "minor",
+      "suit": "wands",
+      "rank": 9,
+      "name": {
+        "zh-CN": "权杖九",
+        "zh-TW": "權杖九",
+        "en": "Nine of Wands"
+      },
+      "image": "images/tarot/cards/Wands09.jpg"
+    },
+    {
+      "id": 73,
+      "key": "wands_10",
+      "arcana": "minor",
+      "suit": "wands",
+      "rank": 10,
+      "name": {
+        "zh-CN": "权杖十",
+        "zh-TW": "權杖十",
+        "en": "Ten of Wands"
+      },
+      "image": "images/tarot/cards/Wands10.jpg"
+    },
+    {
+      "id": 74,
+      "key": "wands_11",
+      "arcana": "minor",
+      "suit": "wands",
+      "rank": 11,
+      "name": {
+        "zh-CN": "权杖侍从",
+        "zh-TW": "權杖侍從",
+        "en": "Page of Wands"
+      },
+      "image": "images/tarot/cards/Wands11.jpg"
+    },
+    {
+      "id": 75,
+      "key": "wands_12",
+      "arcana": "minor",
+      "suit": "wands",
+      "rank": 12,
+      "name": {
+        "zh-CN": "权杖骑士",
+        "zh-TW": "權杖騎士",
+        "en": "Knight of Wands"
+      },
+      "image": "images/tarot/cards/Wands12.jpg"
+    },
+    {
+      "id": 76,
+      "key": "wands_13",
+      "arcana": "minor",
+      "suit": "wands",
+      "rank": 13,
+      "name": {
+        "zh-CN": "权杖王后",
+        "zh-TW": "權杖王后",
+        "en": "Queen of Wands"
+      },
+      "image": "images/tarot/cards/Wands13.jpg"
+    },
+    {
+      "id": 77,
+      "key": "wands_14",
+      "arcana": "minor",
+      "suit": "wands",
+      "rank": 14,
+      "name": {
+        "zh-CN": "权杖国王",
+        "zh-TW": "權杖國王",
+        "en": "King of Wands"
+      },
+      "image": "images/tarot/cards/Wands14.jpg"
+    }
+  ]
+}

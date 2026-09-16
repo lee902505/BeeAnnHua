@@ -1,0 +1,206 @@
+{
+  "version": "0.6",
+  "topics": [
+    {
+      "key": "general",
+      "name": {
+        "zh-CN": "综合",
+        "zh-TW": "綜合",
+        "en": "General"
+      },
+      "description": {
+        "zh-CN": "从整体状态出发，观察当前最重要的主题。",
+        "zh-TW": "從整體狀態出發，觀察當前最重要的主題。",
+        "en": "Read the overall pattern and the theme asking for attention."
+      }
+    },
+    {
+      "key": "love",
+      "name": {
+        "zh-CN": "感情",
+        "zh-TW": "感情",
+        "en": "Love"
+      },
+      "description": {
+        "zh-CN": "聚焦关系、情绪、互动与彼此的真实需要。",
+        "zh-TW": "聚焦關係、情緒、互動與彼此的真實需要。",
+        "en": "Focus on relationships, emotions, interaction and real needs."
+      }
+    },
+    {
+      "key": "career",
+      "name": {
+        "zh-CN": "事业",
+        "zh-TW": "事業",
+        "en": "Career"
+      },
+      "description": {
+        "zh-CN": "观察行动、机会、合作、选择与长期方向。",
+        "zh-TW": "觀察行動、機會、合作、選擇與長期方向。",
+        "en": "Look at action, opportunities, collaboration, choices and direction."
+      }
+    },
+    {
+      "key": "money",
+      "name": {
+        "zh-CN": "财运",
+        "zh-TW": "財運",
+        "en": "Money"
+      },
+      "description": {
+        "zh-CN": "聚焦资源、收支、风险与实际可执行的判断。",
+        "zh-TW": "聚焦資源、收支、風險與實際可執行的判斷。",
+        "en": "Focus on resources, cash flow, risk and practical decisions."
+      }
+    },
+    {
+      "key": "study",
+      "name": {
+        "zh-CN": "学业",
+        "zh-TW": "學業",
+        "en": "Study"
+      },
+      "description": {
+        "zh-CN": "观察专注、动力、方法、压力与学习节奏。",
+        "zh-TW": "觀察專注、動力、方法、壓力與學習節奏。",
+        "en": "Read focus, motivation, method, pressure and learning rhythm."
+      }
+    }
+  ],
+  "spreads": [
+    {
+      "key": "single",
+      "count": 1,
+      "name": {
+        "zh-CN": "单张指引",
+        "zh-TW": "單張指引",
+        "en": "One Card"
+      },
+      "subtitle": {
+        "zh-CN": "一个问题 · 一张核心讯息",
+        "zh-TW": "一個問題 · 一張核心訊息",
+        "en": "One question · one core message"
+      },
+      "positions": [
+        {
+          "key": "guidance",
+          "name": {
+            "zh-CN": "核心指引",
+            "zh-TW": "核心指引",
+            "en": "Core Guidance"
+          }
+        }
+      ]
+    },
+    {
+      "key": "weekly3",
+      "count": 3,
+      "name": {
+        "zh-CN": "本周指引",
+        "zh-TW": "本週指引",
+        "en": "Weekly Guidance"
+      },
+      "subtitle": {
+        "zh-CN": "目前状态 → 发展趋势 → 行动建议",
+        "zh-TW": "目前狀態 → 發展趨勢 → 行動建議",
+        "en": "Current state → Development → Advice"
+      },
+      "positions": [
+        {
+          "key": "current",
+          "name": {
+            "zh-CN": "目前状态",
+            "zh-TW": "目前狀態",
+            "en": "Current State"
+          }
+        },
+        {
+          "key": "trend",
+          "name": {
+            "zh-CN": "发展趋势",
+            "zh-TW": "發展趨勢",
+            "en": "Development"
+          }
+        },
+        {
+          "key": "advice",
+          "name": {
+            "zh-CN": "行动建议",
+            "zh-TW": "行動建議",
+            "en": "Advice"
+          }
+        }
+      ]
+    },
+    {
+      "key": "monthly5",
+      "count": 5,
+      "name": {
+        "zh-CN": "本月指引",
+        "zh-TW": "本月指引",
+        "en": "Monthly Guidance"
+      },
+      "subtitle": {
+        "zh-CN": "月初 → 月中前 → 月中后 → 月底 → 整体建议",
+        "zh-TW": "月初 → 月中前 → 月中後 → 月底 → 整體建議",
+        "en": "Early month → Mid I → Mid II → Month end → Overall advice"
+      },
+      "positions": [
+        {
+          "key": "early",
+          "name": {
+            "zh-CN": "月初",
+            "zh-TW": "月初",
+            "en": "Early Month"
+          }
+        },
+        {
+          "key": "mid1",
+          "name": {
+            "zh-CN": "月中前",
+            "zh-TW": "月中前",
+            "en": "Mid-Month I"
+          }
+        },
+        {
+          "key": "mid2",
+          "name": {
+            "zh-CN": "月中后",
+            "zh-TW": "月中後",
+            "en": "Mid-Month II"
+          }
+        },
+        {
+          "key": "late",
+          "name": {
+            "zh-CN": "月底",
+            "zh-TW": "月底",
+            "en": "Month End"
+          }
+        },
+        {
+          "key": "advice",
+          "name": {
+            "zh-CN": "整体建议",
+            "zh-TW": "整體建議",
+            "en": "Overall Advice"
+          }
+        }
+      ]
+    }
+  ],
+  "interpretationModel": {
+    "base": "Rider-Waite-Smith traditional symbolism",
+    "rules": [
+      "position meaning",
+      "upright/reversed meaning",
+      "question topic lens",
+      "major arcana concentration",
+      "upright/reversed balance",
+      "suit concentration",
+      "element concentration",
+      "sequence / narrative flow"
+    ],
+    "note": "牌义文案为本项目重新撰写；组合引擎不复制单一网站的现成解读。"
+  }
+}

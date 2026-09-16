@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#201822" />
+  <meta name="description" content="星辰日记塔罗牌占卜：78 张 Rider-Waite-Smith 系塔罗牌，支持单张、三张与五张牌阵，并结合正逆位、牌位、主题与整体牌面结构进行解读。" />
+  <title>塔罗牌占卜 | 星辰日记</title>
+  <link rel="stylesheet" href="../css/style.css" />
+</head>
+<body class="tarot-page-body" id="pageTop">
+  <div class="site-shell tarot-shell">
+    <header class="subpage-header tarot-subpage-header">
+      <a class="brand" href="../index.html">
+        <span class="brand-title" id="tarotBrandTitle">星辰日记</span>
+        <span class="brand-subtitle">Your Stars, Your Story</span>
+      </a>
+      <a class="back-link" href="../index.html" id="tarotBackLink">← 返回首页</a>
+    </header>
+
+    <main class="tarot-main">
+      <section class="tarot-hero">
+        <p class="panel-number">02</p>
+        <p class="panel-en">TAROT READING</p>
+        <h1 id="tarotPageTitle">塔罗牌占卜</h1>
+        <p class="tarot-intro" id="tarotIntro">
+          先选择你想看的主题与牌阵。每一张牌都会结合牌位、正逆位与问题主题解读；
+          三张与五张牌还会进一步分析大阿尔克那比例、正逆位分布、花色与元素集中，以及前后牌面的发展关系。
+        </p>
+        <p class="load-error" id="tarotLoadError" hidden>牌库暂时无法读取，请确认你正在使用 Go Live 或 GitHub Pages 开启网站。</p>
+      </section>
+
+      <section class="tarot-setup" aria-label="塔罗占卜设定">
+        <div class="tarot-control-group">
+          <div class="tarot-control-heading">
+            <span class="tarot-control-step">01</span>
+            <div>
+              <strong id="topicHeading">选择主题</strong>
+              <small id="topicHint">同一张牌，在不同问题里会强调不同面向。</small>
+            </div>
+          </div>
+          <div class="tarot-option-row" id="topicOptions"></div>
+          <p class="tarot-selection-note" id="topicDescription"></p>
+        </div>
+
+        <div class="tarot-control-group">
+          <div class="tarot-control-heading">
+            <span class="tarot-control-step">02</span>
+            <div>
+              <strong id="spreadHeading">选择牌阵</strong>
+              <small id="spreadHint">单张看核心；三张看本周走势；五张看本月发展。</small>
+            </div>
+          </div>
+          <div class="tarot-spread-options" id="spreadOptions"></div>
+        </div>
+      </section>
+
+      <section class="tarot-stage" aria-label="塔罗牌抽取">
+        <button class="tarot-deck-button" id="drawTarotBtn" type="button" disabled>
+          <span class="tarot-deck-stack" aria-hidden="true">
+            <span class="deck-shadow deck-shadow-1"></span>
+            <span class="deck-shadow deck-shadow-2"></span>
+            <img id="cardBackImage" src="../images/tarot/cards/CardBacks.jpg" alt="" />
+          </span>
+          <strong id="drawButtonText">开始抽牌</strong>
+          <small id="drawButtonHint">在心里确认问题，然后点击牌堆</small>
+        </button>
+      </section>
+
+      <section class="tarot-multi-result" id="tarotResult" hidden>
+        <header class="tarot-result-heading">
+          <div>
+            <p class="panel-en" id="resultModeEn">TAROT SPREAD</p>
+            <h2 id="resultTitle">你的牌阵</h2>
+            <p id="resultSubtitle"></p>
+          </div>
+          <button class="tarot-compact-redraw" id="drawTarotAgainBtn" type="button">重新抽牌 ↻</button>
+        </header>
+
+        <div class="tarot-spread-grid" id="tarotSpreadGrid"></div>
+
+        <article class="tarot-combination-reading" id="combinationReading">
+          <div class="tarot-combination-head">
+            <div>
+              <span class="tarot-reading-label" id="combinationLabel">整体组合解读</span>
+              <h3 id="combinationTitle">把牌连起来看</h3>
+            </div>
+            <div class="tarot-signal-chips" id="signalChips"></div>
+          </div>
+
+          <div class="tarot-combination-body">
+            <section>
+              <h4 id="storyHeading">牌面故事</h4>
+              <p id="storyText"></p>
+            </section>
+            <section>
+              <h4 id="structureHeading">结构重点</h4>
+              <p id="structureText"></p>
+            </section>
+            <section class="tarot-final-advice">
+              <h4 id="finalAdviceHeading">这组牌给你的建议</h4>
+              <p id="finalAdviceText"></p>
+            </section>
+          </div>
+        </article>
+      </section>
+
+      <nav class="tarot-bottom-nav" aria-label="页面导航">
+        <button class="tarot-bottom-action" id="scrollTopBtn" type="button">
+          <span aria-hidden="true">↑</span>
+          <span id="scrollTopText">回到顶部</span>
+        </button>
+        <a class="tarot-bottom-action" href="../index.html">
+          <span aria-hidden="true">⌂</span>
+          <span id="bottomHomeText">返回首页</span>
+        </a>
+      </nav>
+
+    </main>
+  </div>
+
+  <script src="../js/tarot.js"></script>
+</body>
+</html>
