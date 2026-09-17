@@ -1,0 +1,1331 @@
+{
+  "version": "0.10.4",
+  "method": "Original compositional natal synthesis for aspect depth, chart ruler and major aspect patterns.",
+  "aspectDynamics": {
+    "conjunction": {
+      "core": {
+        "zh-CN": "两股功能被绑在同一个频道里，彼此放大并共同运作。",
+        "zh-TW": "兩股功能被绑在同一個频道裡，彼此放大並共同运作。",
+        "en": "The two functions share one channel, amplifying and operating together."
+      },
+      "strength": {
+        "zh-CN": "集中度高，容易形成鲜明而直接的内在动力。",
+        "zh-TW": "集中度高，容易形成鲜明而直接的內在動力。",
+        "en": "High concentration can create a clear, direct inner drive."
+      },
+      "challenge": {
+        "zh-CN": "两股功能不容易分开，过度认同其中一端时会一起被放大。",
+        "zh-TW": "兩股功能不容易分開，過度認同其中一端時會一起被放大。",
+        "en": "The functions can be hard to separate, so over-identifying with one may magnify both."
+      },
+      "growth": {
+        "zh-CN": "练习分辨两颗行星各自需要什么，再让它们有意识地合作。",
+        "zh-TW": "练習分辨兩顆行星各自需要什麼，再讓它们有意識地合作。",
+        "en": "Distinguish what each planet needs, then coordinate them consciously."
+      }
+    },
+    "sextile": {
+      "core": {
+        "zh-CN": "两股功能之间有可用的支持通道，但通常需要主动使用才会明显。",
+        "zh-TW": "兩股功能之間有可用的支持通道，但通常需要主動使用才會明顯。",
+        "en": "The two functions have a supportive channel that becomes stronger when actively used."
+      },
+      "strength": {
+        "zh-CN": "容易透过学习、合作或机会把两种能力接起来。",
+        "zh-TW": "容易透過學習、合作或機會把兩種能力接起來。",
+        "en": "Learning, cooperation and opportunity can connect the two abilities productively."
+      },
+      "challenge": {
+        "zh-CN": "因为没有强烈压力，这份潜力有时会停在「有条件但没使用」。",
+        "zh-TW": "因為沒有強烈壓力，這份潜力有時會停在「有条件但沒使用」。",
+        "en": "Because pressure is low, the potential may remain available but unused."
+      },
+      "growth": {
+        "zh-CN": "主动制造练习与应用场景，让潜力变成稳定能力。",
+        "zh-TW": "主動制造练習與應用场景，讓潜力變成穩定能力。",
+        "en": "Create situations that require the skill so potential becomes dependable ability."
+      }
+    },
+    "square": {
+      "core": {
+        "zh-CN": "两股功能彼此形成摩擦，常会逼你调整旧有反应方式。",
+        "zh-TW": "兩股功能彼此形成摩擦，常會逼你調整旧有反應方式。",
+        "en": "The two functions create friction that pushes old responses to change."
+      },
+      "strength": {
+        "zh-CN": "张力能制造行动力、问题意识与突破动力。",
+        "zh-TW": "張力能制造行動力、問題意識與突破動力。",
+        "en": "Tension can generate action, problem awareness and breakthrough energy."
+      },
+      "challenge": {
+        "zh-CN": "容易觉得「两边不能同时满足」，于是出现急躁、冲突或卡住。",
+        "zh-TW": "容易覺得「兩邊不能同時滿足」，于是出現急躁、衝突或卡住。",
+        "en": "It may feel as though both needs cannot be satisfied at once, producing conflict or blockage."
+      },
+      "growth": {
+        "zh-CN": "不要只选边站，找出新的行为策略，让两股力量各有位置。",
+        "zh-TW": "不要只選邊站，找出新的行為策略，讓兩股力量各有位置。",
+        "en": "Avoid simply choosing sides; build a new strategy that gives both functions a role."
+      }
+    },
+    "trine": {
+      "core": {
+        "zh-CN": "两股功能之间流动自然，通常不需要太多用力就能互相配合。",
+        "zh-TW": "兩股功能之間流動自然，通常不需要太多用力就能互相配合。",
+        "en": "The two functions flow naturally and tend to cooperate without much strain."
+      },
+      "strength": {
+        "zh-CN": "容易形成稳定天赋、顺手感与内在一致性。",
+        "zh-TW": "容易形成穩定天赋、順手感與內在一致性。",
+        "en": "This can create dependable talent, ease and inner coherence."
+      },
+      "challenge": {
+        "zh-CN": "太自然的能力有时会被当成理所当然，缺少主动开发。",
+        "zh-TW": "太自然的能力有時會被當成理所當然，缺少主動開發。",
+        "en": "Because it feels natural, the ability can be taken for granted or underdeveloped."
+      },
+      "growth": {
+        "zh-CN": "有意识地把顺手的能力投入真实目标，才能把天赋变成成果。",
+        "zh-TW": "有意識地把順手的能力投入真實目標，才能把天赋變成成果。",
+        "en": "Apply the easy flow deliberately to real goals so talent becomes achievement."
+      }
+    },
+    "opposition": {
+      "core": {
+        "zh-CN": "两股功能站在轴线两端，常透过关系、事件或投射让你看见彼此。",
+        "zh-TW": "兩股功能站在轴線兩端，常透過關係、事件或投射讓你看見彼此。",
+        "en": "The two functions sit at opposite ends of an axis and often become visible through relationships, events or projection."
+      },
+      "strength": {
+        "zh-CN": "能培养换位思考、互补与同时容纳不同需求的能力。",
+        "zh-TW": "能培养换位思考、互補與同時容纳不同需求的能力。",
+        "en": "This can build perspective, complementarity and the ability to hold different needs at once."
+      },
+      "challenge": {
+        "zh-CN": "容易把其中一端推给别人，或在两个极端之间摆动。",
+        "zh-TW": "容易把其中一端推给別人，或在兩個極端之間擺動。",
+        "en": "One side may be projected onto others or the person may swing between extremes."
+      },
+      "growth": {
+        "zh-CN": "练习承认两边都属于自己，把对立转成可以往返的平衡。",
+        "zh-TW": "练習承認兩邊都屬于自己，把對立轉成可以往返的平衡。",
+        "en": "Own both ends of the polarity and turn opposition into a flexible balance."
+      }
+    }
+  },
+  "pairThemes": {
+    "sun|moon": {
+      "theme": {
+        "zh-CN": "自我认同与情绪需求如何彼此配合",
+        "zh-TW": "自我認同與情緒需求如何彼此配合",
+        "en": "identity and emotional needs"
+      },
+      "gift": {
+        "zh-CN": "意志与感受较容易形成一致方向",
+        "zh-TW": "意志與感受較容易形成一致方向",
+        "en": "will and feeling can support one direction"
+      },
+      "challenge": {
+        "zh-CN": "想成为的自己与真正需要的安全感可能不同步",
+        "zh-TW": "想成為的自己與真正需要的安全感可能不同步",
+        "en": "the self you want to be can diverge from what feels emotionally safe"
+      },
+      "integration": {
+        "zh-CN": "先分辨「我要什么」与「我感受什么」，再让两者合作",
+        "zh-TW": "先分辨「我要什麼」與「我感受什麼」，再讓兩者合作",
+        "en": "distinguish intention from feeling, then let them cooperate"
+      }
+    },
+    "sun|mercury": {
+      "theme": {
+        "zh-CN": "自我认同与思考表达之间的连接",
+        "zh-TW": "自我認同與思考表達之間的連接",
+        "en": "identity and thinking/communication"
+      },
+      "gift": {
+        "zh-CN": "想法较容易代表个人立场，也能用语言建立存在感",
+        "zh-TW": "想法較容易代表個人立场，也能用語言建立存在感",
+        "en": "ideas can clearly express personal position and presence"
+      },
+      "challenge": {
+        "zh-CN": "容易把意见当成自我本身，受到反驳时更敏感",
+        "zh-TW": "容易把意見當成自我本身，受到反驳時更敏感",
+        "en": "opinions can become fused with ego, making disagreement feel personal"
+      },
+      "integration": {
+        "zh-CN": "让观点可以被修正，而不把改变想法等同于否定自己",
+        "zh-TW": "讓觀點可以被修正，而不把改變想法等同于否定自己",
+        "en": "let ideas evolve without treating revision as rejection of self"
+      }
+    },
+    "sun|venus": {
+      "theme": {
+        "zh-CN": "自我表达、价值感与关系偏好的协调",
+        "zh-TW": "自我表達、價值感與關係偏好的協調",
+        "en": "identity, values and relationship style"
+      },
+      "gift": {
+        "zh-CN": "自然知道什么让自己喜欢，也较能用个人魅力表达好感",
+        "zh-TW": "自然知道什麼讓自己喜歡，也較能用個人魅力表達好感",
+        "en": "personal expression and affection can reinforce each other"
+      },
+      "challenge": {
+        "zh-CN": "容易把被喜欢、被欣赏当成自我价值证明",
+        "zh-TW": "容易把被喜歡、被欣赏當成自我價值證明",
+        "en": "approval and attractiveness can become tied too closely to self-worth"
+      },
+      "integration": {
+        "zh-CN": "把关系中的认可当作交流，而不是唯一的自我评价来源",
+        "zh-TW": "把關係中的認可當作交流，而不是唯一的自我評價來源",
+        "en": "receive appreciation without making it the sole measure of worth"
+      }
+    },
+    "sun|mars": {
+      "theme": {
+        "zh-CN": "意志、自我主张与行动力的组合",
+        "zh-TW": "意志、自我主張與行動力的組合",
+        "en": "will, assertion and action"
+      },
+      "gift": {
+        "zh-CN": "目标明确时执行力强，较敢主动争取",
+        "zh-TW": "目標明確時執行力強，較敢主動爭取",
+        "en": "clear goals can translate quickly into decisive action"
+      },
+      "challenge": {
+        "zh-CN": "容易把阻力理解成对自我的挑战，反应过快",
+        "zh-TW": "容易把阻力理解成對自我的挑战，反應過快",
+        "en": "resistance can feel like a challenge to the self, prompting overreaction"
+      },
+      "integration": {
+        "zh-CN": "把竞争感变成行动效率，同时保留策略与节奏",
+        "zh-TW": "把竞爭感變成行動效率，同時保留策略與節奏",
+        "en": "turn competitiveness into effective action while keeping strategy and pacing"
+      }
+    },
+    "sun|jupiter": {
+      "theme": {
+        "zh-CN": "自我认同、信念与成长欲望的连接",
+        "zh-TW": "自我認同、信念與成長欲望的連接",
+        "en": "identity, belief and growth"
+      },
+      "gift": {
+        "zh-CN": "较容易相信自己的方向，也愿意扩大经验与机会",
+        "zh-TW": "較容易相信自己的方向，也願意擴大經驗與機會",
+        "en": "confidence can support exploration and expansion"
+      },
+      "challenge": {
+        "zh-CN": "可能高估能力、承诺过多或把乐观当成事实",
+        "zh-TW": "可能高估能力、承諾過多或把乐觀當成事實",
+        "en": "optimism can become overestimation or over-promising"
+      },
+      "integration": {
+        "zh-CN": "让自信接受现实校验，把扩张建立在可持续基础上",
+        "zh-TW": "讓自信接受現實校驗，把擴張建立在可持續基礎上",
+        "en": "keep confidence while testing it against reality and sustainability"
+      }
+    },
+    "sun|saturn": {
+      "theme": {
+        "zh-CN": "自我认同与责任、标准、限制之间的关系",
+        "zh-TW": "自我認同與責任、標準、限制之間的關係",
+        "en": "identity and responsibility/limits"
+      },
+      "gift": {
+        "zh-CN": "耐力强，能把个人目标做成长期成果",
+        "zh-TW": "耐力強，能把個人目標做成長期成果",
+        "en": "discipline can turn personal aims into lasting achievement"
+      },
+      "challenge": {
+        "zh-CN": "容易对自己要求过高，把失败看成能力或价值问题",
+        "zh-TW": "容易對自己要求過高，把失败看成能力或價值問題",
+        "en": "self-judgment and fear of failure can become heavy"
+      },
+      "integration": {
+        "zh-CN": "把标准变成结构而不是惩罚，允许成熟通过时间累积",
+        "zh-TW": "把標準變成結構而不是惩罚，允許成熟通過時間累積",
+        "en": "use standards as structure rather than punishment and allow maturity to take time"
+      }
+    },
+    "sun|uranus": {
+      "theme": {
+        "zh-CN": "自我认同与独立、创新、自由需求的连接",
+        "zh-TW": "自我認同與獨立、創新、自由需求的連接",
+        "en": "identity and independence/innovation"
+      },
+      "gift": {
+        "zh-CN": "原创性强，不容易满足于照既有脚本生活",
+        "zh-TW": "原創性強，不容易滿足于照既有脚本生活",
+        "en": "originality and self-definition can be strong"
+      },
+      "challenge": {
+        "zh-CN": "为了保持独特可能突然反向选择或切断",
+        "zh-TW": "為了保持獨特可能突然反向選擇或切斷",
+        "en": "the need to stay unique can trigger abrupt reversals or detachment"
+      },
+      "integration": {
+        "zh-CN": "让自由来自清楚选择，而不是单纯反抗或与众不同",
+        "zh-TW": "讓自由來自清楚選擇，而不是單纯反抗或與眾不同",
+        "en": "build freedom through conscious choice rather than rebellion alone"
+      }
+    },
+    "sun|neptune": {
+      "theme": {
+        "zh-CN": "自我认同与理想、想象、共感之间的连接",
+        "zh-TW": "自我認同與理想、想象、共感之間的連接",
+        "en": "identity and ideals/imagination"
+      },
+      "gift": {
+        "zh-CN": "想象力与感受力丰富，容易被理想或创作带动",
+        "zh-TW": "想象力與感受力丰富，容易被理想或創作帶動",
+        "en": "imagination and sensitivity can enrich purpose and creativity"
+      },
+      "challenge": {
+        "zh-CN": "自我边界可能模糊，容易理想化自己、别人或方向",
+        "zh-TW": "自我邊界可能模糊，容易理想化自己、別人或方向",
+        "en": "identity can blur into ideals, projections or others' expectations"
+      },
+      "integration": {
+        "zh-CN": "保留灵感，同时用事实、界线与具体行动确认真实方向",
+        "zh-TW": "保留靈感，同時用事實、界線與具體行動確認真實方向",
+        "en": "keep inspiration while grounding it in facts, boundaries and concrete action"
+      }
+    },
+    "sun|pluto": {
+      "theme": {
+        "zh-CN": "自我认同与深层力量、控制、转化之间的关系",
+        "zh-TW": "自我認同與深層力量、控制、轉化之間的關係",
+        "en": "identity and deep power/transformation"
+      },
+      "gift": {
+        "zh-CN": "意志集中，遇到重大变化时有重建自己的能力",
+        "zh-TW": "意志集中，遇到重大變化時有重建自己的能力",
+        "en": "strong will and capacity for self-reinvention"
+      },
+      "challenge": {
+        "zh-CN": "容易把事情推向极端，或把掌控当成安全感",
+        "zh-TW": "容易把事情推向極端，或把掌控當成安全感",
+        "en": "intensity can become extremity or control"
+      },
+      "integration": {
+        "zh-CN": "把力量用于改变自己与现实，而不是不断证明谁更有控制权",
+        "zh-TW": "把力量用于改變自己與現實，而不是不斷證明誰更有控制權",
+        "en": "use power for transformation rather than repeated control struggles"
+      }
+    },
+    "moon|mercury": {
+      "theme": {
+        "zh-CN": "情绪感受与思考、表达之间的连接",
+        "zh-TW": "情緒感受與思考、表達之間的連接",
+        "en": "emotion and thinking/communication"
+      },
+      "gift": {
+        "zh-CN": "较能把感受说出来，也能用语言理解内在状态",
+        "zh-TW": "較能把感受說出來，也能用語言理解內在状態",
+        "en": "feelings can be named and processed through language"
+      },
+      "challenge": {
+        "zh-CN": "容易过度分析情绪，或因为情绪影响判断与措辞",
+        "zh-TW": "容易過度分析情緒，或因為情緒影響判斷與措辞",
+        "en": "emotion can color judgment, or analysis can replace feeling"
+      },
+      "integration": {
+        "zh-CN": "先允许感受存在，再用语言整理，而不是用思考取代感受",
+        "zh-TW": "先允許感受存在，再用語言整理，而不是用思考取代感受",
+        "en": "allow the feeling first, then use words to organize it rather than erase it"
+      }
+    },
+    "moon|venus": {
+      "theme": {
+        "zh-CN": "情绪安全感与亲密、喜欢、被爱方式的连接",
+        "zh-TW": "情緒安全感與親密、喜歡、被愛方式的連接",
+        "en": "emotional security and affection"
+      },
+      "gift": {
+        "zh-CN": "温柔感受与关系表达容易互相支持，懂得营造舒服氛围",
+        "zh-TW": "溫柔感受與關係表達容易互相支持，懂得营造舒服氛围",
+        "en": "warmth and relational expression can support one another"
+      },
+      "challenge": {
+        "zh-CN": "为了维持和谐可能压下真实不满，也可能较依赖关系回应",
+        "zh-TW": "為了維持和谐可能壓下真實不滿，也可能較依赖關係回應",
+        "en": "harmony-seeking can suppress real dissatisfaction or create dependence on reassurance"
+      },
+      "integration": {
+        "zh-CN": "让亲密既能照顾情绪，也允许诚实表达不舒服与界线",
+        "zh-TW": "讓親密既能照顧情緒，也允許誠實表達不舒服與界線",
+        "en": "let intimacy soothe emotion while still making room for honesty and boundaries"
+      }
+    },
+    "moon|mars": {
+      "theme": {
+        "zh-CN": "情绪反应与行动、愤怒、界线之间的连接",
+        "zh-TW": "情緒反應與行動、愤怒、界線之間的連接",
+        "en": "emotion and action/anger"
+      },
+      "gift": {
+        "zh-CN": "情绪有推动力，保护自己或在意的人时行动很快",
+        "zh-TW": "情緒有推動力，保護自己或在意的人時行動很快",
+        "en": "feelings can translate into protective and decisive action"
+      },
+      "challenge": {
+        "zh-CN": "感受一上来就行动，容易出现急躁、防御或冲突",
+        "zh-TW": "感受一上來就行動，容易出現急躁、防御或衝突",
+        "en": "emotion may move straight into reaction, defensiveness or conflict"
+      },
+      "integration": {
+        "zh-CN": "先辨认情绪，再决定需要行动、表达还是等待",
+        "zh-TW": "先辨認情緒，再決定需要行動、表達還是等待",
+        "en": "name the feeling before deciding whether to act, speak or wait"
+      }
+    },
+    "moon|jupiter": {
+      "theme": {
+        "zh-CN": "情绪需求与信念、乐观、成长之间的连接",
+        "zh-TW": "情緒需求與信念、乐觀、成長之間的連接",
+        "en": "emotion and belief/growth"
+      },
+      "gift": {
+        "zh-CN": "通常较能从经验中找到希望，也愿意给予情感空间",
+        "zh-TW": "通常較能從經驗中找到希望，也願意给予情感空間",
+        "en": "hope and perspective can help emotion recover"
+      },
+      "challenge": {
+        "zh-CN": "可能放大情绪、过度安慰，或用乐观跳过真正问题",
+        "zh-TW": "可能放大情緒、過度安慰，或用乐觀跳過真正問題",
+        "en": "feelings can be exaggerated or bypassed with optimism"
+      },
+      "integration": {
+        "zh-CN": "允许情绪有完整过程，再用更大的视角帮助它找到意义",
+        "zh-TW": "允許情緒有完整過程，再用更大的视角帮助它找到意義",
+        "en": "let emotion complete its process before using perspective to find meaning"
+      }
+    },
+    "moon|saturn": {
+      "theme": {
+        "zh-CN": "情绪安全感与责任、克制、边界之间的关系",
+        "zh-TW": "情緒安全感與責任、克制、邊界之間的關係",
+        "en": "emotional security and responsibility/boundaries"
+      },
+      "gift": {
+        "zh-CN": "情绪承受力与责任感强，能够长期照顾重要的人事物",
+        "zh-TW": "情緒承受力與責任感強，能夠長期照顧重要的人事物",
+        "en": "endurance and reliability in emotional commitments"
+      },
+      "challenge": {
+        "zh-CN": "容易压抑需求、怕麻烦别人，或把脆弱视为负担",
+        "zh-TW": "容易壓抑需求、怕麻烦別人，或把脆弱视為负擔",
+        "en": "needs may be suppressed and vulnerability treated as a burden"
+      },
+      "integration": {
+        "zh-CN": "建立可靠边界，也让自己有资格被照顾与表达需要",
+        "zh-TW": "建立可靠邊界，也讓自己有資格被照顧與表達需要",
+        "en": "build dependable boundaries while allowing yourself to receive care and express need"
+      }
+    },
+    "moon|uranus": {
+      "theme": {
+        "zh-CN": "情绪安全感与自由、变化、独立需求的拉动",
+        "zh-TW": "情緒安全感與自由、變化、獨立需求的拉動",
+        "en": "emotional security and freedom/change"
+      },
+      "gift": {
+        "zh-CN": "情绪反应有原创性，能快速适应非典型生活方式",
+        "zh-TW": "情緒反應有原創性，能快速適應非典型生活方式",
+        "en": "emotional originality and adaptability to unconventional patterns"
+      },
+      "challenge": {
+        "zh-CN": "亲密与自由之间容易忽近忽远，情绪变化较突然",
+        "zh-TW": "親密與自由之間容易忽近忽远，情緒變化較突然",
+        "en": "closeness and freedom can alternate abruptly"
+      },
+      "integration": {
+        "zh-CN": "为自由预留空间，同时建立不会让关系失去安全感的沟通规则",
+        "zh-TW": "為自由預留空間，同時建立不會讓關係失去安全感的溝通規則",
+        "en": "make room for independence while building communication that preserves security"
+      }
+    },
+    "moon|neptune": {
+      "theme": {
+        "zh-CN": "情绪需求与想象、共感、投射之间的连接",
+        "zh-TW": "情緒需求與想象、共感、投射之間的連接",
+        "en": "emotion and imagination/empathy"
+      },
+      "gift": {
+        "zh-CN": "直觉与同理心很强，能感受到细微气氛与未说出口的情绪",
+        "zh-TW": "直覺與同理心很強，能感受到细微氣氛與未說出口的情緒",
+        "en": "high sensitivity, empathy and intuitive awareness"
+      },
+      "challenge": {
+        "zh-CN": "容易吸收别人情绪、理想化关系，或分不清直觉与期待",
+        "zh-TW": "容易吸收別人情緒、理想化關係，或分不清直覺與期待",
+        "en": "can absorb others' moods or confuse intuition with hope and projection"
+      },
+      "integration": {
+        "zh-CN": "保持感受力，同时反复确认事实、界线与自己的真实需要",
+        "zh-TW": "保持感受力，同時反複確認事實、界線與自己的真實需要",
+        "en": "keep sensitivity while checking facts, boundaries and your own needs"
+      }
+    },
+    "moon|pluto": {
+      "theme": {
+        "zh-CN": "情绪安全感与深层信任、控制、转化之间的关系",
+        "zh-TW": "情緒安全感與深層信任、控制、轉化之間的關係",
+        "en": "emotional security and deep trust/power"
+      },
+      "gift": {
+        "zh-CN": "情绪深度与洞察力强，能在危机后重新建立内在力量",
+        "zh-TW": "情緒深度與洞察力強，能在危機後重新建立內在力量",
+        "en": "emotional depth, insight and resilience through crisis"
+      },
+      "challenge": {
+        "zh-CN": "害怕失去时容易抓紧、试探或把感受推向极端",
+        "zh-TW": "害怕失去時容易抓緊、試探或把感受推向極端",
+        "en": "fear of loss can lead to control, testing or emotional extremes"
+      },
+      "integration": {
+        "zh-CN": "用诚实与界线建立信任，不必靠控制来证明关系安全",
+        "zh-TW": "用誠實與界線建立信任，不必靠控制來證明關係安全",
+        "en": "build trust through honesty and boundaries rather than control"
+      }
+    },
+    "mercury|venus": {
+      "theme": {
+        "zh-CN": "思考表达与关系、审美、价值感之间的连接",
+        "zh-TW": "思考表達與關係、审美、價值感之間的連接",
+        "en": "communication and relationship/aesthetic values"
+      },
+      "gift": {
+        "zh-CN": "表达较有分寸，容易用语言建立好感、协调与美感",
+        "zh-TW": "表達較有分寸，容易用語言建立好感、協調與美感",
+        "en": "tact, charm and the ability to create harmony through words"
+      },
+      "challenge": {
+        "zh-CN": "可能为了好听或和谐而淡化真实立场",
+        "zh-TW": "可能為了好聽或和谐而淡化真實立场",
+        "en": "truth may be softened too much for the sake of pleasantness"
+      },
+      "integration": {
+        "zh-CN": "保持温和表达，同时让观点与价值足够清楚",
+        "zh-TW": "保持溫和表達，同時讓觀點與價值足夠清楚",
+        "en": "keep warmth in communication while making values and positions clear"
+      }
+    },
+    "mercury|mars": {
+      "theme": {
+        "zh-CN": "思考表达与行动、争辩、决断之间的连接",
+        "zh-TW": "思考表達與行動、爭辯、決斷之間的連接",
+        "en": "thinking/communication and action/assertion"
+      },
+      "gift": {
+        "zh-CN": "脑子快、反应直接，适合解决问题与推动讨论",
+        "zh-TW": "腦子快、反應直接，適合解決問題與推動讨論",
+        "en": "quick thinking and direct problem-solving"
+      },
+      "challenge": {
+        "zh-CN": "讲话容易过快过硬，争论可能迅速升级",
+        "zh-TW": "讲話容易過快過硬，爭論可能迅速升级",
+        "en": "speech can become sharp, rushed or argumentative"
+      },
+      "integration": {
+        "zh-CN": "把锋利思考用来解决问题，而不是赢过对话对象",
+        "zh-TW": "把鋒利思考用來解決問題，而不是贏過對話對象",
+        "en": "use mental sharpness to solve problems rather than defeat the other person"
+      }
+    },
+    "mercury|jupiter": {
+      "theme": {
+        "zh-CN": "细节思考与大局、信念、学习扩张之间的连接",
+        "zh-TW": "细節思考與大局、信念、學習擴張之間的連接",
+        "en": "thinking and big-picture belief/learning"
+      },
+      "gift": {
+        "zh-CN": "学习范围广，容易把信息组织成更大的意义与观点",
+        "zh-TW": "學習范围广，容易把信息組织成更大的意義與觀點",
+        "en": "broad learning and the ability to connect facts into meaning"
+      },
+      "challenge": {
+        "zh-CN": "可能跳过细节、说得太满或把观点当成事实",
+        "zh-TW": "可能跳過细節、說得太滿或把觀點當成事實",
+        "en": "details can be skipped and opinions overstated"
+      },
+      "integration": {
+        "zh-CN": "在大方向与具体证据之间来回核对",
+        "zh-TW": "在大方向與具體證據之間來回核對",
+        "en": "cross-check broad conclusions against concrete evidence"
+      }
+    },
+    "mercury|saturn": {
+      "theme": {
+        "zh-CN": "思考表达与结构、责任、谨慎之间的关系",
+        "zh-TW": "思考表達與結構、責任、谨慎之間的關係",
+        "en": "thinking and structure/caution"
+      },
+      "gift": {
+        "zh-CN": "思考严谨，适合长期学习、规划与处理复杂细节",
+        "zh-TW": "思考嚴谨，適合長期學習、規劃與處理複杂细節",
+        "en": "disciplined thinking, planning and sustained study"
+      },
+      "challenge": {
+        "zh-CN": "容易过度担心说错、想太久或形成负面预设",
+        "zh-TW": "容易過度擔心說錯、想太久或形成负面預設",
+        "en": "fear of error can inhibit speech or produce overthinking"
+      },
+      "integration": {
+        "zh-CN": "让谨慎帮助结构化，而不是阻止表达和尝试",
+        "zh-TW": "讓谨慎帮助結構化，而不是阻止表達和嘗試",
+        "en": "let caution create structure instead of blocking expression and experimentation"
+      }
+    },
+    "mercury|uranus": {
+      "theme": {
+        "zh-CN": "思考表达与创新、独立、突然洞见的连接",
+        "zh-TW": "思考表達與創新、獨立、突然洞見的連接",
+        "en": "thinking and innovation/independence"
+      },
+      "gift": {
+        "zh-CN": "思维跳跃快，容易看见别人没想到的连接与解决办法",
+        "zh-TW": "思維跳跃快，容易看見別人沒想到的連接與解決办法",
+        "en": "fast original insight and unusual connections"
+      },
+      "challenge": {
+        "zh-CN": "想法变化太快、表达跨度大，别人可能跟不上",
+        "zh-TW": "想法變化太快、表達跨度大，別人可能跟不上",
+        "en": "thought can jump so quickly that communication becomes hard to follow"
+      },
+      "integration": {
+        "zh-CN": "保留原创速度，同时把关键步骤说清楚",
+        "zh-TW": "保留原創速度，同時把關键步驟說清楚",
+        "en": "keep originality while making the connecting steps explicit"
+      }
+    },
+    "mercury|neptune": {
+      "theme": {
+        "zh-CN": "思考表达与想象、直觉、模糊边界之间的连接",
+        "zh-TW": "思考表達與想象、直覺、模糊邊界之間的連接",
+        "en": "thinking and imagination/intuition"
+      },
+      "gift": {
+        "zh-CN": "想象、故事感与直觉式理解很强，适合创作与感受语言",
+        "zh-TW": "想象、故事感與直覺式理解很強，適合創作與感受語言",
+        "en": "strong imagination, storytelling and intuitive perception"
+      },
+      "challenge": {
+        "zh-CN": "容易误解、记忆滤镜、说不清或把希望当成信息",
+        "zh-TW": "容易誤解、记忆滤镜、說不清或把希望當成信息",
+        "en": "misunderstanding, fuzzy recall or wishful interpretation can occur"
+      },
+      "integration": {
+        "zh-CN": "灵感先保留，再用事实、时间线与具体细节校验",
+        "zh-TW": "靈感先保留，再用事實、時間線與具體细節校驗",
+        "en": "keep inspiration, then verify with facts, timelines and specifics"
+      }
+    },
+    "mercury|pluto": {
+      "theme": {
+        "zh-CN": "思考表达与深层洞察、权力、追问之间的关系",
+        "zh-TW": "思考表達與深層洞察、權力、追問之間的關係",
+        "en": "thinking and depth/power"
+      },
+      "gift": {
+        "zh-CN": "研究能力强，习惯追到核心，不容易满足于表面答案",
+        "zh-TW": "研究能力強，習慣追到核心，不容易滿足于表面答案",
+        "en": "probing research ability and desire to reach the core"
+      },
+      "challenge": {
+        "zh-CN": "容易钻牛角尖、怀疑动机或把谈话变成攻防",
+        "zh-TW": "容易钻牛角尖、怀疑動機或把談話變成攻防",
+        "en": "can become obsessive, suspicious or turn dialogue into interrogation"
+      },
+      "integration": {
+        "zh-CN": "把洞察用于理解，而不是逼迫自己或别人给出唯一答案",
+        "zh-TW": "把洞察用于理解，而不是逼迫自己或別人给出唯一答案",
+        "en": "use insight for understanding rather than forcing a single answer"
+      }
+    },
+    "venus|mars": {
+      "theme": {
+        "zh-CN": "喜欢与欲望、亲密与主动追求之间的连接",
+        "zh-TW": "喜歡與欲望、親密與主動追求之間的連接",
+        "en": "affection and desire/action"
+      },
+      "gift": {
+        "zh-CN": "吸引力、行动力与表达好感较容易形成火花",
+        "zh-TW": "吸引力、行動力與表達好感較容易形成火花",
+        "en": "attraction, initiative and relational chemistry can reinforce each other"
+      },
+      "challenge": {
+        "zh-CN": "想要的速度和相处舒服的节奏可能不一致",
+        "zh-TW": "想要的速度和相處舒服的節奏可能不一致",
+        "en": "desire and relational comfort may move at different speeds"
+      },
+      "integration": {
+        "zh-CN": "让欲望、尊重与关系节奏同时被看见",
+        "zh-TW": "讓欲望、尊重與關係節奏同時被看見",
+        "en": "make desire, respect and pacing visible at the same time"
+      }
+    },
+    "venus|jupiter": {
+      "theme": {
+        "zh-CN": "关系价值、享受与成长、扩张之间的连接",
+        "zh-TW": "關係價值、享受與成長、擴張之間的連接",
+        "en": "relationships/values and growth/expansion"
+      },
+      "gift": {
+        "zh-CN": "慷慨、乐观，容易在关系与审美中看到美好可能",
+        "zh-TW": "慷慨、乐觀，容易在關係與审美中看到美好可能",
+        "en": "generosity, optimism and a broad capacity for enjoyment"
+      },
+      "challenge": {
+        "zh-CN": "容易过度理想化、消费过度或承诺超过现实",
+        "zh-TW": "容易過度理想化、消费過度或承諾超過現實",
+        "en": "can over-idealize, overspend or promise beyond reality"
+      },
+      "integration": {
+        "zh-CN": "享受可以放大，但要保留现实边界与长期成本意识",
+        "zh-TW": "享受可以放大，但要保留現實邊界與長期成本意識",
+        "en": "let pleasure expand while keeping practical boundaries and long-term costs in view"
+      }
+    },
+    "venus|saturn": {
+      "theme": {
+        "zh-CN": "亲密、被爱方式与责任、边界、长期承诺的关系",
+        "zh-TW": "親密、被愛方式與責任、邊界、長期承諾的關係",
+        "en": "affection and responsibility/commitment"
+      },
+      "gift": {
+        "zh-CN": "认真看待关系，愿意经营稳定与长期可靠性",
+        "zh-TW": "認真看待關係，願意經营穩定與長期可靠性",
+        "en": "seriousness, loyalty and capacity for durable bonds"
+      },
+      "challenge": {
+        "zh-CN": "害怕被拒绝、表达爱较谨慎，或把关系变成责任考核",
+        "zh-TW": "害怕被拒绝、表達愛較谨慎，或把關係變成責任考核",
+        "en": "fear of rejection or excessive caution can make love feel conditional"
+      },
+      "integration": {
+        "zh-CN": "让承诺提供安全，而不是让规则取代温度与回应",
+        "zh-TW": "讓承諾提供安全，而不是讓規則取代溫度與回應",
+        "en": "let commitment create safety without replacing warmth and responsiveness"
+      }
+    },
+    "venus|uranus": {
+      "theme": {
+        "zh-CN": "关系偏好与自由、变化、非传统吸引之间的连接",
+        "zh-TW": "關係偏好與自由、變化、非傳統吸引之間的連接",
+        "en": "relationships and freedom/change"
+      },
+      "gift": {
+        "zh-CN": "容易被独特的人事物吸引，关系中重视新鲜与真实个性",
+        "zh-TW": "容易被獨特的人事物吸引，關係中重视新鲜與真實個性",
+        "en": "attraction to originality and room for individuality"
+      },
+      "challenge": {
+        "zh-CN": "稳定后可能担心失去自由，出现突然拉开距离的倾向",
+        "zh-TW": "穩定後可能擔心失去自由，出現突然拉開距離的倾向",
+        "en": "stability can trigger fear of confinement or sudden distancing"
+      },
+      "integration": {
+        "zh-CN": "把自由需求说清楚，建立允许变化但仍可靠的关系规则",
+        "zh-TW": "把自由需求說清楚，建立允許變化但仍可靠的關係規則",
+        "en": "name the need for freedom and build reliable rules that allow change"
+      }
+    },
+    "venus|neptune": {
+      "theme": {
+        "zh-CN": "爱情、价值感与理想、想象、投射之间的连接",
+        "zh-TW": "愛情、價值感與理想、想象、投射之間的連接",
+        "en": "love/values and ideals/imagination"
+      },
+      "gift": {
+        "zh-CN": "浪漫、艺术感与共感力强，容易体验细腻的情感氛围",
+        "zh-TW": "浪漫、艺術感與共感力強，容易體驗细腻的情感氛围",
+        "en": "romance, artistry and empathy can be highly refined"
+      },
+      "challenge": {
+        "zh-CN": "容易把潜力当现实、拯救对方或忽略不一致的事实",
+        "zh-TW": "容易把潜力當現實、拯救對方或忽略不一致的事實",
+        "en": "potential can be mistaken for reality, leading to rescue fantasies or ignored facts"
+      },
+      "integration": {
+        "zh-CN": "保留浪漫，同时持续确认现实行为、承诺和界线",
+        "zh-TW": "保留浪漫，同時持續確認現實行為、承諾和界線",
+        "en": "keep romance while checking behavior, commitments and boundaries"
+      }
+    },
+    "venus|pluto": {
+      "theme": {
+        "zh-CN": "亲密、价值感与深层欲望、控制、转化之间的关系",
+        "zh-TW": "親密、價值感與深層欲望、控制、轉化之間的關係",
+        "en": "love/values and depth/power"
+      },
+      "gift": {
+        "zh-CN": "关系吸引力与投入度强，容易产生深刻而改变人的连结",
+        "zh-TW": "關係吸引力與投入度強，容易產生深刻而改變人的連結",
+        "en": "intense attraction and bonds that can be transformative"
+      },
+      "challenge": {
+        "zh-CN": "害怕失去时可能出现占有、试探、嫉妒或权力拉扯",
+        "zh-TW": "害怕失去時可能出現占有、試探、嫉妒或權力拉扯",
+        "en": "fear of loss may create possessiveness, testing or power struggles"
+      },
+      "integration": {
+        "zh-CN": "让深度来自坦白与信任，而不是强度、控制或不断测试",
+        "zh-TW": "讓深度來自坦白與信任，而不是強度、控制或不斷測試",
+        "en": "let depth come from honesty and trust rather than control or intensity alone"
+      }
+    },
+    "mars|jupiter": {
+      "theme": {
+        "zh-CN": "行动力与信念、扩张、冒险之间的连接",
+        "zh-TW": "行動力與信念、擴張、冒險之間的連接",
+        "en": "action and growth/adventure"
+      },
+      "gift": {
+        "zh-CN": "勇气与推动力强，容易把想法快速转成行动",
+        "zh-TW": "勇氣與推動力強，容易把想法快速轉成行動",
+        "en": "courage, enthusiasm and rapid movement toward opportunity"
+      },
+      "challenge": {
+        "zh-CN": "过度自信、冲太快或承担超出能力的风险",
+        "zh-TW": "過度自信、衝太快或承擔超出能力的风險",
+        "en": "overconfidence and excessive risk-taking can appear"
+      },
+      "integration": {
+        "zh-CN": "保留胆量，同时给行动加入尺度、计划与风险评估",
+        "zh-TW": "保留胆量，同時给行動加入尺度、计劃與风險評估",
+        "en": "keep boldness while adding scale, planning and risk assessment"
+      }
+    },
+    "mars|saturn": {
+      "theme": {
+        "zh-CN": "行动力与限制、责任、节奏之间的关系",
+        "zh-TW": "行動力與限制、責任、節奏之間的關係",
+        "en": "action and limits/responsibility"
+      },
+      "gift": {
+        "zh-CN": "能把冲劲变成耐力，适合长期高难度任务",
+        "zh-TW": "能把衝劲變成耐力，適合長期高難度任務",
+        "en": "drive can become endurance and disciplined effort"
+      },
+      "challenge": {
+        "zh-CN": "常有油门与刹车并存的感觉，容易挫折或压住怒气",
+        "zh-TW": "常有油門與刹车並存的感覺，容易挫折或壓住怒氣",
+        "en": "a simultaneous accelerator-and-brake feeling can create frustration"
+      },
+      "integration": {
+        "zh-CN": "接受节奏限制，把延迟转成训练与策略",
+        "zh-TW": "接受節奏限制，把延遲轉成训练與策略",
+        "en": "accept pacing limits and convert delay into training and strategy"
+      }
+    },
+    "mars|uranus": {
+      "theme": {
+        "zh-CN": "行动力与自由、突发变化、突破之间的连接",
+        "zh-TW": "行動力與自由、突發變化、突破之間的連接",
+        "en": "action and freedom/breakthrough"
+      },
+      "gift": {
+        "zh-CN": "反应快、敢打破僵局，在变化中行动果断",
+        "zh-TW": "反應快、敢打破僵局，在變化中行動果斷",
+        "en": "fast reactions, courage to break stagnation and act in change"
+      },
+      "challenge": {
+        "zh-CN": "冲动、突然改道或对限制产生强烈反弹",
+        "zh-TW": "衝動、突然改道或對限制產生強烈反弹",
+        "en": "impulsiveness, abrupt redirection or rebellion against constraint"
+      },
+      "integration": {
+        "zh-CN": "给自由留空间，也让高风险行动多一个检查步骤",
+        "zh-TW": "给自由留空間，也讓高风險行動多一個检查步驟",
+        "en": "preserve freedom while adding one deliberate safety check before high-risk action"
+      }
+    },
+    "mars|neptune": {
+      "theme": {
+        "zh-CN": "行动力与理想、直觉、模糊目标之间的连接",
+        "zh-TW": "行動力與理想、直覺、模糊目標之間的連接",
+        "en": "action and ideals/intuition"
+      },
+      "gift": {
+        "zh-CN": "行动可被创作、信念、想象或同理心深深驱动",
+        "zh-TW": "行動可被創作、信念、想象或同理心深深驅動",
+        "en": "action can be inspired by creativity, belief and empathy"
+      },
+      "challenge": {
+        "zh-CN": "方向不清时容易耗散、拖延，或因为期待而误判行动时机",
+        "zh-TW": "方向不清時容易耗散、拖延，或因為期待而誤判行動時機",
+        "en": "unclear goals can scatter energy or create mistimed action"
+      },
+      "integration": {
+        "zh-CN": "把理想拆成可验证的小步骤，确认自己真正要做什么",
+        "zh-TW": "把理想拆成可驗證的小步驟，確認自己真正要做什麼",
+        "en": "translate ideals into testable steps and clarify what action is actually needed"
+      }
+    },
+    "mars|pluto": {
+      "theme": {
+        "zh-CN": "行动力与深层意志、权力、危机处理之间的关系",
+        "zh-TW": "行動力與深層意志、權力、危機處理之間的關係",
+        "en": "action and deep will/power"
+      },
+      "gift": {
+        "zh-CN": "意志与耐压性强，遇到阻力时有穿透与重建能力",
+        "zh-TW": "意志與耐壓性強，遇到阻力時有穿透與重建能力",
+        "en": "formidable drive, pressure tolerance and crisis response"
+      },
+      "challenge": {
+        "zh-CN": "容易走向硬碰硬、强迫、报复或不肯退让",
+        "zh-TW": "容易走向硬碰硬、強迫、报複或不肯退讓",
+        "en": "can become forceful, compulsive, retaliatory or unable to yield"
+      },
+      "integration": {
+        "zh-CN": "把强度用于解决核心问题，同时辨认何时需要放手",
+        "zh-TW": "把強度用于解決核心問題，同時辨認何時需要放手",
+        "en": "direct intensity toward core problems and recognize when release is stronger than force"
+      }
+    },
+    "jupiter|saturn": {
+      "theme": {
+        "zh-CN": "扩张与收缩、乐观与现实、机会与责任的平衡",
+        "zh-TW": "擴張與收縮、乐觀與現實、機會與責任的平衡",
+        "en": "expansion and restraint, optimism and realism"
+      },
+      "gift": {
+        "zh-CN": "能把愿景做成可执行的长期计划",
+        "zh-TW": "能把願景做成可執行的長期计劃",
+        "en": "vision can be converted into durable long-term plans"
+      },
+      "challenge": {
+        "zh-CN": "容易在「想扩大」与「怕出错」之间来回摆动",
+        "zh-TW": "容易在「想擴大」與「怕出錯」之間來回擺動",
+        "en": "can oscillate between growth and fear of error"
+      },
+      "integration": {
+        "zh-CN": "让木星提供方向、土星提供结构，分阶段扩大",
+        "zh-TW": "讓木星提供方向、土星提供結構，分阶段擴大",
+        "en": "let Jupiter set direction and Saturn provide structure, expanding in stages"
+      }
+    },
+    "jupiter|uranus": {
+      "theme": {
+        "zh-CN": "成长扩张与创新、自由、突破之间的连接",
+        "zh-TW": "成長擴張與創新、自由、突破之間的連接",
+        "en": "growth and innovation/freedom"
+      },
+      "gift": {
+        "zh-CN": "容易抓到新机会，对新科技、新观念或非常规路径开放",
+        "zh-TW": "容易抓到新機會，對新科技、新觀念或非常規路徑開放",
+        "en": "quick recognition of new opportunities and openness to unconventional paths"
+      },
+      "challenge": {
+        "zh-CN": "可能追逐变化本身，低估稳定与执行成本",
+        "zh-TW": "可能追逐變化本身，低估穩定與執行成本",
+        "en": "can chase change itself and underestimate implementation costs"
+      },
+      "integration": {
+        "zh-CN": "选择真正有价值的突破，并为创新留下落地结构",
+        "zh-TW": "選擇真正有價值的突破，並為創新留下落地結構",
+        "en": "choose meaningful breakthroughs and give innovation a structure to land in"
+      }
+    },
+    "jupiter|neptune": {
+      "theme": {
+        "zh-CN": "信念、成长与理想、想象、精神意义的连接",
+        "zh-TW": "信念、成長與理想、想象、精神意義的連接",
+        "en": "belief/growth and ideals/imagination"
+      },
+      "gift": {
+        "zh-CN": "理想感、同情与愿景很强，能被更大的意义推动",
+        "zh-TW": "理想感、同情與願景很強，能被更大的意義推動",
+        "en": "strong vision, compassion and sense of larger meaning"
+      },
+      "challenge": {
+        "zh-CN": "容易过度相信、夸大希望或逃避现实限制",
+        "zh-TW": "容易過度相信、夸大希望或逃避現實限制",
+        "en": "hope can become inflated or detach from practical limits"
+      },
+      "integration": {
+        "zh-CN": "让信念保留诗意，但持续用事实与行动验证",
+        "zh-TW": "讓信念保留诗意，但持續用事實與行動驗證",
+        "en": "keep the poetry of belief while testing it through facts and action"
+      }
+    },
+    "jupiter|pluto": {
+      "theme": {
+        "zh-CN": "扩张、信念与深层力量、转化之间的关系",
+        "zh-TW": "擴張、信念與深層力量、轉化之間的關係",
+        "en": "expansion/belief and power/transformation"
+      },
+      "gift": {
+        "zh-CN": "有把资源、影响力或知识推向更大规模的能力",
+        "zh-TW": "有把資源、影響力或知識推向更大規模的能力",
+        "en": "capacity to scale knowledge, resources or influence"
+      },
+      "challenge": {
+        "zh-CN": "容易把信念绝对化，或用结果证明自己掌握真理",
+        "zh-TW": "容易把信念绝對化，或用結果證明自己掌握真理",
+        "en": "belief can become absolute or tied to proving power"
+      },
+      "integration": {
+        "zh-CN": "让影响力伴随伦理、自我修正与对复杂性的尊重",
+        "zh-TW": "讓影響力伴随伦理、自我修正與對複杂性的尊重",
+        "en": "pair influence with ethics, self-correction and respect for complexity"
+      }
+    },
+    "saturn|uranus": {
+      "theme": {
+        "zh-CN": "稳定结构与改革自由之间的拉扯",
+        "zh-TW": "穩定結構與改革自由之間的拉扯",
+        "en": "structure and reform/freedom"
+      },
+      "gift": {
+        "zh-CN": "既能看见制度需要什么，也能知道哪里必须更新",
+        "zh-TW": "既能看見制度需要什麼，也能知道哪裡必须更新",
+        "en": "ability to see both what a system needs and what must change"
+      },
+      "challenge": {
+        "zh-CN": "容易在守旧与突然推翻之间摆荡",
+        "zh-TW": "容易在守旧與突然推翻之間擺荡",
+        "en": "can swing between rigidity and abrupt rejection"
+      },
+      "integration": {
+        "zh-CN": "保留真正有用的结构，分阶段改掉已经失效的部分",
+        "zh-TW": "保留真正有用的結構，分阶段改掉已經失效的部分",
+        "en": "preserve what works and redesign what no longer does in stages"
+      }
+    },
+    "saturn|neptune": {
+      "theme": {
+        "zh-CN": "现实结构与理想、想象、无形需求之间的关系",
+        "zh-TW": "現實結構與理想、想象、無形需求之間的關係",
+        "en": "structure and ideals/imagination"
+      },
+      "gift": {
+        "zh-CN": "能把灵感、信念或创作逐渐做成具体形式",
+        "zh-TW": "能把靈感、信念或創作逐渐做成具體形式",
+        "en": "can gradually give form to inspiration, faith or creativity"
+      },
+      "challenge": {
+        "zh-CN": "现实压力可能消磨理想，或理想让责任边界变模糊",
+        "zh-TW": "現實壓力可能消磨理想，或理想讓責任邊界變模糊",
+        "en": "reality can erode ideals, or ideals can blur responsibility"
+      },
+      "integration": {
+        "zh-CN": "给梦想时间表与边界，也让结构保留弹性与意义",
+        "zh-TW": "给夢想時間表與邊界，也讓結構保留弹性與意義",
+        "en": "give dreams timelines and boundaries while keeping structure flexible and meaningful"
+      }
+    },
+    "saturn|pluto": {
+      "theme": {
+        "zh-CN": "责任、结构与深层权力、重建之间的关系",
+        "zh-TW": "責任、結構與深層權力、重建之間的關係",
+        "en": "structure/responsibility and deep power/transformation"
+      },
+      "gift": {
+        "zh-CN": "面对长期压力时非常能撑，也能处理系统性重建",
+        "zh-TW": "面對長期壓力時非常能撑，也能處理係統性重建",
+        "en": "exceptional endurance and capacity for structural rebuilding"
+      },
+      "challenge": {
+        "zh-CN": "容易过度控制、承受太久，或把困难变成必须硬扛的证明",
+        "zh-TW": "容易過度控制、承受太久，或把困難變成必须硬扛的證明",
+        "en": "can over-control, endure too long or make hardship a test of worth"
+      },
+      "integration": {
+        "zh-CN": "区分必要坚持与无效消耗，让改变可以有计划地发生",
+        "zh-TW": "区分必要坚持與無效消耗，讓改變可以有计劃地發生",
+        "en": "distinguish useful persistence from needless depletion and plan transformation"
+      }
+    },
+    "uranus|neptune": {
+      "theme": {
+        "zh-CN": "创新突破与理想、想象、集体愿景之间的连接",
+        "zh-TW": "創新突破與理想、想象、集體願景之間的連接",
+        "en": "innovation and ideals/collective imagination"
+      },
+      "gift": {
+        "zh-CN": "容易对时代变化、文化氛围与新观念有敏锐感受",
+        "zh-TW": "容易對時代變化、文化氛围與新觀念有敏锐感受",
+        "en": "sensitivity to cultural shifts, new ideas and emerging possibilities"
+      },
+      "challenge": {
+        "zh-CN": "个人经验中可能较抽象，难分辨真正创新与一时想象",
+        "zh-TW": "個人經驗中可能較抽象，難分辨真正創新與一時想象",
+        "en": "can remain abstract, making it hard to distinguish innovation from fantasy"
+      },
+      "integration": {
+        "zh-CN": "把愿景放进具体实验与现实反馈中",
+        "zh-TW": "把願景放進具體實驗與現實反饋中",
+        "en": "put vision into concrete experiments and real feedback"
+      }
+    },
+    "uranus|pluto": {
+      "theme": {
+        "zh-CN": "改革、自由与深层权力、集体转化之间的关系",
+        "zh-TW": "改革、自由與深層權力、集體轉化之間的關係",
+        "en": "reform/freedom and deep power/transformation"
+      },
+      "gift": {
+        "zh-CN": "面对旧结构失效时有强烈更新意识与突破能力",
+        "zh-TW": "面對旧結構失效時有強烈更新意識與突破能力",
+        "en": "strong awareness of obsolete systems and capacity for radical change"
+      },
+      "challenge": {
+        "zh-CN": "容易把改变推向极端，或对控制结构高度敏感",
+        "zh-TW": "容易把改變推向極端，或對控制結構高度敏感",
+        "en": "change can become extreme or highly reactive to control"
+      },
+      "integration": {
+        "zh-CN": "把破坏旧模式和建立新结构视为同一件事的两半",
+        "zh-TW": "把破坏旧模式和建立新結構视為同一件事的兩半",
+        "en": "treat dismantling old patterns and building new structures as two halves of one process"
+      }
+    },
+    "neptune|pluto": {
+      "theme": {
+        "zh-CN": "理想、无意识与深层转化、集体心理之间的连接",
+        "zh-TW": "理想、無意識與深層轉化、集體心理之間的連接",
+        "en": "ideals/unconscious material and deep collective transformation"
+      },
+      "gift": {
+        "zh-CN": "对时代深层情绪、象征与无形变化具有感受力",
+        "zh-TW": "對時代深層情緒、象征與無形變化具有感受力",
+        "en": "sensitivity to symbolic and generational undercurrents"
+      },
+      "challenge": {
+        "zh-CN": "个人层面容易过于抽象，难以直接看出作用方式",
+        "zh-TW": "個人層面容易過于抽象，難以直接看出作用方式",
+        "en": "can be highly abstract at the personal level"
+      },
+      "integration": {
+        "zh-CN": "把抽象感受透过创作、研究或具体经验转成可以理解的东西",
+        "zh-TW": "把抽象感受透過創作、研究或具體經驗轉成可以理解的东西",
+        "en": "translate diffuse sensitivity into something concrete through art, research or lived experience"
+      }
+    }
+  },
+  "patterns": {
+    "stellium-sign": {
+      "name": {
+        "zh-CN": "星座群星",
+        "zh-TW": "星座群星",
+        "en": "Sign Stellium"
+      },
+      "core": {
+        "zh-CN": "同一个星座聚集三颗以上主要星体，某种表达方式会在整张盘里被反复强调。",
+        "zh-TW": "同一個星座聚集三顆以上主要星體，某種表達方式會在整張盘裡被反複強調。",
+        "en": "Three or more major bodies gather in one sign, repeatedly emphasizing one style of expression."
+      },
+      "strength": {
+        "zh-CN": "集中会带来明确风格、学习速度与持续投入。",
+        "zh-TW": "集中會帶來明確风格、學習速度與持續投入。",
+        "en": "Concentration can create a clear style, fast learning and sustained investment."
+      },
+      "challenge": {
+        "zh-CN": "同一种处理方式可能被过度使用，形成盲点。",
+        "zh-TW": "同一種處理方式可能被過度使用，形成盲點。",
+        "en": "The same strategy can become overused and create blind spots."
+      },
+      "growth": {
+        "zh-CN": "保留这个星座的优势，同时刻意发展它不擅长的补充方式。",
+        "zh-TW": "保留這個星座的優勢，同時刻意發展它不擅長的補充方式。",
+        "en": "Use the sign's strength while intentionally developing complementary modes."
+      }
+    },
+    "stellium-house": {
+      "name": {
+        "zh-CN": "宫位群星",
+        "zh-TW": "宮位群星",
+        "en": "House Stellium"
+      },
+      "core": {
+        "zh-CN": "同一个宫位聚集三颗以上主要星体，这个人生领域会成为高频主题。",
+        "zh-TW": "同一個宮位聚集三顆以上主要星體，這個人生领域會成為高频主題。",
+        "en": "Three or more major bodies occupy one house, making that life area a recurring high-priority theme."
+      },
+      "strength": {
+        "zh-CN": "投入度高，容易在这里累积经验、成果与辨识度。",
+        "zh-TW": "投入度高，容易在這裡累積經驗、成果與辨識度。",
+        "en": "High investment can build experience, achievement and visibility there."
+      },
+      "challenge": {
+        "zh-CN": "过度集中时，其他生活领域可能被忽略。",
+        "zh-TW": "過度集中時，其他生活领域可能被忽略。",
+        "en": "Too much concentration can cause other areas of life to be neglected."
+      },
+      "growth": {
+        "zh-CN": "让重点宫位成为核心舞台，但不要让它吞掉全部生活。",
+        "zh-TW": "讓重點宮位成為核心舞臺，但不要讓它吞掉全部生活。",
+        "en": "Let the emphasized house be a central stage without letting it consume the whole life."
+      }
+    },
+    "grand-trine": {
+      "name": {
+        "zh-CN": "大三角",
+        "zh-TW": "大三角",
+        "en": "Grand Trine"
+      },
+      "core": {
+        "zh-CN": "三颗行星彼此形成三分相，构成稳定、顺畅的能量循环。",
+        "zh-TW": "三顆行星彼此形成三分相，構成穩定、順暢的能量循环。",
+        "en": "Three planets are connected by trines, creating a stable, easy-flowing circuit."
+      },
+      "strength": {
+        "zh-CN": "相关能力通常较自然，容易形成可重复使用的天赋。",
+        "zh-TW": "相關能力通常較自然，容易形成可重複使用的天赋。",
+        "en": "The related capacities often feel natural and reusable as talent."
+      },
+      "challenge": {
+        "zh-CN": "因为事情容易流动，也可能缺少推动自己改变的压力。",
+        "zh-TW": "因為事情容易流動，也可能缺少推動自己改變的壓力。",
+        "en": "Ease can reduce the pressure to develop or challenge the pattern."
+      },
+      "growth": {
+        "zh-CN": "把自然优势主动投入具体目标，避免只停在舒服与潜力。",
+        "zh-TW": "把自然優勢主動投入具體目標，避免只停在舒服與潜力。",
+        "en": "Direct the natural advantage toward concrete goals instead of leaving it as comfort or potential."
+      }
+    },
+    "t-square": {
+      "name": {
+        "zh-CN": "T三角",
+        "zh-TW": "T三角",
+        "en": "T-Square"
+      },
+      "core": {
+        "zh-CN": "一组对分的两端同时与第三颗行星形成四分，相位压力集中到焦点行星。",
+        "zh-TW": "一組對分的兩端同時與第三顆行星形成四分，相位壓力集中到焦點行星。",
+        "en": "An opposition is squared by a third planet, concentrating tension at the apex."
+      },
+      "strength": {
+        "zh-CN": "张力强，往往能形成驱动力、竞争力与持续解决问题的动力。",
+        "zh-TW": "張力強，往往能形成驅動力、竞爭力與持續解決問題的動力。",
+        "en": "The pattern can create drive, competitiveness and persistent problem-solving energy."
+      },
+      "challenge": {
+        "zh-CN": "焦点行星容易过载，反复成为压力出口。",
+        "zh-TW": "焦點行星容易過载，反複成為壓力出口。",
+        "en": "The apex can become overloaded and repeatedly act as the pressure outlet."
+      },
+      "growth": {
+        "zh-CN": "理解对分两端的需求，并让焦点行星学会更成熟的表达方式。",
+        "zh-TW": "理解對分兩端的需求，並讓焦點行星學會更成熟的表達方式。",
+        "en": "Understand both ends of the opposition and develop a more mature expression of the apex planet."
+      }
+    },
+    "grand-cross": {
+      "name": {
+        "zh-CN": "大十字",
+        "zh-TW": "大十字",
+        "en": "Grand Cross"
+      },
+      "core": {
+        "zh-CN": "四颗行星形成两组对分与四个四分，构成封闭而强烈的张力结构。",
+        "zh-TW": "四顆行星形成兩組對分與四個四分，構成封閉而強烈的張力結構。",
+        "en": "Four planets form two oppositions and four squares, creating a closed high-tension structure."
+      },
+      "strength": {
+        "zh-CN": "耐压、执行与面对复杂问题的能力通常很强。",
+        "zh-TW": "耐壓、執行與面對複杂問題的能力通常很強。",
+        "en": "Pressure tolerance, execution and complex problem-solving can become strong."
+      },
+      "challenge": {
+        "zh-CN": "容易感觉四个方向同时拉扯，长期处在必须处理问题的状态。",
+        "zh-TW": "容易感覺四個方向同時拉扯，長期處在必须處理問題的状態。",
+        "en": "Life can feel pulled in several directions at once, with persistent demands to resolve conflict."
+      },
+      "growth": {
+        "zh-CN": "建立优先顺序和节奏，把持续压力转成稳定的长期行动。",
+        "zh-TW": "建立優先順序和節奏，把持續壓力轉成穩定的長期行動。",
+        "en": "Use priorities and pacing to convert sustained tension into durable action."
+      }
+    },
+    "kite": {
+      "name": {
+        "zh-CN": "风筝格局",
+        "zh-TW": "风筝格局",
+        "en": "Kite"
+      },
+      "core": {
+        "zh-CN": "一个大三角加入第四颗焦点行星：它与其中一颗对分，并与另外两颗六分。",
+        "zh-TW": "一個大三角加入第四顆焦點行星：它與其中一顆對分，並與另外兩顆六分。",
+        "en": "A Grand Trine is activated by a fourth focal planet that opposes one trine point and sextiles the other two."
+      },
+      "strength": {
+        "zh-CN": "顺畅天赋有了明确出口，比较容易被事件或目标激活。",
+        "zh-TW": "順暢天赋有了明確出口，比較容易被事件或目標激活。",
+        "en": "Natural talent gains a clearer outlet and is more likely to be activated by goals or events."
+      },
+      "challenge": {
+        "zh-CN": "焦点行星可能承受过多期待，或把所有发展都押在同一出口。",
+        "zh-TW": "焦點行星可能承受過多期待，或把所有發展都押在同一出口。",
+        "en": "The focal planet can carry too much expectation or become the only outlet for development."
+      },
+      "growth": {
+        "zh-CN": "让焦点行星成为推动器，同时持续使用大三角其他两端的支持。",
+        "zh-TW": "讓焦點行星成為推動器，同時持續使用大三角其他兩端的支持。",
+        "en": "Use the focal planet as an engine while continuing to draw on the support of the other trine points."
+      }
+    },
+    "mystic-rectangle": {
+      "name": {
+        "zh-CN": "神秘矩形",
+        "zh-TW": "神秘矩形",
+        "en": "Mystic Rectangle"
+      },
+      "core": {
+        "zh-CN": "四颗行星形成两组对分，并由两个三分和两个六分连接。",
+        "zh-TW": "四顆行星形成兩組對分，並由兩個三分和兩個六分連接。",
+        "en": "Four planets form two oppositions linked by two trines and two sextiles."
+      },
+      "strength": {
+        "zh-CN": "紧张与顺畅通道同时存在，通常有把冲突转成可行方案的能力。",
+        "zh-TW": "緊張與順暢通道同時存在，通常有把衝突轉成可行方案的能力。",
+        "en": "Tension and supportive pathways coexist, often helping conflict become workable solutions."
+      },
+      "challenge": {
+        "zh-CN": "容易因为总能找到替代路线，而延后真正面对核心对立。",
+        "zh-TW": "容易因為總能找到替代路線，而延後真正面對核心對立。",
+        "en": "Because alternatives are available, the core polarity can sometimes be postponed rather than faced."
+      },
+      "growth": {
+        "zh-CN": "让和谐相位成为解决张力的工具，而不是逃开张力的方法。",
+        "zh-TW": "讓和谐相位成為解決張力的工具，而不是逃開張力的方法。",
+        "en": "Use the harmonious aspects to work through tension rather than to avoid it."
+      }
+    }
+  },
+  "chartRulerNote": {
+    "zh-CN": "命主星以出生时间确定的上升星座为基础。天蝎、水瓶、双鱼同时显示现代主星与传统主星，避免把不同占星流派混成唯一答案。",
+    "zh-TW": "命主星以出生時間確定的上升星座為基礎。天蝎、水瓶、双鱼同時顯示現代主星與傳統主星，避免把不同占星流派混成唯一答案。",
+    "en": "The chart ruler is based on the Ascendant sign. Scorpio, Aquarius and Pisces show both modern and traditional rulers rather than treating one school as uniquely correct."
+  },
+  "patternRule": {
+    "zh-CN": "本项目的大型格局只使用目前已计算的五大主要相位。群星定义为三颗以上主要星体落在同一星座或同一宫位；大型格局依实际相位网络判断，不因星座大致位置而硬凑。",
+    "zh-TW": "本項目的大型格局只使用目前已计算的五大主要相位。群星定義為三顆以上主要星體落在同一星座或同一宮位；大型格局依實際相位網絡判斷，不因星座大致位置而硬凑。",
+    "en": "Major configurations use only the five major aspects currently calculated. A stellium is defined here as three or more major bodies in one sign or one house; other patterns are detected from the actual aspect network rather than approximate sign placement."
+  },
+  "exactness": {
+    "veryTight": {
+      "zh-CN": "极紧密：这是整张盘里非常强的触发点。",
+      "zh-TW": "極緊密：這是整張盘裡非常強的触發點。",
+      "en": "Very tight: this is a strong trigger in the chart."
+    },
+    "tight": {
+      "zh-CN": "紧密：这组互动通常会有明显存在感。",
+      "zh-TW": "緊密：這組互動通常會有明顯存在感。",
+      "en": "Tight: this interaction is likely to be clearly noticeable."
+    },
+    "clear": {
+      "zh-CN": "清楚成立：相位在常用容许度内较有辨识度。",
+      "zh-TW": "清楚成立：相位在常用容許度內較有辨識度。",
+      "en": "Clear: the aspect is well within the working orb."
+    },
+    "standard": {
+      "zh-CN": "成立：相位在本项目采用的主要相位容许度内。",
+      "zh-TW": "成立：相位在本項目采用的主要相位容許度內。",
+      "en": "Present: the aspect falls within the project's working orb."
+    }
+  }
+}

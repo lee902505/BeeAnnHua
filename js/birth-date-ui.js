@@ -68,6 +68,99 @@
     );
   }
 
+  function closeAllCustomSelects(except=null) {
+    document.querySelectorAll('.birth-custom-select.is-open').forEach(root => {
+      if (except && root === except) return;
+      root.classList.remove('is-open');
+      root.querySelector('[data-custom-trigger]')?.setAttribute('aria-expanded','false');
+    });
+  }
+
+  function optionText(select) {
+    const option = select.options[select.selectedIndex];
+    return option?.textContent || '';
+  }
+
+  function rebuildCustomOptions(select, root) {
+    const menu = root.querySelector('[data-custom-menu]');
+    const trigger = root.querySelector('[data-custom-trigger]');
+    if (!menu || !trigger) return;
+
+    menu.innerHTML = Array.from(select.options).map((option,index) => `
+      <button type="button"
+        class="birth-custom-option${option.selected ? ' is-selected' : ''}"
+        data-custom-option-index="${index}"
+        ${option.disabled ? 'disabled' : ''}>
+        ${option.textContent}
+      </button>
+    `).join('');
+
+    trigger.querySelector('[data-custom-value]').textContent = optionText(select);
+
+    menu.querySelectorAll('[data-custom-option-index]').forEach(button => {
+      button.addEventListener('click', () => {
+        const index = Number(button.dataset.customOptionIndex);
+        const option = select.options[index];
+        if (!option || option.disabled) return;
+
+        select.selectedIndex = index;
+        select.dispatchEvent(new Event('change',{bubbles:true}));
+
+        menu.querySelectorAll('.birth-custom-option').forEach(other => {
+          other.classList.toggle('is-selected', other === button);
+        });
+
+        trigger.querySelector('[data-custom-value]').textContent = option.textContent;
+        root.classList.remove('is-open');
+        trigger.setAttribute('aria-expanded','false');
+      });
+    });
+  }
+
+  function enhanceSelect(select) {
+    if (!select || select.dataset.customEnhanced === '1') return;
+    select.dataset.customEnhanced = '1';
+
+    const root = document.createElement('div');
+    root.className = 'birth-custom-select';
+    root.innerHTML = `
+      <button type="button" class="birth-custom-trigger"
+        data-custom-trigger aria-haspopup="listbox" aria-expanded="false">
+        <span data-custom-value></span>
+        <span class="birth-custom-chevron" aria-hidden="true">⌄</span>
+      </button>
+      <div class="birth-custom-menu" data-custom-menu role="listbox"></div>
+    `;
+
+    select.insertAdjacentElement('afterend',root);
+
+    const trigger = root.querySelector('[data-custom-trigger]');
+    trigger.addEventListener('click',event => {
+      event.preventDefault();
+      const willOpen = !root.classList.contains('is-open');
+      closeAllCustomSelects(root);
+      root.classList.toggle('is-open',willOpen);
+      trigger.setAttribute('aria-expanded',willOpen ? 'true' : 'false');
+
+      if (willOpen) {
+        const chosen = root.querySelector('.birth-custom-option.is-selected');
+        if (chosen) requestAnimationFrame(() => chosen.scrollIntoView({block:'nearest'}));
+      }
+    });
+
+    rebuildCustomOptions(select,root);
+
+    const observer = new MutationObserver(() => rebuildCustomOptions(select,root));
+    observer.observe(select,{childList:true,subtree:true,attributes:true});
+
+    select.addEventListener('change',() => rebuildCustomOptions(select,root));
+  }
+
+  function setupCustomDesktopSelects(widget) {
+    enhanceSelect(widget.year);
+    enhanceSelect(widget.month);
+  }
+
   function setMode(widget,mode,sync=true) {
     widget.mode = mode === 'lunar' ? 'lunar' : 'solar';
 
@@ -430,6 +523,7 @@
     widgets.set(id,widget);
     ensureLeapUI(widget);
     ensureDayGrid(widget);
+    setupCustomDesktopSelects(widget);
 
     el.querySelectorAll('[data-birth-mode]').forEach(btn => {
       btn.textContent = btn.dataset.birthMode==='lunar' ? t('lunar') : t('solar');
@@ -462,6 +556,14 @@
       if (widget) setMode(widget,mode);
     }
   };
+
+  document.addEventListener('click',event => {
+    if (!event.target.closest?.('.birth-custom-select')) closeAllCustomSelects();
+  });
+
+  document.addEventListener('keydown',event => {
+    if (event.key === 'Escape') closeAllCustomSelects();
+  });
 
   if (document.readyState==='loading') {
     document.addEventListener('DOMContentLoaded',init,{once:true});

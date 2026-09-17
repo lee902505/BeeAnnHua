@@ -134,3 +134,34 @@ https://gist.github.com/pingdongyi/bf75e285bff445e4fb2820729ba913c4
 
 V0.10.3.6 does not load a lunar-calendar library from a CDN at runtime.
 The conversion logic is bundled locally so lunar birth-date input remains stable on Safari / GitHub Pages.
+
+
+## V0.10.4 Natal synthesis, chart ruler and aspect patterns
+
+The V0.10.4 interpretation layer remains original Stellar Diary copy. Pattern definitions were cross-checked against conventional Western astrology references:
+
+- Astrodienst Astrowiki — Aspect Figure:
+  https://www.astro.com/astrowiki/en/Aspect_Figure
+- Astrodienst Astrowiki — Grand Trine:
+  https://www.astro.com/astrowiki/en/Grand_Trine
+- Astrodienst Astrowiki — T-Square:
+  https://www.astro.com/astrowiki/en/T-Square
+- Astrodienst Astrowiki — Grand Cross:
+  https://www.astro.com/astrowiki/en/Grand_Cross
+- Astrodienst Astrowiki — Kite:
+  https://www.astro.com/astrowiki/en/Kite
+- Astrodienst Astrowiki — Mystic Rectangle:
+  https://www.astro.com/astrowiki/en/Rectangle
+- Cafe Astrology — Aspect Patterns:
+  https://cafeastrology.com/articles/aspectpatterns.html
+
+Implementation notes:
+- Grand Trine: three planets connected by three trines.
+- T-Square: an opposition with a third planet square to both ends.
+- Grand Cross: four planets with two oppositions and four squares.
+- Kite: a Grand Trine plus a fourth planet opposing one trine point and sextiling the other two.
+- Mystic Rectangle: two oppositions connected by two trines and two sextiles.
+- Stellium is a project rule here: 3+ of the ten major bodies in the same sign or same house.
+- Chart ruler is derived from the Ascendant sign; Scorpio, Aquarius and Pisces expose both modern and traditional ruler references.
+
+These are traditional astrological interpretive structures and are not scientifically established personality or prediction systems.

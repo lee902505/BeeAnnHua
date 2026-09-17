@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#5966a4" />
   <title>星座测算 | 星辰日记</title>
-  <link rel="stylesheet" href="../css/style.css?v=0.10.3.8" />
+  <link rel="stylesheet" href="../css/style.css?v=0.10.4" />
 </head>
 <body class="astrology-page-body">
   <div class="site-shell astrology-shell">
@@ -36,7 +36,7 @@
             <span id="dateLabel">出生日期</span>
             <div class="birth-calendar-toggle" role="group" aria-label="出生日期历法">
               <button type="button" class="birth-calendar-btn is-active" data-birth-mode="solar" aria-pressed="true">阳历</button>
-              <button type="button" class="birth-calendar-btn" data-birth-mode="lunar" aria-pressed="false">农历</button>
+              <button type="button" class="birth-calendar-btn" data-birth-mode="lunar" aria-pressed="false">阴历</button>
             </div>
             <div data-birth-solar-panel>
               <span class="astro-native-input-shell">
@@ -45,9 +45,9 @@
             </div>
             <div class="birth-lunar-panel" data-birth-lunar-panel hidden>
               <div class="birth-lunar-grid">
-                <select data-lunar-year aria-label="农历年份"></select>
-                <select data-lunar-month aria-label="农历月份"></select>
-                <select data-lunar-day aria-label="农历日期"></select>
+                <select data-lunar-year aria-label="阴历年份"></select>
+                <select data-lunar-month aria-label="阴历月份"></select>
+                <select data-lunar-day aria-label="阴历日期"></select>
               </div>
               <small class="birth-lunar-preview" data-lunar-preview hidden></small>
             </div>
@@ -222,12 +222,26 @@
             </div>
           </details>
 
-          <details class="astro-expand-section" open>
+          <details class="astro-expand-section" id="structureDetails" open>
             <summary>
               <span class="astro-section-index">05</span>
               <span>
+                <strong id="structureSectionTitle">命盘结构</strong>
+                <small id="structureSectionHint">命主星、群星与主要相位格局</small>
+              </span>
+              <span class="astro-summary-toggle" aria-hidden="true"></span>
+            </summary>
+            <div class="astro-expand-content">
+              <article class="astro-structure-card" id="chartStructure"></article>
+            </div>
+          </details>
+
+          <details class="astro-expand-section" open>
+            <summary>
+              <span class="astro-section-index">06</span>
+              <span>
                 <strong id="overviewSectionTitle">完整摘要</strong>
-                <small id="overviewSectionHint">元素、模式、宫位重点、逆行与紧密相位的整体观察</small>
+                <small id="overviewSectionHint">核心性格、情绪、沟通、关系、行动与事业方向的整合</small>
               </span>
               <span class="astro-summary-toggle" aria-hidden="true"></span>
             </summary>
@@ -256,13 +270,14 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/astronomy-engine@2.1.19/astronomy.browser.min.js"></script>
-  <script src="../js/astrology-engine.js?v=0.10.3.8"></script>
-  <script src="../js/astrology-full.js?v=0.10.3.8"></script>
-  <script src="../js/player-profile.js?v=0.10.3.8"></script>
-  <script src="../js/bark.js?v=0.10.3.8"></script>
-  <script src="../js/china-location.js?v=0.10.3.8"></script>
-  <script src="../js/lunar-calendar.js?v=0.10.3.8"></script>
-  <script src="../js/birth-date-ui.js?v=0.10.3.8"></script>
-  <script src="../js/astrology.js?v=0.10.3.8"></script>
+  <script src="../js/astrology-engine.js?v=0.10.4"></script>
+  <script src="../js/astrology-synthesis.js?v=0.10.4"></script>
+  <script src="../js/astrology-full.js?v=0.10.4"></script>
+  <script src="../js/player-profile.js?v=0.10.4"></script>
+  <script src="../js/bark.js?v=0.10.4"></script>
+  <script src="../js/china-location.js?v=0.10.4"></script>
+  <script src="../js/lunar-calendar.js?v=0.10.4"></script>
+  <script src="../js/birth-date-ui.js?v=0.10.4"></script>
+  <script src="../js/astrology.js?v=0.10.4"></script>
 </body>
 </html>
