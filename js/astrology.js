@@ -8,7 +8,8 @@
     selectedCity: null,
     citySearchTimer: null,
     citySearchAbort: null,
-    lastResult: null
+    lastResult: null,
+    lastReportPayload: null
   };
   const $ = id => document.getElementById(id);
 
@@ -695,6 +696,31 @@
     });
   }
 
+  async function prepareNatalReportPayload(result, city, unknown, dateInfo) {
+    if (!window.XingchenReportPayload?.buildNatal) return null;
+    try {
+      const payload = await window.XingchenReportPayload.buildNatal({
+        result,
+        subject:window.XingchenPlayer?.getProfile?.() || null,
+        birth:{
+          dateInfo,
+          solarDate:dateInfo?.date,
+          calendarMode:dateInfo?.mode,
+          originalLabel:dateInfo?.originalLabel,
+          time:unknown ? null : $('birthTime').value,
+          unknownTime:unknown,
+          city
+        }
+      });
+      await window.XingchenReportPayload.persist('natal', payload);
+      state.lastReportPayload = payload;
+      return payload;
+    } catch (error) {
+      console.warn('[星辰日记] 本命盘报告资料准备失败：', error);
+      return null;
+    }
+  }
+
   async function calculate() {
     if (!window.XingchenPlayer?.hasProfile?.()) {
       window.XingchenPlayer?.ensure?.(() => calculate());
@@ -715,6 +741,7 @@
 
       renderResult(result, city);
       saveLastAstrologyInput(city, unknown, dateInfo);
+      await prepareNatalReportPayload(result, city, unknown, dateInfo);
       sendAstrologyBark(result, city, dateInfo);
     } catch(err) {
       console.error(err);

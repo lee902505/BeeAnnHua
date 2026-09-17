@@ -1,0 +1,19 @@
+{
+  "enabled": true,
+  "baseUrl": "https://api.example.com",
+  "endpoints": {
+    "health": "/v1/health",
+    "natalReport": "/v1/reports/natal",
+    "synastryReport": "/v1/reports/synastry"
+  },
+  "request": {
+    "timeoutMs": 15000,
+    "retries": 2,
+    "retryBaseMs": 650
+  },
+  "features": {
+    "aiReports": true,
+    "cloudSync": false,
+    "barkProxy": false
+  }
+}

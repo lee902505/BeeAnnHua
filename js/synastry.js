@@ -1,5 +1,5 @@
 (() => {
-  const state = { signs:[], cities:[], meta:null, scoreConfig:null, cityA:null, cityB:null, timerA:null, timerB:null, abortA:null, abortB:null, resultA:null, resultB:null };
+  const state = { signs:[], cities:[], meta:null, scoreConfig:null, cityA:null, cityB:null, timerA:null, timerB:null, abortA:null, abortB:null, resultA:null, resultB:null, lastReportPayload:null };
   const $ = id => document.getElementById(id);
   const PLANETS = ['sun','moon','mercury','venus','mars','jupiter','saturn','uranus','neptune','pluto'];
   const PLANET_NAMES = {
@@ -382,8 +382,67 @@
       : '合相不会一律加分：金星－火星、太阳－月亮等可增加亲密或协调；土星、冥王星、火星、天王星的合相则会依不同维度加入责任、强度或磨合压力。';
   }
 
+  async function prepareSynastryReportPayload(A,B,type,aspects,compatibility){
+    if(!window.XingchenReportPayload?.buildSynastry) return null;
+    try{
+      const payload=await window.XingchenReportPayload.buildSynastry({
+        relationshipType:type,
+        personA:{...A,result:state.resultA},
+        personB:{...B,result:state.resultB},
+        crossAspects:aspects,
+        compatibility
+      });
+      await window.XingchenReportPayload.persist('synastry',payload);
+      state.lastReportPayload=payload;
+      return payload;
+    }catch(error){
+      console.warn('[星辰日记] 合盘报告资料准备失败：',error);
+      return null;
+    }
+  }
+
   async function calculate(){
-    $('synError').hidden=true;try{if(!window.Astronomy||!window.XingchenAstrologyEngine)throw new Error(ui('engineError'));const A=personData('A'),B=personData('B'),type=$('relationshipType').value;$('calculateSynBtn').disabled=true;$('calculateSynText').textContent=ui('calculating');state.resultA=XingchenAstrologyEngine.calculate({date:A.date,time:A.time,city:A.city,unknownTime:A.unknown});state.resultB=XingchenAstrologyEngine.calculate({date:B.date,time:B.time,city:B.city,unknownTime:B.unknown});const aspects=crossAspects(state.resultA,state.resultB),cats=categories(aspects),compatibility=calculateCompatibility(aspects,type);renderCompatibility(compatibility,type);$('coreAName').textContent=A.name;$('coreBName').textContent=B.name;$('coreA').innerHTML=corePositionHtml(state.resultA);$('coreB').innerHTML=corePositionHtml(state.resultB);$('pairChip').textContent=`${A.name} × ${B.name} · ${loc(state.meta.relationshipLenses[type])}`;renderOverview(aspects,type);renderSection('secCore',cats.core,A.name,B.name,type);renderSection('secEmotion',cats.emotion,A.name,B.name,type);renderSection('secComm',cats.comm,A.name,B.name,type);renderSection('secLove',cats.love,A.name,B.name,type);renderSection('secStable',cats.stable,A.name,B.name,type);renderSection('secChallenge',cats.challenge,A.name,B.name,type);renderSummary(aspects,A.name,B.name,type);$('synResult').hidden=false;requestAnimationFrame(()=>$('synResult').scrollIntoView({behavior:'smooth',block:'start'}));}catch(e){console.error(e);$('synError').textContent=e.message||String(e);$('synError').hidden=false;}finally{$('calculateSynBtn').disabled=false;$('calculateSynText').textContent=ui('calc');}}
+    $('synError').hidden=true;
+    try{
+      if(!window.Astronomy||!window.XingchenAstrologyEngine) throw new Error(ui('engineError'));
+      const A=personData('A');
+      const B=personData('B');
+      const type=$('relationshipType').value;
+      $('calculateSynBtn').disabled=true;
+      $('calculateSynText').textContent=ui('calculating');
+
+      state.resultA=XingchenAstrologyEngine.calculate({date:A.date,time:A.time,city:A.city,unknownTime:A.unknown});
+      state.resultB=XingchenAstrologyEngine.calculate({date:B.date,time:B.time,city:B.city,unknownTime:B.unknown});
+      const aspects=crossAspects(state.resultA,state.resultB);
+      const cats=categories(aspects);
+      const compatibility=calculateCompatibility(aspects,type);
+
+      renderCompatibility(compatibility,type);
+      $('coreAName').textContent=A.name;
+      $('coreBName').textContent=B.name;
+      $('coreA').innerHTML=corePositionHtml(state.resultA);
+      $('coreB').innerHTML=corePositionHtml(state.resultB);
+      $('pairChip').textContent=`${A.name} × ${B.name} · ${loc(state.meta.relationshipLenses[type])}`;
+      renderOverview(aspects,type);
+      renderSection('secCore',cats.core,A.name,B.name,type);
+      renderSection('secEmotion',cats.emotion,A.name,B.name,type);
+      renderSection('secComm',cats.comm,A.name,B.name,type);
+      renderSection('secLove',cats.love,A.name,B.name,type);
+      renderSection('secStable',cats.stable,A.name,B.name,type);
+      renderSection('secChallenge',cats.challenge,A.name,B.name,type);
+      renderSummary(aspects,A.name,B.name,type);
+      await prepareSynastryReportPayload(A,B,type,aspects,compatibility);
+      $('synResult').hidden=false;
+      requestAnimationFrame(()=>$('synResult').scrollIntoView({behavior:'smooth',block:'start'}));
+    }catch(e){
+      console.error(e);
+      $('synError').textContent=e.message||String(e);
+      $('synError').hidden=false;
+    }finally{
+      $('calculateSynBtn').disabled=false;
+      $('calculateSynText').textContent=ui('calc');
+    }
+  }
   async function init(){
     const max=new Date().toISOString().slice(0,10);$('dateA').max=max;$('dateB').max=max;try{const[sr,cr,mr,scoreR]=await Promise.all([fetch('../data/astrology/signs.json',{cache:'no-store'}),fetch('../data/astrology/cities.json',{cache:'no-store'}),fetch('../data/astrology/synastry-interpretations.json',{cache:'no-store'}),fetch('../data/astrology/compatibility-score.json',{cache:'no-store'})]);const s=await sr.json(),c=await cr.json(),m=await mr.json(),score=await scoreR.json();state.signs=s.signs;state.cities=c.cities;state.meta=m;state.scoreConfig=score;updateText();}catch(e){console.error(e);$('synError').textContent='Synastry data could not be loaded.';$('synError').hidden=false;}setupCity('A');setupCity('B');['A','B'].forEach(x=>$(`unknown${x}`).addEventListener('change',()=>{$(`time${x}`).disabled=$(`unknown${x}`).checked;}));$('calculateSynBtn').addEventListener('click',calculate);
   }

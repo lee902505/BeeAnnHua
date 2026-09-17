@@ -2,7 +2,10 @@
   const KEYS = Object.freeze({
     astrologyLastInput: 'xingchen-astrology-last-input-v1',
     tarotHistory: 'xingchen-tarot-history-v1',
-    fortuneHistory: 'xingchen-fortune-history'
+    fortuneHistory: 'xingchen-fortune-history',
+    reportPayloadNatal: 'xingchen-report-payload-natal-v1',
+    reportPayloadSynastry: 'xingchen-report-payload-synastry-v1',
+    apiOutbox: 'xingchen-api-outbox-v1'
   });
 
   function cloneFallback(value) {

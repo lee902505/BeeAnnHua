@@ -1,3 +1,20 @@
+# 星辰日记 / Stellar Diary — V0.10.7.0
+
+## Backend Foundation · AI 报告资料层
+- 新增统一后端配置 `js/backend-config.js`，默认关闭远端 API，不在 GitHub Pages 内写入任何新 secret。
+- 新增 `js/api-client.js`：Request ID、15 秒 timeout、指数重试、HTTP 可重试状态判断、Idempotency-Key、稳定 payload hash。
+- 新增 `js/report-payload.js`：本命盘与两人合盘会在前端完成天文计算后，自动整理成 `stellar-diary.report-input` V1 结构化 JSON。
+- 本命盘 payload 包含十星、度数、宫位、逆行、四轴、十二宫、主要相位、元素／模式分布、命主星与主要格局、出生时间不确定性。
+- 合盘 payload 包含 A/B 两张标准化本命盘、关系类型、全部跨盘主要相位、合拍指数与五维分数。
+- 新增本机 payload cache：相同命盘使用 fingerprint 去重，默认各保留最近 5 份，为 V0.11 AI 完整报告直接复用。
+- 新增未来离线／失败重送 outbox 基础结构，但本版不会自动向任何远端服务发送资料。
+- 新增 `data/backend/report-input-schema.json` 与 `docs/BACKEND_FOUNDATION.md`，明确未来 API contract 与隐私／secret 边界。
+- 星盘、合盘、塔罗、每日运势、Bark、阴历、城市搜索、视觉与既有本机纪录逻辑保持不变。
+
+> V0.10.7.0 是后端边界准备版本：当前 UI 不新增「AI 报告」按钮，也不会自动调用远端 API。
+
+---
+
 # 星辰日记 / Stellar Diary — V0.10.6.3
 
 ## Daily Fortune Visual Upgrade · 星辰签筒
@@ -1392,7 +1409,7 @@ V0.7 为塔罗模组的进阶功能版本，不新增任何图片素材，继续
 - Rider–Waite 78 张正面牌、新牌背、无放回随机、50/50 正逆位、五种牌阵、历史记录与 Bark 功能均未更动。
 
 
-## V0.10.6.3 — Natal Chart + Synastry Visual Upgrade
+## V0.10.7.0 — Natal Chart + Synastry Visual Upgrade
 - 本命星盘页正式接入首页 03 的梦幻星盘主视觉；Hero 使用 `images/home/03-natal-chart.webp`，以深蓝紫渐层遮罩保证标题与说明可读性。
 - 本命星盘输入区升级为深夜蓝紫星空表单环境，阳历／阴历切换、城市搜索、未知时间、手动坐标与计算按钮统一成香槟金细节语言。
 - 本命星盘结果区采用较明亮的「星辰日记纸张」视觉：淡薰衣草／雾粉底、紫蓝星盘强调色与深夜摘要卡，兼顾长篇报告阅读舒适度。
