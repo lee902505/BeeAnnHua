@@ -6425,7 +6425,7 @@ b {
 }
 
 /* =====================================================================
-   V0.10.6.1 · Stellar Tarot Card System
+   V0.10.6.3 · Stellar Tarot Card System
    Approved Stellar Diary card back + premium card packaging.
    This layer intentionally changes only card presentation, not tarot logic.
    ===================================================================== */
@@ -7303,3 +7303,1234 @@ b {
     animation: none !important;
   }
 }
+
+/* =========================================================
+   V0.10.6.3 — Natal Chart + Synastry Visual Upgrade
+   Stellar Diary celestial astrology environment
+   ========================================================= */
+
+/* ---------- Shared celestial functional-page framing ---------- */
+.astrology-page-body,
+.synastry-page-body {
+  --stellar-gold: #e3bf84;
+  --stellar-gold-soft: #f0d7aa;
+  --stellar-ivory: #fff9f0;
+  --stellar-ink: #3d3552;
+  --stellar-muted: #8d829f;
+  --stellar-line: rgba(213,187,151,.25);
+}
+
+.astrology-page-body {
+  background:
+    radial-gradient(circle at 12% 3%, rgba(123,137,211,.30), transparent 28%),
+    radial-gradient(circle at 88% 12%, rgba(205,173,226,.23), transparent 26%),
+    linear-gradient(180deg, #10162d 0%, #222b53 34%, #777ab2 60%, #eee8f5 100%);
+}
+
+.synastry-page-body {
+  background:
+    radial-gradient(circle at 15% 4%, rgba(177,114,176,.28), transparent 28%),
+    radial-gradient(circle at 88% 11%, rgba(229,171,191,.20), transparent 26%),
+    linear-gradient(180deg, #161228 0%, #30234c 36%, #7a6491 61%, #f0e7f1 100%);
+}
+
+.astrology-page-body .site-shell.astrology-shell,
+.synastry-page-body .site-shell.synastry-shell {
+  max-width: 1180px;
+  padding-bottom: 34px;
+}
+
+.astrology-page-body .astrology-subpage-header,
+.synastry-page-body .synastry-subpage-header {
+  position: relative;
+  z-index: 6;
+  color: var(--stellar-ivory);
+  border-color: rgba(236,207,164,.12);
+  box-shadow: 0 16px 36px rgba(7,6,16,.22);
+}
+
+.astrology-page-body .astrology-subpage-header {
+  background:
+    radial-gradient(circle at 80% 30%, rgba(149,165,232,.14), transparent 24%),
+    linear-gradient(135deg, rgba(16,22,45,.98), rgba(39,48,88,.97) 62%, rgba(67,60,105,.96));
+}
+
+.synastry-page-body .synastry-subpage-header {
+  background:
+    radial-gradient(circle at 82% 28%, rgba(229,175,194,.11), transparent 24%),
+    linear-gradient(135deg, rgba(22,16,39,.98), rgba(52,35,72,.97) 60%, rgba(91,58,92,.96));
+}
+
+.astrology-page-body .astrology-subpage-header .brand-title,
+.astrology-page-body .astrology-subpage-header .brand-subtitle,
+.astrology-page-body .astrology-subpage-header .back-link,
+.synastry-page-body .synastry-subpage-header .brand-title,
+.synastry-page-body .synastry-subpage-header .brand-subtitle,
+.synastry-page-body .synastry-subpage-header .back-link {
+  color: var(--stellar-ivory);
+}
+
+.astrology-page-body .astrology-subpage-header .back-link,
+.synastry-page-body .synastry-subpage-header .back-link {
+  border-color: rgba(240,212,171,.18);
+  background: rgba(255,255,255,.035);
+}
+
+.astrology-page-body .astrology-main,
+.synastry-page-body .synastry-main {
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 30px 82px rgba(9,7,20,.34);
+}
+
+/* ---------- 03 Natal Chart hero ---------- */
+.astrology-page-body .astrology-hero {
+  position: relative;
+  min-height: 400px;
+  padding: 66px clamp(28px, 6vw, 76px) 62px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  color: var(--stellar-ivory);
+  background-image:
+    linear-gradient(90deg, rgba(16,20,42,.94) 0%, rgba(23,28,53,.83) 32%, rgba(37,40,73,.46) 60%, rgba(31,27,62,.08) 100%),
+    linear-gradient(180deg, rgba(14,17,35,.10), rgba(18,20,42,.42)),
+    url('../images/home/03-natal-chart.webp');
+  background-size: cover;
+  background-position: center 49%;
+  border-bottom: 1px solid rgba(232,204,164,.16);
+}
+
+.astrology-page-body .astrology-hero::before,
+.synastry-page-body .synastry-hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.astrology-page-body .astrology-hero::before {
+  background:
+    radial-gradient(circle at 73% 48%, rgba(255,222,164,.10), transparent 17%),
+    linear-gradient(180deg, transparent 66%, rgba(18,20,41,.56) 100%);
+}
+
+.astrology-page-body .astrology-hero::after {
+  content: "☾   ✦   ☽";
+  position: absolute;
+  right: clamp(28px, 5vw, 64px);
+  top: 34px;
+  color: rgba(250,222,177,.74);
+  letter-spacing: .72rem;
+  font-size: 1.02rem;
+  text-shadow: 0 0 20px rgba(239,201,139,.25);
+}
+
+.astrology-page-body .astrology-hero > *,
+.synastry-page-body .synastry-hero > * {
+  position: relative;
+  z-index: 1;
+}
+
+.astrology-page-body .astrology-hero .panel-number,
+.synastry-page-body .synastry-hero .panel-number {
+  color: var(--stellar-gold-soft);
+  opacity: .9;
+}
+
+.astrology-page-body .astrology-hero .panel-en,
+.synastry-page-body .synastry-hero .panel-en {
+  color: rgba(255,245,232,.74);
+}
+
+.astrology-page-body .astrology-hero h1,
+.synastry-page-body .synastry-hero h1 {
+  max-width: 670px;
+  margin: 6px 0 13px;
+  font-size: clamp(2.7rem, 6vw, 5.15rem);
+  font-weight: 650;
+  letter-spacing: .07em;
+  text-shadow: 0 7px 30px rgba(0,0,0,.27);
+}
+
+.astrology-page-body .astrology-intro,
+.synastry-page-body .synastry-intro {
+  max-width: 680px;
+  margin: 0;
+  color: rgba(255,248,241,.89);
+  font-size: 1rem;
+  line-height: 1.88;
+  text-shadow: 0 2px 16px rgba(0,0,0,.28);
+}
+
+.astrology-page-body .astrology-synastry-entry {
+  margin-top: 23px;
+  padding: 11px 17px;
+  border-color: rgba(240,212,171,.28);
+  color: #fff8ed;
+  background: rgba(20,24,49,.33);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.035), 0 10px 30px rgba(7,7,17,.12);
+  backdrop-filter: blur(5px);
+}
+
+.astrology-page-body .astrology-synastry-entry:hover,
+.astrology-page-body .astrology-synastry-entry:focus-visible {
+  border-color: rgba(240,212,171,.52);
+  background: rgba(239,202,145,.10);
+}
+
+/* ---------- 03 Natal input environment ---------- */
+.astrology-page-body .astrology-form-section {
+  position: relative;
+  padding: 40px clamp(22px, 5vw, 58px) 48px;
+  overflow: hidden;
+  color: #f6f2fb;
+  background:
+    radial-gradient(circle at 8% 8%, rgba(104,125,205,.13), transparent 24%),
+    radial-gradient(circle at 91% 18%, rgba(221,182,125,.08), transparent 24%),
+    linear-gradient(180deg, #171c33 0%, #13182b 100%);
+}
+
+.astrology-page-body .astrology-form-section::before,
+.synastry-page-body .synastry-form-section::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: .34;
+  background-image:
+    radial-gradient(circle at 15% 20%, rgba(255,255,255,.42) 0 1px, transparent 1.4px),
+    radial-gradient(circle at 73% 16%, rgba(255,255,255,.34) 0 1px, transparent 1.35px),
+    radial-gradient(circle at 44% 72%, rgba(255,255,255,.28) 0 1px, transparent 1.25px),
+    radial-gradient(circle at 88% 79%, rgba(238,205,155,.33) 0 1px, transparent 1.3px);
+  background-size: 155px 145px, 208px 183px, 231px 217px, 191px 209px;
+}
+
+.astrology-page-body .astrology-form-section > *,
+.synastry-page-body .synastry-form-section > * {
+  position: relative;
+  z-index: 1;
+}
+
+.astrology-page-body .astro-field > span,
+.synastry-page-body .astro-field > span {
+  color: #eee6ef;
+}
+
+.astrology-page-body .astro-field input,
+.astrology-page-body .astro-field select,
+.synastry-page-body .astro-field input,
+.synastry-page-body .astro-field select,
+.synastry-page-body .synastry-relation-box select {
+  color: #fff9f2;
+  border-color: rgba(232,202,159,.17);
+  background: rgba(255,255,255,.045);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.025);
+}
+
+.astrology-page-body .astro-field input:focus,
+.astrology-page-body .astro-field select:focus,
+.synastry-page-body .astro-field input:focus,
+.synastry-page-body .astro-field select:focus,
+.synastry-page-body .synastry-relation-box select:focus {
+  border-color: rgba(235,199,142,.54);
+  box-shadow: 0 0 0 3px rgba(219,179,121,.075);
+}
+
+.astrology-page-body .birth-calendar-toggle,
+.synastry-page-body .birth-calendar-toggle {
+  border-color: rgba(231,202,180,.14);
+  background: rgba(255,255,255,.035);
+}
+
+.astrology-page-body .birth-calendar-btn.is-active,
+.synastry-page-body .birth-calendar-btn.is-active {
+  color: #2f2d45;
+  background: linear-gradient(135deg, #f5dfba, #e9c894);
+  box-shadow: 0 5px 14px rgba(6,5,12,.18);
+}
+
+.astrology-page-body .astro-check-row {
+  border-color: rgba(232,201,157,.13);
+  background: rgba(255,255,255,.032);
+}
+
+.astrology-page-body .astro-check-row small,
+.astrology-page-body .astro-city-field small,
+.synastry-page-body .astro-check-row small,
+.synastry-page-body .astro-city-field small,
+.synastry-page-body .synastry-relation-box p {
+  color: #b8a9b9;
+}
+
+.astrology-page-body .astro-manual-location {
+  border-color: rgba(232,199,155,.17);
+  background: rgba(255,255,255,.025);
+}
+
+.astrology-page-body .astrology-calculate-btn,
+.synastry-page-body .astrology-calculate-btn {
+  min-width: 220px;
+  border-color: rgba(255,246,226,.70);
+  color: #3b3142;
+  background: linear-gradient(135deg, #fff0e7, #efd8c5 62%, #e7cda4);
+  box-shadow: 0 14px 30px rgba(5,4,11,.24), inset 0 1px 0 rgba(255,255,255,.65);
+}
+
+.astrology-page-body .astrology-calculate-btn:hover,
+.astrology-page-body .astrology-calculate-btn:focus-visible,
+.synastry-page-body .astrology-calculate-btn:hover,
+.synastry-page-body .astrology-calculate-btn:focus-visible {
+  box-shadow: 0 18px 38px rgba(5,4,11,.29), 0 0 26px rgba(226,185,123,.09);
+}
+
+/* ---------- Natal results: luminous celestial journal paper ---------- */
+.astrology-page-body .astrology-result {
+  color: #4a4058;
+  background:
+    radial-gradient(circle at 84% 2%, rgba(188,181,232,.20), transparent 23%),
+    radial-gradient(circle at 8% 22%, rgba(235,200,214,.14), transparent 24%),
+    linear-gradient(180deg, #faf8fd 0%, #f5f1f8 54%, #f8f5f7 100%);
+}
+
+.astrology-page-body .astrology-result-header h2 { color: #39324d; }
+.astrology-page-body .astrology-result-header p { color: #81778f; }
+.astrology-page-body .astrology-result-location {
+  color: #5d5272;
+  border: 1px solid rgba(135,117,166,.12);
+  background: rgba(255,255,255,.66);
+  box-shadow: 0 8px 22px rgba(75,61,102,.05);
+}
+
+.astrology-page-body .astro-result-card {
+  border-color: rgba(122,111,158,.16);
+  background:
+    radial-gradient(circle at 84% 9%, rgba(157,157,221,.17), transparent 29%),
+    linear-gradient(180deg, rgba(255,255,255,.95), rgba(252,249,253,.96));
+  box-shadow: 0 17px 36px rgba(63,52,89,.075);
+}
+
+.astrology-page-body .astro-result-glyph {
+  color: #625d93;
+  background: linear-gradient(135deg, #eceafd, #f6eaf3);
+  box-shadow: inset 0 0 0 1px rgba(111,100,155,.07);
+}
+
+.astrology-page-body .astro-result-sign { color: #40384f; }
+.astrology-page-body .astro-result-degree { color: #686394; }
+.astrology-page-body .astro-result-interpretation { color: #635b6e; }
+
+.astrology-page-body .astrology-summary-card {
+  border: 1px solid rgba(229,194,143,.13);
+  background:
+    radial-gradient(circle at 88% 4%, rgba(225,183,120,.11), transparent 25%),
+    linear-gradient(135deg, #2b2942, #1d2036 63%, #282239);
+  box-shadow: 0 18px 38px rgba(49,39,70,.10);
+}
+
+.astrology-page-body .astro-summary-label { color: #e7c58e; }
+.astrology-page-body .astrology-summary-card p { color: #e8e0e8; }
+
+.astrology-page-body .astro-expand-section {
+  border-color: rgba(111,99,145,.14);
+  background: rgba(255,255,255,.90);
+  box-shadow: 0 12px 28px rgba(67,56,91,.055);
+}
+
+.astrology-page-body .astro-expand-section > summary {
+  color: #453c55;
+  background:
+    radial-gradient(circle at 91% 12%, rgba(158,158,219,.14), transparent 29%),
+    linear-gradient(135deg, rgba(255,255,255,.98), rgba(249,246,252,.98));
+}
+
+.astrology-page-body .astro-section-index {
+  color: #655d88;
+  border-color: rgba(130,113,158,.23);
+  background: #faf8fe;
+}
+
+.astrology-page-body .astro-expand-section > summary small { color: #8d829a; }
+.astrology-page-body .astro-summary-toggle::before,
+.astrology-page-body .astro-summary-toggle::after { background: #7c6f91; }
+.astrology-page-body .astro-expand-content { border-color: rgba(117,105,145,.10); background: #fbf9fc; }
+
+.astrology-page-body .astrology-method-card {
+  color: #675d70;
+  border: 1px solid rgba(117,103,146,.11);
+  background: rgba(255,255,255,.60);
+}
+
+.astrology-page-body .astrology-bottom-nav {
+  margin-top: 0;
+  padding: 27px clamp(18px, 4vw, 50px) 38px;
+  border-top: 1px solid rgba(108,96,139,.10);
+  background: #f2eef6;
+}
+
+.astrology-page-body .astrology-bottom-nav .tarot-bottom-action {
+  color: #554c68;
+  border-color: rgba(114,101,143,.17);
+  background: rgba(255,255,255,.60);
+}
+
+/* ---------- 04 Synastry hero ---------- */
+.synastry-page-body .synastry-hero {
+  position: relative;
+  min-height: 400px;
+  padding: 66px clamp(28px, 6vw, 76px) 62px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  color: var(--stellar-ivory);
+  background-image:
+    linear-gradient(90deg, rgba(25,16,41,.95) 0%, rgba(39,24,55,.84) 31%, rgba(62,34,70,.42) 59%, rgba(47,27,62,.06) 100%),
+    linear-gradient(180deg, rgba(27,16,40,.08), rgba(35,20,48,.42)),
+    url('../images/home/04-synastry.webp');
+  background-size: cover;
+  background-position: center 49%;
+  border-bottom: 1px solid rgba(234,199,162,.16);
+}
+
+.synastry-page-body .synastry-hero::before {
+  background:
+    radial-gradient(circle at 69% 48%, rgba(255,220,175,.10), transparent 18%),
+    linear-gradient(180deg, transparent 65%, rgba(31,18,43,.57) 100%);
+}
+
+.synastry-page-body .synastry-hero::after {
+  content: "✦   ☾   ✦";
+  position: absolute;
+  right: clamp(28px, 5vw, 64px);
+  top: 34px;
+  color: rgba(252,222,185,.74);
+  letter-spacing: .72rem;
+  font-size: 1.02rem;
+  text-shadow: 0 0 20px rgba(243,191,158,.24);
+}
+
+/* ---------- 04 Synastry input environment ---------- */
+.synastry-page-body .synastry-form-section {
+  position: relative;
+  padding: 40px clamp(20px, 5vw, 58px) 48px;
+  overflow: hidden;
+  color: #fbf1f7;
+  background:
+    radial-gradient(circle at 8% 10%, rgba(171,96,163,.12), transparent 23%),
+    radial-gradient(circle at 92% 14%, rgba(226,170,128,.08), transparent 24%),
+    linear-gradient(180deg, #21172c 0%, #1a1424 100%);
+}
+
+.synastry-page-body .synastry-person-form {
+  position: relative;
+  border-color: rgba(235,202,168,.15);
+  background:
+    radial-gradient(circle at 92% 7%, rgba(255,255,255,.04), transparent 26%),
+    linear-gradient(145deg, rgba(255,255,255,.048), rgba(255,255,255,.024));
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.025), 0 18px 38px rgba(7,4,12,.10);
+}
+
+.synastry-page-body .synastry-person-form[data-person="A"] {
+  border-top-color: rgba(231,188,124,.34);
+}
+.synastry-page-body .synastry-person-form[data-person="B"] {
+  border-top-color: rgba(198,165,222,.34);
+}
+
+.synastry-page-body .synastry-person-form > header > span {
+  color: #f0d09d;
+  border-color: rgba(237,201,149,.34);
+  background: rgba(235,197,141,.055);
+}
+
+.synastry-page-body .synastry-person-form header small { color: #b6a6b5; }
+.synastry-page-body .synastry-relation-box {
+  border-color: rgba(235,202,168,.14);
+  background:
+    radial-gradient(circle at 92% 50%, rgba(222,168,127,.06), transparent 24%),
+    rgba(255,255,255,.028);
+}
+
+/* ---------- Synastry results: romantic celestial journal ---------- */
+.synastry-page-body .synastry-result {
+  color: #4e4054;
+  background:
+    radial-gradient(circle at 86% 2%, rgba(213,166,203,.17), transparent 24%),
+    radial-gradient(circle at 10% 16%, rgba(169,159,220,.16), transparent 24%),
+    linear-gradient(180deg, #fcf8fb 0%, #f7f1f7 52%, #faf6f7 100%);
+}
+
+.synastry-page-body .synastry-result-header h2 { color: #45364b; }
+.synastry-page-body .synastry-result-header p { color: #87768a; }
+.synastry-page-body .synastry-pair-chip {
+  color: #6d5368;
+  border: 1px solid rgba(160,119,151,.13);
+  background: rgba(255,255,255,.64);
+  box-shadow: 0 8px 22px rgba(87,55,80,.05);
+}
+
+.synastry-page-body .synastry-score-panel {
+  border-color: rgba(151,117,153,.14);
+  background:
+    radial-gradient(circle at 84% 10%, rgba(207,158,197,.18), transparent 26%),
+    radial-gradient(circle at 8% 92%, rgba(166,156,219,.10), transparent 28%),
+    linear-gradient(135deg, rgba(255,255,255,.97), rgba(252,246,251,.97));
+  box-shadow: 0 18px 38px rgba(83,55,81,.065);
+}
+
+.synastry-page-body .synastry-score-ring {
+  background:
+    radial-gradient(circle at center, #fffafc 57%, transparent 59%),
+    conic-gradient(#9d719e calc(var(--score) * 1%), #eee5ee 0);
+  box-shadow: inset 0 0 0 1px rgba(130,91,126,.06), 0 10px 28px rgba(96,60,91,.05);
+}
+
+.synastry-page-body .synastry-score-ring span { color: #533d52; }
+.synastry-page-body .synastry-score-kicker { color: #9a6d8b; }
+.synastry-page-body .synastry-score-copy h3 { color: #4d3a4c; }
+.synastry-page-body .synastry-score-copy p { color: #735e70; }
+
+.synastry-page-body .syn-dimension-card,
+.synastry-page-body .synastry-core-compare > article,
+.synastry-page-body .synastry-aspect-card {
+  border-color: rgba(151,118,151,.14);
+  background: rgba(255,255,255,.86);
+  box-shadow: 0 9px 24px rgba(83,57,82,.035);
+}
+
+.synastry-page-body .synastry-center-symbol { color: #c39876; }
+.synastry-page-body .synastry-overview-strip > div {
+  background:
+    radial-gradient(circle at 85% 10%, rgba(209,159,197,.10), transparent 30%),
+    linear-gradient(145deg, #382941, #2a2237);
+  box-shadow: 0 10px 24px rgba(61,40,62,.08);
+}
+.synastry-page-body .synastry-overview-strip strong { color: #efd0a2; }
+
+.synastry-page-body .astro-expand-section {
+  border-color: rgba(150,115,149,.14);
+  background: rgba(255,255,255,.90);
+  box-shadow: 0 12px 28px rgba(78,53,77,.05);
+}
+
+.synastry-page-body .astro-expand-section > summary {
+  color: #513e51;
+  background:
+    radial-gradient(circle at 91% 12%, rgba(206,159,199,.13), transparent 29%),
+    linear-gradient(135deg, rgba(255,255,255,.98), rgba(252,247,251,.98));
+}
+
+.synastry-page-body .astro-section-index {
+  color: #88627e;
+  border-color: rgba(164,119,152,.23);
+  background: #fff9fd;
+}
+.synastry-page-body .astro-expand-section > summary small { color: #927f91; }
+.synastry-page-body .astro-summary-toggle::before,
+.synastry-page-body .astro-summary-toggle::after { background: #92738d; }
+.synastry-page-body .astro-expand-content { border-color: rgba(150,115,149,.10); background: #fcf9fb; }
+
+.synastry-page-body .astrology-method-card {
+  color: #705d6c;
+  border: 1px solid rgba(154,118,151,.11);
+  background: rgba(255,255,255,.58);
+}
+
+.synastry-page-body .astrology-bottom-nav {
+  margin-top: 0;
+  padding: 27px clamp(18px, 4vw, 50px) 38px;
+  border-top: 1px solid rgba(139,104,136,.10);
+  background: #f2ebf2;
+}
+
+.synastry-page-body .astrology-bottom-nav .tarot-bottom-action {
+  color: #614d61;
+  border-color: rgba(145,108,141,.17);
+  background: rgba(255,255,255,.60);
+}
+
+/* Shared city-picker keeps enough contrast inside the new night forms. */
+.astrology-page-body .astro-city-results,
+.synastry-page-body .astro-city-results {
+  border-color: rgba(235,202,159,.20);
+  background: rgba(21,19,35,.985);
+  box-shadow: 0 19px 38px rgba(5,4,12,.36);
+}
+
+/* ---------- Mobile: image-led entrances, compact readable forms ---------- */
+@media (max-width: 760px) {
+  .astrology-page-body .astrology-shell,
+  .synastry-page-body .synastry-shell { padding: 0; }
+
+  .astrology-page-body .astrology-main,
+  .synastry-page-body .synastry-main { border-radius: 0; }
+
+  .astrology-page-body .astrology-hero,
+  .synastry-page-body .synastry-hero {
+    min-height: 370px;
+    padding: 58px 22px 42px;
+    justify-content: flex-end;
+  }
+
+  .astrology-page-body .astrology-hero {
+    background-image:
+      linear-gradient(180deg, rgba(13,17,36,.05) 0%, rgba(16,20,43,.25) 42%, rgba(16,19,39,.91) 100%),
+      url('../images/home/03-natal-chart.webp');
+    background-size: auto 100%, cover;
+    background-position: 60% center, 60% center;
+  }
+
+  .synastry-page-body .synastry-hero {
+    background-image:
+      linear-gradient(180deg, rgba(24,14,38,.05) 0%, rgba(34,20,48,.26) 42%, rgba(32,18,44,.91) 100%),
+      url('../images/home/04-synastry.webp');
+    background-size: auto 100%, cover;
+    background-position: 63% center, 63% center;
+  }
+
+  .astrology-page-body .astrology-hero::after,
+  .synastry-page-body .synastry-hero::after {
+    top: 22px;
+    right: 17px;
+    font-size: .86rem;
+    letter-spacing: .48rem;
+  }
+
+  .astrology-page-body .astrology-hero h1,
+  .synastry-page-body .synastry-hero h1 {
+    font-size: clamp(2.3rem, 11vw, 3.2rem);
+  }
+
+  .astrology-page-body .astrology-intro,
+  .synastry-page-body .synastry-intro {
+    max-width: 96%;
+    font-size: .96rem;
+    line-height: 1.78;
+  }
+
+  .astrology-page-body .astrology-synastry-entry {
+    margin-top: 17px;
+    padding: 10px 15px;
+  }
+
+  .astrology-page-body .astrology-form-section,
+  .synastry-page-body .synastry-form-section {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .synastry-page-body .synastry-person-form {
+    padding: 19px 17px;
+    border-radius: 19px;
+  }
+
+  .astrology-page-body .astrology-result,
+  .synastry-page-body .synastry-result {
+    padding-left: 15px;
+    padding-right: 15px;
+  }
+
+  .astrology-page-body .astro-result-card,
+  .astrology-page-body .astro-expand-section,
+  .synastry-page-body .synastry-score-panel,
+  .synastry-page-body .astro-expand-section {
+    border-radius: 19px;
+  }
+
+  .astrology-page-body .astrology-bottom-nav,
+  .synastry-page-body .astrology-bottom-nav {
+    padding: 22px 16px calc(28px + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .astrology-page-body *,
+  .synastry-page-body * {
+    scroll-behavior: auto !important;
+  }
+}
+
+/* =========================================================
+   V0.10.6.3 — Daily Fortune Visual Upgrade
+   Stellar fortune cylinder, ritual animation and result paper
+   ========================================================= */
+.fortune-page {
+  --fortune-gold: #e4bd82;
+  --fortune-gold-soft: #f3d9aa;
+  --fortune-ivory: #fff9f0;
+  --fortune-ink: #40364f;
+  --fortune-muted: #8f8399;
+  background:
+    radial-gradient(circle at 12% 4%, rgba(126,135,211,.30), transparent 27%),
+    radial-gradient(circle at 88% 12%, rgba(220,177,215,.22), transparent 28%),
+    linear-gradient(180deg, #151a36 0%, #2d3564 34%, #8a84b4 62%, #eee8f3 100%);
+}
+
+.fortune-page .fortune-shell {
+  max-width: 1180px;
+  padding-bottom: 34px;
+}
+
+.fortune-page .subpage-header {
+  position: relative;
+  z-index: 8;
+  color: var(--fortune-ivory);
+  border: 1px solid rgba(239,207,162,.12);
+  border-radius: var(--radius);
+  background:
+    radial-gradient(circle at 82% 24%, rgba(144,154,226,.14), transparent 26%),
+    linear-gradient(135deg, rgba(17,22,45,.985), rgba(42,48,88,.975) 62%, rgba(73,63,105,.97));
+  box-shadow: 0 16px 38px rgba(8,7,18,.23);
+}
+
+.fortune-page .subpage-header .brand-title,
+.fortune-page .subpage-header .brand-subtitle,
+.fortune-page .text-back {
+  color: var(--fortune-ivory);
+}
+
+.fortune-page .fortune-main {
+  position: relative;
+  overflow: hidden;
+  border-color: rgba(255,255,255,.22);
+  background: #f8f2f6;
+  box-shadow: 0 30px 82px rgba(9,7,20,.32);
+}
+
+/* 01 hero — linked directly to the approved home artwork */
+.fortune-page .fortune-hero {
+  position: relative;
+  min-height: 405px;
+  padding: 64px clamp(28px, 6vw, 76px) 58px;
+  display: flex;
+  align-items: center;
+  color: #332d45;
+  overflow: hidden;
+  background-image:
+    linear-gradient(90deg, rgba(255,248,249,.96) 0%, rgba(255,248,250,.83) 30%, rgba(255,247,249,.44) 46%, rgba(255,247,249,.08) 66%, rgba(255,247,249,0) 100%),
+    linear-gradient(180deg, rgba(255,255,255,.03), rgba(37,32,67,.10)),
+    url('../images/home/01-daily-fortune.webp');
+  background-size: cover;
+  background-position: center 50%;
+  border-bottom: 1px solid rgba(132,111,153,.10);
+}
+
+.fortune-page .fortune-hero::after {
+  content: none;
+}
+
+.fortune-page .fortune-hero-copy {
+  position: relative;
+  z-index: 2;
+  width: min(520px, 50%);
+}
+
+.fortune-page .fortune-hero .panel-number {
+  margin: 0;
+  color: #5f5777;
+}
+
+.fortune-page .fortune-hero .panel-en {
+  margin: 5px 0 13px;
+  color: #766c87;
+}
+
+.fortune-page .fortune-hero h1 {
+  margin: 0 0 15px;
+  color: #29233a;
+  text-shadow: 0 1px 0 rgba(255,255,255,.5);
+}
+
+.fortune-page .fortune-intro {
+  max-width: 31em;
+  margin: 0;
+  color: #544a61;
+  opacity: 1;
+}
+
+.fortune-hero-quote {
+  position: absolute;
+  z-index: 3;
+  top: 50px;
+  right: clamp(32px, 5vw, 68px);
+  margin: 0;
+  color: #342b43;
+  font-family: "STKaiti", "Kaiti SC", "KaiTi", "DFKai-SB", "Songti SC", serif;
+  font-size: clamp(1rem, 1.75vw, 1.34rem);
+  font-weight: 400;
+  line-height: 1.6;
+  letter-spacing: .10em;
+  text-align: right;
+  transform: rotate(-3deg);
+  text-shadow: 0 1px 1px rgba(255,255,255,.86), 0 3px 9px rgba(255,255,255,.52);
+}
+
+.fortune-hero-quote span {
+  display: block;
+  padding-right: 8px;
+  opacity: .72;
+}
+
+/* Ritual stage ------------------------------------------------------- */
+.fortune-page .fortune-stage {
+  position: relative;
+  min-height: 660px;
+  padding: 44px 24px 62px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  overflow: hidden;
+  color: #574b67;
+  background:
+    radial-gradient(circle at 50% 50%, rgba(255,247,233,.88) 0 13%, rgba(236,219,248,.42) 34%, transparent 56%),
+    radial-gradient(circle at 14% 20%, rgba(238,197,220,.24), transparent 28%),
+    radial-gradient(circle at 86% 18%, rgba(178,177,231,.22), transparent 28%),
+    linear-gradient(180deg, #faf5fb 0%, #f3edf7 58%, #eee7f3 100%);
+}
+
+.fortune-page .fortune-stage::before,
+.fortune-page .fortune-stage::after {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+  border-radius: 50%;
+}
+
+.fortune-page .fortune-stage::before {
+  width: min(72vw, 700px);
+  aspect-ratio: 1;
+  top: 120px;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 1px solid rgba(197,161,115,.16);
+  box-shadow:
+    0 0 0 34px rgba(255,255,255,.08),
+    0 0 0 35px rgba(192,160,119,.08),
+    0 0 100px rgba(135,112,177,.08);
+}
+
+.fortune-page .fortune-stage::after {
+  width: min(46vw, 430px);
+  aspect-ratio: 1;
+  top: 238px;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 1px dashed rgba(195,157,112,.16);
+}
+
+.fortune-stage-heading {
+  position: relative;
+  z-index: 4;
+  width: min(620px, 100%);
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+.fortune-stage-heading > span {
+  display: block;
+  margin-bottom: 8px;
+  color: #9d7c92;
+  font-size: .76rem;
+  letter-spacing: .24em;
+}
+
+.fortune-stage-heading > strong {
+  display: block;
+  color: #4a3e59;
+  font-size: clamp(1.45rem, 3vw, 2rem);
+  font-weight: 680;
+  letter-spacing: .05em;
+}
+
+.fortune-stage-heading p {
+  margin: 9px auto 0;
+  color: #8b7f91;
+  font-size: .96rem;
+  line-height: 1.75;
+}
+
+.fortune-page .fortune-draw-stage {
+  position: relative;
+  z-index: 5;
+  width: min(480px, 100%);
+  gap: 4px;
+  border-radius: 32px;
+  outline: none;
+}
+
+.fortune-page .fortune-draw-stage:disabled {
+  opacity: .72;
+}
+
+.fortune-vessel-scene {
+  position: relative;
+  width: min(350px, 78vw);
+  aspect-ratio: 680 / 832;
+  display: block;
+  margin: 0 auto;
+  isolation: isolate;
+}
+
+.fortune-vessel-aura {
+  position: absolute;
+  z-index: 0;
+  left: 50%;
+  top: 55%;
+  width: 76%;
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,222,166,.26), rgba(196,171,228,.11) 46%, transparent 70%);
+  filter: blur(3px);
+  transition: transform .35s ease, opacity .35s ease;
+}
+
+.fortune-vessel {
+  position: absolute;
+  z-index: 3;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  user-select: none;
+  filter: drop-shadow(0 18px 22px rgba(62,45,80,.18));
+  transform-origin: 50% 82%;
+  transition: transform .28s ease, filter .28s ease;
+}
+
+.fortune-rising-stick {
+  position: absolute;
+  z-index: 2;
+  left: 50%;
+  top: 16.5%;
+  width: 13%;
+  height: 43%;
+  transform: translate(-50%, 26%);
+  border: 2px solid rgba(219,163,83,.78);
+  border-radius: 24px 24px 10px 10px;
+  opacity: 0;
+  background:
+    linear-gradient(90deg, rgba(255,255,255,.72), transparent 22% 78%, rgba(206,147,75,.12)),
+    linear-gradient(180deg, #fff4df, #f2dec0);
+  box-shadow: 0 0 0 1px rgba(255,255,255,.72) inset, 0 8px 20px rgba(83,57,102,.12);
+}
+
+.fortune-rising-stick::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 23%;
+  width: 1px;
+  height: 58%;
+  transform: translateX(-50%);
+  background: linear-gradient(180deg, rgba(210,146,69,.15), rgba(210,146,69,.75), rgba(210,146,69,.15));
+}
+
+.fortune-rising-stick i {
+  position: absolute;
+  top: 9%;
+  left: 50%;
+  transform: translateX(-50%);
+  color: #c9883d;
+  font-style: normal;
+  font-size: 1.1rem;
+  text-shadow: 0 0 12px rgba(235,176,91,.38);
+}
+
+.fortune-vessel-spark {
+  position: absolute;
+  z-index: 5;
+  color: #e2ae64;
+  opacity: .62;
+  text-shadow: 0 0 15px rgba(235,186,111,.48);
+  animation: fortuneSparkIdle 2.4s ease-in-out infinite;
+}
+
+.fortune-vessel-spark-a { left: 8%; top: 42%; font-size: 1rem; }
+.fortune-vessel-spark-b { right: 7%; top: 29%; font-size: .9rem; animation-delay: .9s; }
+
+.fortune-draw-copy {
+  display: grid;
+  place-items: center;
+  gap: 7px;
+  margin-top: -2px;
+}
+
+.fortune-page .fortune-draw-stage .fortune-draw-copy strong {
+  min-width: 196px;
+  min-height: 52px;
+  margin: 0;
+  padding: 0 25px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  border: 1px solid rgba(198,158,110,.42);
+  border-radius: 999px;
+  color: #4d4055;
+  font-size: 1.03rem !important;
+  font-weight: 680 !important;
+  background: rgba(255,248,239,.88);
+  box-shadow: 0 8px 22px rgba(86,60,99,.08), inset 0 1px 0 rgba(255,255,255,.86);
+  transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+}
+
+.fortune-page .fortune-draw-stage .fortune-draw-copy small {
+  color: #9a8d9d;
+  font-size: .82rem;
+  letter-spacing: .02em;
+}
+
+.fortune-page .fortune-draw-stage:not(:disabled):hover .fortune-vessel,
+.fortune-page .fortune-draw-stage:not(:disabled):focus-visible .fortune-vessel {
+  transform: translateY(-5px) rotate(-.7deg);
+  filter: drop-shadow(0 24px 26px rgba(62,45,80,.23));
+}
+
+.fortune-page .fortune-draw-stage:not(:disabled):hover .fortune-vessel-aura,
+.fortune-page .fortune-draw-stage:not(:disabled):focus-visible .fortune-vessel-aura {
+  transform: translate(-50%, -50%) scale(1.08);
+}
+
+.fortune-page .fortune-draw-stage:not(:disabled):hover .fortune-draw-copy strong,
+.fortune-page .fortune-draw-stage:not(:disabled):focus-visible .fortune-draw-copy strong {
+  transform: translateY(-2px);
+  border-color: rgba(202,157,98,.68);
+  box-shadow: 0 12px 28px rgba(86,60,99,.12), 0 0 25px rgba(225,184,119,.10);
+}
+
+.fortune-page .fortune-draw-stage.is-drawing .fortune-vessel {
+  animation: fortuneVesselShake 1.02s cubic-bezier(.36,.07,.19,.97) both;
+}
+
+.fortune-page .fortune-draw-stage.is-drawing .fortune-rising-stick {
+  animation: fortuneStickRise 1.08s cubic-bezier(.22,.86,.36,1) forwards;
+}
+
+.fortune-page .fortune-draw-stage.is-drawing .fortune-vessel-aura {
+  animation: fortuneAuraPulse 1.1s ease-in-out both;
+}
+
+.fortune-page .fortune-draw-stage.is-drawing .fortune-vessel-spark {
+  animation: fortuneSparkDraw .78s ease-in-out infinite;
+}
+
+@keyframes fortuneSparkIdle {
+  0%,100% { opacity: .34; transform: scale(.86) rotate(0deg); }
+  50% { opacity: .82; transform: scale(1.1) rotate(8deg); }
+}
+
+@keyframes fortuneVesselShake {
+  0%,100% { transform: translate3d(0,0,0) rotate(0); }
+  13% { transform: translate3d(-5px,-2px,0) rotate(-1.8deg); }
+  26% { transform: translate3d(6px,-3px,0) rotate(2deg); }
+  39% { transform: translate3d(-6px,-4px,0) rotate(-2.2deg); }
+  53% { transform: translate3d(5px,-3px,0) rotate(1.7deg); }
+  67% { transform: translate3d(-3px,-2px,0) rotate(-1.1deg); }
+  81% { transform: translate3d(3px,-1px,0) rotate(.8deg); }
+}
+
+@keyframes fortuneStickRise {
+  0% { opacity: 0; transform: translate(-50%, 26%); }
+  35% { opacity: 0; }
+  52% { opacity: 1; transform: translate(-50%, 14%); }
+  100% { opacity: 1; transform: translate(-50%, -39%); box-shadow: 0 0 0 1px rgba(255,255,255,.7) inset, 0 0 28px rgba(231,178,101,.34); }
+}
+
+@keyframes fortuneAuraPulse {
+  0%,100% { opacity: .64; transform: translate(-50%,-50%) scale(1); }
+  55% { opacity: 1; transform: translate(-50%,-50%) scale(1.18); }
+}
+
+@keyframes fortuneSparkDraw {
+  0%,100% { opacity: .28; transform: scale(.8) rotate(0); }
+  50% { opacity: 1; transform: scale(1.35) rotate(14deg); }
+}
+
+/* Result — celestial fortune paper ----------------------------------- */
+.fortune-page .fortune-result {
+  position: relative;
+  isolation: isolate;
+  color: #4e4555;
+  background:
+    radial-gradient(circle at 86% 4%, rgba(207,179,225,.18), transparent 24%),
+    radial-gradient(circle at 8% 18%, rgba(244,210,194,.18), transparent 25%),
+    linear-gradient(180deg, #fffaf7 0%, #faf5f8 48%, #f6f1f5 100%);
+}
+
+.fortune-page .fortune-result::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: clamp(18px, 3vw, 32px);
+  pointer-events: none;
+  border: 1px solid rgba(194,153,105,.18);
+  border-radius: 28px;
+  box-shadow: inset 0 0 0 7px rgba(255,255,255,.24);
+}
+
+.fortune-page .fortune-result-head {
+  margin: 0 auto;
+  max-width: 930px;
+  border-bottom-color: rgba(142,113,140,.13);
+}
+
+.fortune-page .fortune-no { color: #7f6d82; }
+.fortune-page .fortune-keyword { color: #9a7c91; }
+.fortune-page .fortune-score-wrap { color: #9a8798; }
+.fortune-page .fortune-score-wrap strong { color: #594761; }
+
+.fortune-page .fortune-poem {
+  margin-top: 40px;
+  color: #51465b;
+  font-family: "STKaiti", "Kaiti SC", "KaiTi", "DFKai-SB", "Songti SC", serif;
+  font-weight: 400;
+  font-size: clamp(1.34rem, 3vw, 1.92rem);
+  letter-spacing: .16em;
+}
+
+.fortune-page .fortune-summary {
+  max-width: 760px;
+  color: #756a79;
+}
+
+.fortune-page .fortune-ratings > div,
+.fortune-page .fortune-lucky > div,
+.fortune-page .fortune-grid section {
+  border-color: rgba(142,113,140,.10);
+  background: rgba(255,255,255,.68);
+  box-shadow: 0 8px 22px rgba(79,54,78,.035);
+}
+
+.fortune-page .fortune-grid h2 { color: #5e4d68; }
+.fortune-page .fortune-grid p { color: #786d7b; }
+.fortune-page .fortune-advice {
+  border: 1px solid rgba(197,155,105,.12);
+  background: linear-gradient(90deg, rgba(248,229,215,.74), rgba(237,229,249,.78));
+}
+
+.fortune-page .fortune-reset-note {
+  border-color: rgba(139,113,145,.11);
+  background: rgba(255,255,255,.50);
+}
+
+.fortune-page .fortune-bottom-nav {
+  margin-top: 0;
+  padding: 27px clamp(18px, 4vw, 50px) 38px;
+  border-top: 1px solid rgba(115,100,139,.10);
+  background: #f1ecf5;
+}
+
+.fortune-page .fortune-bottom-nav .tarot-bottom-action {
+  color: #584d69;
+  border-color: rgba(118,101,144,.17);
+  background: rgba(255,255,255,.60);
+}
+
+@media (max-width: 760px) {
+  .fortune-page .fortune-shell { padding: 0; }
+  .fortune-page .fortune-main { border-radius: 0; }
+
+  .fortune-page .fortune-hero {
+    min-height: 370px;
+    padding: 56px 22px 40px;
+    align-items: flex-end;
+    background-image:
+      linear-gradient(180deg, rgba(255,255,255,.02) 0%, rgba(255,248,250,.17) 36%, rgba(255,247,249,.91) 100%),
+      url('../images/home/01-daily-fortune.webp');
+    background-size: auto 100%, cover;
+    background-position: 58% center, 58% center;
+  }
+
+  .fortune-page .fortune-hero-copy {
+    width: 100%;
+  }
+
+  .fortune-page .fortune-hero .panel-number {
+    font-size: 3.15rem !important;
+  }
+
+  .fortune-page .fortune-hero h1 {
+    font-size: clamp(2.3rem, 11vw, 3.15rem) !important;
+  }
+
+  .fortune-page .fortune-intro {
+    max-width: 94%;
+    font-size: .96rem !important;
+    line-height: 1.78 !important;
+  }
+
+  .fortune-hero-quote {
+    top: 24px;
+    right: 17px;
+    max-width: 190px;
+    font-size: .98rem;
+    line-height: 1.58;
+    letter-spacing: .08em;
+  }
+
+  .fortune-page .fortune-stage {
+    min-height: 620px;
+    padding: 36px 16px 48px;
+  }
+
+  .fortune-page .fortune-stage::before {
+    width: min(112vw, 480px);
+    top: 132px;
+  }
+
+  .fortune-page .fortune-stage::after {
+    width: min(72vw, 300px);
+    top: 225px;
+  }
+
+  .fortune-stage-heading > strong {
+    font-size: 1.42rem;
+  }
+
+  .fortune-stage-heading p {
+    max-width: 24em;
+    font-size: .88rem;
+  }
+
+  .fortune-vessel-scene {
+    width: min(330px, 86vw);
+  }
+
+  .fortune-page .fortune-draw-stage .fortune-draw-copy strong {
+    min-width: 184px;
+    min-height: 50px;
+    font-size: 1rem !important;
+  }
+
+  .fortune-page .fortune-result {
+    padding: 34px 16px 42px;
+  }
+
+  .fortune-page .fortune-result::before {
+    inset: 12px 8px;
+    border-radius: 20px;
+  }
+
+  .fortune-page .fortune-poem {
+    font-size: 1.28rem;
+    letter-spacing: .11em;
+  }
+
+  .fortune-page .fortune-bottom-nav {
+    padding: 22px 16px calc(28px + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fortune-page .fortune-vessel-spark,
+  .fortune-page .fortune-draw-stage.is-drawing .fortune-vessel,
+  .fortune-page .fortune-draw-stage.is-drawing .fortune-rising-stick,
+  .fortune-page .fortune-draw-stage.is-drawing .fortune-vessel-aura {
+    animation: none !important;
+  }
+}
+.fortune-page .fortune-draw-stage.is-drawing:disabled { opacity: 1; }
+.fortune-page .fortune-result::before { z-index: 0; }
+.fortune-page .fortune-result > * { position: relative; z-index: 1; }

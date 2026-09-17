@@ -14,7 +14,7 @@
 
   const UI = {
     'zh-CN': {
-      brand:'星辰日记', back:'返回首页', title:'星座测算', synastryEntry:'两人合盘',
+      brand:'星辰日记', back:'返回首页', title:'本命星盘', synastryEntry:'两人合盘',
       intro:'输入出生年月日、出生时间与出生地，计算你的太阳、月亮与上升星座。这里不是用生日查表，而是根据出生瞬间的天体位置与当地地平线计算。',
       date:'出生日期', time:'出生时间', city:'出生城市', cityPlaceholder:'省份／城市／区县',
       unknown:'不知道出生时间', unknownNote:'不知道时间时仍可计算太阳；月亮会检查当天是否跨星座，上升则无法精确计算。',
@@ -44,7 +44,7 @@
       mixedElements:'三个位置落在不同元素，代表你会在核心、情绪与外在应对之间切换不同模式；这通常带来更丰富的适应性，也需要学会整合彼此不同的需求。'
     },
     'zh-TW': {
-      brand:'星辰日記', back:'返回首頁', title:'星座測算', synastryEntry:'兩人合盤',
+      brand:'星辰日記', back:'返回首頁', title:'本命星盤', synastryEntry:'兩人合盤',
       intro:'輸入出生年月日、出生時間與出生地，計算你的太陽、月亮與上升星座。這裡不是用生日查表，而是根據出生瞬間的天體位置與當地地平線計算。',
       date:'出生日期', time:'出生時間', city:'出生城市', cityPlaceholder:'省份／城市／區縣',
       unknown:'不知道出生時間', unknownNote:'不知道時間時仍可計算太陽；月亮會檢查當天是否跨星座，上升則無法精確計算。',
@@ -74,7 +74,7 @@
       mixedElements:'三個位置落在不同元素，代表你會在核心、情緒與外在應對之間切換不同模式；這通常帶來更豐富的適應性，也需要學會整合彼此不同的需求。'
     },
     'en': {
-      brand:'Stellar Diary', back:'← Home', title:'Astrology Calculator', synastryEntry:'Synastry',
+      brand:'Stellar Diary', back:'Home', title:'Natal Chart', synastryEntry:'Synastry',
       intro:'Enter birth date, time and place to calculate your Sun, Moon and Ascendant. This is not a birthday lookup: it uses astronomical positions for the birth moment and the local horizon.',
       date:'Birth date', time:'Birth time', city:'Birth city', cityPlaceholder:'Province / city / district',
       unknown:'I do not know the birth time', unknownNote:'Without a birth time, the Sun can still be calculated; the Moon is checked for a sign change during the day, while the Ascendant cannot be calculated precisely.',

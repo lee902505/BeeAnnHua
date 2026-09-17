@@ -1,5 +1,5 @@
 (() => {
-  const state = { fortunes: [], current: null };
+  const state = { fortunes: [], current: null, drawing: false };
   const byId = (id) => document.getElementById(id);
 
   function localDateKey(date = new Date()) {
@@ -184,14 +184,33 @@
     sendFortuneBark(fortune, repeated);
   }
 
+  function finishDraw() {
+    if (FORTUNE_CONFIG.dailyLockEnabled) drawDaily();
+    else drawFree();
+  }
+
   function draw() {
     if (!window.XingchenPlayer?.hasProfile?.()) {
       window.XingchenPlayer?.ensure?.(() => draw());
       return;
     }
-    if (!state.fortunes.length) return;
-    if (FORTUNE_CONFIG.dailyLockEnabled) drawDaily();
-    else drawFree();
+    if (!state.fortunes.length || state.drawing) return;
+
+    const button = byId("drawFortuneBtn");
+    const stage = byId("resultEmpty");
+    state.drawing = true;
+    button?.classList.add("is-drawing");
+    stage?.classList.add("is-drawing");
+    if (button) button.disabled = true;
+
+    const ritualDelay = window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches ? 80 : 1180;
+    window.setTimeout(() => {
+      finishDraw();
+      state.drawing = false;
+      button?.classList.remove("is-drawing");
+      stage?.classList.remove("is-drawing");
+      if (button && !byId("resultEmpty")?.hidden) button.disabled = false;
+    }, ritualDelay);
   }
 
   function nextLocalMidnight(now = new Date()) {
@@ -213,6 +232,7 @@
 
   function resetForNewDay() {
     state.current = null;
+    state.drawing = false;
     byId("fortuneResult").hidden = true;
     byId("resultEmpty").hidden = false;
     byId("easterEgg").hidden = true;

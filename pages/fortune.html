@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#25294d" />
   <title>每日运势 | 星辰日记</title>
-  <link rel="stylesheet" href="../css/style.css?v=0.10.6.1" />
+  <link rel="stylesheet" href="../css/style.css?v=0.10.6.3" />
 </head>
 <body class="fortune-page">
   <div class="site-shell fortune-shell">
@@ -22,24 +22,34 @@
 
     <main class="fortune-main">
       <section class="fortune-hero">
-        <p class="panel-number">01</p>
-        <p class="panel-en">STELLAR SIXTY FORTUNES</p>
-        <h1>每日运势</h1>
-        <p class="fortune-intro">每日运势以六十甲子为灵感，共 60 支签。静下心，抽一支属于今天的指引，看看今天的星光落在哪里。</p>
-        <p class="load-error" id="loadError" hidden>签文资料读取失败，请确认网站已由本机服务器或 GitHub Pages 开启。</p>
+        <div class="fortune-hero-copy">
+          <p class="panel-number">01</p>
+          <p class="panel-en">STELLAR SIXTY FORTUNES</p>
+          <h1>每日运势</h1>
+          <p class="fortune-intro">每日运势以六十甲子为灵感，共 60 支签。静下心，抽一支属于今天的指引，看看今天的星光落在哪里。</p>
+          <p class="load-error" id="loadError" hidden>签文资料读取失败，请确认网站已由本机服务器或 GitHub Pages 开启。</p>
+        </div>
+        <p class="fortune-hero-quote">每一天，<br>都值得被温柔以待。<span>／</span></p>
       </section>
 
       <section class="fortune-stage" id="resultEmpty">
+        <div class="fortune-stage-heading">
+          <span>DAILY RITUAL</span>
+          <strong>抽取今日星辰签</strong>
+          <p>闭上眼睛想一件此刻最在意的事，再轻轻点一下签筒。</p>
+        </div>
         <button class="fortune-draw-stage" id="drawFortuneBtn" type="button" disabled aria-label="抽取星辰签">
-          <span class="fortune-cylinder" aria-hidden="true">
-            <span class="fortune-sticks">
-              <i></i><i></i><i></i><i></i><i></i><i></i><i></i>
-            </span>
-            <span class="fortune-cylinder-rim"></span>
-            <span class="fortune-cylinder-body">签</span>
+          <span class="fortune-vessel-scene" aria-hidden="true">
+            <span class="fortune-vessel-aura"></span>
+            <span class="fortune-rising-stick"><i>✦</i></span>
+            <img class="fortune-vessel" src="../images/fortune/stellar-fortune-cylinder.webp" alt="" draggable="false" />
+            <span class="fortune-vessel-spark fortune-vessel-spark-a">✦</span>
+            <span class="fortune-vessel-spark fortune-vessel-spark-b">✧</span>
           </span>
-          <strong>抽取今日签</strong>
-          <small>静下心，点击签筒</small>
+          <span class="fortune-draw-copy">
+            <strong>抽取今日签 <span aria-hidden="true">→</span></strong>
+            <small>一天一签 · 当地时间 00:00 重置</small>
+          </span>
         </button>
       </section>
 
@@ -103,9 +113,9 @@
     </main>
   </div>
 
-  <script src="../js/fortune-config.js?v=0.10.6.1"></script>
-  <script src="../js/player-profile.js?v=0.10.6.1"></script>
-  <script src="../js/bark.js?v=0.10.6.1"></script>
-  <script src="../js/fortune.js?v=0.10.6.1"></script>
+  <script src="../js/fortune-config.js?v=0.10.6.3"></script>
+  <script src="../js/player-profile.js?v=0.10.6.3"></script>
+  <script src="../js/bark.js?v=0.10.6.3"></script>
+  <script src="../js/fortune.js?v=0.10.6.3"></script>
 </body>
 </html>
