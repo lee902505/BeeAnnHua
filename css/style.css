@@ -3465,3 +3465,56 @@ main { display: grid; gap: 0; }
 .birth-lunar-preview.is-error {
   font-weight: 500;
 }
+
+
+/* ===== V0.10.3.7 EXPLICIT LEAP MONTH SWITCH ===== */
+.birth-leap-toggle {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  margin-top: 9px;
+  padding: 4px;
+  border: 1px solid rgba(231,202,180,.13);
+  border-radius: 14px;
+  background: rgba(255,255,255,.03);
+}
+
+.birth-leap-toggle[hidden],
+.birth-leap-hint[hidden] {
+  display: none !important;
+}
+
+.birth-leap-btn {
+  min-height: 42px;
+  padding: 8px 10px;
+  border: 0;
+  border-radius: 11px;
+  color: #baa7b1;
+  background: transparent;
+  cursor: pointer;
+  font: inherit;
+  font-size: .85rem;
+}
+
+.birth-leap-btn.is-active {
+  color: #fff8f1;
+  background: rgba(224,188,151,.18);
+  box-shadow: inset 0 0 0 1px rgba(231,202,180,.20);
+}
+
+.birth-leap-hint {
+  display: block;
+  margin-top: 7px;
+  color: #cdb4c0;
+  line-height: 1.55;
+}
+
+@media(max-width:520px) {
+  .birth-leap-toggle {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .birth-leap-btn {
+    font-size: .82rem;
+  }
+}

@@ -5,22 +5,31 @@
     'zh-CN': {
       solar:'阳历', lunar:'农历',
       year:'年份', month:'月份', day:'日期',
-      converted:'换算阳历', leap:'闰',
+      converted:'换算阳历',
       lunarPrefix:'农历', solarPrefix:'阳历',
+      regularMonth:'普通{month}',
+      leapMonth:'闰{month}',
+      leapHint:'这一年有闰{month}，请选择普通月份或闰月份。',
       invalid:'这个农历日期不存在，请重新选择。'
     },
     'zh-TW': {
       solar:'陽曆', lunar:'農曆',
       year:'年份', month:'月份', day:'日期',
-      converted:'換算陽曆', leap:'閏',
+      converted:'換算陽曆',
       lunarPrefix:'農曆', solarPrefix:'陽曆',
+      regularMonth:'普通{month}',
+      leapMonth:'閏{month}',
+      leapHint:'這一年有閏{month}，請選擇普通月份或閏月份。',
       invalid:'這個農曆日期不存在，請重新選擇。'
     },
     'en': {
       solar:'Solar', lunar:'Lunar',
       year:'Year', month:'Month', day:'Day',
-      converted:'Solar date', leap:'Leap ',
+      converted:'Solar date',
       lunarPrefix:'Lunar', solarPrefix:'Solar',
+      regularMonth:'Regular {month}',
+      leapMonth:'Leap {month}',
+      leapHint:'This year has a leap {month}. Choose regular or leap month.',
       invalid:'This lunar date does not exist. Please choose again.'
     }
   };
@@ -43,15 +52,20 @@
     return TEXT[lang()]?.[key] ?? TEXT['zh-CN'][key] ?? key;
   }
 
-  function monthLabel(month,isLeap=false) {
-    let base;
-    if (lang() === 'en') base = `Month ${month}`;
-    else base = (lang()==='zh-TW' ? MONTH_TW : MONTH_CN)[month] || `${month}月`;
-    return isLeap ? `${t('leap')}${base}` : base;
+  function monthLabel(month) {
+    if (lang() === 'en') return `Month ${month}`;
+    return (lang()==='zh-TW' ? MONTH_TW : MONTH_CN)[month] || `${month}月`;
   }
 
   function dayLabel(day) {
     return lang()==='en' ? `Day ${day}` : (DAY_CN[day] || String(day));
+  }
+
+  function formatTpl(template, values) {
+    return Object.entries(values).reduce(
+      (text,[key,value]) => text.replaceAll(`{${key}}`, value),
+      template
+    );
   }
 
   function setMode(widget,mode,sync=true) {
@@ -80,7 +94,6 @@
   function populateYears(widget) {
     const max = Math.min(new Date().getFullYear(), window.XingchenLunar.MAX_YEAR);
     widget.year.innerHTML = `<option value="">${t('year')}</option>`;
-
     for (let year=max; year>=window.XingchenLunar.MIN_YEAR; year--) {
       widget.year.insertAdjacentHTML('beforeend',`<option value="${year}">${year}</option>`);
     }
@@ -91,56 +104,96 @@
 
     widget.month.innerHTML = `<option value="">${t('month')}</option>`;
     widget.day.innerHTML = `<option value="">${t('day')}</option>`;
-    widget.preview.hidden = true;
-    widget.preview.textContent = '';
-    widget.preview.classList.remove('is-error');
+    widget.isLeap = false;
+    hideLeapToggle(widget);
+    clearPreview(widget);
 
     if (!year) return;
-
-    const leap = window.XingchenLunar.leapMonth(year);
 
     for (let month=1; month<=12; month++) {
       widget.month.insertAdjacentHTML(
         'beforeend',
-        `<option value="${month}">${monthLabel(month,false)}</option>`
+        `<option value="${month}">${monthLabel(month)}</option>`
       );
-
-      if (leap === month) {
-        widget.month.insertAdjacentHTML(
-          'beforeend',
-          `<option value="L${month}">${monthLabel(month,true)}</option>`
-        );
-      }
     }
 
-    if (preferred && [...widget.month.options].some(o => o.value===preferred)) {
-      widget.month.value = preferred;
+    if (preferred && [...widget.month.options].some(o => o.value===String(preferred))) {
+      widget.month.value = String(preferred);
+      updateLeapToggle(widget);
       populateDays(widget);
     }
   }
 
+  function hideLeapToggle(widget) {
+    widget.leapWrap.hidden = true;
+    widget.leapHint.hidden = true;
+    widget.leapWrap.querySelectorAll('[data-leap-choice]').forEach(btn => {
+      btn.classList.toggle('is-active', btn.dataset.leapChoice === 'regular');
+      btn.setAttribute('aria-pressed', btn.dataset.leapChoice === 'regular' ? 'true' : 'false');
+    });
+  }
+
+  function updateLeapToggle(widget) {
+    const year = Number(widget.year.value);
+    const month = Number(widget.month.value);
+    const leapMonth = year ? window.XingchenLunar.leapMonth(year) : 0;
+
+    widget.isLeap = false;
+
+    if (!year || !month || leapMonth !== month) {
+      hideLeapToggle(widget);
+      return;
+    }
+
+    const label = monthLabel(month);
+    const regularBtn = widget.leapWrap.querySelector('[data-leap-choice="regular"]');
+    const leapBtn = widget.leapWrap.querySelector('[data-leap-choice="leap"]');
+
+    regularBtn.textContent = formatTpl(t('regularMonth'), {month:label});
+    leapBtn.textContent = formatTpl(t('leapMonth'), {month:label});
+    widget.leapHint.textContent = formatTpl(t('leapHint'), {month:label});
+
+    widget.leapWrap.hidden = false;
+    widget.leapHint.hidden = false;
+
+    regularBtn.classList.add('is-active');
+    regularBtn.setAttribute('aria-pressed','true');
+    leapBtn.classList.remove('is-active');
+    leapBtn.setAttribute('aria-pressed','false');
+  }
+
+  function setLeapChoice(widget,isLeap) {
+    widget.isLeap = Boolean(isLeap);
+
+    widget.leapWrap.querySelectorAll('[data-leap-choice]').forEach(btn => {
+      const active = (btn.dataset.leapChoice === 'leap') === widget.isLeap;
+      btn.classList.toggle('is-active',active);
+      btn.setAttribute('aria-pressed',active?'true':'false');
+    });
+
+    populateDays(widget);
+  }
+
   function populateDays(widget,preferred='') {
     const year = Number(widget.year.value);
-    const rawMonth = widget.month.value;
+    const month = Number(widget.month.value);
 
     widget.day.innerHTML = `<option value="">${t('day')}</option>`;
-    widget.preview.hidden = true;
-    widget.preview.textContent = '';
-    widget.preview.classList.remove('is-error');
+    clearPreview(widget);
 
-    if (!year || !rawMonth) return;
+    if (!year || !month) return;
 
-    const isLeap = rawMonth.startsWith('L');
-    const month = Number(rawMonth.replace('L',''));
+    const leapMonth = window.XingchenLunar.leapMonth(year);
+    if (widget.isLeap && leapMonth !== month) {
+      widget.isLeap = false;
+    }
 
-    const count = isLeap
+    const count = widget.isLeap
       ? window.XingchenLunar.leapDays(year)
       : window.XingchenLunar.monthDays(year,month);
 
     if (!count) {
-      widget.preview.hidden = false;
-      widget.preview.textContent = t('invalid');
-      widget.preview.classList.add('is-error');
+      showInvalid(widget);
       return;
     }
 
@@ -162,48 +215,58 @@
     if (widget.mode !== 'lunar') return null;
 
     const year = Number(widget.year.value);
-    const rawMonth = widget.month.value;
+    const month = Number(widget.month.value);
     const day = Number(widget.day.value);
 
-    if (!year || !rawMonth || !day) return null;
+    if (!year || !month || !day) return null;
 
-    const isLeap = rawMonth.startsWith('L');
-    const month = Number(rawMonth.replace('L',''));
-    const solar = window.XingchenLunar.lunarToSolar(year,month,day,isLeap);
+    const solar = window.XingchenLunar.lunarToSolar(
+      year, month, day, widget.isLeap
+    );
 
     if (!solar) return null;
+
+    const monthText = `${widget.isLeap ? (lang()==='zh-TW'?'閏':'闰') : ''}${monthLabel(month)}`;
 
     return {
       mode:'lunar',
       year,
       month,
       day,
-      isLeap,
+      isLeap:widget.isLeap,
       date:solar.date,
-      originalLabel:`${t('lunarPrefix')} ${year} ${monthLabel(month,isLeap)}${dayLabel(day)}`,
+      originalLabel:`${t('lunarPrefix')} ${year} ${monthText}${dayLabel(day)}`,
       convertedLabel:`${t('converted')}：${solar.cYear}/${String(solar.cMonth).padStart(2,'0')}/${String(solar.cDay).padStart(2,'0')}`
     };
+  }
+
+  function clearPreview(widget) {
+    widget.preview.hidden = true;
+    widget.preview.textContent = '';
+    widget.preview.classList.remove('is-error');
+  }
+
+  function showInvalid(widget) {
+    widget.preview.hidden = false;
+    widget.preview.textContent = t('invalid');
+    widget.preview.classList.add('is-error');
   }
 
   function updatePreview(widget) {
     widget.preview.classList.remove('is-error');
 
     const year = Number(widget.year.value);
-    const rawMonth = widget.month.value;
+    const month = Number(widget.month.value);
     const day = Number(widget.day.value);
 
-    if (!year || !rawMonth || !day) {
-      widget.preview.hidden = true;
-      widget.preview.textContent = '';
+    if (!year || !month || !day) {
+      clearPreview(widget);
       return;
     }
 
     const info = lunarInfo(widget);
-
     if (!info) {
-      widget.preview.hidden = false;
-      widget.preview.textContent = t('invalid');
-      widget.preview.classList.add('is-error');
+      showInvalid(widget);
       return;
     }
 
@@ -221,9 +284,16 @@
     if (!lunar) return;
 
     widget.year.value = String(lunar.lYear);
-    const monthValue = `${lunar.isLeap?'L':''}${lunar.lMonth}`;
+    populateMonths(widget,String(lunar.lMonth));
+    widget.month.value = String(lunar.lMonth);
+    updateLeapToggle(widget);
 
-    populateMonths(widget,monthValue);
+    if (lunar.isLeap && !widget.leapWrap.hidden) {
+      setLeapChoice(widget,true);
+    } else {
+      setLeapChoice(widget,false);
+    }
+
     populateDays(widget,lunar.lDay);
   }
 
@@ -243,6 +313,42 @@
     };
   }
 
+  function ensureLeapUI(widget) {
+    let hint = widget.lunarPanel.querySelector('[data-leap-hint]');
+    let wrap = widget.lunarPanel.querySelector('[data-leap-toggle]');
+
+    if (!hint) {
+      hint = document.createElement('small');
+      hint.className = 'birth-leap-hint';
+      hint.dataset.leapHint = '';
+      hint.hidden = true;
+      widget.lunarPanel.appendChild(hint);
+    }
+
+    if (!wrap) {
+      wrap = document.createElement('div');
+      wrap.className = 'birth-leap-toggle';
+      wrap.dataset.leapToggle = '';
+      wrap.hidden = true;
+      wrap.innerHTML = `
+        <button type="button" class="birth-leap-btn is-active" data-leap-choice="regular" aria-pressed="true"></button>
+        <button type="button" class="birth-leap-btn" data-leap-choice="leap" aria-pressed="false"></button>
+      `;
+      widget.lunarPanel.insertBefore(wrap,hint);
+    }
+
+    widget.leapWrap = wrap;
+    widget.leapHint = hint;
+
+    wrap.querySelector('[data-leap-choice="regular"]').addEventListener('click',() => {
+      setLeapChoice(widget,false);
+    });
+
+    wrap.querySelector('[data-leap-choice="leap"]').addEventListener('click',() => {
+      setLeapChoice(widget,true);
+    });
+  }
+
   function initWidget(el) {
     const id = el.dataset.birthDateWidget;
     const solarInput = document.getElementById(el.dataset.solarInput);
@@ -258,10 +364,12 @@
       preview:el.querySelector('[data-lunar-preview]'),
       solarPanel:el.querySelector('[data-birth-solar-panel]'),
       lunarPanel:el.querySelector('[data-birth-lunar-panel]'),
-      mode:'solar'
+      mode:'solar',
+      isLeap:false
     };
 
     widgets.set(id,widget);
+    ensureLeapUI(widget);
 
     el.querySelectorAll('[data-birth-mode]').forEach(btn => {
       btn.textContent = btn.dataset.birthMode==='lunar' ? t('lunar') : t('solar');
@@ -271,7 +379,12 @@
     populateYears(widget);
 
     widget.year.addEventListener('change',() => populateMonths(widget));
-    widget.month.addEventListener('change',() => populateDays(widget));
+
+    widget.month.addEventListener('change',() => {
+      updateLeapToggle(widget);
+      populateDays(widget);
+    });
+
     widget.day.addEventListener('change',() => updatePreview(widget));
 
     setMode(widget,'solar',false);
@@ -285,7 +398,7 @@
     getInfo,
     getDate:id => getInfo(id)?.date || '',
     setMode:(id,mode) => {
-      const widget=widgets.get(id);
+      const widget = widgets.get(id);
       if (widget) setMode(widget,mode);
     }
   };
