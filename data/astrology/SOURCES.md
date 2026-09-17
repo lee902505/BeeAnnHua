@@ -123,3 +123,14 @@ Solar / Lunar conversion:
   Supports Gregorian / Chinese lunar conversion for 1900–2100 and leap-month input.
 
 The converted Gregorian date is what is passed to the existing astronomical calculation engine.
+
+
+## V0.10.3.6 Lunar calendar local engine
+
+The lunar month / leap-month table follows the widely used 1900–2100 Chinese calendar data structure originating from JJonline's public JavaScript calendar implementation.
+
+Reference:
+https://gist.github.com/pingdongyi/bf75e285bff445e4fb2820729ba913c4
+
+V0.10.3.6 does not load a lunar-calendar library from a CDN at runtime.
+The conversion logic is bundled locally so lunar birth-date input remains stable on Safari / GitHub Pages.
