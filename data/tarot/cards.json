@@ -1,7 +1,7 @@
 {
   "version": "0.2",
   "cardCount": 78,
-  "cardBack": "images/tarot/cards/CardBacks.jpg",
+  "cardBack": "images/tarot/cards/CardBacks.webp",
   "cards": [
     {
       "id": 0,

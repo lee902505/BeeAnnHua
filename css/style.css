@@ -6423,3 +6423,263 @@ b {
     right: 11px !important;
   }
 }
+
+/* =====================================================================
+   V0.10.6.0 · Stellar Tarot Card System
+   Approved Stellar Diary card back + premium card packaging.
+   This layer intentionally changes only card presentation, not tarot logic.
+   ===================================================================== */
+
+/* The approved artwork is exactly shipped at the existing 300:527 runtime
+   geometry, so all current spread math and Rider–Waite face assets remain
+   compatible. */
+:root {
+  --stellar-tarot-gold: #d9b477;
+  --stellar-tarot-gold-soft: rgba(224, 190, 133, .62);
+  --stellar-tarot-violet: #1a1733;
+  --stellar-tarot-violet-deep: #100d23;
+}
+
+/* Main deck: slightly more dimensional, but still quiet and collectible. */
+.tarot-deck-stack {
+  border-radius: 13px;
+  filter:
+    drop-shadow(0 19px 25px rgba(36, 23, 55, .28))
+    drop-shadow(0 0 14px rgba(215, 177, 112, .08));
+}
+
+.tarot-deck-stack::after {
+  content: "";
+  position: absolute;
+  inset: -8px;
+  z-index: 0;
+  border-radius: 18px;
+  pointer-events: none;
+  opacity: .45;
+  background: radial-gradient(circle at 50% 48%, rgba(226,190,126,.17), transparent 66%);
+  filter: blur(7px);
+}
+
+.tarot-deck-stack img,
+.deck-shadow {
+  border-radius: 13px;
+}
+
+.tarot-deck-stack img {
+  z-index: 4;
+  border: 1px solid rgba(232, 199, 143, .82);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 239, 208, .12),
+    0 0 0 1px rgba(55, 39, 73, .42);
+}
+
+.deck-shadow {
+  background: linear-gradient(145deg, #17142d, #2a2042);
+  border-color: rgba(224, 187, 126, .38);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.025);
+}
+
+.tarot-deck-button:not(:disabled) .tarot-deck-stack::after {
+  animation: stellarDeckBreath 3.8s ease-in-out infinite;
+}
+
+.tarot-deck-button:not(:disabled):hover .tarot-deck-stack,
+.tarot-deck-button:not(:disabled):focus-visible .tarot-deck-stack {
+  transform: translateY(-8px) rotate(-1deg) scale(1.015);
+  filter:
+    drop-shadow(0 25px 31px rgba(36, 23, 55, .34))
+    drop-shadow(0 0 18px rgba(215, 177, 112, .18));
+}
+
+.tarot-deck-button:not(:disabled):hover .tarot-deck-stack::after,
+.tarot-deck-button:not(:disabled):focus-visible .tarot-deck-stack::after {
+  animation-play-state: paused;
+  opacity: .70;
+}
+
+@keyframes stellarDeckBreath {
+  0%, 100% {
+    opacity: .34;
+    transform: scale(.98);
+  }
+  50% {
+    opacity: .68;
+    transform: scale(1.05);
+  }
+}
+
+/* Spread selector: the new back becomes a small collectible-card icon. */
+.tarot-spread-icon {
+  background: rgba(28, 22, 45, .42);
+  border-color: rgba(224, 190, 133, .24);
+  box-shadow: inset 0 0 18px rgba(12, 9, 27, .22);
+  transition: border-color 180ms ease, box-shadow 180ms ease, transform 180ms ease;
+}
+
+.tarot-spread-icon::before {
+  background: linear-gradient(145deg, rgba(31,24,48,.9), rgba(56,39,69,.82));
+  border-color: rgba(224, 190, 133, .25);
+}
+
+.tarot-spread-icon img {
+  border: 1px solid rgba(229, 195, 137, .72);
+  box-shadow:
+    0 6px 13px rgba(10, 7, 20, .42),
+    0 0 0 1px rgba(255, 244, 221, .05);
+}
+
+.tarot-spread-choice:hover .tarot-spread-icon,
+.tarot-spread-choice.active .tarot-spread-icon {
+  transform: translateY(-1px);
+  border-color: rgba(236, 204, 151, .58);
+  box-shadow:
+    inset 0 0 18px rgba(12, 9, 27, .24),
+    0 0 18px rgba(216, 177, 112, .13);
+}
+
+.tarot-spread-choice.active {
+  border-color: rgba(238, 202, 152, .58);
+  background:
+    radial-gradient(circle at 12% 50%, rgba(218,172,118,.12), transparent 35%),
+    rgba(218, 172, 118, .10);
+  box-shadow: inset 0 0 0 1px rgba(244, 216, 173, .04);
+}
+
+/* Shared premium frame language for revealed Rider–Waite art. */
+.tarot-card-frame {
+  border-radius: 16px;
+  padding: 7px;
+  background:
+    linear-gradient(145deg,
+      rgba(247, 222, 177, .92),
+      rgba(180, 136, 84, .46) 44%,
+      rgba(245, 219, 173, .78));
+  box-shadow:
+    0 23px 43px rgba(46, 31, 57, .20),
+    0 0 0 1px rgba(86, 57, 88, .09),
+    0 0 20px rgba(215, 177, 112, .06);
+}
+
+.tarot-card-frame img {
+  border-radius: 10px;
+}
+
+/* Flip cards keep the established sequence logic, but gain a quieter
+   champagne-gold edge and a reveal shimmer. */
+.tarot-flip-card {
+  transition: transform 220ms ease, filter 220ms ease;
+}
+
+.tarot-flip-card.is-ready:hover,
+.tarot-flip-card.is-ready:focus-visible {
+  transform: translateY(-5px);
+  filter: drop-shadow(0 12px 18px rgba(46, 29, 63, .12));
+}
+
+.tarot-flip-face {
+  border-radius: 16px;
+  border: 1px solid rgba(224, 189, 129, .72);
+  box-shadow:
+    0 15px 30px rgba(40, 25, 53, .20),
+    inset 0 0 0 1px rgba(255, 243, 216, .10);
+}
+
+.tarot-flip-face::before {
+  content: "";
+  position: absolute;
+  inset: 3px;
+  z-index: 2;
+  pointer-events: none;
+  border-radius: 12px;
+  border: 1px solid rgba(245, 218, 169, .15);
+}
+
+.tarot-flip-back {
+  background: #151229;
+  border-color: rgba(228, 193, 134, .86);
+}
+
+.tarot-flip-back::after {
+  background:
+    radial-gradient(circle at 50% 48%, rgba(255,226,173,.10), transparent 26%),
+    linear-gradient(180deg, rgba(255,255,255,.012), rgba(17, 10, 31, .16));
+}
+
+.tarot-flip-front {
+  background: linear-gradient(145deg, #f1d8aa, #af7f4e 45%, #ead0a0);
+  padding: 4px;
+}
+
+.tarot-flip-front img {
+  border-radius: 11px;
+}
+
+.tarot-flip-card.is-ready .tarot-flip-back {
+  animation: stellarReadyGlow 2.35s ease-in-out infinite;
+}
+
+@keyframes stellarReadyGlow {
+  0%, 100% {
+    box-shadow:
+      0 14px 30px rgba(40,25,53,.19),
+      0 0 0 rgba(217,180,116,0),
+      inset 0 0 0 1px rgba(255,243,216,.10);
+  }
+  50% {
+    box-shadow:
+      0 16px 34px rgba(40,25,53,.23),
+      0 0 25px rgba(217,180,116,.20),
+      inset 0 0 0 1px rgba(255,243,216,.14);
+  }
+}
+
+.tarot-flip-card.is-flipped .tarot-flip-front {
+  animation: stellarRevealGlow 760ms cubic-bezier(.2,.72,.2,1) both;
+}
+
+@keyframes stellarRevealGlow {
+  0% {
+    box-shadow:
+      0 14px 30px rgba(40,25,53,.18),
+      0 0 0 rgba(226,190,126,0);
+  }
+  48% {
+    box-shadow:
+      0 18px 35px rgba(40,25,53,.23),
+      0 0 34px rgba(226,190,126,.34);
+  }
+  100% {
+    box-shadow:
+      0 15px 30px rgba(40,25,53,.20),
+      0 0 12px rgba(226,190,126,.08);
+  }
+}
+
+/* Prompt remains functional, but visually belongs to the new back. */
+.tarot-flip-prompt {
+  color: #fff1d3;
+  background: rgba(20, 15, 39, .74);
+  border-color: rgba(231, 196, 138, .24);
+  box-shadow: 0 4px 12px rgba(10,7,20,.18);
+}
+
+@media (max-width: 760px) {
+  .tarot-deck-stack {
+    filter:
+      drop-shadow(0 15px 22px rgba(36, 23, 55, .26))
+      drop-shadow(0 0 10px rgba(215, 177, 112, .07));
+  }
+
+  .tarot-flip-card.is-ready:hover,
+  .tarot-flip-card.is-ready:focus-visible {
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tarot-deck-button:not(:disabled) .tarot-deck-stack::after,
+  .tarot-flip-card.is-ready .tarot-flip-back,
+  .tarot-flip-card.is-flipped .tarot-flip-front {
+    animation: none !important;
+  }
+}

@@ -374,7 +374,7 @@
       <button class="tarot-spread-choice ${spread.key === state.selectedSpread ? 'active' : ''}"
               type="button" data-spread="${spread.key}">
         <span class="tarot-spread-icon" aria-hidden="true">
-          <img src="../images/tarot/cards/CardBacks.jpg" alt="" />
+          <img src="../images/tarot/cards/CardBacks.webp" alt="" />
         </span>
         <span>
           <strong>${escapeHtml(localized(spread.name))}</strong>
@@ -629,7 +629,7 @@
                 aria-label="${escapeHtml(pos)} · ${ui('revealNext')}">
           <span class="tarot-flip-inner">
             <span class="tarot-flip-face tarot-flip-back">
-              <img src="../images/tarot/cards/CardBacks.jpg" alt="" />
+              <img src="../images/tarot/cards/CardBacks.webp" alt="" />
               <span class="tarot-flip-prompt">${isFirst ? ui('revealNext') : ui('waiting')}</span>
             </span>
             <span class="tarot-flip-face tarot-flip-front ${reversed ? 'is-reversed' : ''}">
