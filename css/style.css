@@ -4414,3 +4414,247 @@ main { display: grid; gap: 0; }
     grid-column: 1 / -1;
   }
 }
+
+
+/* ===== V0.10.4.3 UI POLISH ===== */
+
+/* Header / player badge -------------------------------------------------- */
+.site-header .header-actions,
+.site-header .header-right,
+.topbar .header-actions,
+.topbar .header-right {
+  align-items: center;
+}
+
+.player-badge,
+.player-profile-badge,
+[data-player-badge] {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center;
+  gap: .28em;
+  line-height: 1 !important;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
+.player-badge .player-name,
+.player-profile-badge .player-name,
+[data-player-badge] .player-name {
+  display: inline-flex;
+  align-items: center;
+  line-height: 1 !important;
+}
+
+.player-badge .player-sex,
+.player-profile-badge .player-sex,
+[data-player-badge] .player-sex,
+.player-badge .gender-symbol,
+.player-profile-badge .gender-symbol,
+[data-player-badge] .gender-symbol {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1 !important;
+  transform: translateY(.02em);
+}
+
+@media(max-width:760px) {
+  .player-badge,
+  .player-profile-badge,
+  [data-player-badge] {
+    min-height: 36px;
+    gap: 5px;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+  }
+
+  .player-badge .player-name,
+  .player-profile-badge .player-name,
+  [data-player-badge] .player-name {
+    font-size: 1rem;
+  }
+
+  .player-badge .player-sex,
+  .player-profile-badge .player-sex,
+  [data-player-badge] .player-sex,
+  .player-badge .gender-symbol,
+  .player-profile-badge .gender-symbol,
+  [data-player-badge] .gender-symbol {
+    font-size: .82em;
+    transform: translateY(.01em);
+  }
+}
+
+/* Back-home link: text only, cleaner visual hierarchy ------------------- */
+.back-home,
+.back-home-link,
+.home-return,
+[data-back-home] {
+  gap: 0 !important;
+}
+
+.back-home::before,
+.back-home-link::before,
+.home-return::before,
+[data-back-home]::before {
+  content: none !important;
+}
+
+/* Tarot local history --------------------------------------------------- */
+.tarot-history-shell {
+  position: relative;
+}
+
+.tarot-history-toggle {
+  border-color: rgba(224,188,151,.22) !important;
+  color: #f7edf1 !important;
+  background:
+    linear-gradient(180deg, rgba(76,59,73,.30), rgba(42,32,47,.28)) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.025),
+    0 10px 28px rgba(13,9,16,.08);
+}
+
+.tarot-history-toggle small {
+  color: #bea8b4 !important;
+}
+
+.tarot-history-toggle strong {
+  color: #fff7fa !important;
+}
+
+.tarot-history-toggle b {
+  color: #fff3e8 !important;
+  background: rgba(218,179,140,.22) !important;
+  border: 1px solid rgba(231,202,180,.13);
+}
+
+.tarot-history-panel {
+  border-color: rgba(223,190,160,.18) !important;
+  background:
+    linear-gradient(180deg, rgba(53,42,58,.96), rgba(39,30,45,.96)) !important;
+  box-shadow:
+    0 18px 46px rgba(10,7,13,.16),
+    inset 0 1px 0 rgba(255,255,255,.025);
+}
+
+.tarot-history-head > div > span {
+  color: #bca4b1 !important;
+}
+
+.tarot-history-head h2 {
+  color: #fff8fb !important;
+}
+
+.tarot-history-head p {
+  color: #d3c1ca !important;
+}
+
+.tarot-history-clear {
+  border-color: rgba(227,192,165,.20) !important;
+  color: #e0c8d2 !important;
+  background: rgba(255,255,255,.035) !important;
+}
+
+.tarot-history-clear:hover,
+.tarot-history-clear:focus-visible {
+  color: #fff5f8 !important;
+  border-color: rgba(237,199,162,.38) !important;
+  background: rgba(255,255,255,.065) !important;
+}
+
+.tarot-history-empty {
+  color: #cfbdc6 !important;
+  background: rgba(255,255,255,.045) !important;
+}
+
+.tarot-history-list {
+  gap: 10px !important;
+}
+
+.tarot-history-item {
+  border-color: rgba(228,195,170,.14) !important;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.055), rgba(255,255,255,.035)) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.018);
+}
+
+.tarot-history-item[open] {
+  border-color: rgba(230,193,156,.24) !important;
+  background:
+    linear-gradient(180deg, rgba(86,65,77,.34), rgba(58,43,54,.34)) !important;
+}
+
+.tarot-history-date {
+  color: #c7adb9 !important;
+}
+
+.tarot-history-item > summary strong {
+  color: #fff4f8 !important;
+}
+
+.tarot-history-item > summary small {
+  color: #d1bdc7 !important;
+}
+
+.tarot-history-detail section {
+  border-top-color: rgba(255,255,255,.075) !important;
+}
+
+.tarot-history-detail h3 {
+  color: #efccd9 !important;
+}
+
+.tarot-history-detail p {
+  color: #eadde3 !important;
+}
+
+.tarot-history-cards li {
+  border: 1px solid rgba(229,196,170,.10);
+  background: rgba(255,255,255,.045) !important;
+}
+
+.tarot-history-cards span {
+  color: #ccb7c1 !important;
+}
+
+.tarot-history-cards strong {
+  color: #fff1f5 !important;
+}
+
+.tarot-history-cards small {
+  color: #e0c8d2 !important;
+}
+
+.tarot-history-cards small.is-reversed {
+  color: #f0b6c1 !important;
+}
+
+.tarot-history-advice {
+  border-color: rgba(228,190,148,.18) !important;
+  background:
+    linear-gradient(180deg, rgba(218,179,140,.12), rgba(218,179,140,.07)) !important;
+}
+
+.tarot-history-advice h3 {
+  color: #f2d3b9 !important;
+}
+
+.tarot-history-advice p {
+  color: #f2e5db !important;
+}
+
+@media(max-width:600px) {
+  .tarot-history-panel {
+    padding: 14px !important;
+  }
+
+  .tarot-history-item > summary {
+    padding: 13px 14px !important;
+  }
+
+  .tarot-history-detail {
+    padding: 0 14px 15px !important;
+  }
+}
