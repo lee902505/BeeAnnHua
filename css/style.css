@@ -6249,3 +6249,92 @@ b {
     font-size: .79rem !important;
   }
 }
+
+
+/* =====================================================================
+   V0.10.5.3 · Quote positioning / calligraphic visual polish
+   Desktop quotes move to the artwork's top-right. Quotes use a taller,
+   more calligraphic serif/kaiti stack and are ~60% larger than V0.10.5.2.
+   Contrast is tuned per artwork without capsules or blur panels.
+   ===================================================================== */
+
+.home-panel .panel-quote {
+  font-family:
+    "STKaiti",
+    "Kaiti SC",
+    "KaiTi",
+    "DFKai-SB",
+    "Songti SC",
+    "STSong",
+    "Noto Serif CJK SC",
+    "Noto Serif SC",
+    serif !important;
+  font-weight: 400 !important;
+  letter-spacing: .10em !important;
+  line-height: 1.62 !important;
+  font-style: normal !important;
+  transform: rotate(-3deg) !important;
+  text-wrap: balance;
+}
+
+/* Bright paintings: ink-like text with a pale reverse shadow. */
+.panel-daily .panel-quote,
+.panel-astrology .panel-quote {
+  color: #211d2b !important;
+  text-shadow:
+    0 1px 1px rgba(255,255,255,.92),
+    0 2px 5px rgba(255,255,255,.72),
+    0 0 12px rgba(255,255,255,.48) !important;
+}
+
+.panel-farm .panel-quote {
+  color: #252619 !important;
+  text-shadow:
+    0 1px 1px rgba(255,255,255,.94),
+    0 2px 5px rgba(255,255,255,.78),
+    0 0 12px rgba(255,255,255,.55) !important;
+}
+
+/* Dark paintings: warm ivory with a restrained deep-violet shadow. */
+.panel-tarot .panel-quote,
+.panel-synastry .panel-quote {
+  color: #fff8eb !important;
+  text-shadow:
+    0 1px 2px rgba(18,10,31,.92),
+    0 3px 7px rgba(18,10,31,.72),
+    0 0 12px rgba(18,10,31,.46) !important;
+}
+
+@media (min-width: 761px) {
+  .home-panel .panel-quote {
+    top: 28px !important;
+    right: 34px !important;
+    left: auto !important;
+    max-width: 270px !important;
+    width: max-content;
+    font-size: clamp(1.45rem, 1.42vw, 1.78rem) !important;
+    text-align: left !important;
+  }
+}
+
+@media (max-width: 760px) {
+  .home-panel .panel-quote {
+    top: 14px !important;
+    right: 15px !important;
+    left: auto !important;
+    max-width: min(48vw, 220px) !important;
+    font-size: clamp(1.18rem, 4.25vw, 1.40rem) !important;
+    line-height: 1.54 !important;
+    letter-spacing: .075em !important;
+    text-align: left !important;
+  }
+}
+
+@media (max-width: 390px) {
+  .home-panel .panel-quote {
+    top: 11px !important;
+    right: 12px !important;
+    max-width: 49vw !important;
+    font-size: clamp(1.06rem, 4.15vw, 1.26rem) !important;
+  }
+}
