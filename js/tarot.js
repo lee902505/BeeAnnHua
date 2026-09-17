@@ -1266,6 +1266,11 @@
     }
   }
 
+  window.addEventListener('stellar:cloud-data-updated', event => {
+    if (event.detail?.type !== 'tarot') return;
+    renderTarotHistory();
+  });
+
   document.addEventListener('DOMContentLoaded', () => {
     byId('questionInput')?.addEventListener('input', (event) => {
       byId('questionCount').textContent = String(event.target.value.length);
@@ -1289,10 +1294,14 @@
       if (opening) renderTarotHistory();
     });
 
-    byId('tarotHistoryClear')?.addEventListener('click', () => {
+    byId('tarotHistoryClear')?.addEventListener('click', async () => {
       if (!window.confirm(ui('historyClearConfirm'))) return;
       writeTarotHistory([]);
       renderTarotHistory();
+      if (window.XingchenCloudSync?.clearTarotCloud) {
+        const result = await window.XingchenCloudSync.clearTarotCloud();
+        if (!result?.ok && result?.error) console.warn('[星辰日记] 云端塔罗记录清除失败：', result.error);
+      }
     });
 
     byId('scrollTopBtn')?.addEventListener('click', () => {

@@ -32,4 +32,4 @@ For production, put the full publishable key into the public configuration (or a
 V0.10.7.1 already enabled RLS and least-privilege table grants. V0.10.7.2.2 does not weaken those policies.
 
 ## Next
-V0.10.7.3 will add Supabase Auth (email OTP / magic-link flow). Only after Auth exists will cloud data sync be enabled.
+V0.10.7.4 will add Supabase Auth (email OTP / magic-link flow). Only after Auth exists will cloud data sync be enabled.

@@ -1,26 +1,27 @@
-# 星辰日记 / Stellar Diary — V0.10.7.3
+# 星辰日记 / Stellar Diary — V0.10.7.4
 
-## Anonymous Auth Foundation · 临时云端身份
-- 新增 `js/supabase-auth.js`：页面载入时恢复既有 Supabase session；若尚未登录且 public configuration 已完整，则自动建立 anonymous user。
-- 匿名用户拥有真实 Supabase Auth UUID，并继续使用现有 `auth.uid() = user_id` RLS 规则。
-- `auth.users -> public.profiles` trigger 继续负责自动建立 profile 记录。
-- 仅同步玩家称呼、性别、语言与时区到 `profiles`；本命盘、合盘、塔罗、每日签等历史记录仍保持本机，不提前开启完整 Cloud Sync。
-- 玩家资料弹窗新增云端身份状态：准备中／临时云端身份／正式云端账号／本机模式／错误。
-- `supabase-test.html` 升级为 Auth 测试页，可查看 Cloud Identity、User UUID，并手动重试匿名登录与 profile 同步。
-- 新增 `docs/ANONYMOUS_AUTH.md`，记录匿名身份、恢复限制与未来账号绑定边界。
-- 本版不会要求 Email，也不会限制 QQ邮箱、Foxmail、163、126 等未来可绑定的邮箱域名。
+## Cloud Sync Phase 1 · 核心资料云端同步
+- 新增 `js/cloud-sync.js`，在匿名 Supabase Auth 身份准备完成后自动合并本机与云端资料。
+- 同步范围：`profiles`、`natal_charts`、`synastry_reports`、`fortune_history`、`tarot_history`。
+- 保持 **local-first**：所有既有功能仍可先写本机；离线或 Supabase 暂不可用时不会阻断每日运势、塔罗、星盘或合盘。
+- 本命盘／合盘使用 deterministic fingerprint 去重，避免相同命盘重复建立。
+- 每日签跨设备冲突采用 **first-draw wins**：同一天若出现不同记录，以较早的抽签时间为准，维持「一天一签」逻辑。
+- 塔罗记录云端与本机合并，本机 UI 继续显示最近 10 则；明确执行「清空记录」时会同步删除该云端身份的塔罗历史。
+- 玩家资料弹窗新增「资料同步」状态，可看到同步中／已开启／部分待重试／离线。
+- `supabase-test.html` 升级为 Cloud Sync 测试页，可查看同步状态、最近同步时间与各类型云端数量，并手动执行「同步全部资料」。
+- 新增 `docs/CLOUD_SYNC_PHASE1.md` 记录同步策略、冲突规则与安全边界。
+- `ai_reports` 本版仍不由浏览器写入，继续保留给 V0.11 后端 AI 报告系统。
 
-### Supabase Dashboard 前置设置
-测试本版前，请在 Supabase Authentication 中开启 **Anonymous Sign-Ins**。若未开启，网站会保持本机功能可用，并在玩家资料弹窗／测试页显示提示，不影响现有塔罗、运势、星盘、合盘。
+### 安全与资料保留
+- 继续仅使用浏览器 Publishable Key + RLS；不使用 `sb_secret_` / service role。
+- 成功同步后 **不会删除 localStorage**，本机始终保留副本。
+- 尚未绑定 Email／Google／Apple 时，匿名身份仍只能由当前浏览器 session 找回；账号绑定与跨设备恢复留到下一阶段。
 
-### Publishable Key 说明
-V0.10.7.2 系列没有把截图中被截断的 Publishable Key 猜进源码，因此 V0.10.7.3 会使用这台浏览器之前在 `supabase-test.html` 保存的 `sb_publishable_...`。正式让所有新访客自动建立匿名身份前，需要再把 Publishable Key 作为公开前端配置正式部署。
-
-### 仍未开放
-- Email / Google / Apple 账号绑定（规划于 V0.10.7.4）
-- 跨设备恢复
-- 本命盘／合盘／塔罗／每日签完整云端同步
-- AI 报告云端生成
+### 测试建议
+1. 先确认 `supabase-test.html` 显示「临时云端身份 · 已登录」。
+2. 点击「同步全部资料」，确认 Cloud Sync 进入「云端同步已开启」。
+3. 到 Supabase Table Editor 检查 `profiles`、`natal_charts`、`synastry_reports`、`fortune_history`、`tarot_history` 是否出现当前 UUID 的资料。
+4. 断网时新增本机记录，再恢复网络，确认会自动重试同步。
 
 ---
 
@@ -36,7 +37,7 @@ V0.10.7.2 系列没有把截图中被截断的 Publishable Key 猜进源码，�
 - 将已执行的 V0.10.7.1 Schema 保存为 `supabase/migrations/20260917_001_core_schema.sql`，后续数据库变更可版本化追踪。
 - V0.10.7.1 已在 Supabase 端完成 6 张核心资料表、RLS、Indexes、Triggers 与最小权限 Grants。
 - 由于提供的 Dashboard 截图会截断 Publishable Key，本 ZIP **没有猜测或写入不完整 key**；连接层已完成，等待完整 Publishable Key 后即可正式启用。
-- Cloud Sync 与 AI Reports 仍保持关闭；下一步 V0.10.7.3 才加入 Supabase Auth。
+- Cloud Sync 与 AI Reports 仍保持关闭；下一步 V0.10.7.4 才加入 Supabase Auth。
 
 > 本版不会上传星盘、塔罗、每日签或玩家资料；只有在 `supabase-test.html` 主动点击测试时才会发出连线检查。
 

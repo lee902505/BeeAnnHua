@@ -30,7 +30,9 @@
       .sort((a,b) => b[0].localeCompare(a[0]))
       .slice(0, 60);
 
-    localStorage.setItem(FORTUNE_CONFIG.storageKey, JSON.stringify(Object.fromEntries(entries)));
+    const next = Object.fromEntries(entries);
+    localStorage.setItem(FORTUNE_CONFIG.storageKey, JSON.stringify(next));
+    try { window.dispatchEvent(new CustomEvent('stellar:fortune-local-changed',{detail:{history:next}})); } catch (_) {}
   }
 
   function savedFortune(record) {
@@ -277,6 +279,18 @@
       byId("loadError").hidden = false;
     }
   }
+
+  window.addEventListener('stellar:cloud-data-updated', (event) => {
+    if (event.detail?.type !== 'fortune' || state.drawing || !FORTUNE_CONFIG.dailyLockEnabled) return;
+    const saved = readHistory()[localDateKey()];
+    const existing = savedFortune(saved);
+    if (saved && existing) {
+      render(existing, {
+        repeat: saved.repeat === true,
+        repeatText: saved.repeatText || ''
+      });
+    }
+  });
 
   document.addEventListener("DOMContentLoaded", () => {
     byId("drawFortuneBtn")?.addEventListener("click", draw);

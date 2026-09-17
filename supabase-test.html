@@ -33,9 +33,9 @@
 </head>
 <body>
   <main>
-    <div class="eyebrow">V0.10.7.3 · ANONYMOUS AUTH FOUNDATION</div>
+    <div class="eyebrow">V0.10.7.4 · ANONYMOUS AUTH FOUNDATION</div>
     <h1>星辰日记云端身份测试</h1>
-    <p class="lead">先确认 Supabase 连线，再建立／恢复这台浏览器的临时云端身份。V0.10.7.3 只会同步玩家称呼、性别、语言与时区到 profiles；星盘、塔罗、每日签等记录仍维持本机。</p>
+    <p class="lead">先确认 Supabase 连线与临时云端身份。V0.10.7.4 第一阶段会把玩家资料、本命星盘、两人合盘、每日签与塔罗记录和云端合并，同时继续保留本机副本。</p>
 
     <section class="card">
       <div class="row"><div class="label">Project URL</div><div class="value" id="urlValue">—</div></div>
@@ -43,6 +43,8 @@
       <div class="row"><div class="label">Supabase SDK</div><div class="value" id="sdkValue">—</div></div>
       <div class="row"><div class="label">Cloud Identity</div><div class="value" id="authValue">检查中…</div></div>
       <div class="row"><div class="label">User UUID</div><div class="value" id="userValue">—</div></div>
+      <div class="row"><div class="label">Cloud Sync</div><div class="value" id="cloudSyncValue">等待中…</div></div>
+      <div class="row"><div class="label">Last Sync</div><div class="value" id="lastSyncValue">—</div></div>
       <div id="statusBox" class="status">等待测试。</div>
 
       <label for="keyInput">本机开发用 Publishable Key</label>
@@ -51,7 +53,7 @@
         <button id="saveKey" type="button">保存到这台设备</button>
         <button id="testBtn" type="button">测试连接</button>
         <button id="authBtn" type="button">建立／恢复临时身份</button>
-        <button id="syncBtn" type="button" class="secondary">同步玩家资料</button>
+        <button id="syncBtn" type="button" class="secondary">同步全部资料</button>
         <button id="clearKey" type="button" class="secondary">清除本机 Key</button>
         <a class="btn secondary" href="index.html">返回首页</a>
       </div>
@@ -60,9 +62,10 @@
   </main>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="js/supabase-config.js?v=0.10.7.3"></script>
-  <script src="js/supabase-client.js?v=0.10.7.3"></script>
-  <script src="js/supabase-auth.js?v=0.10.7.3"></script>
+  <script src="js/supabase-config.js?v=0.10.7.4"></script>
+  <script src="js/supabase-client.js?v=0.10.7.4"></script>
+  <script src="js/supabase-auth.js?v=0.10.7.4"></script>
+  <script src="js/cloud-sync.js?v=0.10.7.4"></script>
   <script>
     (() => {
       const cfg = window.XingchenSupabaseConfig;
@@ -72,6 +75,8 @@
       const sdkEl = document.getElementById('sdkValue');
       const authEl = document.getElementById('authValue');
       const userEl = document.getElementById('userValue');
+      const cloudSyncEl = document.getElementById('cloudSyncValue');
+      const lastSyncEl = document.getElementById('lastSyncValue');
       const statusEl = document.getElementById('statusBox');
       const input = document.getElementById('keyInput');
 
@@ -81,6 +86,7 @@
         keyEl.textContent = snap.configured ? `${snap.keyPrefix}（${snap.keySource}）` : '尚未设置';
         sdkEl.textContent = api.status().sdkAvailable ? '已载入' : '未载入';
         renderAuth(window.XingchenAuth?.status?.() || {});
+        renderCloudSync(window.XingchenCloudSync?.status?.() || {});
       }
 
       function renderAuth(auth) {
@@ -102,6 +108,19 @@
           authEl.textContent = '尚未建立';
         }
         userEl.textContent = '—';
+      }
+
+      function renderCloudSync(sync) {
+        const labels = {
+          ready:'云端同步已开启', syncing:'正在同步…', partial:'部分资料待重试', offline:'离线 · 保留本机副本',
+          'waiting-auth':'等待云端身份', 'local-only':'本机模式', idle:'等待中'
+        };
+        cloudSyncEl.textContent = labels[sync.phase] || sync.phase || '等待中';
+        if (sync.counts) {
+          const c = sync.counts;
+          cloudSyncEl.textContent += ` · 星盘 ${c.natal||0} / 合盘 ${c.synastry||0} / 每日签 ${c.fortune||0} / 塔罗 ${c.tarot||0}`;
+        }
+        lastSyncEl.textContent = sync.lastSyncAt ? new Date(sync.lastSyncAt).toLocaleString() : '—';
       }
 
       function setStatus(message, kind='') {
@@ -157,17 +176,20 @@
       });
 
       document.getElementById('syncBtn').addEventListener('click', async () => {
-        setStatus('正在同步玩家基本资料…');
-        const result = await window.XingchenAuth.syncProfile(true);
-        if (result.ok) {
-          const suffix = result.skipped === 'no-local-profile' ? '（目前尚未设置玩家称呼，因此没有资料需要同步。）' : '';
-          setStatus(`玩家基本资料同步完成。${suffix}`, 'ok');
+        setStatus('正在合并本机与云端资料…');
+        const result = await window.XingchenCloudSync.syncAll('manual-test');
+        renderCloudSync(window.XingchenCloudSync.status());
+        if (result?.phase === 'ready') {
+          setStatus('全部资料同步完成，本机副本仍会保留。', 'ok');
+        } else if (result?.phase === 'partial') {
+          setStatus(`同步完成，但有部分资料待重试：${result.error || ''}`, 'bad');
         } else {
-          setStatus(`资料同步失败：${result.error?.message || '尚未登录临时云端身份'}`, 'bad');
+          setStatus(`同步暂未完成：${result?.error || result?.phase || 'unknown'}`, 'bad');
         }
       });
 
       window.addEventListener('stellar:auth-state', event => renderAuth(event.detail || {}));
+      window.addEventListener('stellar:cloud-sync-state', event => renderCloudSync(event.detail || {}));
 
       render();
     })();

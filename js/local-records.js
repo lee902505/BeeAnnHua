@@ -27,6 +27,7 @@
   function write(key, value) {
     try {
       localStorage.setItem(key, JSON.stringify(value));
+      try { window.dispatchEvent(new CustomEvent('stellar:local-record-write',{detail:{key,value}})); } catch (_) {}
       return true;
     } catch (error) {
       console.warn('[星辰日记] 本机纪录写入失败：', key, error);
@@ -37,6 +38,7 @@
   function remove(key) {
     try {
       localStorage.removeItem(key);
+      try { window.dispatchEvent(new CustomEvent('stellar:local-record-remove',{detail:{key}})); } catch (_) {}
       return true;
     } catch {
       return false;

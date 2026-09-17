@@ -1,4 +1,4 @@
-# V0.10.7.3 · Anonymous Auth Foundation
+# V0.10.7.4 · Anonymous Auth Foundation
 
 ## 目标
 第一次打开星辰日记时不要求注册。只要 Supabase public configuration 已就绪，网站会：
@@ -26,7 +26,7 @@
 V0.10.7.2 系列为了避免从截图猜测 key，没有把完整 `sb_publishable_...` 写进源码。
 
 因此：
-- 已在 `supabase-test.html` 保存过 Publishable Key 的浏览器可以直接测试 V0.10.7.3；
+- 已在 `supabase-test.html` 保存过 Publishable Key 的浏览器可以直接测试 V0.10.7.4；
 - 新装置若没有 public key，会保持 `local-only`；
 - 正式公开前，应把 **Publishable Key** 以 public config 方式部署给所有访客。Publishable Key 是浏览器端公开配置，不是 secret；`sb_secret_...` / service role / Database password 绝不能放进 GitHub Pages。
 

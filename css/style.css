@@ -8613,3 +8613,35 @@ b {
   0%, 100% { opacity: .45; transform: scale(.86); }
   50% { opacity: 1; transform: scale(1.08); }
 }
+
+/* V0.10.7.4 · Cloud Sync status -------------------------------------- */
+.profile-cloud-sync {
+  margin-top: 8px;
+  padding-top: 9px;
+  border-top: 1px solid rgba(126,101,126,.11);
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 4px 10px;
+  align-items: baseline;
+}
+.profile-cloud-sync > span {
+  color:#8d7488;
+  font-size:.72rem;
+  letter-spacing:.045em;
+}
+.profile-cloud-sync > b {
+  justify-self:end;
+  color:#6a5a69;
+  font-size:.76rem;
+  font-weight:680;
+}
+.profile-cloud-sync > small {
+  grid-column:1 / -1;
+  color:#9a8b96;
+  font-size:.70rem;
+  line-height:1.5;
+}
+.profile-cloud-sync.is-syncing > b { color:#8267a1; }
+.profile-cloud-sync.is-ready > b { color:#5c7f72; }
+.profile-cloud-sync.is-partial > b { color:#a07848; }
+.profile-cloud-sync.is-offline > b { color:#8b7788; }
