@@ -3450,3 +3450,18 @@ main { display: grid; gap: 0; }
     height: 50px;
   }
 }
+
+
+/* ===== V0.10.3.5 LUNAR OPTION FIX ===== */
+.birth-lunar-grid select:disabled {
+  opacity: .5;
+  cursor: not-allowed;
+}
+
+.birth-lunar-grid select {
+  color-scheme: dark;
+}
+
+.birth-lunar-preview.is-error {
+  font-weight: 500;
+}
