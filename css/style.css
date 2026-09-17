@@ -8534,3 +8534,82 @@ b {
 .fortune-page .fortune-draw-stage.is-drawing:disabled { opacity: 1; }
 .fortune-page .fortune-result::before { z-index: 0; }
 .fortune-page .fortune-result > * { position: relative; z-index: 1; }
+
+/* V0.10.7.3 · Anonymous Auth identity status ------------------------- */
+.profile-cloud-identity {
+  margin-top: 18px;
+  padding: 13px 14px;
+  border-radius: 16px;
+  border: 1px solid rgba(126, 101, 126, .14);
+  background: rgba(88, 69, 95, .055);
+  display: grid;
+  gap: 5px;
+  color: #665565;
+}
+
+.profile-cloud-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #8d7488;
+  font-size: .78rem;
+  letter-spacing: .045em;
+}
+
+.profile-cloud-dot {
+  width: 8px;
+  height: 8px;
+  flex: 0 0 8px;
+  border-radius: 50%;
+  background: #a69aa5;
+  box-shadow: 0 0 0 3px rgba(166, 154, 165, .10);
+}
+
+.profile-cloud-identity > b {
+  font-size: .93rem;
+  font-weight: 680;
+  color: #534451;
+}
+
+.profile-cloud-identity > small {
+  color: #988792;
+  font-size: .75rem;
+  line-height: 1.55;
+}
+
+.profile-cloud-identity.is-ready {
+  border-color: rgba(116, 151, 195, .20);
+  background: rgba(112, 149, 192, .075);
+}
+.profile-cloud-identity.is-ready .profile-cloud-dot {
+  background: #77a9db;
+  box-shadow: 0 0 0 3px rgba(119, 169, 219, .12), 0 0 12px rgba(119, 169, 219, .25);
+}
+.profile-cloud-identity.is-ready > b { color: #526f91; }
+
+.profile-cloud-identity.is-bound {
+  border-color: rgba(170, 139, 88, .22);
+  background: rgba(195, 161, 102, .07);
+}
+.profile-cloud-identity.is-bound .profile-cloud-dot {
+  background: #c6a060;
+  box-shadow: 0 0 0 3px rgba(198, 160, 96, .12), 0 0 12px rgba(198, 160, 96, .20);
+}
+.profile-cloud-identity.is-bound > b { color: #8a6b39; }
+
+.profile-cloud-identity.is-error {
+  border-color: rgba(182, 102, 121, .22);
+  background: rgba(182, 102, 121, .06);
+}
+.profile-cloud-identity.is-error .profile-cloud-dot { background: #bd7586; }
+.profile-cloud-identity.is-error > b { color: #996171; }
+
+.profile-cloud-identity.is-loading .profile-cloud-dot {
+  background: #b69bcb;
+  animation: stellar-cloud-pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes stellar-cloud-pulse {
+  0%, 100% { opacity: .45; transform: scale(.86); }
+  50% { opacity: 1; transform: scale(1.08); }
+}

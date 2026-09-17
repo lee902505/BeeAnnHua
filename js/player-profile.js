@@ -5,33 +5,36 @@
   const TEXT = {
     'zh-CN': {
       title:'先设置你的星辰称呼',
-      intro:'第一次使用个人功能前，先留下一个简单称呼。资料只保存在这个浏览器里。',
+      intro:'第一次使用个人功能前，先留下一个简单称呼。资料会优先保存在本机，临时云端身份就绪后会同步基本资料。',
       name:'名称', namePlaceholder:'例如：弈弈',
       nameHint:'请输入 2～5 个全形文字。',
       gender:'性别', male:'男', female:'女',
       save:'保存并继续', edit:'修改资料',
       invalidName:'名称需要 2～5 个全形文字，例如「弈弈」。',
-      chooseGender:'请选择性别。'
+      chooseGender:'请选择性别。',
+      cloudTitle:'云端身份', cloudPreparing:'正在准备临时云端身份…', cloudTemp:'临时云端身份', cloudBound:'正式云端账号', cloudLocal:'本机模式', cloudError:'云端身份暂不可用', cloudTempNote:'目前尚未绑定邮箱；清除浏览器资料或换装置前，请先完成账号绑定。', cloudBoundNote:'账号已绑定，后续可用于跨设备同步。', cloudLocalNote:'目前只使用本机资料，网站其他功能仍可正常使用。'
     },
     'zh-TW': {
       title:'先設定你的星辰稱呼',
-      intro:'第一次使用個人功能前，先留下一個簡單稱呼。資料只保存在這個瀏覽器裡。',
+      intro:'第一次使用個人功能前，先留下一個簡單稱呼。資料會優先保存在本機，臨時雲端身分就緒後會同步基本資料。',
       name:'名稱', namePlaceholder:'例如：弈弈',
       nameHint:'請輸入 2～5 個全形文字。',
       gender:'性別', male:'男', female:'女',
       save:'儲存並繼續', edit:'修改資料',
       invalidName:'名稱需要 2～5 個全形文字，例如「弈弈」。',
-      chooseGender:'請選擇性別。'
+      chooseGender:'請選擇性別。',
+      cloudTitle:'雲端身分', cloudPreparing:'正在準備臨時雲端身分…', cloudTemp:'臨時雲端身分', cloudBound:'正式雲端帳號', cloudLocal:'本機模式', cloudError:'雲端身分暫不可用', cloudTempNote:'目前尚未綁定信箱；清除瀏覽器資料或換裝置前，請先完成帳號綁定。', cloudBoundNote:'帳號已綁定，後續可用於跨裝置同步。', cloudLocalNote:'目前只使用本機資料，網站其他功能仍可正常使用。'
     },
     'en': {
       title:'Set your display name',
-      intro:'Before using personal features, create a short local profile. It stays in this browser only.',
+      intro:'Before using personal features, create a short display name. Data stays local first, and basic profile fields sync when a temporary cloud identity is ready.',
       name:'Name', namePlaceholder:'2–5 full-width characters',
       nameHint:'Use 2–5 full-width characters.',
       gender:'Gender', male:'Male', female:'Female',
       save:'Save & continue', edit:'Edit profile',
       invalidName:'Please use 2–5 full-width characters.',
-      chooseGender:'Please select a gender.'
+      chooseGender:'Please select a gender.',
+      cloudTitle:'Cloud identity', cloudPreparing:'Preparing temporary cloud identity…', cloudTemp:'Temporary cloud identity', cloudBound:'Bound cloud account', cloudLocal:'Local-only mode', cloudError:'Cloud identity unavailable', cloudTempNote:'No recovery method is linked yet. Bind an account before clearing browser data or changing devices.', cloudBoundNote:'This account is linked and can support cross-device sync later.', cloudLocalNote:'Local features remain available even without cloud identity.'
     }
   };
 
@@ -136,6 +139,15 @@
             </div>
           </div>
 
+          <section class="profile-cloud-identity" id="profileCloudIdentity" aria-live="polite">
+            <div class="profile-cloud-head">
+              <span class="profile-cloud-dot" aria-hidden="true"></span>
+              <strong id="profileCloudTitle"></strong>
+            </div>
+            <b id="profileCloudStatus"></b>
+            <small id="profileCloudNote"></small>
+          </section>
+
           <p class="profile-modal-error" id="profileError"></p>
           <button class="profile-save-btn" id="profileSaveBtn" type="button"></button>
         </section>
@@ -162,6 +174,48 @@
     document.getElementById('profileMaleText').textContent = t('male');
     document.getElementById('profileFemaleText').textContent = t('female');
     document.getElementById('profileSaveBtn').textContent = t('save');
+    document.getElementById('profileCloudTitle').textContent = t('cloudTitle');
+    renderCloudIdentity();
+  }
+
+  function renderCloudIdentity(state = window.XingchenAuth?.status?.() || {}) {
+    const box = document.getElementById('profileCloudIdentity');
+    const statusEl = document.getElementById('profileCloudStatus');
+    const noteEl = document.getElementById('profileCloudNote');
+    if (!box || !statusEl || !noteEl) return;
+
+    box.classList.remove('is-ready','is-bound','is-local','is-error','is-loading');
+
+    if (state.signedIn) {
+      if (state.isAnonymous) {
+        box.classList.add('is-ready');
+        statusEl.textContent = t('cloudTemp');
+        noteEl.textContent = t('cloudTempNote');
+      } else {
+        box.classList.add('is-bound');
+        statusEl.textContent = t('cloudBound');
+        noteEl.textContent = t('cloudBoundNote');
+      }
+      return;
+    }
+
+    if (state.error) {
+      box.classList.add('is-error');
+      statusEl.textContent = t('cloudError');
+      noteEl.textContent = state.error;
+      return;
+    }
+
+    if (['restoring','creating-anonymous','idle'].includes(state.phase)) {
+      box.classList.add('is-loading');
+      statusEl.textContent = t('cloudPreparing');
+      noteEl.textContent = '';
+      return;
+    }
+
+    box.classList.add('is-local');
+    statusEl.textContent = t('cloudLocal');
+    noteEl.textContent = t('cloudLocalNote');
   }
 
   function open(callback = null) {
@@ -200,9 +254,13 @@
       return;
     }
 
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({
+    const savedProfile = {
       name, gender, updatedAt:new Date().toISOString()
-    }));
+    };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(savedProfile));
+    try {
+      window.dispatchEvent(new CustomEvent('stellar:player-profile-saved', {detail:savedProfile}));
+    } catch (_) {}
     render();
     close();
 
@@ -252,6 +310,11 @@
       event.preventDefault();
       open();
     }, true);
+
+    window.addEventListener('stellar:auth-state', event => {
+      renderCloudIdentity(event.detail || {});
+    });
+    renderCloudIdentity();
   }
 
   window.XingchenPlayer = {
