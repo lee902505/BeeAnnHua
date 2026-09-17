@@ -1,4 +1,4 @@
-# Stellar Diary Backend Foundation — V0.10.7.0
+# Stellar Diary Backend Foundation — V0.10.7.2
 
 This release prepares the frontend/backend boundary for future AI reports and cloud storage without changing the current user interface.
 
@@ -35,7 +35,7 @@ The existing local input/history keys are unchanged.
 
 ## 4. Runtime API configuration
 
-The backend is intentionally disabled by default in V0.10.7.0. Before loading `backend-config.js`, a deployment can provide a public runtime object:
+The backend is intentionally disabled by default in V0.10.7.2. Before loading `backend-config.js`, a deployment can provide a public runtime object:
 
 ```html
 <script>

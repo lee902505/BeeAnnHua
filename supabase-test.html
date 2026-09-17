@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#171329" />
+  <title>Supabase Connection Test · 星辰日记</title>
+  <style>
+    :root { color-scheme: dark; font-family: -apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei","Segoe UI",sans-serif; }
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100vh; background: radial-gradient(circle at 70% 10%, #39306b 0, transparent 38%), linear-gradient(145deg,#151126,#211736 55%,#151126); color:#fff8ee; }
+    main { width:min(760px,calc(100% - 32px)); margin:0 auto; padding:max(42px,env(safe-area-inset-top)) 0 64px; }
+    .eyebrow { color:#dbc49c; letter-spacing:.16em; font-size:12px; }
+    h1 { margin:8px 0 10px; font-size:clamp(30px,7vw,48px); }
+    .lead { color:#d9cfdf; line-height:1.8; margin:0 0 24px; }
+    .card { background:rgba(22,16,35,.78); border:1px solid rgba(226,195,146,.35); border-radius:22px; padding:22px; box-shadow:0 24px 70px rgba(0,0,0,.28); }
+    .row { display:grid; grid-template-columns:150px 1fr; gap:12px; padding:10px 0; border-bottom:1px solid rgba(255,255,255,.08); }
+    .row:last-child { border-bottom:0; }
+    .label { color:#bfb0c9; }
+    .value { overflow-wrap:anywhere; }
+    .status { margin:18px 0; padding:14px 16px; border-radius:14px; background:rgba(255,255,255,.055); color:#e9dff0; line-height:1.65; }
+    .status.ok { border:1px solid rgba(159,226,193,.5); color:#d9f7e7; }
+    .status.bad { border:1px solid rgba(239,157,174,.5); color:#ffdce4; }
+    label { display:block; color:#dbc49c; font-size:13px; margin:22px 0 8px; }
+    input { width:100%; border:1px solid rgba(226,195,146,.28); background:#100c19; color:#fff; border-radius:13px; padding:13px 14px; font:inherit; }
+    .actions { display:flex; flex-wrap:wrap; gap:10px; margin-top:14px; }
+    button,a.btn { appearance:none; border:1px solid rgba(226,195,146,.55); background:#f3e4d2; color:#2b2038; border-radius:999px; padding:11px 17px; font:600 14px/1 inherit; cursor:pointer; text-decoration:none; }
+    button.secondary,a.secondary { background:transparent; color:#f5e8d8; }
+    .note { margin-top:20px; color:#b8aebf; font-size:13px; line-height:1.7; }
+    code { color:#f2d8ad; }
+    @media (max-width:560px) { .row { grid-template-columns:1fr; gap:3px; } }
+  </style>
+</head>
+<body>
+  <main>
+    <div class="eyebrow">V0.10.7.2 · SUPABASE CONNECTION</div>
+    <h1>星辰日记云端连接测试</h1>
+    <p class="lead">这里只验证 Project URL、浏览器 SDK 与 Publishable Key。不会写入任何星盘、塔罗或个人资料。</p>
+
+    <section class="card">
+      <div class="row"><div class="label">Project URL</div><div class="value" id="urlValue">—</div></div>
+      <div class="row"><div class="label">Publishable Key</div><div class="value" id="keyValue">—</div></div>
+      <div class="row"><div class="label">Supabase SDK</div><div class="value" id="sdkValue">—</div></div>
+      <div id="statusBox" class="status">等待测试。</div>
+
+      <label for="keyInput">本机开发用 Publishable Key</label>
+      <input id="keyInput" type="password" autocomplete="off" placeholder="sb_publishable_…" spellcheck="false" />
+      <div class="actions">
+        <button id="saveKey" type="button">保存到这台设备</button>
+        <button id="testBtn" type="button">测试连接</button>
+        <button id="clearKey" type="button" class="secondary">清除本机 Key</button>
+        <a class="btn secondary" href="index.html">返回首页</a>
+      </div>
+      <p class="note">这里只接受 <code>sb_publishable_…</code>。若误贴 <code>sb_secret_…</code> 或 service role，会直接拒绝保存。Publishable key 可以用于浏览器；Secret key、Database password 永远不要放进 GitHub Pages。</p>
+    </section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabase-config.js?v=0.10.7.2"></script>
+  <script src="js/supabase-client.js?v=0.10.7.2"></script>
+  <script>
+    (() => {
+      const cfg = window.XingchenSupabaseConfig;
+      const api = window.XingchenSupabase;
+      const urlEl = document.getElementById('urlValue');
+      const keyEl = document.getElementById('keyValue');
+      const sdkEl = document.getElementById('sdkValue');
+      const statusEl = document.getElementById('statusBox');
+      const input = document.getElementById('keyInput');
+
+      function render() {
+        const snap = cfg.publicSnapshot();
+        urlEl.textContent = snap.projectUrl || '未设置';
+        keyEl.textContent = snap.configured ? `${snap.keyPrefix}（${snap.keySource}）` : '尚未设置';
+        sdkEl.textContent = api.status().sdkAvailable ? '已载入' : '未载入';
+      }
+
+      function setStatus(message, kind='') {
+        statusEl.className = `status ${kind}`.trim();
+        statusEl.textContent = message;
+      }
+
+      document.getElementById('saveKey').addEventListener('click', () => {
+        const value = input.value.trim();
+        if (cfg.looksLikeSecret(value)) {
+          setStatus('拒绝保存：这看起来是 Secret / service role key。请只使用 sb_publishable_…', 'bad');
+          return;
+        }
+        if (!cfg.isPublishableKey(value)) {
+          setStatus('格式不正确：请输入完整的 sb_publishable_… key。', 'bad');
+          return;
+        }
+        try {
+          localStorage.setItem(cfg.storageKey, value);
+          setStatus('已保存到这台设备。页面将重新载入并使用该 Publishable Key。', 'ok');
+          setTimeout(() => location.reload(), 500);
+        } catch (error) {
+          setStatus(`保存失败：${error.message || error}`, 'bad');
+        }
+      });
+
+      document.getElementById('clearKey').addEventListener('click', () => {
+        try { localStorage.removeItem(cfg.storageKey); } catch (_) {}
+        input.value = '';
+        setStatus('已清除这台设备保存的 Publishable Key。');
+        setTimeout(() => location.reload(), 350);
+      });
+
+      document.getElementById('testBtn').addEventListener('click', async () => {
+        setStatus('正在连接 Supabase…');
+        const result = await api.testConnection();
+        if (result.ok) {
+          setStatus(`${result.message}${Number.isFinite(result.elapsedMs) ? ` · ${result.elapsedMs} ms` : ''}`, 'ok');
+        } else {
+          setStatus(`连接失败 [${result.stage}]：${result.message}`, 'bad');
+        }
+      });
+
+      render();
+    })();
+  </script>
+</body>
+</html>

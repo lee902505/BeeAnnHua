@@ -1,3 +1,21 @@
+# 星辰日记 / Stellar Diary — V0.10.7.2
+
+## Supabase Connection · 云端连接层
+- 已接入 Supabase 浏览器端基础层，使用官方 `@supabase/supabase-js@2` CDN。
+- 项目 URL 已配置为新建的 `stellar-diary` Supabase 项目。
+- 新增 `js/supabase-config.js`：只允许浏览器 Publishable Key；会拒绝 `sb_secret_` / service role 类型的密钥。
+- 新增 `js/supabase-client.js`：建立单例 client、状态快照与显式连接测试；本版本不会自动读写用户数据。
+- 新增 `supabase-test.html`：可在本机贴入完整 `sb_publishable_...` key、保存到浏览器并测试连接，不需要修改源码。
+- 新增 `docs/SUPABASE_CONNECTION.md`，记录公开配置与 secret 边界。
+- 将已执行的 V0.10.7.1 Schema 保存为 `supabase/migrations/20260917_001_core_schema.sql`，后续数据库变更可版本化追踪。
+- V0.10.7.1 已在 Supabase 端完成 6 张核心资料表、RLS、Indexes、Triggers 与最小权限 Grants。
+- 由于提供的 Dashboard 截图会截断 Publishable Key，本 ZIP **没有猜测或写入不完整 key**；连接层已完成，等待完整 Publishable Key 后即可正式启用。
+- Cloud Sync 与 AI Reports 仍保持关闭；下一步 V0.10.7.3 才加入 Supabase Auth。
+
+> 本版不会上传星盘、塔罗、每日签或玩家资料；只有在 `supabase-test.html` 主动点击测试时才会发出连线检查。
+
+---
+
 # 星辰日记 / Stellar Diary — V0.10.7.0
 
 ## Backend Foundation · AI 报告资料层
