@@ -4985,3 +4985,581 @@ main { display: grid; gap: 0; }
     grid-column: 1 / -1;
   }
 }
+
+
+/* ===== V0.10.4.5 GLOBAL TYPOGRAPHY + VISUAL POLISH ===== */
+:root {
+  --font-ui:
+    -apple-system, BlinkMacSystemFont,
+    "PingFang SC", "PingFang TC",
+    "Noto Sans CJK SC", "Noto Sans CJK TC",
+    "Microsoft YaHei", "Segoe UI", Arial, sans-serif;
+  --text-strong: #3b3040;
+  --text-soft: #756875;
+  --text-on-dark: #fff8f2;
+  --text-on-dark-soft: #d7c9d0;
+  --accent-warm: #eacda9;
+}
+
+html {
+  text-size-adjust: 100%;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  font-family: var(--font-ui) !important;
+  font-weight: 450;
+  line-height: 1.68;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-synthesis: none;
+}
+
+button,
+input,
+textarea,
+select,
+summary {
+  font-family: var(--font-ui) !important;
+}
+
+strong,
+b {
+  font-weight: 650;
+}
+
+/* Brand --------------------------------------------------------------- */
+.brand {
+  gap: 8px;
+}
+
+.brand-title {
+  font-family: var(--font-ui) !important;
+  font-weight: 540 !important;
+  letter-spacing: .065em !important;
+  line-height: 1.05 !important;
+}
+
+.brand-subtitle {
+  font-weight: 450;
+  letter-spacing: .20em !important;
+  line-height: 1.2;
+}
+
+/* Header controls ----------------------------------------------------- */
+.header-tools,
+.subpage-header-actions {
+  align-items: center;
+}
+
+.language-switcher {
+  align-items: center;
+}
+
+.lang-btn {
+  font-weight: 520;
+}
+
+.text-back,
+.back-link {
+  color: rgba(255,255,255,.88);
+  font-size: 1rem;
+  font-weight: 560;
+  letter-spacing: .02em;
+  line-height: 1.2;
+}
+
+/* Player badge: true SVG alignment ----------------------------------- */
+.player-profile-badge {
+  min-height: 34px;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center;
+  gap: 7px;
+  padding: 4px 2px 6px !important;
+  font-family: var(--font-ui) !important;
+  font-size: 1rem !important;
+  font-weight: 650 !important;
+  letter-spacing: .025em !important;
+  line-height: 1 !important;
+}
+
+.player-profile-badge[hidden] {
+  display: none !important;
+}
+
+.player-profile-badge .player-name {
+  display: inline-flex;
+  align-items: center;
+  line-height: 1.15;
+}
+
+.player-gender-icon {
+  width: 18px;
+  height: 18px;
+  display: inline-grid;
+  place-items: center;
+  flex: 0 0 18px;
+  line-height: 0;
+}
+
+.player-gender-svg,
+.profile-gender-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  overflow: visible;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.15;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.player-profile-badge:hover {
+  transform: none !important;
+  opacity: .92;
+}
+
+/* Profile modal also gets the new type rhythm ------------------------- */
+.player-profile-dialog {
+  font-family: var(--font-ui) !important;
+}
+
+.player-profile-dialog h2 {
+  font-weight: 680 !important;
+  letter-spacing: .01em;
+}
+
+.profile-modal-field > span,
+.profile-modal-gender > span {
+  font-size: .9rem !important;
+  font-weight: 650 !important;
+}
+
+.profile-modal-field input {
+  font-size: 1rem !important;
+  font-weight: 500;
+}
+
+.profile-gender-option span {
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-weight: 600;
+}
+
+.profile-gender-svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* Home typography ----------------------------------------------------- */
+.home-panel h1,
+.home-panel h2 {
+  font-family: var(--font-ui) !important;
+  font-weight: 680 !important;
+  letter-spacing: .025em !important;
+  line-height: 1.22;
+}
+
+.panel-number {
+  font-weight: 300 !important;
+  letter-spacing: -.02em;
+}
+
+.panel-en {
+  font-weight: 520;
+  letter-spacing: .24em !important;
+}
+
+.panel-desc {
+  font-size: 1.08rem !important;
+  font-weight: 480;
+  line-height: 1.9 !important;
+  letter-spacing: .01em;
+}
+
+.panel-quote {
+  max-width: 270px;
+  font-size: 1.08rem !important;
+  font-weight: 520;
+  line-height: 1.72 !important;
+  letter-spacing: .015em;
+  opacity: .9 !important;
+}
+
+.primary-btn {
+  min-height: 52px;
+  padding: 14px 26px !important;
+  gap: 15px !important;
+  font-size: 1.06rem;
+  font-weight: 650;
+  letter-spacing: .02em;
+}
+
+.btn-arrow {
+  font-size: .92em;
+  font-weight: 500;
+}
+
+/* Main hero headings -------------------------------------------------- */
+.fortune-hero h1,
+.tarot-hero h1,
+.astrology-hero h1,
+.synastry-hero h1 {
+  font-family: var(--font-ui) !important;
+  font-weight: 680 !important;
+  letter-spacing: .035em !important;
+  line-height: 1.2;
+}
+
+.fortune-intro,
+.tarot-intro,
+.astrology-intro,
+.synastry-intro {
+  font-size: 1.04rem;
+  font-weight: 450;
+  line-height: 1.9 !important;
+  letter-spacing: .01em;
+}
+
+/* Form / control typography ------------------------------------------ */
+.astro-field > span,
+.profile-modal-field > span,
+.profile-modal-gender > span {
+  font-weight: 650;
+}
+
+.astro-field > span {
+  font-size: .94rem !important;
+}
+
+.astro-field input,
+.astro-field select,
+.synastry-relation-box select,
+.tarot-question-field textarea,
+.tarot-choice-fields input {
+  font-size: 1rem !important;
+  font-weight: 500;
+}
+
+.astro-city-field small,
+.synastry-relation-box p,
+.tarot-control-heading small,
+.tarot-selection-note {
+  font-size: .88rem !important;
+  line-height: 1.65 !important;
+}
+
+.tarot-control-heading strong {
+  font-size: 1.12rem !important;
+  font-weight: 680;
+}
+
+.tarot-choice-pill,
+.tarot-spread-choice strong,
+.astrology-calculate-btn,
+.profile-save-btn {
+  font-weight: 650;
+}
+
+.tarot-choice-pill {
+  font-size: .96rem;
+}
+
+.tarot-spread-choice strong {
+  font-size: .98rem;
+}
+
+.tarot-spread-choice small {
+  font-size: .82rem;
+  line-height: 1.6;
+}
+
+/* Result typography --------------------------------------------------- */
+.tarot-reading-column h2,
+.tarot-result-heading h2,
+.astrology-result-header h2,
+.synastry-result-header h2 {
+  font-family: var(--font-ui) !important;
+  font-weight: 680 !important;
+  letter-spacing: .015em;
+  line-height: 1.25;
+}
+
+.tarot-reading-block p,
+.tarot-advice-block strong,
+.tarot-spread-card-reading p,
+.tarot-combination-body p,
+.astrology-result-header p,
+.astro-result-interpretation,
+.astrology-summary-card p,
+.astro-house-description p,
+.astro-deep-subsection p,
+.astro-aspect-intro,
+.astro-pattern-card p,
+.astro-ruler-card p,
+.syn-aspect-body,
+.synastry-summary-card p {
+  font-size: 1rem;
+  line-height: 1.88 !important;
+}
+
+.astro-result-type,
+.astro-result-sign,
+.synastry-score-copy h3,
+.fortune-grid h2,
+.tarot-spread-card-reading h3 {
+  font-weight: 650 !important;
+}
+
+.astro-result-meta,
+.tarot-card-index,
+.tarot-card-en,
+.astro-summary-label {
+  font-weight: 520;
+}
+
+/* Fortune readability ------------------------------------------------- */
+.fortune-draw-stage strong {
+  font-size: 1.24rem !important;
+  font-weight: 650 !important;
+}
+
+.fortune-draw-stage small {
+  font-size: .9rem;
+}
+
+.fortune-summary,
+.fortune-grid p,
+.fortune-advice,
+.fortune-poem {
+  line-height: 1.88 !important;
+}
+
+.fortune-grid h2 {
+  font-size: 1.16rem !important;
+}
+
+/* Tarot history inherits the same stronger type system ---------------- */
+.tarot-history-toggle strong,
+.tarot-history-head h2,
+.tarot-history-item > summary strong {
+  font-weight: 680 !important;
+}
+
+.tarot-history-detail h3 {
+  font-weight: 650 !important;
+}
+
+.tarot-history-detail p {
+  font-size: .86rem !important;
+}
+
+/* Mobile typography --------------------------------------------------- */
+@media(max-width:760px) {
+  body {
+    font-size: 17px;
+  }
+
+  .site-header {
+    display: grid !important;
+    grid-template-columns: minmax(0,1fr) auto;
+    align-items: start !important;
+    column-gap: 14px !important;
+    padding: 24px 20px 22px !important;
+  }
+
+  .brand-title {
+    font-size: clamp(2.1rem, 9.2vw, 2.38rem) !important;
+  }
+
+  .brand-subtitle {
+    font-size: .72rem !important;
+    letter-spacing: .18em !important;
+  }
+
+  .header-tools {
+    min-width: max-content;
+    align-items: flex-end !important;
+    gap: 7px !important;
+  }
+
+  .player-profile-badge {
+    min-height: 32px;
+    gap: 6px;
+    padding: 3px 0 4px !important;
+    font-size: 1.02rem !important;
+  }
+
+  .player-gender-icon {
+    width: 18px;
+    height: 18px;
+    flex-basis: 18px;
+  }
+
+  .language-switcher {
+    gap: 8px !important;
+  }
+
+  .lang-btn {
+    font-size: .88rem !important;
+    font-weight: 540;
+  }
+
+  .subpage-header {
+    padding: 23px 21px !important;
+  }
+
+  .subpage-header .brand-title {
+    font-size: 2rem !important;
+  }
+
+  .subpage-header-actions {
+    gap: 12px !important;
+  }
+
+  .text-back,
+  .back-link {
+    font-size: .94rem;
+    font-weight: 600;
+  }
+
+  .home-panel,
+  .home-panel + .home-panel {
+    padding: 42px 26px 36px !important;
+  }
+
+  .home-panel h1,
+  .home-panel h2 {
+    font-size: 2.3rem !important;
+    font-weight: 700 !important;
+  }
+
+  .panel-number {
+    font-size: 3.85rem !important;
+  }
+
+  .panel-en {
+    margin: 11px 0 20px !important;
+    font-size: .82rem !important;
+  }
+
+  .panel-desc {
+    max-width: 27em;
+    font-size: 1.06rem !important;
+    font-weight: 500;
+    line-height: 1.88 !important;
+  }
+
+  .panel-quote {
+    top: 27px !important;
+    right: 23px !important;
+    max-width: 205px !important;
+    font-size: 1.02rem !important;
+    font-weight: 520;
+    line-height: 1.68 !important;
+  }
+
+  .primary-btn {
+    min-width: 184px;
+    min-height: 54px;
+    margin-top: 21px;
+    padding: 14px 25px !important;
+    font-size: 1.06rem;
+  }
+
+  .fortune-hero h1,
+  .tarot-hero h1,
+  .astrology-hero h1,
+  .synastry-hero h1 {
+    font-size: clamp(2.45rem, 10vw, 3.25rem) !important;
+    font-weight: 700 !important;
+  }
+
+  .fortune-intro,
+  .tarot-intro,
+  .astrology-intro,
+  .synastry-intro {
+    font-size: 1rem !important;
+    line-height: 1.86 !important;
+  }
+
+  .astro-field > span {
+    font-size: .96rem !important;
+  }
+
+  .astro-field input,
+  .astro-field select,
+  .synastry-relation-box select,
+  .tarot-question-field textarea,
+  .tarot-choice-fields input {
+    font-size: 1rem !important;
+  }
+
+  .tarot-control-heading strong {
+    font-size: 1.08rem !important;
+  }
+
+  .tarot-control-heading small,
+  .tarot-selection-note,
+  .astro-city-field small {
+    font-size: .86rem !important;
+  }
+
+  .tarot-reading-block p,
+  .tarot-advice-block strong,
+  .tarot-spread-card-reading p,
+  .tarot-combination-body p,
+  .astro-result-interpretation,
+  .astrology-summary-card p,
+  .astro-house-description p,
+  .astro-deep-subsection p,
+  .astro-aspect-intro,
+  .astro-pattern-card p,
+  .astro-ruler-card p,
+  .syn-aspect-body,
+  .synastry-summary-card p {
+    font-size: 1rem !important;
+    line-height: 1.88 !important;
+  }
+
+  .tarot-history-detail p {
+    font-size: .86rem !important;
+    line-height: 1.85 !important;
+  }
+}
+
+/* Very narrow phones: keep header elegant without collisions ----------- */
+@media(max-width:390px) {
+  .site-header {
+    column-gap: 10px !important;
+    padding-left: 17px !important;
+    padding-right: 17px !important;
+  }
+
+  .brand-title {
+    font-size: 2rem !important;
+    letter-spacing: .05em !important;
+  }
+
+  .brand-subtitle {
+    font-size: .66rem !important;
+  }
+
+  .player-profile-badge {
+    font-size: .96rem !important;
+  }
+
+  .lang-btn {
+    font-size: .82rem !important;
+  }
+
+  .panel-quote {
+    max-width: 180px !important;
+    font-size: .96rem !important;
+  }
+}

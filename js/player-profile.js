@@ -60,20 +60,45 @@
   function symbol(gender) { return gender === 'male' ? '♂' : '♀'; }
   function label(p = read()) { return p ? `${p.name}${symbol(p.gender)}` : ''; }
 
+  function genderIcon(gender, className='player-gender-svg') {
+    if (gender === 'male') {
+      return `<svg class="${className}" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <circle cx="9" cy="15" r="5"></circle>
+        <path d="M12.5 11.5 19 5"></path>
+        <path d="M14.5 5H19v4.5"></path>
+      </svg>`;
+    }
+    return `<svg class="${className}" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+      <circle cx="12" cy="8.5" r="5"></circle>
+      <path d="M12 13.5V21"></path>
+      <path d="M8.7 18h6.6"></path>
+    </svg>`;
+  }
+
   function render() {
     const p = read();
     document.querySelectorAll('[data-player-profile]').forEach(el => {
       if (!p) {
         el.hidden = true;
-        el.textContent = '';
+        el.replaceChildren();
         el.classList.remove('is-male','is-female');
         return;
       }
+
+      const name = document.createElement('span');
+      name.className = 'player-name';
+      name.textContent = p.name;
+
+      const icon = document.createElement('span');
+      icon.className = 'player-gender-icon';
+      icon.innerHTML = genderIcon(p.gender);
+
       el.hidden = false;
-      el.textContent = label(p);
+      el.replaceChildren(name, icon);
       el.classList.toggle('is-male', p.gender === 'male');
       el.classList.toggle('is-female', p.gender === 'female');
       el.title = t('edit');
+      el.setAttribute('aria-label', `${p.name} ${p.gender === 'male' ? t('male') : t('female')}`);
     });
   }
 
@@ -102,11 +127,11 @@
             <div>
               <label class="profile-gender-option male-option">
                 <input type="radio" name="xingchenGender" value="male" />
-                <span>♂ <b id="profileMaleText"></b></span>
+                <span>${genderIcon('male','profile-gender-svg')}<b id="profileMaleText"></b></span>
               </label>
               <label class="profile-gender-option female-option">
                 <input type="radio" name="xingchenGender" value="female" />
-                <span>♀ <b id="profileFemaleText"></b></span>
+                <span>${genderIcon('female','profile-gender-svg')}<b id="profileFemaleText"></b></span>
               </label>
             </div>
           </div>
