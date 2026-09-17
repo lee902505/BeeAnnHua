@@ -10,7 +10,9 @@
     question: '',
     optionA: '',
     optionB: '',
-    nextRevealIndex: 0
+    nextRevealIndex: 0,
+    currentDrawId: '',
+    history: []
   };
 
   const byId = (id) => document.getElementById(id);
@@ -62,7 +64,13 @@
       placeholderLove: '例如：我和对方接下来会如何发展？',
       placeholderCareer: '例如：目前这份工作接下来适合怎么走？',
       placeholderMoney: '例如：我最近的财务方向需要注意什么？',
-      placeholderStudy: '例如：这次考试／学习计划该怎么调整？'
+      placeholderStudy: '例如：这次考试／学习计划该怎么调整？',
+      historyButton:'历史记录', historyTitle:'最近的塔罗记录',
+      historyHint:'结果保存在当前浏览器，最多保留最近 10 则。',
+      historyEmpty:'还没有完成的塔罗记录。全部牌翻开后，会自动保存在这里。',
+      historyClear:'清空记录', historyClearConfirm:'确定要清空这台浏览器里的塔罗历史记录吗？',
+      historyGeneral:'一般指引', historyCards:'牌面', historyStory:'牌面故事',
+      historyStructure:'结构重点', historyAdvice:'最终建议'
     },
     'zh-TW': {
       brand: '星辰日記',
@@ -110,7 +118,13 @@
       placeholderLove: '例如：我和對方接下來會如何發展？',
       placeholderCareer: '例如：目前這份工作接下來適合怎麼走？',
       placeholderMoney: '例如：我最近的財務方向需要注意什麼？',
-      placeholderStudy: '例如：這次考試／學習計畫該怎麼調整？'
+      placeholderStudy: '例如：這次考試／學習計畫該怎麼調整？',
+      historyButton:'歷史紀錄', historyTitle:'最近的塔羅紀錄',
+      historyHint:'結果保存在目前瀏覽器，最多保留最近 10 則。',
+      historyEmpty:'還沒有完成的塔羅紀錄。全部牌翻開後，會自動保存在這裡。',
+      historyClear:'清空紀錄', historyClearConfirm:'確定要清空這台瀏覽器裡的塔羅歷史紀錄嗎？',
+      historyGeneral:'一般指引', historyCards:'牌面', historyStory:'牌面故事',
+      historyStructure:'結構重點', historyAdvice:'最終建議'
     },
     'en': {
       brand: 'Stellar Diary',
@@ -318,6 +332,10 @@
     byId('optionAInput').placeholder = ui('optionAPlaceholder');
     byId('optionBInput').placeholder = ui('optionBPlaceholder');
     byId('questionInput').placeholder = questionPlaceholder();
+    byId('tarotHistoryButtonText').textContent = ui('historyButton');
+    byId('tarotHistoryTitle').textContent = ui('historyTitle');
+    byId('tarotHistoryHint').textContent = ui('historyHint');
+    byId('tarotHistoryClear').textContent = ui('historyClear');
   }
 
   function positionName(position) {
@@ -398,6 +416,156 @@
     return base + tails[lang];
   }
 
+  function tarotHistoryKey() {
+    return window.XingchenRecords?.KEYS?.tarotHistory || 'xingchen-tarot-history-v1';
+  }
+
+  function readTarotHistory() {
+    if (window.XingchenRecords?.read) {
+      const value = window.XingchenRecords.read(tarotHistoryKey(),[]);
+      return Array.isArray(value) ? value.slice(0,10) : [];
+    }
+    try {
+      const value = JSON.parse(localStorage.getItem(tarotHistoryKey()) || '[]');
+      return Array.isArray(value) ? value.slice(0,10) : [];
+    } catch {
+      return [];
+    }
+  }
+
+  function writeTarotHistory(records) {
+    const next = Array.isArray(records) ? records.slice(0,10) : [];
+    if (window.XingchenRecords?.write) {
+      window.XingchenRecords.write(tarotHistoryKey(),next);
+    } else {
+      try { localStorage.setItem(tarotHistoryKey(),JSON.stringify(next)); } catch {}
+    }
+    state.history = next;
+    return next;
+  }
+
+  function pushTarotHistory(record) {
+    if (window.XingchenRecords?.pushCapped) {
+      state.history = window.XingchenRecords.pushCapped(tarotHistoryKey(),record,10);
+    } else {
+      const existing = readTarotHistory().filter(item => item?.id !== record.id);
+      state.history = writeTarotHistory([record,...existing].slice(0,10));
+    }
+    return state.history;
+  }
+
+  function historyTopicName(record) {
+    const source = state.topics.find(item => item.key === record.topicKey);
+    return source ? localized(source.name) : (record.topicName || record.topicKey || '');
+  }
+
+  function historySpreadName(record) {
+    const source = state.spreads.find(item => item.key === record.spreadKey);
+    return source ? localized(source.name) : (record.spreadName || record.spreadKey || '');
+  }
+
+  function historyCardName(item) {
+    const card = state.cards.find(card => card.key === item.key);
+    return card ? cardName(card) : (item.name || item.key || '');
+  }
+
+  function historyDateLabel(value) {
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return value || '';
+    const locale = currentLanguage() === 'en'
+      ? 'en-US'
+      : (currentLanguage() === 'zh-TW' ? 'zh-TW' : 'zh-CN');
+    return new Intl.DateTimeFormat(locale,{
+      year:'numeric',month:'2-digit',day:'2-digit',
+      hour:'2-digit',minute:'2-digit',hour12:false
+    }).format(date);
+  }
+
+  function renderTarotHistory() {
+    state.history = readTarotHistory();
+    const list = byId('tarotHistoryList');
+    const count = byId('tarotHistoryCount');
+    if (count) count.textContent = String(state.history.length);
+    if (!list) return;
+
+    if (!state.history.length) {
+      list.innerHTML = `<p class="tarot-history-empty">${escapeHtml(ui('historyEmpty'))}</p>`;
+      return;
+    }
+
+    list.innerHTML = state.history.map(record => {
+      const question = record.question || ui('historyGeneral');
+      const cards = (record.cards || []).map((item,index) =>
+        `<li>
+          <span>${index+1}. ${escapeHtml(item.positionName || '')}</span>
+          <strong>${escapeHtml(historyCardName(item))}</strong>
+          <small class="${item.reversed ? 'is-reversed' : ''}">${escapeHtml(item.reversed ? ui('reversed') : ui('upright'))}</small>
+        </li>`
+      ).join('');
+
+      return `
+        <details class="tarot-history-item">
+          <summary>
+            <span class="tarot-history-date">${escapeHtml(historyDateLabel(record.createdAt))}</span>
+            <strong>${escapeHtml(historyTopicName(record))} · ${escapeHtml(historySpreadName(record))}</strong>
+            <small>${escapeHtml(question)}</small>
+          </summary>
+          <div class="tarot-history-detail">
+            <section>
+              <h3>${escapeHtml(ui('historyCards'))}</h3>
+              <ol class="tarot-history-cards">${cards}</ol>
+            </section>
+            <section>
+              <h3>${escapeHtml(ui('historyStory'))}</h3>
+              <p>${escapeHtml(record.story || '')}</p>
+            </section>
+            <section>
+              <h3>${escapeHtml(ui('historyStructure'))}</h3>
+              <p>${escapeHtml(record.structure || '')}</p>
+            </section>
+            <section class="tarot-history-advice">
+              <h3>${escapeHtml(ui('historyAdvice'))}</h3>
+              <p>${escapeHtml(record.finalAdvice || '')}</p>
+            </section>
+          </div>
+        </details>`;
+    }).join('');
+  }
+
+  function saveCompletedTarotHistory(analysis, texts) {
+    if (!state.currentDrawId || !state.currentDraw.length) return;
+
+    const topic = selectedTopic();
+    const spread = selectedSpread();
+
+    const record = {
+      version:1,
+      id:state.currentDrawId,
+      createdAt:new Date().toISOString(),
+      topicKey:state.selectedTopic,
+      topicName:localized(topic?.name),
+      spreadKey:state.selectedSpread,
+      spreadName:localized(spread?.name),
+      question:state.question,
+      optionA:state.optionA,
+      optionB:state.optionB,
+      cards:state.currentDraw.map(item => ({
+        key:item.card.key,
+        name:cardName(item.card),
+        reversed:Boolean(item.reversed),
+        positionKey:item.position?.key || '',
+        positionName:positionName(item.position)
+      })),
+      signals:signalChips(analysis),
+      story:texts.story,
+      structure:texts.structure,
+      finalAdvice:texts.finalAdvice
+    };
+
+    pushTarotHistory(record);
+    renderTarotHistory();
+  }
+
   function readInputs() {
     state.question = byId('questionInput').value.trim();
     state.optionA = byId('optionAInput').value.trim();
@@ -436,6 +604,8 @@
     }).filter(item => item.meaning);
 
     state.nextRevealIndex = 0;
+    state.currentDrawId = globalThis.crypto?.randomUUID?.()
+      || `tarot-${Date.now()}-${Math.random().toString(36).slice(2,9)}`;
     renderResult();
   }
 
@@ -602,12 +772,17 @@
 
   function revealCombination() {
     const analysis = analyseStructure(state.currentDraw);
+    const texts = {
+      story:buildStory(state.currentDraw, analysis),
+      structure:buildStructure(analysis),
+      finalAdvice:buildFinalAdvice(state.currentDraw, analysis)
+    };
 
     byId('signalChips').innerHTML =
       signalChips(analysis).map(x => `<span>${escapeHtml(x)}</span>`).join('');
-    byId('storyText').textContent = buildStory(state.currentDraw, analysis);
-    byId('structureText').textContent = buildStructure(analysis);
-    byId('finalAdviceText').textContent = buildFinalAdvice(state.currentDraw, analysis);
+    byId('storyText').textContent = texts.story;
+    byId('structureText').textContent = texts.structure;
+    byId('finalAdviceText').textContent = texts.finalAdvice;
     byId('combinationReading').hidden = false;
     byId('revealGuideTitle').textContent = ui('allRevealed');
     byId('revealGuideText').textContent = '';
@@ -616,6 +791,7 @@
       byId('combinationReading').classList.add('is-visible');
     });
 
+    saveCompletedTarotHistory(analysis,texts);
     sendTarotBark(analysis);
   }
 
@@ -1082,6 +1258,7 @@
       if (state.spreads.length < 5) throw new Error('V0.7 spread definitions missing');
 
       renderControls();
+      renderTarotHistory();
       byId('drawTarotBtn').disabled = false;
     } catch (error) {
       console.error(error);
@@ -1103,6 +1280,21 @@
 
     byId('drawTarotBtn')?.addEventListener('click', draw);
     byId('drawTarotAgainBtn')?.addEventListener('click', draw);
+
+    byId('tarotHistoryToggle')?.addEventListener('click', () => {
+      const panel = byId('tarotHistoryPanel');
+      const opening = panel.hidden;
+      panel.hidden = !opening;
+      byId('tarotHistoryToggle').setAttribute('aria-expanded', opening ? 'true' : 'false');
+      if (opening) renderTarotHistory();
+    });
+
+    byId('tarotHistoryClear')?.addEventListener('click', () => {
+      if (!window.confirm(ui('historyClearConfirm'))) return;
+      writeTarotHistory([]);
+      renderTarotHistory();
+    });
+
     byId('scrollTopBtn')?.addEventListener('click', () => {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     });

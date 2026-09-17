@@ -233,13 +233,16 @@
     $('birthCity')?.blur();
   }
 
-  function renderCityResults(results) {
+  function renderCityResults(results, preserveScroll=false) {
     const box = $('cityResults');
+    const previousScrollTop = preserveScroll ? box.scrollTop : 0;
+
     if (!results.length) {
       box.hidden = true;
       box.innerHTML = '';
       return;
     }
+
     box.innerHTML = results.map((city, index) => `
       <button type="button" class="astro-city-result" data-city-result="${index}">
         <strong>${esc(displayCityName(city))}</strong>
@@ -248,15 +251,14 @@
     `).join('');
     box.hidden = false;
 
+    if (preserveScroll && previousScrollTop > 0) {
+      requestAnimationFrame(() => { box.scrollTop = previousScrollTop; });
+    }
+
     box.querySelectorAll('[data-city-result]').forEach(button => {
-      const choose = (event) => {
+      button.addEventListener('click', event => {
         event.preventDefault();
         selectCity(results[Number(button.dataset.cityResult)]);
-      };
-      if (window.PointerEvent) button.addEventListener('pointerdown', choose);
-      else button.addEventListener('touchstart', choose, {passive:false});
-      button.addEventListener('click', (event) => {
-        if (event.detail === 0) choose(event); // keyboard accessibility
       });
     });
   }
@@ -273,20 +275,45 @@
   }
 
   async function searchCities(query) {
-    const local = builtInMatches(query, 8);
+    const rawQuery = String(query || '').trim();
+    const normalizedQuery = normalize(rawQuery);
+
+    if (normalizedQuery.length < 2) {
+      renderCityResults([]);
+      return;
+    }
+
+    const seq = (state.citySearchSeq || 0) + 1;
+    state.citySearchSeq = seq;
+
+    const exactLocal = findCity(rawQuery);
+    const local = builtInMatches(rawQuery, 8);
+
+    if (exactLocal) {
+      const ordered = [exactLocal, ...local.filter(city => city.id !== exactLocal.id)];
+      if (seq === state.citySearchSeq &&
+          normalize($('birthCity').value) === normalizedQuery) {
+        renderCityResults(ordered.slice(0,8));
+      }
+      return;
+    }
+
     let china = [];
     let chinaExact = false;
 
     try {
       if (window.XingchenChinaLocation) {
         [china, chinaExact] = await Promise.all([
-          window.XingchenChinaLocation.search(query, 20),
-          window.XingchenChinaLocation.hasExactAdministrativeMatch(query)
+          window.XingchenChinaLocation.search(rawQuery, 20),
+          window.XingchenChinaLocation.hasExactAdministrativeMatch(rawQuery)
         ]);
       }
     } catch (error) {
       console.warn('[星辰日记] 中国出生地搜索暂不可用', error);
     }
+
+    if (seq !== state.citySearchSeq ||
+        normalize($('birthCity').value) !== normalizedQuery) return;
 
     const mergeUnique = (...groups) => {
       const out = [];
@@ -302,31 +329,33 @@
     };
 
     let merged = mergeUnique(china,local);
-    renderCityResults(merged.slice(0,20));
+    renderCityResults(merged.slice(0,20), true);
 
-    // Exact Chinese province/city/district names should never fall through
-    // to a same-name foreign/incorrect geocoder result.
-    if (chinaExact || normalize(query).length < 2 || !navigator.onLine) return;
+    if (chinaExact || !navigator.onLine) return;
 
     if (state.citySearchAbort) state.citySearchAbort.abort();
     state.citySearchAbort = new AbortController();
 
     try {
       const url = new URL('https://geocoding-api.open-meteo.com/v1/search');
-      url.searchParams.set('name', query.trim());
+      url.searchParams.set('name', rawQuery);
       url.searchParams.set('count', '8');
       url.searchParams.set('language', geocodingLanguage());
       url.searchParams.set('format', 'json');
 
-      const response = await fetch(url, {signal: state.citySearchAbort.signal});
+      const response = await fetch(url, {signal:state.citySearchAbort.signal});
       if (!response.ok) throw new Error(`Geocoding HTTP ${response.status}`);
       const data = await response.json();
+
+      if (seq !== state.citySearchSeq ||
+          normalize($('birthCity').value) !== normalizedQuery) return;
+
       const remote = (data.results || [])
         .filter(item => item.latitude != null && item.longitude != null && item.timezone)
         .map(mapRemoteCity);
 
       merged = mergeUnique(china,local,remote);
-      renderCityResults(merged.slice(0,20));
+      renderCityResults(merged.slice(0,20), true);
     } catch(error) {
       if (error.name !== 'AbortError') console.warn(error);
     }
@@ -406,6 +435,100 @@
       country:{'zh-CN':'','zh-TW':'','en':''},
       lat, lon, timezone
     };
+  }
+
+  function astrologyRecordKey() {
+    return window.XingchenRecords?.KEYS?.astrologyLastInput || 'xingchen-astrology-last-input-v1';
+  }
+
+  function saveLastAstrologyInput(city, unknown, dateInfo) {
+    const record = {
+      version:1,
+      savedAt:new Date().toISOString(),
+      calendarMode:dateInfo?.mode === 'lunar' ? 'lunar' : 'solar',
+      solarDate:dateInfo?.date || $('birthDate').value,
+      birthTime:$('birthTime').value || '',
+      unknownTime:Boolean(unknown),
+      cityInput:$('birthCity').value.trim(),
+      city:manualMode() ? null : city,
+      manual:{
+        enabled:manualMode(),
+        lat:$('manualLat').value,
+        lon:$('manualLon').value,
+        timezone:$('manualTimezone').value.trim()
+      }
+    };
+
+    if (window.XingchenRecords?.write) {
+      window.XingchenRecords.write(astrologyRecordKey(),record);
+    } else {
+      try { localStorage.setItem(astrologyRecordKey(),JSON.stringify(record)); } catch {}
+    }
+  }
+
+  function readLastAstrologyInput() {
+    if (window.XingchenRecords?.read) {
+      return window.XingchenRecords.read(astrologyRecordKey(),null);
+    }
+    try {
+      return JSON.parse(localStorage.getItem(astrologyRecordKey()) || 'null');
+    } catch {
+      return null;
+    }
+  }
+
+  function restoreLastAstrologyInput() {
+    const saved = readLastAstrologyInput();
+    if (!saved?.solarDate) return;
+
+    // Birth-date widget reconstructs the original lunar date, including leap month,
+    // by converting the saved Gregorian calculation date back to lunar.
+    const restored = window.XingchenBirthDate?.restore?.('birth-main',{
+      mode:saved.calendarMode,
+      date:saved.solarDate
+    });
+    if (!restored) {
+      $('birthDate').value = saved.solarDate;
+      window.XingchenBirthDate?.setMode?.(
+        'birth-main',
+        saved.calendarMode === 'lunar' ? 'lunar' : 'solar'
+      );
+    }
+
+    $('birthTime').value = saved.birthTime || '';
+    $('unknownTime').checked = Boolean(saved.unknownTime);
+    $('birthTime').disabled = $('unknownTime').checked;
+    $('birthTime').closest('.astro-field')
+      .classList.toggle('is-disabled',$('unknownTime').checked);
+
+    const manual = Boolean(saved.manual?.enabled);
+    $('manualToggle').checked = manual;
+    $('manualLocation').hidden = !manual;
+
+    if (manual) {
+      state.selectedCity = null;
+      $('birthCity').value = saved.cityInput || '';
+      $('manualLat').value = saved.manual?.lat ?? '';
+      $('manualLon').value = saved.manual?.lon ?? '';
+      $('manualTimezone').value = saved.manual?.timezone || '';
+      $('citySelectedMeta').hidden = true;
+      $('citySelectedMeta').textContent = '';
+      return;
+    }
+
+    if (saved.city && Number.isFinite(Number(saved.city.lat)) &&
+        Number.isFinite(Number(saved.city.lon)) && saved.city.timezone) {
+      state.selectedCity = saved.city;
+      $('birthCity').value = displayCityName(saved.city);
+      $('citySelectedMeta').hidden = false;
+      $('citySelectedMeta').textContent =
+        `${Number(saved.city.lat).toFixed(4)}°, ${Number(saved.city.lon).toFixed(4)}° · ${saved.city.timezone}`;
+      return;
+    }
+
+    // Older / partial local records can still restore the typed city label.
+    state.selectedCity = null;
+    $('birthCity').value = saved.cityInput || '';
   }
 
   function validate() {
@@ -591,6 +714,7 @@
       });
 
       renderResult(result, city);
+      saveLastAstrologyInput(city, unknown, dateInfo);
       sendAstrologyBark(result, city, dateInfo);
     } catch(err) {
       console.error(err);
@@ -622,6 +746,7 @@
       state.modalities = s.modalities;
       state.cities = c.cities;
       state.interpretations = i.interpretations;
+      restoreLastAstrologyInput();
       } catch(err) {
       console.error(err);
       $('astroError').textContent = 'Astrology data could not be loaded. Please use Go Live / GitHub Pages.';
@@ -629,16 +754,23 @@
     }
 
     $('birthCity').addEventListener('focus', (event) => {
-      // Mobile uses a contained picker card so results no longer cover controls below.
       if (mobileCityPicker()) openCityPicker();
       event.target.select();
-      if (event.target.value.trim().length >= 2) scheduleCitySearch(event.target.value);
+      if (!state.selectedCity && event.target.value.trim().length >= 2) {
+        scheduleCitySearch(event.target.value);
+      }
     });
 
     $('birthCity').addEventListener('input', (event) => {
       state.selectedCity = null;
+      state.citySearchSeq = (state.citySearchSeq || 0) + 1;
+      if (state.citySearchAbort) state.citySearchAbort.abort();
+
       $('citySelectedMeta').hidden = true;
       $('citySelectedMeta').textContent = '';
+      $('cityResults').hidden = true;
+      $('cityResults').innerHTML = '';
+
       scheduleCitySearch(event.target.value);
     });
 
@@ -647,7 +779,7 @@
         const first = $('cityResults').querySelector('[data-city-result="0"]');
         if (first) {
           event.preventDefault();
-          first.dispatchEvent(new MouseEvent('mousedown', {bubbles:true}));
+          first.click();
         }
       }
       if (event.key === 'Escape') {

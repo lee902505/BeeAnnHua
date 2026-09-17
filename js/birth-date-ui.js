@@ -10,7 +10,7 @@
       regularMonth:'普通{month}',
       leapMonth:'闰{month}',
       leapHint:'这一年有闰{month}，请选择普通月份或闰月份。',
-      invalid:'这个农历日期不存在，请重新选择。'
+      invalid:'这个阴历日期不存在，请重新选择。', selectedDay:'已选日期', editDay:'修改日期'
     },
     'zh-TW': {
       solar:'陽曆', lunar:'陰曆',
@@ -20,7 +20,7 @@
       regularMonth:'普通{month}',
       leapMonth:'閏{month}',
       leapHint:'這一年有閏{month}，請選擇普通月份或閏月份。',
-      invalid:'這個農曆日期不存在，請重新選擇。'
+      invalid:'這個陰曆日期不存在，請重新選擇。', selectedDay:'已選日期', editDay:'修改日期'
     },
     'en': {
       solar:'Solar', lunar:'Lunar',
@@ -30,7 +30,7 @@
       regularMonth:'Regular {month}',
       leapMonth:'Leap {month}',
       leapHint:'This year has a leap {month}. Choose regular or leap month.',
-      invalid:'This lunar date does not exist. Please choose again.'
+      invalid:'This lunar date does not exist. Please choose again.', selectedDay:'Selected date', editDay:'Change date'
     }
   };
 
@@ -265,6 +265,7 @@
     });
 
     populateDays(widget);
+    if (widget.dayGrid) expandDayGrid(widget);
   }
 
   function ensureDayGrid(widget) {
@@ -281,17 +282,65 @@
     return grid;
   }
 
+  function ensureDaySummary(widget) {
+    if (widget.daySummary) return widget.daySummary;
+
+    const summary = document.createElement('button');
+    summary.type = 'button';
+    summary.className = 'birth-lunar-day-summary';
+    summary.hidden = true;
+    summary.innerHTML = `
+      <span class="birth-lunar-day-summary-text" data-lunar-day-summary-text></span>
+      <span class="birth-lunar-day-summary-edit">${t('editDay')} →</span>
+    `;
+    widget.dayGrid.insertAdjacentElement('afterend', summary);
+    widget.daySummary = summary;
+
+    summary.addEventListener('click', () => {
+      summary.hidden = true;
+      widget.dayGrid.hidden = false;
+      widget.dayGrid.classList.remove('is-collapsed');
+      const active = widget.dayGrid.querySelector('.birth-lunar-day-btn.is-active');
+      if (active) requestAnimationFrame(() => active.scrollIntoView({block:'nearest'}));
+    });
+
+    return summary;
+  }
+
+  function expandDayGrid(widget) {
+    if (!widget.dayGrid) return;
+    ensureDaySummary(widget).hidden = true;
+    widget.dayGrid.hidden = false;
+    widget.dayGrid.classList.remove('is-collapsed');
+  }
+
+  function collapseDayGrid(widget) {
+    const day = Number(widget.day.value);
+    if (!day) return;
+    const summary = ensureDaySummary(widget);
+    summary.querySelector('[data-lunar-day-summary-text]').textContent =
+      `${t('selectedDay')}：${day} · ${dayLabel(day)}`;
+    summary.hidden = false;
+    widget.dayGrid.classList.add('is-collapsed');
+    widget.dayGrid.hidden = true;
+  }
+
   function renderDayGrid(widget, count, preferred='') {
     const grid = ensureDayGrid(widget);
     const selected = preferred || widget.day.value || '';
+    const summary = ensureDaySummary(widget);
 
     if (!count) {
       grid.hidden = true;
       grid.innerHTML = '';
+      summary.hidden = true;
       return;
     }
 
     grid.hidden = false;
+    grid.classList.remove('is-collapsed');
+    summary.hidden = true;
+
     grid.innerHTML = Array.from({length:count}, (_,idx) => {
       const day = idx + 1;
       const active = String(day) === String(selected);
@@ -317,6 +366,7 @@
         });
 
         updatePreview(widget);
+        collapseDayGrid(widget);
       });
     });
   }
@@ -532,11 +582,15 @@
 
     populateYears(widget);
 
-    widget.year.addEventListener('change',() => populateMonths(widget));
+    widget.year.addEventListener('change',() => {
+      populateMonths(widget);
+      expandDayGrid(widget);
+    });
 
     widget.month.addEventListener('change',() => {
       updateLeapToggle(widget);
       populateDays(widget);
+      expandDayGrid(widget);
     });
 
     widget.day.addEventListener('change',() => updatePreview(widget));
@@ -554,6 +608,26 @@
     setMode:(id,mode) => {
       const widget = widgets.get(id);
       if (widget) setMode(widget,mode);
+    },
+    restore:(id,payload={}) => {
+      const widget = widgets.get(id);
+      if (!widget) return false;
+
+      if (payload.date) widget.solarInput.value = payload.date;
+      const mode = payload.mode === 'lunar' ? 'lunar' : 'solar';
+      setMode(widget,mode,true);
+
+      // Programmatic value changes need an explicit refresh for the desktop
+      // custom year/month dropdown mirrors.
+      [widget.year,widget.month].forEach(select => {
+        const root = select?.nextElementSibling;
+        if (root?.classList?.contains('birth-custom-select')) {
+          rebuildCustomOptions(select,root);
+        }
+      });
+
+      if (mode === 'lunar' && widget.day.value) collapseDayGrid(widget);
+      return true;
     }
   };
 

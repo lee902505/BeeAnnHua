@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#201822" />
   <meta name="description" content="星辰日记塔罗牌占卜：78 张 Rider-Waite-Smith 系塔罗牌，支持单张、本周、本月、感情关系与二选一牌阵，并结合正逆位、牌位、问题与整体牌面结构进行组合解读。" />
   <title>塔罗牌占卜 | 星辰日记</title>
-  <link rel="stylesheet" href="../css/style.css?v=0.10.4" />
+  <link rel="stylesheet" href="../css/style.css?v=0.10.4.2" />
 </head>
 <body class="tarot-page-body" id="pageTop">
   <div class="site-shell tarot-shell">
@@ -30,6 +30,28 @@
           写下想问的事情，再选择问题方向与占卜类型。多张牌会结合牌位、正逆位、花色、元素、数字与牌面发展关系一起解读。
         </p>
         <p class="load-error" id="tarotLoadError" hidden></p>
+      </section>
+
+      <section class="tarot-history-shell" aria-label="塔罗历史纪录">
+        <button class="tarot-history-toggle" id="tarotHistoryToggle" type="button" aria-expanded="false">
+          <span>
+            <small>LOCAL RECORDS</small>
+            <strong id="tarotHistoryButtonText">历史记录</strong>
+          </span>
+          <b id="tarotHistoryCount">0</b>
+        </button>
+
+        <div class="tarot-history-panel" id="tarotHistoryPanel" hidden>
+          <header class="tarot-history-head">
+            <div>
+              <span>LOCAL RECORDS</span>
+              <h2 id="tarotHistoryTitle">最近的塔罗记录</h2>
+              <p id="tarotHistoryHint">结果保存在当前浏览器，最多保留最近 10 则。</p>
+            </div>
+            <button class="tarot-history-clear" id="tarotHistoryClear" type="button">清空记录</button>
+          </header>
+          <div class="tarot-history-list" id="tarotHistoryList"></div>
+        </div>
       </section>
 
       <section class="tarot-setup" aria-label="塔罗占卜设定">
@@ -155,8 +177,9 @@
     </main>
   </div>
 
-  <script src="../js/player-profile.js?v=0.10.4"></script>
-  <script src="../js/bark.js?v=0.10.4"></script>
-  <script src="../js/tarot.js?v=0.10.4"></script>
+  <script src="../js/player-profile.js?v=0.10.4.2"></script>
+  <script src="../js/bark.js?v=0.10.4.2"></script>
+  <script src="../js/local-records.js?v=0.10.4.2"></script>
+  <script src="../js/tarot.js?v=0.10.4.2"></script>
 </body>
 </html>

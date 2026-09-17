@@ -4107,3 +4107,310 @@ main { display: grid; gap: 0; }
     padding: 13px 12px 16px;
   }
 }
+
+
+/* ===== V0.10.4.1 MOBILE DATE COLLAPSE + CITY SCROLL FIX ===== */
+.birth-lunar-day-summary {
+  grid-column: 1 / -1;
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 48px;
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 13px;
+  border: 1px solid rgba(231,202,180,.16);
+  border-radius: 13px;
+  color: #f2e7ec;
+  background: rgba(255,255,255,.035);
+  cursor: pointer;
+  font: inherit;
+  text-align: left;
+}
+.birth-lunar-day-summary[hidden] { display:none !important; }
+.birth-lunar-day-summary-text { min-width:0; font-size:.86rem; }
+.birth-lunar-day-summary-edit { flex:0 0 auto; color:#cfb3bf; font-size:.74rem; }
+.birth-lunar-day-grid.is-collapsed { display:none !important; }
+
+.astro-city-results {
+  touch-action: pan-y;
+  overscroll-behavior-y: contain;
+  -webkit-overflow-scrolling: touch;
+}
+.astro-city-result {
+  touch-action: pan-y;
+  -webkit-user-select:none;
+  user-select:none;
+}
+@media(max-width:760px) {
+  .astro-city-field.is-picker-open .astro-city-results {
+    overflow-y:auto !important;
+    touch-action:pan-y !important;
+    overscroll-behavior-y:contain;
+    -webkit-overflow-scrolling:touch;
+  }
+  .astro-city-field.is-picker-open .astro-city-result {
+    touch-action:pan-y !important;
+  }
+}
+
+
+/* ===== V0.10.4.2 LOCAL RECORDS ===== */
+.tarot-history-shell {
+  margin: 0 auto 24px;
+}
+
+.tarot-history-toggle {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 66px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 12px 17px;
+  border: 1px solid rgba(231,202,180,.15);
+  border-radius: 18px;
+  color: #f5ebef;
+  background: rgba(255,255,255,.035);
+  cursor: pointer;
+  font: inherit;
+  text-align: left;
+}
+
+.tarot-history-toggle > span {
+  min-width: 0;
+}
+
+.tarot-history-toggle small {
+  display: block;
+  margin-bottom: 3px;
+  color: #9f8b96;
+  font-size: .62rem;
+  letter-spacing: .12em;
+}
+
+.tarot-history-toggle strong {
+  font-size: .92rem;
+}
+
+.tarot-history-toggle b {
+  min-width: 34px;
+  height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  color: #f9ede4;
+  background: rgba(218,179,140,.15);
+  font-size: .82rem;
+}
+
+.tarot-history-panel {
+  margin-top: 10px;
+  padding: 16px;
+  border: 1px solid rgba(231,202,180,.13);
+  border-radius: 18px;
+  background: rgba(17,13,21,.2);
+}
+
+.tarot-history-panel[hidden] {
+  display: none !important;
+}
+
+.tarot-history-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 13px;
+}
+
+.tarot-history-head > div {
+  min-width: 0;
+}
+
+.tarot-history-head > div > span {
+  color: #9f8b96;
+  font-size: .59rem;
+  letter-spacing: .12em;
+}
+
+.tarot-history-head h2 {
+  margin: 3px 0 4px;
+  color: #f4eaf0;
+  font-size: 1rem;
+}
+
+.tarot-history-head p {
+  margin: 0;
+  color: #a9939f;
+  font-size: .73rem;
+  line-height: 1.55;
+}
+
+.tarot-history-clear {
+  flex: 0 0 auto;
+  padding: 7px 10px;
+  border: 1px solid rgba(231,202,180,.13);
+  border-radius: 999px;
+  color: #bea7b2;
+  background: transparent;
+  cursor: pointer;
+  font: inherit;
+  font-size: .68rem;
+}
+
+.tarot-history-empty {
+  margin: 8px 0 2px;
+  padding: 18px;
+  border-radius: 14px;
+  color: #a9949f;
+  background: rgba(255,255,255,.025);
+  font-size: .78rem;
+  line-height: 1.65;
+}
+
+.tarot-history-list {
+  display: grid;
+  gap: 8px;
+}
+
+.tarot-history-item {
+  overflow: hidden;
+  border: 1px solid rgba(231,202,180,.10);
+  border-radius: 14px;
+  background: rgba(255,255,255,.025);
+}
+
+.tarot-history-item > summary {
+  cursor: pointer;
+  list-style: none;
+  padding: 12px 13px;
+}
+
+.tarot-history-item > summary::-webkit-details-marker {
+  display: none;
+}
+
+.tarot-history-date {
+  display: block;
+  margin-bottom: 4px;
+  color: #9f8a96;
+  font-size: .65rem;
+}
+
+.tarot-history-item > summary strong {
+  display: block;
+  color: #f0e4e9;
+  font-size: .82rem;
+}
+
+.tarot-history-item > summary small {
+  display: block;
+  margin-top: 4px;
+  overflow: hidden;
+  color: #b59fac;
+  font-size: .72rem;
+  line-height: 1.4;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tarot-history-detail {
+  display: grid;
+  gap: 12px;
+  padding: 0 13px 14px;
+}
+
+.tarot-history-detail section {
+  padding-top: 11px;
+  border-top: 1px solid rgba(255,255,255,.05);
+}
+
+.tarot-history-detail h3 {
+  margin: 0 0 7px;
+  color: #d9bfca;
+  font-size: .72rem;
+}
+
+.tarot-history-detail p {
+  margin: 0;
+  color: #c5b3bc;
+  font-size: .76rem;
+  line-height: 1.7;
+}
+
+.tarot-history-cards {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tarot-history-cards li {
+  display: grid;
+  grid-template-columns: minmax(0,1.25fr) minmax(0,1fr) auto;
+  gap: 8px;
+  align-items: center;
+  padding: 7px 8px;
+  border-radius: 9px;
+  background: rgba(255,255,255,.025);
+}
+
+.tarot-history-cards span,
+.tarot-history-cards strong,
+.tarot-history-cards small {
+  min-width: 0;
+  font-size: .69rem;
+}
+
+.tarot-history-cards span {
+  overflow: hidden;
+  color: #a9949f;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tarot-history-cards strong {
+  overflow: hidden;
+  color: #e9dce2;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tarot-history-cards small {
+  color: #c6b0bb;
+}
+
+.tarot-history-cards small.is-reversed {
+  color: #d39fa8;
+}
+
+.tarot-history-advice {
+  padding: 11px !important;
+  border: 1px solid rgba(222,186,145,.10) !important;
+  border-radius: 11px;
+  background: rgba(217,177,135,.05);
+}
+
+@media(max-width:600px) {
+  .tarot-history-panel {
+    padding: 13px;
+  }
+
+  .tarot-history-head {
+    gap: 9px;
+  }
+
+  .tarot-history-cards li {
+    grid-template-columns: minmax(0,1fr) auto;
+  }
+
+  .tarot-history-cards span {
+    grid-column: 1 / -1;
+  }
+}

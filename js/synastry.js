@@ -49,40 +49,115 @@
   function ensureCityPickerClose(person){const field=cityField(person);if(!field||field.querySelector('[data-city-picker-close]'))return;const btn=document.createElement('button');btn.type='button';btn.className='city-picker-close';btn.dataset.cityPickerClose='';btn.textContent=lang()==='en'?'Close':(lang()==='zh-TW'?'關閉':'关闭');btn.addEventListener('click',()=>closeCityPicker(person,true));field.insertBefore(btn,field.querySelector('.astro-city-search'));}
   function openCityPicker(person){if(!mobileCityPicker())return;ensureCityPickerClose(person);cityField(person)?.classList.add('is-picker-open');document.body.classList.add('city-picker-active');}
   function closeCityPicker(person,hideResults=false){cityField(person)?.classList.remove('is-picker-open');if(!document.querySelector('.astro-city-field.is-picker-open'))document.body.classList.remove('city-picker-active');if(hideResults){$(`cityResults${person}`).hidden=true;$(`cityResults${person}`).innerHTML='';}$(`city${person}`)?.blur();}
-  function renderCityResults(person,items){const box=$(`cityResults${person}`);if(!items.length){box.hidden=true;box.innerHTML='';return;}box.innerHTML=items.map((c,i)=>`<button type="button" class="astro-city-result" data-i="${i}"><strong>${esc(cityDisplay(c))}</strong><small>${c.lat.toFixed(4)}°, ${c.lon.toFixed(4)}° · ${esc(c.timezone)}</small></button>`).join('');box.hidden=false;box.querySelectorAll('[data-i]').forEach(b=>{const choose=e=>{e.preventDefault();selectCity(person,items[+b.dataset.i]);};if(window.PointerEvent)b.addEventListener('pointerdown',choose);else b.addEventListener('touchstart',choose,{passive:false});b.addEventListener('click',e=>{if(e.detail===0)choose(e);});});}
-  function selectCity(person,c){state[`city${person}`]=c;$(`city${person}`).value=cityDisplay(c);$(`cityResults${person}`).hidden=true;$(`cityMeta${person}`).hidden=false;$(`cityMeta${person}`).textContent=`${c.lat.toFixed(4)}°, ${c.lon.toFixed(4)}° · ${c.timezone}`;closeCityPicker(person,true);}
+  function renderCityResults(person,items,preserveScroll=false){
+    const box=$(`cityResults${person}`);
+    const previousScrollTop=preserveScroll?box.scrollTop:0;
+    if(!items.length){box.hidden=true;box.innerHTML='';return;}
+    box.innerHTML=items.map((c,i)=>`<button type="button" class="astro-city-result" data-i="${i}"><strong>${esc(cityDisplay(c))}</strong><small>${c.lat.toFixed(4)}°, ${c.lon.toFixed(4)}° · ${esc(c.timezone)}</small></button>`).join('');
+    box.hidden=false;
+    if(preserveScroll&&previousScrollTop>0)requestAnimationFrame(()=>{box.scrollTop=previousScrollTop;});
+    box.querySelectorAll('[data-i]').forEach(b=>{
+      b.addEventListener('click',e=>{
+        e.preventDefault();
+        selectCity(person,items[+b.dataset.i]);
+      });
+    });
+  }
+  function selectCity(person,c){state[`city${person}`]=c;$(`city${person}`).value=cityDisplay(c);$(`cityResults${person}`).hidden=true;$(`cityResults${person}`).innerHTML='';$(`cityMeta${person}`).hidden=false;$(`cityMeta${person}`).textContent=`${c.lat.toFixed(4)}°, ${c.lon.toFixed(4)}° · ${c.timezone}`;closeCityPicker(person,true);}
   async function searchCity(person,q){
-    const local=localMatches(q);
+    const raw=String(q||'').trim(),normalized=normalize(raw);
+    if(normalized.length<2){renderCityResults(person,[]);return;}
+
+    const seqKey=`seq${person}`;
+    const seq=(state[seqKey]||0)+1;
+    state[seqKey]=seq;
+
+    const exact=exactBuiltIn(raw);
+    const local=localMatches(raw);
+
+    if(exact){
+      const ordered=[exact,...local.filter(c=>c.id!==exact.id)];
+      if(seq===state[seqKey]&&normalize($(`city${person}`).value)===normalized){
+        renderCityResults(person,ordered.slice(0,8));
+      }
+      return;
+    }
+
     let china=[],chinaExact=false;
     try{
       if(window.XingchenChinaLocation){
         [china,chinaExact]=await Promise.all([
-          window.XingchenChinaLocation.search(q,20),
-          window.XingchenChinaLocation.hasExactAdministrativeMatch(q)
+          window.XingchenChinaLocation.search(raw,20),
+          window.XingchenChinaLocation.hasExactAdministrativeMatch(raw)
         ]);
       }
     }catch(e){console.warn('[星辰日记] 中国出生地搜索暂不可用',e);}
-    const merge=(...groups)=>{const seen=new Set(),out=[];groups.flat().forEach(c=>{const k=`${c.lat.toFixed(4)},${c.lon.toFixed(4)},${c.timezone},${normalize(cityDisplay(c))}`;if(!seen.has(k)){seen.add(k);out.push(c);}});return out;};
+
+    if(seq!==state[seqKey]||normalize($(`city${person}`).value)!==normalized)return;
+
+    const merge=(...groups)=>{
+      const seen=new Set(),out=[];
+      groups.flat().forEach(c=>{
+        const k=`${c.lat.toFixed(4)},${c.lon.toFixed(4)},${c.timezone},${normalize(cityDisplay(c))}`;
+        if(!seen.has(k)){seen.add(k);out.push(c);}
+      });
+      return out;
+    };
+
     let merged=merge(china,local);
-    renderCityResults(person,merged.slice(0,20));
-    if(chinaExact||normalize(q).length<2||!navigator.onLine)return;
+    renderCityResults(person,merged.slice(0,20),true);
+
+    if(chinaExact||!navigator.onLine)return;
+
     const abortKey=`abort${person}`;
     if(state[abortKey])state[abortKey].abort();
     state[abortKey]=new AbortController();
+
     try{
       const u=new URL('https://geocoding-api.open-meteo.com/v1/search');
-      u.searchParams.set('name',q.trim());
+      u.searchParams.set('name',raw);
       u.searchParams.set('count','8');
       u.searchParams.set('language',lang()==='en'?'en':'zh');
       u.searchParams.set('format','json');
       const r=await fetch(u,{signal:state[abortKey].signal});
       const d=await r.json();
+
+      if(seq!==state[seqKey]||normalize($(`city${person}`).value)!==normalized)return;
+
       const remote=(d.results||[]).filter(i=>i.timezone).map(mapRemote);
       merged=merge(china,local,remote);
-      renderCityResults(person,merged.slice(0,20));
+      renderCityResults(person,merged.slice(0,20),true);
     }catch(e){if(e.name!=='AbortError')console.warn(e);}
   }
-  function setupCity(person){const input=$(`city${person}`);input.addEventListener('focus',e=>{if(mobileCityPicker())openCityPicker(person);e.target.select();if(e.target.value.trim().length>=2)searchCity(person,e.target.value);});input.addEventListener('input',e=>{state[`city${person}`]=null;$(`cityMeta${person}`).hidden=true;clearTimeout(state[`timer${person}`]);state[`timer${person}`]=setTimeout(()=>searchCity(person,e.target.value),250);});input.addEventListener('blur',()=>{if(mobileCityPicker()&&cityField(person)?.classList.contains('is-picker-open'))return;setTimeout(()=>$(`cityResults${person}`).hidden=true,120);});input.addEventListener('keydown',e=>{if(e.key==='Enter'){const first=$(`cityResults${person}`).querySelector('[data-i="0"]');if(first){e.preventDefault();first.click();}}if(e.key==='Escape')closeCityPicker(person,true);});}
+  function setupCity(person){
+    const input=$(`city${person}`);
+    input.addEventListener('focus',e=>{
+      if(mobileCityPicker())openCityPicker(person);
+      e.target.select();
+      if(!state[`city${person}`]&&e.target.value.trim().length>=2)searchCity(person,e.target.value);
+    });
+    input.addEventListener('input',e=>{
+      state[`city${person}`]=null;
+      state[`seq${person}`]=(state[`seq${person}`]||0)+1;
+      if(state[`abort${person}`])state[`abort${person}`].abort();
+      $(`cityMeta${person}`).hidden=true;
+      $(`cityResults${person}`).hidden=true;
+      $(`cityResults${person}`).innerHTML='';
+      clearTimeout(state[`timer${person}`]);
+      state[`timer${person}`]=setTimeout(()=>searchCity(person,e.target.value),250);
+    });
+    input.addEventListener('blur',()=>{
+      if(mobileCityPicker()&&cityField(person)?.classList.contains('is-picker-open'))return;
+      setTimeout(()=>$(`cityResults${person}`).hidden=true,120);
+    });
+    input.addEventListener('keydown',e=>{
+      if(e.key==='Enter'){
+        const first=$(`cityResults${person}`).querySelector('[data-i="0"]');
+        if(first){e.preventDefault();first.click();}
+      }
+      if(e.key==='Escape')closeCityPicker(person,true);
+    });
+  }
   function exactBuiltIn(q){q=normalize(q);return state.cities.find(c=>[c.id,...c.aliases,c.name['zh-CN'],c.name['zh-TW'],c.name.en].some(v=>normalize(v)===q))||null;}
   function personData(person){const dateInfo=window.XingchenBirthDate?.getInfo?.(`birth-${person}`)||{mode:'solar',date:$(`date${person}`).value,originalLabel:$(`date${person}`).value};const date=dateInfo?.date||'';const unknown=$(`unknown${person}`).checked,time=$(`time${person}`).value;let city=state[`city${person}`]||exactBuiltIn($(`city${person}`).value);if(!date)throw new Error(ui('dateError'));if(!unknown&&!time)throw new Error(ui('timeError'));if(!city)throw new Error(ui('cityError'));const name=$(`name${person}`).value.trim()||person;return{name,date,dateInfo,time:unknown?'12:00':time,unknown,city};}
   function anglePoint(result){return result.ascendant?{key:'ascendant',longitude:result.ascendant.longitude,index:result.ascendant.index,degree:result.ascendant.degree}:null;}

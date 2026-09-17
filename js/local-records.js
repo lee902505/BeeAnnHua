@@ -1,0 +1,61 @@
+(() => {
+  const KEYS = Object.freeze({
+    astrologyLastInput: 'xingchen-astrology-last-input-v1',
+    tarotHistory: 'xingchen-tarot-history-v1',
+    fortuneHistory: 'xingchen-fortune-history'
+  });
+
+  function cloneFallback(value) {
+    try { return JSON.parse(JSON.stringify(value)); }
+    catch { return value; }
+  }
+
+  function read(key, fallback=null) {
+    try {
+      const raw = localStorage.getItem(key);
+      if (raw == null) return cloneFallback(fallback);
+      return JSON.parse(raw);
+    } catch (error) {
+      console.warn('[星辰日记] 本机纪录读取失败：', key, error);
+      return cloneFallback(fallback);
+    }
+  }
+
+  function write(key, value) {
+    try {
+      localStorage.setItem(key, JSON.stringify(value));
+      return true;
+    } catch (error) {
+      console.warn('[星辰日记] 本机纪录写入失败：', key, error);
+      return false;
+    }
+  }
+
+  function remove(key) {
+    try {
+      localStorage.removeItem(key);
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  function pushCapped(key, item, limit=10) {
+    const current = read(key, []);
+    const list = Array.isArray(current) ? current : [];
+    const filtered = item?.id
+      ? list.filter(entry => entry?.id !== item.id)
+      : list;
+    const next = [item, ...filtered].slice(0, Math.max(1, Number(limit) || 10));
+    write(key, next);
+    return next;
+  }
+
+  window.XingchenRecords = {
+    KEYS,
+    read,
+    write,
+    remove,
+    pushCapped
+  };
+})();

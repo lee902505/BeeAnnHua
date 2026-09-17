@@ -24,7 +24,28 @@
   }
 
   function writeHistory(history) {
-    localStorage.setItem(FORTUNE_CONFIG.storageKey, JSON.stringify(history));
+    // Keep recent local records bounded so this daily feature never grows forever.
+    const entries = Object.entries(history || {})
+      .filter(([key]) => /^\d{4}-\d{2}-\d{2}$/.test(key))
+      .sort((a,b) => b[0].localeCompare(a[0]))
+      .slice(0, 60);
+
+    localStorage.setItem(FORTUNE_CONFIG.storageKey, JSON.stringify(Object.fromEntries(entries)));
+  }
+
+  function savedFortune(record) {
+    if (record?.fortune && typeof record.fortune === 'object') return record.fortune;
+    return state.fortunes.find((item) => item.id === record?.id) || null;
+  }
+
+  function upgradeSavedFortune(history, dateKey, record, fortune) {
+    if (!record || record.fortune || !fortune) return;
+    history[dateKey] = {
+      ...record,
+      snapshotVersion:1,
+      fortune
+    };
+    writeHistory(history);
   }
 
   function secureRandomInt(maxExclusive) {
@@ -132,8 +153,9 @@
     const history = readHistory();
 
     if (history[today]) {
-      const existing = state.fortunes.find((item) => item.id === history[today].id);
+      const existing = savedFortune(history[today]);
       if (existing) {
+        upgradeSavedFortune(history, today, history[today], existing);
         render(existing, {
           repeat: history[today].repeat === true,
           repeatText: history[today].repeatText || ""
@@ -153,7 +175,9 @@
       id: fortune.id,
       drawnAt: new Date().toISOString(),
       repeat: repeated,
-      repeatText
+      repeatText,
+      snapshotVersion:1,
+      fortune
     };
     writeHistory(history);
     render(fortune, { repeat: repeated, repeatText });
@@ -217,8 +241,10 @@
       if (FORTUNE_CONFIG.dailyLockEnabled) {
         const saved = readHistory()[localDateKey()];
         if (saved) {
-          const existing = state.fortunes.find((item) => item.id === saved.id);
+          const existing = savedFortune(saved);
           if (existing) {
+            const history = readHistory();
+            upgradeSavedFortune(history, localDateKey(), saved, existing);
             render(existing, {
               repeat: saved.repeat === true,
               repeatText: saved.repeatText || ""
