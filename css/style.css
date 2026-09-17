@@ -4658,3 +4658,330 @@ main { display: grid; gap: 0; }
     padding: 0 14px 15px !important;
   }
 }
+
+
+/* ===== V0.10.4.4 TAROT HISTORY SITE-STYLE UNIFICATION ===== */
+
+/*
+  History now follows the same visual language as:
+  - .tarot-setup
+  - .tarot-control-group
+  - .tarot-combination-reading
+*/
+.tarot-history-shell {
+  position: relative;
+  box-sizing: border-box;
+  margin: 0 !important;
+  padding: 26px clamp(18px, 5vw, 58px) 30px !important;
+  color: #f8eee8;
+  background:
+    radial-gradient(circle at 88% 15%, rgba(238,207,169,.13), transparent 25%),
+    linear-gradient(180deg, rgba(49,37,47,.98), rgba(32,25,34,.99)) !important;
+}
+
+.tarot-history-toggle {
+  width: 100%;
+  min-height: 72px;
+  padding: 15px 18px !important;
+  border: 1px solid rgba(235,205,174,.17) !important;
+  border-radius: 24px !important;
+  color: #f8eee8 !important;
+  background: rgba(255,255,255,.038) !important;
+  box-shadow: none !important;
+  transition:
+    border-color 180ms ease,
+    background 180ms ease,
+    transform 180ms ease;
+}
+
+.tarot-history-toggle:hover,
+.tarot-history-toggle:focus-visible,
+.tarot-history-toggle[aria-expanded="true"] {
+  border-color: rgba(238,202,152,.42) !important;
+  background: rgba(218,172,118,.075) !important;
+  outline: none;
+}
+
+.tarot-history-toggle:active {
+  transform: translateY(1px);
+}
+
+.tarot-history-toggle small {
+  margin-bottom: 5px !important;
+  color: #bdaeb5 !important;
+  font-size: .66rem !important;
+  letter-spacing: .20em !important;
+  opacity: .88;
+}
+
+.tarot-history-toggle strong {
+  color: #fff7ee !important;
+  font-size: 1rem !important;
+  font-weight: 600;
+  letter-spacing: .035em;
+}
+
+.tarot-history-toggle b {
+  min-width: 38px !important;
+  height: 38px !important;
+  color: #eed0a8 !important;
+  border: 1px solid rgba(238,208,168,.26) !important;
+  background: rgba(238,208,168,.09) !important;
+  box-shadow: none !important;
+}
+
+.tarot-history-panel {
+  margin-top: 14px !important;
+  padding: 22px !important;
+  border: 1px solid rgba(235,205,174,.15) !important;
+  border-radius: 24px !important;
+  color: #f8eee8 !important;
+  background: rgba(255,255,255,.035) !important;
+  box-shadow: none !important;
+}
+
+.tarot-history-head {
+  margin-bottom: 18px !important;
+}
+
+.tarot-history-head > div > span {
+  color: #bdaeb5 !important;
+  font-size: .64rem !important;
+  letter-spacing: .20em !important;
+  opacity: .88;
+}
+
+.tarot-history-head h2 {
+  margin: 5px 0 6px !important;
+  color: #fff7ee !important;
+  font-size: 1.12rem !important;
+  font-weight: 600;
+  letter-spacing: .03em;
+}
+
+.tarot-history-head p {
+  color: #cbbbc2 !important;
+  font-size: .78rem !important;
+  line-height: 1.65 !important;
+}
+
+.tarot-history-clear {
+  min-height: 38px;
+  padding: 8px 13px !important;
+  border: 1px solid rgba(230,202,178,.18) !important;
+  border-radius: 999px !important;
+  color: #d8c8cf !important;
+  background: rgba(255,255,255,.035) !important;
+  transition: 180ms ease;
+}
+
+.tarot-history-clear:hover,
+.tarot-history-clear:focus-visible {
+  color: #fff7ec !important;
+  border-color: rgba(238,202,152,.48) !important;
+  background: rgba(218,172,118,.11) !important;
+  outline: none;
+}
+
+.tarot-history-empty {
+  padding: 19px !important;
+  border: 1px solid rgba(255,255,255,.055);
+  border-radius: 18px !important;
+  color: #d3c4ca !important;
+  background: rgba(255,255,255,.04) !important;
+  line-height: 1.72 !important;
+}
+
+.tarot-history-list {
+  gap: 12px !important;
+}
+
+.tarot-history-item {
+  overflow: hidden;
+  border: 1px solid rgba(230,202,178,.13) !important;
+  border-radius: 20px !important;
+  color: #f8eee8;
+  background: rgba(255,255,255,.036) !important;
+  box-shadow: none !important;
+  transition:
+    border-color 180ms ease,
+    background 180ms ease;
+}
+
+.tarot-history-item[open] {
+  border-color: rgba(238,202,152,.28) !important;
+  background: rgba(255,255,255,.052) !important;
+}
+
+.tarot-history-item > summary {
+  position: relative;
+  padding: 16px 18px !important;
+}
+
+.tarot-history-item > summary::after {
+  content: "＋";
+  position: absolute;
+  top: 50%;
+  right: 17px;
+  color: #c8b2bc;
+  font-size: 1rem;
+  line-height: 1;
+  transform: translateY(-50%);
+}
+
+.tarot-history-item[open] > summary::after {
+  content: "－";
+  color: #eacda9;
+}
+
+.tarot-history-date {
+  margin-bottom: 6px !important;
+  color: #bdaeb5 !important;
+  font-size: .69rem !important;
+  letter-spacing: .035em;
+}
+
+.tarot-history-item > summary strong {
+  padding-right: 34px;
+  color: #fff7ee !important;
+  font-size: .91rem !important;
+  font-weight: 600;
+  letter-spacing: .025em;
+}
+
+.tarot-history-item > summary small {
+  max-width: calc(100% - 34px);
+  margin-top: 6px !important;
+  color: #cbb9c2 !important;
+  font-size: .76rem !important;
+  line-height: 1.5 !important;
+}
+
+.tarot-history-detail {
+  gap: 0 !important;
+  padding: 0 18px 18px !important;
+}
+
+.tarot-history-detail section {
+  padding: 17px 0 !important;
+  border-top: 1px solid rgba(255,255,255,.065) !important;
+}
+
+.tarot-history-detail h3 {
+  margin: 0 0 10px !important;
+  color: #eacda9 !important;
+  font-size: .78rem !important;
+  font-weight: 600;
+  letter-spacing: .07em;
+}
+
+.tarot-history-detail p {
+  color: #dacdd2 !important;
+  font-size: .82rem !important;
+  line-height: 1.9 !important;
+}
+
+.tarot-history-cards {
+  gap: 8px !important;
+}
+
+.tarot-history-cards li {
+  padding: 10px 12px !important;
+  border: 1px solid rgba(255,255,255,.055) !important;
+  border-radius: 13px !important;
+  background: rgba(255,255,255,.045) !important;
+}
+
+.tarot-history-cards span {
+  color: #baaab2 !important;
+  font-size: .72rem !important;
+}
+
+.tarot-history-cards strong {
+  color: #f8eee9 !important;
+  font-size: .76rem !important;
+}
+
+.tarot-history-cards small {
+  color: #e8d0b4 !important;
+  font-size: .72rem !important;
+}
+
+.tarot-history-cards small.is-reversed {
+  color: #e3b7c4 !important;
+}
+
+.tarot-history-advice {
+  margin-top: 4px;
+  padding: 16px !important;
+  border: 1px solid rgba(232,199,155,.14) !important;
+  border-radius: 16px !important;
+  background: rgba(226,186,139,.08) !important;
+}
+
+.tarot-history-advice h3 {
+  color: #eacda9 !important;
+}
+
+.tarot-history-advice p {
+  color: #eee1df !important;
+}
+
+@media(max-width:760px) {
+  .tarot-history-shell {
+    padding: 22px 18px 26px !important;
+  }
+
+  .tarot-history-toggle {
+    min-height: 68px;
+    padding: 13px 15px !important;
+    border-radius: 20px !important;
+  }
+
+  .tarot-history-panel {
+    padding: 17px !important;
+    border-radius: 20px !important;
+  }
+
+  .tarot-history-head {
+    gap: 10px !important;
+  }
+
+  .tarot-history-head h2 {
+    font-size: 1.02rem !important;
+  }
+
+  .tarot-history-clear {
+    padding: 7px 10px !important;
+    font-size: .66rem !important;
+  }
+
+  .tarot-history-item {
+    border-radius: 17px !important;
+  }
+
+  .tarot-history-item > summary {
+    padding: 15px 14px !important;
+  }
+
+  .tarot-history-item > summary::after {
+    right: 13px;
+  }
+
+  .tarot-history-detail {
+    padding: 0 14px 15px !important;
+  }
+
+  .tarot-history-detail p {
+    font-size: .80rem !important;
+  }
+
+  .tarot-history-cards li {
+    grid-template-columns: minmax(0,1fr) auto !important;
+    padding: 10px !important;
+  }
+
+  .tarot-history-cards span {
+    grid-column: 1 / -1;
+  }
+}
