@@ -1,4 +1,4 @@
-# V0.10.7.2 — Supabase Connection
+# V0.10.7.2.1 — Supabase Connection
 
 ## Purpose
 This version adds the browser-side Supabase connection layer only. It does **not** sync user records yet and does **not** write data automatically.
@@ -29,7 +29,7 @@ For production, put the full publishable key into the public configuration (or a
 - Bark private secret
 
 ## Security boundary
-V0.10.7.1 already enabled RLS and least-privilege table grants. V0.10.7.2 does not weaken those policies.
+V0.10.7.1 already enabled RLS and least-privilege table grants. V0.10.7.2.1 does not weaken those policies.
 
 ## Next
 V0.10.7.3 will add Supabase Auth (email OTP / magic-link flow). Only after Auth exists will cloud data sync be enabled.

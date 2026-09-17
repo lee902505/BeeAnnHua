@@ -1,4 +1,4 @@
-# 星辰日记 / Stellar Diary — V0.10.7.2
+# 星辰日记 / Stellar Diary — V0.10.7.2.1
 
 ## Supabase Connection · 云端连接层
 - 已接入 Supabase 浏览器端基础层，使用官方 `@supabase/supabase-js@2` CDN。
@@ -1435,3 +1435,11 @@ V0.7 为塔罗模组的进阶功能版本，不新增任何图片素材，继续
 - 合盘结果区升级为淡粉紫星辰报告视觉；合拍指数、五维分数、双方核心位置、相位分类与整体摘要保持原有逻辑，只调整视觉层级与品牌一致性。
 - 星盘页名称统一为「本命星盘 / NATAL CHART」，两人合盘返回文字同步为「返回本命星盘」。
 - 手机版 Hero、表单、结果区与底部 TOP / HOME 同步响应式优化；原有星历计算、Placidus/Whole Sign fallback、阴历转换、中国地点搜索、当地时区、合盘算法与 Bark 功能均未更动。
+
+## V0.10.7.2.1 connectivity hotfix
+
+- 修正 Supabase 新 `sb_publishable_*` opaque key 的测试方式。
+- 手动连线探针不再发送 `Authorization: Bearer sb_publishable_*`。
+- 不再探测 `/rest/v1/` OpenAPI 根路径，改为 `profiles` table route。
+- 浏览器测试使用官方支持的 `?apikey=` 形式，避免自定义 header 触发不必要的 CORS preflight。
+- 未登入阶段若回传 401/403，会视为「连线成功且匿名访问被保护」，符合目前 RLS/GRANT 设计。

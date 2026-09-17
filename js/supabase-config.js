@@ -7,7 +7,7 @@
   // safe for browser use, but NEVER put sb_secret_ / service_role / DB password
   // in this file or anywhere in GitHub Pages.
   const DEFAULTS = {
-    appVersion: '0.10.7.2',
+    appVersion: '0.10.7.2.1',
     projectUrl: 'https://zbiasduaypykhwvuxye.supabase.co',
     publishableKey: '',
     schema: 'public',

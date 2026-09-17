@@ -33,9 +33,9 @@
 </head>
 <body>
   <main>
-    <div class="eyebrow">V0.10.7.2 · SUPABASE CONNECTION</div>
+    <div class="eyebrow">V0.10.7.2.1 · SUPABASE CONNECTION</div>
     <h1>星辰日记云端连接测试</h1>
-    <p class="lead">这里只验证 Project URL、浏览器 SDK 与 Publishable Key。不会写入任何星盘、塔罗或个人资料。</p>
+    <p class="lead">这里只验证 Project URL、浏览器 SDK 与 Publishable Key。不会写入任何星盘、塔罗或个人资料。此修正版使用 Supabase 新 Publishable Key 的 apikey 方式测试，不再把它误当成 JWT。</p>
 
     <section class="card">
       <div class="row"><div class="label">Project URL</div><div class="value" id="urlValue">—</div></div>
@@ -56,8 +56,8 @@
   </main>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="js/supabase-config.js?v=0.10.7.2"></script>
-  <script src="js/supabase-client.js?v=0.10.7.2"></script>
+  <script src="js/supabase-config.js?v=0.10.7.2.1"></script>
+  <script src="js/supabase-client.js?v=0.10.7.2.1"></script>
   <script>
     (() => {
       const cfg = window.XingchenSupabaseConfig;

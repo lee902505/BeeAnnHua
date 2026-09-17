@@ -63,42 +63,61 @@
       return {ok: false, stage: 'sdk', message: initError?.message || 'Unable to initialize Supabase client.'};
     }
 
-    // PostgREST root is a lightweight way to verify URL + publishable key.
-    // No user data is read or written in this test.
+    // IMPORTANT (new Supabase publishable keys):
+    // sb_publishable_* is an opaque API key, not a user JWT. Do not send it as
+    // `Authorization: Bearer ...` in this manual connectivity probe.
+    //
+    // We also avoid probing the exact `/rest/v1/` OpenAPI root. Instead we hit
+    // a real table route using the documented browser `?apikey=` form. This is
+    // a simple GET (no custom request headers / no CORS preflight). Because the
+    // user is not signed in yet, our RLS/grants may correctly return 401/403;
+    // that still proves the project + gateway + publishable key are reachable.
     try {
-      const response = await fetch(`${cfg.projectUrl}/rest/v1/`, {
+      const probeUrl = `${cfg.projectUrl}/rest/v1/profiles?select=id&limit=1&apikey=${encodeURIComponent(cfg.publishableKey)}`;
+      const response = await fetch(probeUrl, {
         method: 'GET',
-        headers: {
-          apikey: cfg.publishableKey,
-          Authorization: `Bearer ${cfg.publishableKey}`,
-          Accept: 'application/openapi+json, application/json'
-        },
-        cache: 'no-store'
+        headers: {Accept: 'application/json'},
+        cache: 'no-store',
+        credentials: 'omit'
       });
 
       const elapsedMs = Math.max(0, Math.round(performance.now() - startedAt));
       let bodyText = '';
       try { bodyText = await response.text(); } catch (_) {}
-      const invalidKey = /invalid api key|invalid.*key|api key.*invalid/i.test(bodyText);
 
+      const invalidKey = /invalid api key|invalid.*key|api key.*invalid|no api key/i.test(bodyText);
       if (invalidKey) {
-        return {ok: false, stage: 'apikey', status: response.status, elapsedMs, message: 'Publishable key was rejected by Supabase.'};
+        return {
+          ok: false,
+          stage: 'apikey',
+          status: response.status,
+          elapsedMs,
+          message: 'Publishable key was rejected by Supabase.'
+        };
       }
 
-      // With least-privilege Data API settings, the API root may return 200,
-      // 401 or 403 depending on PostgREST exposure. A non-invalid-key response
-      // still proves the project is reachable and the key was understood.
+      // 200 means the endpoint is reachable and queryable. 401/403 are also an
+      // expected success at this stage because anonymous users intentionally do
+      // not have table access before Supabase Auth is connected.
       if (response.ok || response.status === 401 || response.status === 403) {
         return {
           ok: true,
           stage: 'connected',
           status: response.status,
           elapsedMs,
-          message: response.ok ? 'Supabase connection is ready.' : 'Supabase is reachable; Data API is protected as expected.'
+          message: response.ok
+            ? 'Supabase connection is ready.'
+            : 'Supabase connection is ready; anonymous table access is blocked as expected.'
         };
       }
 
-      return {ok: false, stage: 'http', status: response.status, elapsedMs, message: `Unexpected Supabase response (${response.status}).`};
+      return {
+        ok: false,
+        stage: 'http',
+        status: response.status,
+        elapsedMs,
+        message: `Unexpected Supabase response (${response.status}).`
+      };
     } catch (error) {
       return {
         ok: false,
