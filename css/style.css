@@ -3518,3 +3518,182 @@ main { display: grid; gap: 0; }
     font-size: .82rem;
   }
 }
+
+
+/* ===== V0.10.3.8 DIRECT LUNAR DAY GRID + MOBILE CITY PICKER ===== */
+
+/* 阴历日期直接摊开，不再使用第三个原生 select。 */
+.birth-lunar-grid select[data-lunar-day] {
+  display: none !important;
+}
+
+.birth-lunar-day-grid {
+  margin-top: 10px;
+  display: grid;
+  grid-template-columns: repeat(7,minmax(0,1fr));
+  gap: 6px;
+}
+
+.birth-lunar-day-grid[hidden] {
+  display: none !important;
+}
+
+.birth-lunar-day-btn {
+  min-width: 0;
+  min-height: 48px;
+  padding: 5px 2px;
+  border: 1px solid rgba(231,202,180,.12);
+  border-radius: 10px;
+  color: #e8dfe4;
+  background: rgba(255,255,255,.035);
+  cursor: pointer;
+  font: inherit;
+  text-align: center;
+}
+
+.birth-lunar-day-btn > span {
+  display: block;
+  font-size: .88rem;
+  line-height: 1.1;
+}
+
+.birth-lunar-day-btn > small {
+  display: block;
+  margin-top: 3px;
+  color: #a995a0;
+  font-size: .57rem;
+  line-height: 1.05;
+  white-space: nowrap;
+}
+
+.birth-lunar-day-btn.is-active {
+  border-color: rgba(236,199,157,.55);
+  color: #fffaf6;
+  background: rgba(215,177,137,.18);
+  box-shadow: 0 0 0 2px rgba(215,177,137,.06);
+}
+
+.birth-lunar-day-btn.is-active > small {
+  color: #e7cdb9;
+}
+
+/* 城市手机选择器 */
+.city-picker-close {
+  display: none;
+}
+
+@media(max-width:760px) {
+  body.city-picker-active {
+    overflow: hidden;
+  }
+
+  body.city-picker-active::before {
+    content: "";
+    position: fixed;
+    z-index: 9998;
+    inset: 0;
+    background: rgba(14,10,20,.68);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+
+  .astro-city-field.is-picker-open {
+    position: fixed !important;
+    z-index: 9999 !important;
+    top: max(16px,env(safe-area-inset-top));
+    left: 16px;
+    right: 16px;
+    width: auto !important;
+    max-width: none !important;
+    max-height: calc(100dvh - 32px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+    margin: 0 !important;
+    padding: 18px !important;
+    overflow-y: auto;
+    border: 1px solid rgba(231,202,180,.18);
+    border-radius: 22px;
+    background: #2b2332;
+    box-shadow: 0 22px 70px rgba(0,0,0,.42);
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .astro-city-field.is-picker-open > span:first-child {
+    display: inline-block;
+    margin: 0 0 12px;
+    font-size: 1rem;
+    font-weight: 600;
+  }
+
+  .astro-city-field.is-picker-open .city-picker-close {
+    display: inline-flex;
+    position: absolute;
+    top: 12px;
+    right: 13px;
+    align-items: center;
+    justify-content: center;
+    min-width: 58px;
+    min-height: 34px;
+    padding: 6px 10px;
+    border: 1px solid rgba(231,202,180,.16);
+    border-radius: 999px;
+    color: #d9c6ce;
+    background: rgba(255,255,255,.05);
+    font: inherit;
+    font-size: .75rem;
+  }
+
+  .astro-city-field.is-picker-open .astro-city-search {
+    width: 100%;
+  }
+
+  .astro-city-field.is-picker-open .astro-city-search > input {
+    width: 100% !important;
+    min-height: 52px;
+  }
+
+  .astro-city-field.is-picker-open .astro-city-results {
+    position: static !important;
+    inset: auto !important;
+    display: block;
+    width: 100% !important;
+    max-width: 100% !important;
+    max-height: min(52dvh,430px);
+    margin: 10px 0 0;
+    overflow-y: auto;
+    border: 1px solid rgba(231,202,180,.12);
+    border-radius: 15px;
+    background: rgba(18,14,22,.36);
+    box-shadow: none;
+  }
+
+  .astro-city-field.is-picker-open .astro-city-results[hidden] {
+    display: none !important;
+  }
+
+  .astro-city-field.is-picker-open .astro-city-result {
+    min-height: 62px;
+    border-bottom: 1px solid rgba(255,255,255,.05);
+    background: transparent;
+  }
+
+  .astro-city-field.is-picker-open .astro-city-result:last-child {
+    border-bottom: 0;
+  }
+
+  .astro-city-field.is-picker-open .astro-city-selected {
+    margin-top: 10px;
+  }
+
+  .birth-lunar-grid {
+    grid-template-columns: minmax(0,1fr) minmax(0,1fr);
+  }
+}
+
+@media(max-width:430px) {
+  .birth-lunar-day-grid {
+    grid-template-columns: repeat(5,minmax(0,1fr));
+  }
+
+  .birth-lunar-day-btn {
+    min-height: 50px;
+  }
+}

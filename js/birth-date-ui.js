@@ -3,20 +3,20 @@
 
   const TEXT = {
     'zh-CN': {
-      solar:'阳历', lunar:'农历',
+      solar:'阳历', lunar:'阴历',
       year:'年份', month:'月份', day:'日期',
       converted:'换算阳历',
-      lunarPrefix:'农历', solarPrefix:'阳历',
+      lunarPrefix:'阴历', solarPrefix:'阳历',
       regularMonth:'普通{month}',
       leapMonth:'闰{month}',
       leapHint:'这一年有闰{month}，请选择普通月份或闰月份。',
       invalid:'这个农历日期不存在，请重新选择。'
     },
     'zh-TW': {
-      solar:'陽曆', lunar:'農曆',
+      solar:'陽曆', lunar:'陰曆',
       year:'年份', month:'月份', day:'日期',
       converted:'換算陽曆',
-      lunarPrefix:'農曆', solarPrefix:'陽曆',
+      lunarPrefix:'陰曆', solarPrefix:'陽曆',
       regularMonth:'普通{month}',
       leapMonth:'閏{month}',
       leapHint:'這一年有閏{month}，請選擇普通月份或閏月份。',
@@ -174,6 +174,60 @@
     populateDays(widget);
   }
 
+  function ensureDayGrid(widget) {
+    if (widget.dayGrid) return widget.dayGrid;
+
+    widget.day.hidden = true;
+    widget.day.setAttribute('aria-hidden','true');
+
+    const grid = document.createElement('div');
+    grid.className = 'birth-lunar-day-grid';
+    grid.dataset.lunarDayGrid = '';
+    widget.day.insertAdjacentElement('afterend', grid);
+    widget.dayGrid = grid;
+    return grid;
+  }
+
+  function renderDayGrid(widget, count, preferred='') {
+    const grid = ensureDayGrid(widget);
+    const selected = preferred || widget.day.value || '';
+
+    if (!count) {
+      grid.hidden = true;
+      grid.innerHTML = '';
+      return;
+    }
+
+    grid.hidden = false;
+    grid.innerHTML = Array.from({length:count}, (_,idx) => {
+      const day = idx + 1;
+      const active = String(day) === String(selected);
+      return `<button type="button"
+        class="birth-lunar-day-btn${active ? ' is-active' : ''}"
+        data-lunar-day-value="${day}"
+        aria-pressed="${active ? 'true' : 'false'}"
+        title="${dayLabel(day)}">
+        <span>${day}</span>
+        <small>${dayLabel(day)}</small>
+      </button>`;
+    }).join('');
+
+    grid.querySelectorAll('[data-lunar-day-value]').forEach(button => {
+      button.addEventListener('click', () => {
+        const value = button.dataset.lunarDayValue;
+        widget.day.value = value;
+
+        grid.querySelectorAll('[data-lunar-day-value]').forEach(other => {
+          const active = other.dataset.lunarDayValue === value;
+          other.classList.toggle('is-active',active);
+          other.setAttribute('aria-pressed',active?'true':'false');
+        });
+
+        updatePreview(widget);
+      });
+    });
+  }
+
   function populateDays(widget,preferred='') {
     const year = Number(widget.year.value);
     const month = Number(widget.month.value);
@@ -181,7 +235,10 @@
     widget.day.innerHTML = `<option value="">${t('day')}</option>`;
     clearPreview(widget);
 
-    if (!year || !month) return;
+    if (!year || !month) {
+      renderDayGrid(widget,0);
+      return;
+    }
 
     const leapMonth = window.XingchenLunar.leapMonth(year);
     if (widget.isLeap && leapMonth !== month) {
@@ -193,6 +250,7 @@
       : window.XingchenLunar.monthDays(year,month);
 
     if (!count) {
+      renderDayGrid(widget,0);
       showInvalid(widget);
       return;
     }
@@ -208,6 +266,7 @@
       widget.day.value = String(preferred);
     }
 
+    renderDayGrid(widget,count,preferred);
     updatePreview(widget);
   }
 
@@ -370,6 +429,7 @@
 
     widgets.set(id,widget);
     ensureLeapUI(widget);
+    ensureDayGrid(widget);
 
     el.querySelectorAll('[data-birth-mode]').forEach(btn => {
       btn.textContent = btn.dataset.birthMode==='lunar' ? t('lunar') : t('solar');

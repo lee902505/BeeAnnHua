@@ -191,6 +191,48 @@
     };
   }
 
+  function mobileCityPicker() {
+    return window.matchMedia?.('(max-width: 760px)').matches ?? false;
+  }
+
+  function cityFieldElement() {
+    return $('birthCity')?.closest('.astro-city-field');
+  }
+
+  function ensureCityPickerClose() {
+    const field = cityFieldElement();
+    if (!field || field.querySelector('[data-city-picker-close]')) return;
+
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'city-picker-close';
+    button.dataset.cityPickerClose = '';
+    button.textContent = lang() === 'en' ? 'Close' : (lang() === 'zh-TW' ? '關閉' : '关闭');
+    button.addEventListener('click', () => closeCityPicker(true));
+    field.insertBefore(button, field.querySelector('.astro-city-search'));
+  }
+
+  function openCityPicker() {
+    if (!mobileCityPicker()) return;
+    ensureCityPickerClose();
+    const field = cityFieldElement();
+    if (!field) return;
+    field.classList.add('is-picker-open');
+    document.body.classList.add('city-picker-active');
+  }
+
+  function closeCityPicker(hideResults=false) {
+    const field = cityFieldElement();
+    field?.classList.remove('is-picker-open');
+    document.body.classList.remove('city-picker-active');
+
+    if (hideResults) {
+      $('cityResults').hidden = true;
+      $('cityResults').innerHTML = '';
+    }
+    $('birthCity')?.blur();
+  }
+
   function renderCityResults(results) {
     const box = $('cityResults');
     if (!results.length) {
@@ -227,6 +269,7 @@
     $('citySelectedMeta').hidden = false;
     $('citySelectedMeta').textContent =
       `${city.lat.toFixed(4)}°, ${city.lon.toFixed(4)}° · ${city.timezone}`;
+    closeCityPicker(true);
   }
 
   async function searchCities(query) {
@@ -586,7 +629,8 @@
     }
 
     $('birthCity').addEventListener('focus', (event) => {
-      // Selecting all text makes switching from one chosen city to another a single typing action.
+      // Mobile uses a contained picker card so results no longer cover controls below.
+      if (mobileCityPicker()) openCityPicker();
       event.target.select();
       if (event.target.value.trim().length >= 2) scheduleCitySearch(event.target.value);
     });
@@ -612,6 +656,7 @@
     });
 
     $('birthCity').addEventListener('blur', () => {
+      if (mobileCityPicker() && cityFieldElement()?.classList.contains('is-picker-open')) return;
       setTimeout(() => { $('cityResults').hidden = true; }, 120);
     });
 
