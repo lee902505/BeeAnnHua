@@ -6338,3 +6338,88 @@ b {
     font-size: clamp(1.06rem, 4.15vw, 1.26rem) !important;
   }
 }
+
+/* =====================================================================
+   V0.10.5.4 · Quote alignment / contrast refinement
+   Desktop brand notes are truly anchored to the artwork top-right.
+   Mobile notes shift slightly farther right on 01/02/03/05, while the
+   bright 01/03 paintings receive stronger ink contrast without capsules.
+   ===================================================================== */
+
+/* Important: V0.10.5.0 temporarily made the quote position relative.
+   Restore absolute positioning so top/right values refer to the panel. */
+.home-panel .panel-quote {
+  position: absolute !important;
+  margin: 0 !important;
+}
+
+@media (min-width: 761px) {
+  .home-panel .panel-quote {
+    top: 38px !important;
+    right: 48px !important;
+    left: auto !important;
+    max-width: 295px !important;
+    width: max-content !important;
+    text-align: left !important;
+  }
+
+  /* Keep all five notes in the same upper-right visual zone. */
+  .panel-daily .panel-quote,
+  .panel-tarot .panel-quote,
+  .panel-astrology .panel-quote,
+  .panel-synastry .panel-quote,
+  .panel-farm .panel-quote {
+    top: 38px !important;
+    right: 48px !important;
+  }
+}
+
+/* Stronger ink on the two pale celestial paintings. No badge/background. */
+.panel-daily .panel-quote,
+.panel-astrology .panel-quote {
+  color: #14111b !important;
+  text-shadow:
+    0 0 1px rgba(255,255,255,1),
+    0 0 4px rgba(255,255,255,.96),
+    0 1px 8px rgba(255,255,255,.86),
+    0 2px 14px rgba(255,255,255,.64) !important;
+}
+
+@media (max-width: 760px) {
+  /* 01/02/03/05 move closer to the physical right edge as requested.
+     04 keeps its current placement because it already reads well. */
+  .panel-daily .panel-quote,
+  .panel-tarot .panel-quote,
+  .panel-astrology .panel-quote,
+  .panel-farm .panel-quote {
+    right: 5px !important;
+  }
+
+  .panel-synastry .panel-quote {
+    right: 13px !important;
+  }
+
+  /* Extra contrast specifically for 01 and 03 on small bright artwork. */
+  .panel-daily .panel-quote,
+  .panel-astrology .panel-quote {
+    color: #0f0c14 !important;
+    text-shadow:
+      0 0 1px rgba(255,255,255,1),
+      0 0 4px rgba(255,255,255,1),
+      0 1px 8px rgba(255,255,255,.96),
+      0 2px 13px rgba(255,255,255,.82) !important;
+  }
+}
+
+@media (max-width: 390px) {
+  .panel-daily .panel-quote,
+  .panel-tarot .panel-quote,
+  .panel-astrology .panel-quote,
+  .panel-farm .panel-quote {
+    right: 3px !important;
+  }
+
+  .panel-synastry .panel-quote {
+    right: 11px !important;
+  }
+}
