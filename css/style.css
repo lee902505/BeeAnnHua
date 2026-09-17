@@ -5563,3 +5563,285 @@ b {
     font-size: .96rem !important;
   }
 }
+
+/* =====================================================================
+   V0.10.5.0 · Home visual world integration
+   Approved 01–05 artwork is used as real section backgrounds.
+   ===================================================================== */
+
+.home-main {
+  display: grid;
+  gap: 10px;
+}
+
+.site-header {
+  border-radius: var(--radius);
+  margin-bottom: 10px;
+}
+
+.home-panel,
+.home-panel + .home-panel {
+  min-height: 410px;
+  border-radius: var(--radius);
+  border: 1px solid rgba(255,255,255,.46);
+  background-color: #6e6b9b;
+  background-repeat: no-repeat;
+  background-size: cover;
+  box-shadow: 0 18px 44px rgba(36,31,54,.20);
+}
+
+/* Artwork-specific focal positions */
+.panel-daily {
+  color: #332d46;
+  background-image: url("../images/home/01-daily-fortune.webp");
+  background-position: 50% 50%;
+}
+.panel-tarot {
+  color: #fff8f1;
+  background-image: url("../images/home/02-tarot.webp");
+  background-position: 50% 50%;
+}
+.panel-astrology {
+  color: #302c50;
+  background-image: url("../images/home/03-natal-chart.webp");
+  background-position: 50% 50%;
+}
+.panel-synastry {
+  color: #fff9f4;
+  background-image: url("../images/home/04-synastry.webp");
+  background-position: 50% 50%;
+}
+.panel-farm {
+  color: #395039;
+  background-image: url("../images/home/05-stellar-farm.webp");
+  background-position: 50% 50%;
+}
+
+/* The original placeholders are no longer needed on the image-led home. */
+.home-main .visual-placeholder { display: none !important; }
+
+/* Readability overlays: deliberately light so the artwork remains visible. */
+.home-panel::before {
+  z-index: 0;
+  background: linear-gradient(90deg,
+    rgba(255,248,249,.92) 0%,
+    rgba(255,246,249,.78) 25%,
+    rgba(255,246,249,.38) 40%,
+    rgba(255,246,249,0) 59%);
+}
+.home-panel::after {
+  z-index: 0;
+  opacity: 1;
+  background:
+    linear-gradient(180deg, rgba(16,19,47,.04), transparent 25%, transparent 74%, rgba(23,22,48,.08)),
+    radial-gradient(circle at 76% 22%, rgba(255,255,255,.18) 0 1px, transparent 2px) 0 0/46px 46px;
+}
+.panel-tarot::before {
+  background: linear-gradient(90deg,
+    rgba(16,13,28,.92) 0%,
+    rgba(20,15,32,.76) 28%,
+    rgba(20,15,32,.34) 44%,
+    rgba(20,15,32,0) 61%);
+}
+.panel-synastry::before {
+  background: linear-gradient(90deg,
+    rgba(31,24,67,.86) 0%,
+    rgba(42,30,78,.68) 27%,
+    rgba(48,31,86,.30) 43%,
+    rgba(48,31,86,0) 61%);
+}
+.panel-farm::before {
+  background: linear-gradient(90deg,
+    rgba(255,251,238,.94) 0%,
+    rgba(255,248,230,.80) 26%,
+    rgba(255,248,230,.36) 42%,
+    rgba(255,248,230,0) 60%);
+}
+
+.home-panel .panel-content,
+.home-panel .panel-quote {
+  position: relative;
+  z-index: 2;
+}
+
+.home-panel .panel-content {
+  max-width: 430px;
+  padding: 18px 20px 18px 0;
+}
+
+.home-panel h1,
+.home-panel h2,
+.home-panel .panel-number,
+.home-panel .panel-en,
+.home-panel .panel-desc {
+  text-shadow: 0 1px 0 rgba(255,255,255,.20), 0 2px 16px rgba(255,255,255,.10);
+}
+.panel-tarot h2,
+.panel-tarot .panel-number,
+.panel-tarot .panel-en,
+.panel-tarot .panel-desc,
+.panel-synastry h2,
+.panel-synastry .panel-number,
+.panel-synastry .panel-en,
+.panel-synastry .panel-desc {
+  text-shadow: 0 2px 18px rgba(11,8,26,.62);
+}
+
+.home-panel .panel-number {
+  opacity: .78;
+}
+.home-panel .panel-en {
+  opacity: .78;
+}
+
+.home-panel .panel-quote {
+  padding: 8px 12px;
+  border-radius: 16px;
+  text-shadow: 0 2px 16px rgba(33,27,53,.24);
+}
+.panel-tarot .panel-quote,
+.panel-synastry .panel-quote {
+  color: #fff8f1;
+  text-shadow: 0 2px 15px rgba(10,7,24,.72);
+}
+.panel-farm .panel-quote {
+  color: #43513b;
+}
+
+.home-panel .primary-btn {
+  border-color: rgba(255,255,255,.88);
+  box-shadow:
+    0 12px 28px rgba(53,43,69,.17),
+    inset 0 0 0 1px rgba(221,185,139,.18);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+.panel-tarot .primary-btn,
+.panel-synastry .primary-btn {
+  color: #372d42;
+  background: rgba(255,241,232,.94);
+}
+
+.site-footer {
+  margin-top: 10px;
+  border-radius: var(--radius);
+  background:
+    radial-gradient(circle at 50% 0%, rgba(226,207,255,.30), transparent 54%),
+    rgba(255,247,241,.97);
+}
+
+/* Mobile: use the artwork as an atmospheric upper half, then fade toward
+   a readable text zone instead of forcing the desktop left-column layout. */
+@media (max-width: 760px) {
+  .home-main { gap: 0; }
+  .site-header { margin-bottom: 0; border-radius: 0; }
+  .site-footer { margin-top: 0; border-radius: 0; }
+
+  .home-panel,
+  .home-panel + .home-panel {
+    min-height: 620px;
+    display: flex;
+    align-items: flex-end;
+    padding: 320px 26px 38px !important;
+    border-left: 0;
+    border-right: 0;
+    border-radius: 0;
+    background-size: auto 100%;
+  }
+
+  .panel-daily { background-position: 63% center; }
+  .panel-tarot { background-position: 70% center; }
+  .panel-astrology { background-position: 64% center; }
+  .panel-synastry { background-position: 63% center; }
+  .panel-farm { background-position: 67% center; }
+
+  .home-panel::before {
+    background: linear-gradient(180deg,
+      rgba(250,244,252,0) 0%,
+      rgba(250,244,252,.05) 35%,
+      rgba(250,244,252,.72) 59%,
+      rgba(253,247,249,.96) 79%,
+      rgba(253,247,249,.99) 100%);
+  }
+  .panel-tarot::before {
+    background: linear-gradient(180deg,
+      rgba(16,13,27,.02) 0%,
+      rgba(16,13,27,.08) 36%,
+      rgba(17,13,28,.76) 61%,
+      rgba(18,14,29,.96) 81%,
+      rgba(18,14,29,.99) 100%);
+  }
+  .panel-synastry::before {
+    background: linear-gradient(180deg,
+      rgba(34,25,70,.02) 0%,
+      rgba(34,25,70,.08) 36%,
+      rgba(38,28,75,.75) 60%,
+      rgba(42,31,79,.95) 80%,
+      rgba(42,31,79,.99) 100%);
+  }
+  .panel-farm::before {
+    background: linear-gradient(180deg,
+      rgba(255,251,239,0) 0%,
+      rgba(255,251,239,.04) 36%,
+      rgba(255,249,236,.70) 59%,
+      rgba(255,249,236,.96) 80%,
+      rgba(255,249,236,.99) 100%);
+  }
+
+  .home-panel::after {
+    background: linear-gradient(180deg, rgba(25,23,55,.08), transparent 30%, transparent 78%, rgba(25,23,55,.04));
+  }
+
+  .home-panel .panel-content {
+    width: 100%;
+    max-width: 520px;
+    padding: 0;
+  }
+
+  .home-panel .panel-quote {
+    top: 22px !important;
+    right: 20px !important;
+    max-width: 230px !important;
+    padding: 8px 11px;
+    background: rgba(255,248,249,.44);
+    border: 1px solid rgba(255,255,255,.28);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+  .panel-tarot .panel-quote,
+  .panel-synastry .panel-quote {
+    background: rgba(21,16,35,.38);
+    border-color: rgba(255,231,199,.16);
+  }
+  .panel-farm .panel-quote {
+    background: rgba(255,251,239,.48);
+  }
+
+  .home-panel .panel-number {
+    margin-bottom: 4px;
+  }
+  .home-panel .panel-en {
+    margin: 8px 0 13px !important;
+  }
+  .home-panel .panel-desc {
+    max-width: 24em;
+  }
+}
+
+@media (max-width: 390px) {
+  .home-panel,
+  .home-panel + .home-panel {
+    min-height: 595px;
+    padding: 305px 22px 34px !important;
+  }
+  .panel-daily { background-position: 64% center; }
+  .panel-tarot { background-position: 71% center; }
+  .panel-astrology { background-position: 65% center; }
+  .panel-synastry { background-position: 64% center; }
+  .panel-farm { background-position: 69% center; }
+  .home-panel .panel-quote {
+    right: 16px !important;
+    max-width: 195px !important;
+    font-size: .92rem !important;
+  }
+}
