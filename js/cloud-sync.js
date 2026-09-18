@@ -1,6 +1,8 @@
 (() => {
-  const VERSION = '0.10.7.8';
+  const VERSION = '0.10.7.9';
   const META_KEY = 'stellar-diary-cloud-sync-meta-v1';
+  const RESTORE_PENDING_KEY = 'stellar-diary-account-restore-pending-v1';
+  const PROFILE_KEY = 'xingchen-player-profile-v1';
   const KEYS = Object.freeze({
     natal: 'xingchen-report-payload-natal-v1',
     synastry: 'xingchen-report-payload-synastry-v1',
@@ -28,6 +30,20 @@
 
   function signedIn() {
     return Boolean(authUser()?.id);
+  }
+
+  function readRestorePending() {
+    try { return JSON.parse(localStorage.getItem(RESTORE_PENDING_KEY) || 'null'); }
+    catch (_) { return null; }
+  }
+
+  function restoreGuardActive() {
+    const pending = readRestorePending();
+    const user = authUser();
+    return Boolean(
+      pending && pending.mode === 'existing-login' && !pending.choice && pending.fromUserId &&
+      user?.id && pending.fromUserId !== user.id
+    );
   }
 
   function locale() {
@@ -469,6 +485,9 @@
       if (!signedIn()) {
         return setState('waiting-auth','尚未建立云端身份。');
       }
+      if (restoreGuardActive() && !/^restore-(merge|cloud)/.test(reason)) {
+        return setState('restore-choice','等待选择如何处理这台设备的游客资料。');
+      }
       if (typeof navigator !== 'undefined' && navigator.onLine === false) {
         return setState('offline','目前离线；本机资料已保留，恢复网络后会自动重试。');
       }
@@ -499,6 +518,7 @@
 
   async function syncType(type,reason='record-change') {
     if (!signedIn() || applyingRemote) return {ok:false,skipped:'not-ready'};
+    if (restoreGuardActive()) return {ok:false,skipped:'restore-choice'};
     const map = {profile:syncProfile,natal:syncNatal,synastry:syncSynastry,fortune:syncFortune,tarot:syncTarot};
     const fn = map[type];
     if (!fn) return {ok:false,skipped:'unknown-type'};
@@ -545,7 +565,8 @@
   function bindEvents() {
     window.addEventListener('stellar:auth-state', event => {
       if (event.detail?.signedIn) {
-        setTimeout(() => syncAll('auth-ready'),250);
+        if (restoreGuardActive()) setState('restore-choice','等待选择如何处理这台设备的游客资料。');
+        else setTimeout(() => syncAll('auth-ready'),250);
       } else if (event.detail?.phase === 'signed-out') {
         setState('waiting-auth','');
       }
@@ -573,15 +594,137 @@
     loadMeta();
     bindEvents();
     const auth = window.XingchenAuth?.status?.() || {};
-    if (auth.signedIn) setTimeout(() => syncAll('startup'),180);
-    else setState(auth.phase === 'local-only' ? 'local-only' : 'waiting-auth','');
+    if (auth.signedIn) {
+      if (restoreGuardActive()) setState('restore-choice','等待选择如何处理这台设备的游客资料。');
+      else setTimeout(() => syncAll('startup'),180);
+    } else setState(auth.phase === 'local-only' ? 'local-only' : 'waiting-auth','');
     return snapshot();
+  }
+
+
+  async function restoreFromCloud(reason='restore-cloud') {
+    const ready = requireReady();
+    if (!ready) return setState('waiting-auth','尚未建立云端身份。');
+    if (typeof navigator !== 'undefined' && navigator.onLine === false) {
+      return setState('offline','目前离线；请联网后再恢复云端资料。');
+    }
+    const {client,user} = ready;
+    setState('syncing','');
+    const errors = [];
+    const result = {};
+    applyingRemote = true;
+    try {
+      // Profile: cloud is authoritative during an explicit restore.
+      try {
+        const {data,error} = await client.from('profiles')
+          .select('display_name,sex,locale,timezone')
+          .eq('id',user.id)
+          .maybeSingle();
+        if (error) throw error;
+        if (data?.display_name && ['male','female'].includes(data.sex)) {
+          writeJson(PROFILE_KEY,{name:data.display_name,gender:data.sex});
+          try { if (data.locale) localStorage.setItem('xingchen-language',data.locale); } catch (_) {}
+          result.profile = {count:1}; counts.profile = 1;
+        } else { result.profile = {count:0}; counts.profile = 0; }
+      } catch (error) { errors.push({name:'profile',message:String(error?.message||error)}); }
+
+      // Natal charts: replace local report cache with remote rows.
+      try {
+        const {data,error} = await client.from('natal_charts')
+          .select('id,title,person_name,calendar_mode,birth_date,birth_time,birth_time_unknown,birth_timezone,birth_place_label,latitude,longitude,input_snapshot,chart_payload,fingerprint,schema_version,engine_version,calculated_at,created_at,updated_at')
+          .eq('user_id',user.id)
+          .order('calculated_at',{ascending:false})
+          .limit(30);
+        if (error) throw error;
+        writeJson(KEYS.natal,[]);
+        [...(data||[])].reverse().forEach(row => {
+          const payload = natalPayload(row);
+          if (payload.meta?.fingerprint && payload.chart) saveReportPayload('natal',payload);
+        });
+        result.natal={count:(data||[]).length}; counts.natal=(data||[]).length;
+        emit('stellar:cloud-data-updated',{type:'natal',count:counts.natal});
+      } catch (error) { errors.push({name:'natal',message:String(error?.message||error)}); }
+
+      // Synastry: replace local report cache with remote rows.
+      try {
+        const {data,error} = await client.from('synastry_reports')
+          .select('id,title,relationship_type,person_a,person_b,comparison_payload,scores,fingerprint,schema_version,engine_version,calculated_at,created_at,updated_at')
+          .eq('user_id',user.id)
+          .order('calculated_at',{ascending:false})
+          .limit(30);
+        if (error) throw error;
+        writeJson(KEYS.synastry,[]);
+        [...(data||[])].reverse().forEach(row => {
+          const payload = synastryPayload(row);
+          if (payload.meta?.fingerprint && payload.people?.A && payload.people?.B) saveReportPayload('synastry',payload);
+        });
+        result.synastry={count:(data||[]).length}; counts.synastry=(data||[]).length;
+        emit('stellar:cloud-data-updated',{type:'synastry',count:counts.synastry});
+      } catch (error) { errors.push({name:'synastry',message:String(error?.message||error)}); }
+
+      // Daily fortunes: cloud copy replaces guest-local history for restore mode.
+      try {
+        const {data,error} = await client.from('fortune_history')
+          .select('fortune_date,fortune_id,fortune_snapshot,drawn_at')
+          .eq('user_id',user.id)
+          .order('fortune_date',{ascending:false})
+          .limit(60);
+        if (error) throw error;
+        const map={};
+        (data||[]).forEach(row => {
+          if (!row?.fortune_date) return;
+          const record = row.fortune_snapshot && typeof row.fortune_snapshot==='object'
+            ? {...row.fortune_snapshot}
+            : {id:row.fortune_id};
+          if (!record.drawnAt) record.drawnAt = row.drawn_at || new Date().toISOString();
+          map[row.fortune_date]=record;
+        });
+        writeJson(KEYS.fortune,map);
+        result.fortune={count:(data||[]).length}; counts.fortune=(data||[]).length;
+        emit('stellar:cloud-data-updated',{type:'fortune',count:counts.fortune});
+      } catch (error) { errors.push({name:'fortune',message:String(error?.message||error)}); }
+
+      // Tarot history: cloud copy replaces guest-local history for restore mode.
+      try {
+        const {data,error} = await client.from('tarot_history')
+          .select('reading_snapshot,fingerprint,reading_at,created_at')
+          .eq('user_id',user.id)
+          .order('reading_at',{ascending:false})
+          .limit(50);
+        if (error) throw error;
+        const next=(data||[])
+          .map(row => row.reading_snapshot)
+          .filter(v => v && typeof v==='object')
+          .sort((a,b)=>(dateTime(b.createdAt)||0)-(dateTime(a.createdAt)||0))
+          .slice(0,10);
+        writeJson(KEYS.tarot,next);
+        result.tarot={count:next.length}; counts.tarot=next.length;
+        emit('stellar:cloud-data-updated',{type:'tarot',count:counts.tarot});
+      } catch (error) { errors.push({name:'tarot',message:String(error?.message||error)}); }
+    } finally {
+      applyingRemote = false;
+    }
+
+    lastSyncAt = new Date().toISOString();
+    lastReason = reason;
+    saveMeta();
+    if (errors.length) {
+      phase='partial';
+      lastError=errors.map(e=>`${e.name}: ${e.message}`).join(' | ');
+    } else {
+      phase='ready';
+      lastError='';
+    }
+    emit();
+    emit('stellar:cloud-sync-complete',{...snapshot(),result,errors});
+    return {...snapshot(),result,errors};
   }
 
   window.XingchenCloudSync = Object.freeze({
     init,
     syncAll,
     syncType,
+    restoreFromCloud,
     clearTarotCloud,
     status:snapshot,
     isApplyingRemote:() => applyingRemote

@@ -47,6 +47,15 @@
     }
   }
 
+
+  function restoreGuardActive(user = currentUser) {
+    try {
+      const pending = JSON.parse(localStorage.getItem('stellar-diary-account-restore-pending-v1') || 'null');
+      if (!pending || pending.mode !== 'existing-login' || pending.choice || !pending.fromUserId || !user?.id) return false;
+      return pending.fromUserId !== user.id;
+    } catch (_) { return false; }
+  }
+
   function isAnonymousUser(user) {
     if (!user) return false;
     if (user.is_anonymous === true) return true;
@@ -105,6 +114,10 @@
     const instance = client();
     if (!instance || !currentUser?.id) {
       return {ok: false, skipped: 'not-signed-in', error: new Error('尚未建立云端身份。')};
+    }
+
+    if (restoreGuardActive(currentUser)) {
+      return {ok:true, skipped:'restore-pending'};
     }
 
     const local = readLocalProfile();

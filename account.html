@@ -82,6 +82,13 @@
     .bind-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}.pending{margin-top:15px;padding:13px 15px;border:1px dashed rgba(232,201,143,.34);border-radius:15px;background:rgba(245,228,210,.035);color:#d6c9db}.pending small{display:block;margin-top:6px;color:#a99bb5;line-height:1.65}
     .otp-row{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:end;margin-top:4px}.otp-row .primary-btn{min-height:50px;margin-bottom:0}
 
+
+    .verify-choice{margin-top:17px;padding:16px;border-radius:19px;border:1px solid rgba(232,201,143,.25);background:rgba(255,255,255,.025)}
+    .verify-choice[hidden]{display:none!important}.verify-title{margin:0 0 11px;color:#f6e8d1;font-size:15px}.verify-methods{display:grid;grid-template-columns:1fr 38px 1fr;gap:10px;align-items:stretch}.verify-method{padding:15px;border:1px solid rgba(232,201,143,.18);border-radius:16px;background:rgba(11,8,20,.48)}.verify-method h3{margin:0 0 7px;font-size:14px;color:#fff8ee}.verify-method p{margin:0 0 12px;color:#a99bb5;font-size:12px;line-height:1.65}.verify-icon{display:inline-grid;place-items:center;width:31px;height:31px;border-radius:50%;margin-bottom:10px;background:rgba(232,201,143,.12);color:#e8c98f}.verify-or{align-self:center;text-align:center;color:#8f819a;font-size:12px;position:relative}.verify-or:before,.verify-or:after{content:"";position:absolute;left:50%;width:1px;height:35%;background:rgba(232,201,143,.16)}.verify-or:before{bottom:58%}.verify-or:after{top:58%}
+    .mail-check-btn{width:100%;justify-content:center}.otp-boxes{display:flex;gap:6px;justify-content:space-between;margin:10px 0 12px}.otp-box{width:42px;height:49px;border-radius:12px;border:1px solid rgba(232,201,143,.28);background:#0f0b18;color:#fff;text-align:center;font:700 20px/1 inherit;outline:none}.otp-box:focus{border-color:rgba(232,201,143,.78);box-shadow:0 0 0 3px rgba(232,201,143,.08)}
+    .login-panel{margin-top:16px;padding:20px;border-radius:21px;border:1px solid rgba(232,201,143,.29);background:rgba(15,11,25,.72)}.login-panel[hidden]{display:none!important}
+    .restore-panel{margin-top:16px;padding:22px;border-radius:22px;border:1px solid rgba(232,201,143,.34);background:linear-gradient(145deg,rgba(78,58,116,.42),rgba(15,11,25,.83))}.restore-panel[hidden]{display:none!important}.restore-panel h2{margin:0 0 8px;font-size:19px}.restore-panel p{margin:0;color:#c9bed2;line-height:1.75;font-size:13px}.restore-counts{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:15px 0}.restore-count{padding:10px;border-radius:13px;background:rgba(255,255,255,.045);border:1px solid rgba(232,201,143,.12);text-align:center}.restore-count b{display:block;font-size:20px;color:#fff8ef}.restore-count span{font-size:11px;color:#a99bb5}.restore-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:15px}.restore-actions button{flex:1 1 220px}
+
     .account-message{margin:16px 0 0;padding:14px 16px;border-radius:15px;line-height:1.65;background:rgba(255,255,255,.045)}
     .account-message.ok{border:1px solid rgba(143,212,175,.4);color:#dbf5e8}.account-message.bad{border:1px solid rgba(239,157,174,.45);color:#ffdce4}
 
@@ -89,7 +96,7 @@
     .footer-actions{display:flex;justify-content:center;margin-top:18px}.back-btn{display:inline-flex;text-decoration:none}
 
     @media(max-width:720px){.content-grid{grid-template-columns:1fr}.data-grid{grid-template-columns:repeat(2,1fr)}.member-card{padding:23px}.member-card:after{font-size:58px;right:31px}.member-name{font-size:27px}}
-    @media(max-width:480px){.page{width:min(100% - 18px,860px)}.topbar{margin-bottom:23px}.brand{font-size:18px}h1{font-size:36px}.lead{font-size:14px}.member-card{border-radius:24px}.panel{padding:18px;border-radius:20px}.action-row{padding:14px}.sync-overview{align-items:flex-start;flex-direction:column}.sync-btn{width:100%}.otp-row{grid-template-columns:1fr}.otp-row .primary-btn{width:100%}.tech-row{grid-template-columns:1fr;gap:5px}.data-tile{min-height:94px}.member-card:after{opacity:.7}}
+    @media(max-width:480px){.page{width:min(100% - 18px,860px)}.topbar{margin-bottom:23px}.brand{font-size:18px}h1{font-size:36px}.lead{font-size:14px}.member-card{border-radius:24px}.panel{padding:18px;border-radius:20px}.action-row{padding:14px}.sync-overview{align-items:flex-start;flex-direction:column}.sync-btn{width:100%}.otp-row{grid-template-columns:1fr}.otp-row .primary-btn{width:100%}.verify-methods{grid-template-columns:1fr}.verify-or{padding:4px 0}.verify-or:before,.verify-or:after{display:none}.otp-box{width:calc((100% - 25px)/6);max-width:46px}.restore-counts{grid-template-columns:repeat(2,1fr)}.tech-row{grid-template-columns:1fr;gap:5px}.data-tile{min-height:94px}.member-card:after{opacity:.7}}
   </style>
 </head>
 <body>
@@ -99,7 +106,7 @@
       <a class="home-link" href="index.html" id="topHome">返回首页</a>
     </div>
 
-    <div class="eyebrow" id="eyebrow">V0.10.7.8 · CLOUD ACCOUNT CENTER</div>
+    <div class="eyebrow" id="eyebrow">V0.10.7.9 · CLOUD ACCOUNT CENTER</div>
     <h1 id="title">云端账号</h1>
     <p class="lead" id="lead"></p>
 
@@ -119,10 +126,10 @@
             <span><strong id="emailActionTitle"></strong><small id="emailActionDesc"></small></span>
             <span class="action-arrow">›</span>
           </button>
-          <div class="action-row upcoming" aria-disabled="true">
+          <button class="action-row" id="loginAction" type="button">
             <span><strong id="restoreTitle"></strong><small id="restoreDesc"></small></span>
-            <span class="soon" id="restoreSoon"></span>
-          </div>
+            <span class="action-arrow">›</span>
+          </button>
         </div>
       </section>
 
@@ -159,9 +166,67 @@
         <button id="resendBtn" type="button" class="secondary-btn"></button>
       </div>
       <div class="pending" id="pendingRow" hidden><strong><span id="pendingTitle"></span>：<span id="pendingValue">—</span></strong><small id="pendingHint"></small></div>
-      <div class="otp-row">
-        <label class="field"><span id="otpLabel"></span><input id="otpInput" type="text" inputmode="numeric" maxlength="6" autocomplete="one-time-code" /></label>
-        <button id="verifyBtn" type="button" class="primary-btn"></button>
+      <section class="verify-choice" id="bindVerifyChoice" hidden>
+        <h3 class="verify-title" id="bindVerifyTitle"></h3>
+        <div class="verify-methods">
+          <div class="verify-method">
+            <span class="verify-icon">✉</span>
+            <h3 id="bindMailTitle"></h3><p id="bindMailDesc"></p>
+            <button id="bindCheckLinkBtn" type="button" class="secondary-btn mail-check-btn"></button>
+          </div>
+          <div class="verify-or" id="bindOr"></div>
+          <div class="verify-method">
+            <span class="verify-icon">#</span>
+            <h3 id="bindOtpTitle"></h3><p id="bindOtpDesc"></p>
+            <div class="otp-boxes" id="bindOtpBoxes" aria-label="OTP"></div>
+            <button id="verifyBtn" type="button" class="primary-btn mail-check-btn"></button>
+          </div>
+        </div>
+      </section>
+    </section>
+
+    <section class="login-panel" id="loginPanel" hidden>
+      <div class="bind-head">
+        <div><h2 id="loginTitle"></h2><p id="loginSupport"></p></div>
+        <button class="close-bind" id="closeLogin" type="button" aria-label="Close">×</button>
+      </div>
+      <label class="field"><span id="loginEmailLabel"></span><input id="loginEmailInput" type="email" inputmode="email" autocomplete="email" /></label>
+      <div class="bind-actions">
+        <button id="loginSendBtn" type="button" class="primary-btn"></button>
+        <button id="loginResendBtn" type="button" class="secondary-btn"></button>
+      </div>
+      <div class="pending" id="loginPendingRow" hidden><strong><span id="loginPendingTitle"></span>：<span id="loginPendingValue">—</span></strong><small id="loginPendingHint"></small></div>
+      <section class="verify-choice" id="loginVerifyChoice" hidden>
+        <h3 class="verify-title" id="loginVerifyTitle"></h3>
+        <div class="verify-methods">
+          <div class="verify-method">
+            <span class="verify-icon">✉</span>
+            <h3 id="loginMailTitle"></h3><p id="loginMailDesc"></p>
+            <button id="loginCheckLinkBtn" type="button" class="secondary-btn mail-check-btn"></button>
+          </div>
+          <div class="verify-or" id="loginOr"></div>
+          <div class="verify-method">
+            <span class="verify-icon">#</span>
+            <h3 id="loginOtpTitle"></h3><p id="loginOtpDesc"></p>
+            <div class="otp-boxes" id="loginOtpBoxes" aria-label="OTP"></div>
+            <button id="loginVerifyBtn" type="button" class="primary-btn mail-check-btn"></button>
+          </div>
+        </div>
+      </section>
+    </section>
+
+    <section class="restore-panel" id="restorePanel" hidden>
+      <h2 id="restoreChoiceTitle"></h2>
+      <p id="restoreChoiceDesc"></p>
+      <div class="restore-counts">
+        <div class="restore-count"><b id="restoreFortune">0</b><span id="restoreFortuneLabel"></span></div>
+        <div class="restore-count"><b id="restoreTarot">0</b><span id="restoreTarotLabel"></span></div>
+        <div class="restore-count"><b id="restoreNatal">0</b><span id="restoreNatalLabel"></span></div>
+        <div class="restore-count"><b id="restoreSynastry">0</b><span id="restoreSynastryLabel"></span></div>
+      </div>
+      <div class="restore-actions">
+        <button id="restoreCloudBtn" type="button" class="primary-btn"></button>
+        <button id="restoreMergeBtn" type="button" class="secondary-btn"></button>
       </div>
     </section>
 
@@ -181,12 +246,13 @@
   </main>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="js/supabase-public-config.js?v=0.10.7.8"></script>
-  <script src="js/supabase-config.js?v=0.10.7.8"></script>
-  <script src="js/supabase-client.js?v=0.10.7.8"></script>
-  <script src="js/supabase-auth.js?v=0.10.7.8"></script>
-  <script src="js/cloud-sync.js?v=0.10.7.8"></script>
-  <script src="js/account-binding.js?v=0.10.7.8"></script>
-  <script src="js/account-page.js?v=0.10.7.8"></script>
+  <script src="js/supabase-public-config.js?v=0.10.7.9"></script>
+  <script src="js/supabase-config.js?v=0.10.7.9"></script>
+  <script src="js/supabase-client.js?v=0.10.7.9"></script>
+  <script src="js/supabase-auth.js?v=0.10.7.9"></script>
+  <script src="js/account-binding.js?v=0.10.7.9"></script>
+  <script src="js/account-login.js?v=0.10.7.9"></script>
+  <script src="js/cloud-sync.js?v=0.10.7.9"></script>
+  <script src="js/account-page.js?v=0.10.7.9"></script>
 </body>
 </html>

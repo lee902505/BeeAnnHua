@@ -5,8 +5,7 @@
 // - NEVER put `sb_secret_...`, service_role, database passwords, Gmail app
 //   passwords, Bark secrets, or any other server-side secret in this file.
 //
-// Before production deployment, replace the placeholder below with the full
-// Publishable Key from Supabase → Connect / API Keys.
+// Public browser configuration is enabled for production deployment.
 window.STELLAR_DIARY_SUPABASE_CONFIG = {
   projectUrl: 'https://zbiiasduaypykhwvuxye.supabase.co',
   publishableKey: 'sb_publishable_nKj9QPPKTVfsBsSoSwHVVw_yC_8i6Tu',

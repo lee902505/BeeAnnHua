@@ -1,4 +1,4 @@
-# V0.10.7.8 — Public Supabase Connection
+# V0.10.7.9 — Public Supabase Connection
 
 Goal: every new phone/browser should automatically connect to Stellar Diary's
 Supabase project without visiting `supabase-test.html` to paste a Publishable Key.
@@ -11,9 +11,9 @@ Edit only:
 
 Replace:
 
-`__PASTE_FULL_SB_PUBLISHABLE_KEY_HERE__`
+`js/supabase-public-config.js` now contains the project Publishable Key
 
-with the complete `sb_publishable_...` key from Supabase Dashboard → Connect.
+using the public browser key from Supabase Dashboard → Connect. It is already configured in this build.
 
 A Supabase Publishable Key is designed for browser/mobile public clients. It is
 not a secret. Data access is protected by Supabase Auth + RLS.

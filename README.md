@@ -1,6 +1,26 @@
-# 星辰日记 / Stellar Diary — V0.10.7.8
+# 星辰日记 / Stellar Diary — V0.10.7.9
 
-## V0.10.7.8 — Public Supabase Connection
+## Existing Account Login & Dual Verification
+
+- 云端账号中心新增「已有账号？登录 / 恢复」：新手机／新浏览器先以游客身份进入，再用之前绑定的 Email 登录原本正式会员账号。
+- 登录邮件使用 Supabase passwordless `signInWithOtp(... shouldCreateUser:false)`，不会因为输错邮箱而自动建立新正式账号。
+- 绑定／更换邮箱与既有账号登录均提供两条明显路径：**点击邮件按钮** 或 **输入 6 位验证码**。
+- OTP 输入改成 6 格手机友善输入，支持自动跳格、退格与整串验证码贴上。
+- 新设备登录成功后，在用户选择资料处理方式前暂停自动 Cloud Sync，避免游客资料静默写入原正式会员账号。
+- 登录原账号后提供两种恢复策略：
+  - **使用原账号云端资料（推荐）**：以原账号云端资料恢复当前设备。
+  - **合并这台设备的游客资料**：明确选择后才把游客资料与原账号合并。
+- `supabase-auth.js` 与 `cloud-sync.js` 新增 restore guard；原本匿名身份、RLS、local-first 与正式会员 UUID 逻辑保留。
+- 新增 `docs/EMAIL_DUAL_VERIFICATION.md`：记录 Change Email 与 Magic Link 两份「验证按钮 + OTP」品牌邮件模板。
+- 新增 `docs/EXISTING_ACCOUNT_LOGIN.md`：记录跨设备登录／恢复流程。
+
+> 重要：要让邮件真的显示验证码，Supabase Dashboard 的 **Change email address** 与 **Magic Link** 模板都必须包含 `{{ .Token }}`；按钮则保留 `{{ .ConfirmationURL }}`。
+
+---
+
+# 星辰日记 / Stellar Diary — V0.10.7.9
+
+## V0.10.7.9 — Public Supabase Connection
 
 - Added `js/supabase-public-config.js` as the single public browser config source.
 - All pages now load the public Supabase config before `supabase-config.js`.
@@ -10,13 +30,13 @@
 - Account Center, Anonymous Auth, Cloud Sync, RLS and local-first behavior are unchanged.
 - See `docs/PUBLIC_SUPABASE_CONNECTION.md`.
 
-> Final production activation requires replacing `__PASTE_FULL_SB_PUBLISHABLE_KEY_HERE__` in `js/supabase-public-config.js` with the project's full Publishable Key.
+> Public Supabase browser configuration is enabled in `js/supabase-public-config.js`; no manual key entry is required on new devices.
 
 ---
 
-# 星辰日记 / Stellar Diary — V0.10.7.8
+# 星辰日记 / Stellar Diary — V0.10.7.9
 
-## V0.10.7.8 — Cloud Account Center Visual Upgrade
+## V0.10.7.9 — Cloud Account Center Visual Upgrade
 
 - `account.html` 从工程式绑定页升级为正式玩家可见的「云端账号中心」。
 - 第一屏改为星辰会员卡：优先显示游客／正式会员、玩家名称、性别、绑定邮箱与云端同步状态。
@@ -30,9 +50,9 @@
 
 ---
 
-# 星辰日记 / Stellar Diary — V0.10.7.8
+# 星辰日记 / Stellar Diary — V0.10.7.9
 
-## V0.10.7.8 — Membership Status + Profile Entry Polish
+## V0.10.7.9 — Membership Status + Profile Entry Polish
 
 - 首页与核心功能页右上玩家名称前新增账号身份：匿名云端身份显示 **游客：**，邮箱已绑定账号显示 **正式会员：**；繁体与英文同步提供对应文案。
 - 玩家名称从单纯文字改成明显可点击的精品胶囊控件：名称保留性别色、增加细点线、`查看资料` 提示与箭头，手机端自动压缩为箭头提示。
