@@ -1,4 +1,4 @@
-# V0.10.7.11 — Cross-device Login & Restore
+# V0.10.7.13 — Cross-device Login & Restore
 
 ## User flow
 

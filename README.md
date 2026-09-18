@@ -1,4 +1,12 @@
-# 星辰日记 / Stellar Diary — V0.10.7.11
+# V0.10.7.13 — Mobile Player Badge Continuity Hotfix
+
+- 修正登出／切換帳號後，手機首頁右上玩家入口完全消失的問題。
+- 新遊客即使尚未設定名稱，也會顯示「游客：设置资料 ›」，可直接點入設定。
+- 正式會員在跨裝置恢復資料時，若本機 profile 尚在下載，會暫時顯示「正式会员：读取资料 ›」。
+- 雲端 profile 還原完成後立即重新渲染 Header，不需要重新整理頁面。
+- 原本會員名稱、性別圖示、雲端同步、OTP、登出／切換帳號功能維持不變。
+
+# 星辰日记 / Stellar Diary — V0.10.7.13
 
 ## Cross-device Restore Finalization
 
@@ -23,7 +31,7 @@ Supabase Dashboard 已应配置：
 
 ---
 
-# 星辰日记 / Stellar Diary — V0.10.7.11
+# 星辰日记 / Stellar Diary — V0.10.7.13
 
 ## Existing Account Login & Dual Verification
 
@@ -43,9 +51,9 @@ Supabase Dashboard 已应配置：
 
 ---
 
-# 星辰日记 / Stellar Diary — V0.10.7.11
+# 星辰日记 / Stellar Diary — V0.10.7.13
 
-## V0.10.7.11 — Public Supabase Connection
+## V0.10.7.13 — Public Supabase Connection
 
 - Added `js/supabase-public-config.js` as the single public browser config source.
 - All pages now load the public Supabase config before `supabase-config.js`.
@@ -59,9 +67,9 @@ Supabase Dashboard 已应配置：
 
 ---
 
-# 星辰日记 / Stellar Diary — V0.10.7.11
+# 星辰日记 / Stellar Diary — V0.10.7.13
 
-## V0.10.7.11 — Cloud Account Center Visual Upgrade
+## V0.10.7.13 — Cloud Account Center Visual Upgrade
 
 - `account.html` 从工程式绑定页升级为正式玩家可见的「云端账号中心」。
 - 第一屏改为星辰会员卡：优先显示游客／正式会员、玩家名称、性别、绑定邮箱与云端同步状态。
@@ -75,9 +83,9 @@ Supabase Dashboard 已应配置：
 
 ---
 
-# 星辰日记 / Stellar Diary — V0.10.7.11
+# 星辰日记 / Stellar Diary — V0.10.7.13
 
-## V0.10.7.11 — Membership Status + Profile Entry Polish
+## V0.10.7.13 — Membership Status + Profile Entry Polish
 
 - 首页与核心功能页右上玩家名称前新增账号身份：匿名云端身份显示 **游客：**，邮箱已绑定账号显示 **正式会员：**；繁体与英文同步提供对应文案。
 - 玩家名称从单纯文字改成明显可点击的精品胶囊控件：名称保留性别色、增加细点线、`查看资料` 提示与箭头，手机端自动压缩为箭头提示。
@@ -1584,3 +1592,9 @@ V0.7 为塔罗模组的进阶功能版本，不新增任何图片素材，继续
 - 修正 Supabase Project URL 專案 ref 少一個 `i` 的問題：`zbias...` → `zbiias...`。
 - 此錯字會造成瀏覽器 `net::ERR_NAME_NOT_RESOLVED` / `Failed to fetch`。
 - 其餘功能不變。
+
+## V0.10.7.13 hotfix
+
+- 修正「合并这台设备的游客资料」后会员名称 / Header 入口可能消失：合并资料时不再用游客 profile 覆盖正式会员 profile，完成内容合并后会重新从云端恢复正式会员名称与性别。
+- 保留「使用原账号云端资料（推荐）」原有行为。
+- 更新 Email 双验证模板说明为 mobile-safe 版本：把 OTP 与直接验证按钮放在最前段，并使用 table-based email markup，降低手机邮件客户端折叠 / 裁切第二种验证方式的概率。

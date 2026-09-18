@@ -1,5 +1,5 @@
 (() => {
-  const VERSION = '0.10.7.11';
+  const VERSION = '0.10.7.13';
   const META_KEY = 'stellar-diary-cloud-sync-meta-v1';
   const RESTORE_PENDING_KEY = 'stellar-diary-account-restore-pending-v1';
   const PROFILE_KEY = 'xingchen-player-profile-v1';
@@ -467,6 +467,30 @@
     return {count:result.skipped === 'no-local-profile' ? 0 : 1};
   }
 
+  async function restoreProfileOnly() {
+    const ready = requireReady();
+    if (!ready) return {count:0,skipped:'not-signed-in'};
+    const {client,user} = ready;
+    const {data,error} = await client.from('profiles')
+      .select('display_name,sex,locale,timezone')
+      .eq('id',user.id)
+      .maybeSingle();
+    if (error) throw error;
+    if (data?.display_name && ['male','female'].includes(data.sex)) {
+      applyingRemote = true;
+      try {
+        writeJson(PROFILE_KEY,{name:data.display_name,gender:data.sex});
+        try { if (data.locale) localStorage.setItem('xingchen-language',data.locale); } catch (_) {}
+      } finally {
+        applyingRemote = false;
+      }
+      emit('stellar:cloud-data-updated',{type:'profile',count:1});
+      try { window.dispatchEvent(new CustomEvent('stellar:profile-updated',{detail:{source:'cloud-restore'}})); } catch (_) {}
+      return {count:1};
+    }
+    return {count:0};
+  }
+
   async function runPart(name, fn, result, errors) {
     try {
       const value = await fn();
@@ -494,11 +518,19 @@
       setState('syncing','');
       const result = {};
       const errors = [];
-      await runPart('profile',syncProfile,result,errors);
+      const preserveMemberProfile = reason === 'restore-merge';
+      if (preserveMemberProfile) {
+        result.profile = {count:counts.profile || 0, skipped:'preserve-member-profile'};
+      } else {
+        await runPart('profile',syncProfile,result,errors);
+      }
       await runPart('natal',syncNatal,result,errors);
       await runPart('synastry',syncSynastry,result,errors);
       await runPart('fortune',syncFortune,result,errors);
       await runPart('tarot',syncTarot,result,errors);
+      if (preserveMemberProfile) {
+        await runPart('profile',restoreProfileOnly,result,errors);
+      }
       lastSyncAt = new Date().toISOString();
       lastReason = reason;
       saveMeta();
@@ -616,16 +648,9 @@
     try {
       // Profile: cloud is authoritative during an explicit restore.
       try {
-        const {data,error} = await client.from('profiles')
-          .select('display_name,sex,locale,timezone')
-          .eq('id',user.id)
-          .maybeSingle();
-        if (error) throw error;
-        if (data?.display_name && ['male','female'].includes(data.sex)) {
-          writeJson(PROFILE_KEY,{name:data.display_name,gender:data.sex});
-          try { if (data.locale) localStorage.setItem('xingchen-language',data.locale); } catch (_) {}
-          result.profile = {count:1}; counts.profile = 1;
-        } else { result.profile = {count:0}; counts.profile = 0; }
+        const profileResult = await restoreProfileOnly();
+        result.profile = profileResult;
+        counts.profile = Number(profileResult?.count || 0);
       } catch (error) { errors.push({name:'profile',message:String(error?.message||error)}); }
 
       // Natal charts: replace local report cache with remote rows.

@@ -1,4 +1,4 @@
-# V0.10.7.11 Existing Account Login & Restore
+# V0.10.7.13 Existing Account Login & Restore
 
 This release adds existing-account login for a device that currently has a temporary anonymous Supabase identity.
 

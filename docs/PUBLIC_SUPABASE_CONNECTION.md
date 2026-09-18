@@ -1,4 +1,4 @@
-# V0.10.7.11 — Public Supabase Connection
+# V0.10.7.13 — Public Supabase Connection
 
 Goal: every new phone/browser should automatically connect to Stellar Diary's
 Supabase project without visiting `supabase-test.html` to paste a Publishable Key.

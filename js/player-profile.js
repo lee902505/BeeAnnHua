@@ -12,7 +12,7 @@
       save:'保存并继续', edit:'修改资料',
       invalidName:'名称需要 2～5 个全形文字，例如「弈弈」。',
       chooseGender:'请选择性别。',
-      cloudTitle:'云端身份', cloudPreparing:'正在准备临时云端身份…', cloudTemp:'临时云端身份', cloudBound:'正式云端账号', cloudLocal:'本机模式', cloudError:'云端身份暂不可用', cloudTempNote:'目前尚未绑定邮箱；清除浏览器资料或换装置前，请先完成账号绑定。', cloudBoundNote:'账号已绑定，后续可用于跨设备同步。', cloudLocalNote:'目前只使用本机资料，网站其他功能仍可正常使用。', cloudSyncTitle:'资料同步', cloudSyncWaiting:'等待云端身份', cloudSyncing:'正在同步…', cloudSyncReady:'云端同步已开启', cloudSyncPartial:'部分资料待重试', cloudSyncOffline:'离线 · 本机资料已保留', cloudSyncNote:'本命盘、合盘、每日签与塔罗记录会与云端合并，本机仍保留副本。', bindAccount:'绑定邮箱账号', manageAccount:'管理云端账号', guestLabel:'游客：', memberLabel:'正式会员：', profileCue:'查看资料', profileAria:'点击查看玩家资料'
+      cloudTitle:'云端身份', cloudPreparing:'正在准备临时云端身份…', cloudTemp:'临时云端身份', cloudBound:'正式云端账号', cloudLocal:'本机模式', cloudError:'云端身份暂不可用', cloudTempNote:'目前尚未绑定邮箱；清除浏览器资料或换装置前，请先完成账号绑定。', cloudBoundNote:'账号已绑定，后续可用于跨设备同步。', cloudLocalNote:'目前只使用本机资料，网站其他功能仍可正常使用。', cloudSyncTitle:'资料同步', cloudSyncWaiting:'等待云端身份', cloudSyncing:'正在同步…', cloudSyncReady:'云端同步已开启', cloudSyncPartial:'部分资料待重试', cloudSyncOffline:'离线 · 本机资料已保留', cloudSyncNote:'本命盘、合盘、每日签与塔罗记录会与云端合并，本机仍保留副本。', bindAccount:'绑定邮箱账号', manageAccount:'管理云端账号', guestLabel:'游客：', memberLabel:'正式会员：', profileUnset:'设置资料', profileLoading:'读取资料', profileCue:'查看资料', profileAria:'点击查看玩家资料'
     },
     'zh-TW': {
       title:'先設定你的星辰稱呼', titleExisting:'我的星辰資料',
@@ -23,7 +23,7 @@
       save:'儲存並繼續', edit:'修改資料',
       invalidName:'名稱需要 2～5 個全形文字，例如「弈弈」。',
       chooseGender:'請選擇性別。',
-      cloudTitle:'雲端身分', cloudPreparing:'正在準備臨時雲端身分…', cloudTemp:'臨時雲端身分', cloudBound:'正式雲端帳號', cloudLocal:'本機模式', cloudError:'雲端身分暫不可用', cloudTempNote:'目前尚未綁定信箱；清除瀏覽器資料或換裝置前，請先完成帳號綁定。', cloudBoundNote:'帳號已綁定，後續可用於跨裝置同步。', cloudLocalNote:'目前只使用本機資料，網站其他功能仍可正常使用。', cloudSyncTitle:'資料同步', cloudSyncWaiting:'等待雲端身分', cloudSyncing:'正在同步…', cloudSyncReady:'雲端同步已開啟', cloudSyncPartial:'部分資料待重試', cloudSyncOffline:'離線 · 本機資料已保留', cloudSyncNote:'本命盤、合盤、每日籤與塔羅紀錄會與雲端合併，本機仍保留副本。', bindAccount:'綁定信箱帳號', manageAccount:'管理雲端帳號', guestLabel:'遊客：', memberLabel:'正式會員：', profileCue:'查看資料', profileAria:'點擊查看玩家資料'
+      cloudTitle:'雲端身分', cloudPreparing:'正在準備臨時雲端身分…', cloudTemp:'臨時雲端身分', cloudBound:'正式雲端帳號', cloudLocal:'本機模式', cloudError:'雲端身分暫不可用', cloudTempNote:'目前尚未綁定信箱；清除瀏覽器資料或換裝置前，請先完成帳號綁定。', cloudBoundNote:'帳號已綁定，後續可用於跨裝置同步。', cloudLocalNote:'目前只使用本機資料，網站其他功能仍可正常使用。', cloudSyncTitle:'資料同步', cloudSyncWaiting:'等待雲端身分', cloudSyncing:'正在同步…', cloudSyncReady:'雲端同步已開啟', cloudSyncPartial:'部分資料待重試', cloudSyncOffline:'離線 · 本機資料已保留', cloudSyncNote:'本命盤、合盤、每日籤與塔羅紀錄會與雲端合併，本機仍保留副本。', bindAccount:'綁定信箱帳號', manageAccount:'管理雲端帳號', guestLabel:'遊客：', memberLabel:'正式會員：', profileUnset:'設定資料', profileLoading:'讀取資料', profileCue:'查看資料', profileAria:'點擊查看玩家資料'
     },
     'en': {
       title:'Set your display name', titleExisting:'My stellar profile',
@@ -34,7 +34,7 @@
       save:'Save & continue', edit:'Edit profile',
       invalidName:'Please use 2–5 full-width characters.',
       chooseGender:'Please select a gender.',
-      cloudTitle:'Cloud identity', cloudPreparing:'Preparing temporary cloud identity…', cloudTemp:'Temporary cloud identity', cloudBound:'Bound cloud account', cloudLocal:'Local-only mode', cloudError:'Cloud identity unavailable', cloudTempNote:'No recovery method is linked yet. Bind an account before clearing browser data or changing devices.', cloudBoundNote:'This account is linked and can support cross-device sync later.', cloudLocalNote:'Local features remain available even without cloud identity.', cloudSyncTitle:'Data sync', cloudSyncWaiting:'Waiting for cloud identity', cloudSyncing:'Syncing…', cloudSyncReady:'Cloud sync is on', cloudSyncPartial:'Some data will retry', cloudSyncOffline:'Offline · local copy kept', cloudSyncNote:'Natal charts, synastry, daily fortunes and tarot history merge with the cloud while keeping a local copy.', bindAccount:'Bind email account', manageAccount:'Manage cloud account', guestLabel:'Guest:', memberLabel:'Member:', profileCue:'Profile', profileAria:'Click to view player profile'
+      cloudTitle:'Cloud identity', cloudPreparing:'Preparing temporary cloud identity…', cloudTemp:'Temporary cloud identity', cloudBound:'Bound cloud account', cloudLocal:'Local-only mode', cloudError:'Cloud identity unavailable', cloudTempNote:'No recovery method is linked yet. Bind an account before clearing browser data or changing devices.', cloudBoundNote:'This account is linked and can support cross-device sync later.', cloudLocalNote:'Local features remain available even without cloud identity.', cloudSyncTitle:'Data sync', cloudSyncWaiting:'Waiting for cloud identity', cloudSyncing:'Syncing…', cloudSyncReady:'Cloud sync is on', cloudSyncPartial:'Some data will retry', cloudSyncOffline:'Offline · local copy kept', cloudSyncNote:'Natal charts, synastry, daily fortunes and tarot history merge with the cloud while keeping a local copy.', bindAccount:'Bind email account', manageAccount:'Manage cloud account', guestLabel:'Guest:', memberLabel:'Member:', profileUnset:'Set profile', profileLoading:'Loading profile', profileCue:'Profile', profileAria:'Click to view player profile'
     }
   };
 
@@ -81,15 +81,43 @@
   function render() {
     const p = read();
     document.querySelectorAll('[data-player-profile]').forEach(el => {
-      if (!p) {
-        el.hidden = true;
-        el.replaceChildren();
-        el.classList.remove('is-male','is-female');
-        return;
-      }
-
       const auth = window.XingchenAuth?.status?.() || {};
       const isMember = Boolean(auth.signedIn && !auth.isAnonymous);
+
+      // A fresh guest (or a just-restored member) may temporarily have no
+      // local profile. Keep the header entry visible instead of making it
+      // disappear: guests get a clear setup affordance, while a member waits
+      // for the cloud profile to be restored.
+      if (!p) {
+        if (!auth.signedIn) {
+          el.hidden = true;
+          el.replaceChildren();
+          el.classList.remove('is-male','is-female','is-member','is-guest');
+          return;
+        }
+
+        const membership = document.createElement('span');
+        membership.className = 'player-membership-label';
+        membership.textContent = isMember ? t('memberLabel') : t('guestLabel');
+
+        const name = document.createElement('span');
+        name.className = 'player-name player-name-placeholder';
+        name.textContent = isMember ? t('profileLoading') : t('profileUnset');
+
+        const cue = document.createElement('span');
+        cue.className = 'player-profile-cue';
+        cue.setAttribute('aria-hidden', 'true');
+        cue.innerHTML = '<span class="player-profile-cue-text">' + t('profileCue') + '</span><span class="player-profile-chevron">›</span>';
+
+        el.hidden = false;
+        el.replaceChildren(membership, name, cue);
+        el.classList.remove('is-male','is-female');
+        el.classList.toggle('is-member', isMember);
+        el.classList.toggle('is-guest', !isMember);
+        el.title = t('profileAria');
+        el.setAttribute('aria-label', `${isMember ? t('memberLabel') : t('guestLabel')}${name.textContent}，${t('profileAria')}`);
+        return;
+      }
 
       const membership = document.createElement('span');
       membership.className = 'player-membership-label';
@@ -373,6 +401,10 @@
     window.addEventListener('stellar:cloud-sync-state', event => {
       renderCloudSync(event.detail || {});
     });
+    window.addEventListener('stellar:cloud-data-updated', event => {
+      if (!event.detail?.type || event.detail.type === 'profile') render();
+    });
+    window.addEventListener('stellar:profile-updated', () => render());
     renderCloudIdentity();
     renderCloudSync();
   }
