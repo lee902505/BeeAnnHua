@@ -1216,6 +1216,97 @@ main { display: grid; gap: 0; }
   }
 }
 
+/* =====================================================================
+   V0.11.1.0 · Global shooting-star atmosphere
+   Decorative only: quiet on subpages, lighter on mobile, disabled when the
+   operating system requests reduced motion.
+   ===================================================================== */
+.xingchen-meteor-host {
+  position: relative;
+  isolation: isolate;
+}
+
+.xingchen-meteor-host > :not(.xingchen-meteor-field) {
+  position: relative;
+  z-index: 2;
+}
+
+.xingchen-meteor-field {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  overflow: hidden;
+  border-radius: inherit;
+  pointer-events: none;
+  contain: layout paint;
+}
+
+.xingchen-meteor {
+  position: absolute;
+  left: var(--meteor-start-x);
+  top: var(--meteor-start-y);
+  width: var(--meteor-length);
+  height: 2px;
+  border-radius: 999px;
+  opacity: 0;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    rgba(202, 207, 255, .12) 24%,
+    rgba(224, 216, 255, .62) 70%,
+    rgba(255, 245, 207, .96) 100%);
+  filter: drop-shadow(0 0 4px rgba(221, 216, 255, .68));
+  transform: translate3d(0,0,0) rotate(var(--meteor-angle));
+  transform-origin: right center;
+  will-change: transform, opacity;
+  animation: xingchen-meteor-flight var(--meteor-duration) cubic-bezier(.18,.66,.32,1) forwards;
+}
+
+.xingchen-meteor::after {
+  content: "";
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  right: -1px;
+  top: 50%;
+  border-radius: 50%;
+  background: #fff9df;
+  box-shadow: 0 0 8px rgba(255,244,204,.92), 0 0 15px rgba(209,206,255,.56);
+  transform: translateY(-50%);
+}
+
+.xingchen-meteor.is-wish {
+  height: 2.5px;
+  filter: drop-shadow(0 0 6px rgba(239, 226, 255, .86));
+}
+
+.xingchen-meteor.is-wish::after {
+  width: 5px;
+  height: 5px;
+  box-shadow: 0 0 10px rgba(255,245,207,.95), 0 0 22px rgba(207,205,255,.72);
+}
+
+@keyframes xingchen-meteor-flight {
+  0% {
+    opacity: 0;
+    transform: translate3d(0,0,0) rotate(var(--meteor-angle));
+  }
+  9% { opacity: .88; }
+  72% { opacity: .72; }
+  100% {
+    opacity: 0;
+    transform: translate3d(var(--meteor-travel-x),var(--meteor-travel-y),0) rotate(var(--meteor-angle));
+  }
+}
+
+@media (max-width: 760px) {
+  .xingchen-meteor { height: 1.5px; opacity: .82; }
+  .xingchen-meteor-field { opacity: .82; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .xingchen-meteor-field { display: none !important; }
+}
+
 @media (max-width: 760px) {
   .tarot-setup {
     padding: 26px 18px 34px;
