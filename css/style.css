@@ -8646,7 +8646,7 @@ b {
 .profile-cloud-sync.is-partial > b { color:#a07848; }
 .profile-cloud-sync.is-offline > b { color:#8b7788; }
 
-/* V0.10.7.5 — account binding entry */
+/* V0.10.7.6 — account binding entry */
 .profile-account-btn {
   display:inline-flex;
   align-items:center;
@@ -8666,3 +8666,131 @@ b {
 }
 .profile-account-btn:hover { transform:translateY(-1px); box-shadow:0 10px 28px rgba(76,55,96,.12); }
 .profile-account-btn[hidden] { display:none !important; }
+
+/* =====================================================================
+   V0.10.7.6 · Header membership status + profile affordance
+   Guest / member state is shown before the player name. The whole badge
+   now reads as an intentional interactive control rather than plain text.
+   ===================================================================== */
+
+.player-profile-badge {
+  min-height: 36px !important;
+  padding: 6px 10px 6px 11px !important;
+  gap: 6px !important;
+  border: 1px solid rgba(236, 215, 181, .30) !important;
+  border-radius: 999px !important;
+  background:
+    linear-gradient(135deg, rgba(255,255,255,.065), rgba(255,255,255,.025)) !important;
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,.025),
+    0 7px 20px rgba(5, 4, 16, .12) !important;
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  transition: border-color .18s ease, background .18s ease, box-shadow .18s ease, opacity .18s ease !important;
+}
+
+.player-profile-badge:hover,
+.player-profile-badge:focus-visible {
+  opacity: 1 !important;
+  border-color: rgba(239, 211, 157, .56) !important;
+  background: linear-gradient(135deg, rgba(255,255,255,.105), rgba(255,255,255,.045)) !important;
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,.04),
+    0 8px 24px rgba(5, 4, 16, .18),
+    0 0 18px rgba(219, 190, 136, .10) !important;
+  outline: none;
+}
+
+.player-membership-label {
+  display: inline-flex;
+  align-items: center;
+  color: rgba(235, 215, 185, .93);
+  font-family: "Songti SC", "STSong", "Noto Serif SC", "Noto Serif CJK SC", serif;
+  font-size: .74rem;
+  font-weight: 600;
+  letter-spacing: .055em;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.player-profile-badge.is-guest .player-membership-label {
+  color: rgba(202, 190, 226, .93);
+}
+
+.player-profile-badge.is-member .player-membership-label {
+  color: #e4c68d;
+  text-shadow: 0 0 12px rgba(228, 198, 141, .18);
+}
+
+.player-profile-badge .player-name {
+  position: relative;
+  padding-bottom: 2px;
+  border-bottom: 1px dotted currentColor;
+  text-underline-offset: 3px;
+}
+
+.player-profile-cue {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: 1px;
+  color: rgba(255, 250, 242, .68);
+  font-size: .68rem;
+  font-weight: 560;
+  letter-spacing: .04em;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.player-profile-cue-text {
+  opacity: .86;
+}
+
+.player-profile-chevron {
+  display: inline-block;
+  margin-top: -1px;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.17rem;
+  line-height: .8;
+  opacity: .86;
+  transition: transform .18s ease, opacity .18s ease;
+}
+
+.player-profile-badge:hover .player-profile-chevron,
+.player-profile-badge:focus-visible .player-profile-chevron {
+  transform: translateX(2px);
+  opacity: 1;
+}
+
+@media (max-width: 900px) {
+  .player-profile-cue-text { display: none; }
+  .player-profile-badge { padding-right: 8px !important; }
+}
+
+@media (max-width: 700px) {
+  .player-profile-badge {
+    min-height: 31px !important;
+    padding: 5px 8px 5px 9px !important;
+    gap: 5px !important;
+    font-size: .88rem !important;
+  }
+  .player-membership-label {
+    font-size: .66rem;
+    letter-spacing: .035em;
+  }
+  .player-gender-icon {
+    width: 16px !important;
+    height: 16px !important;
+    flex-basis: 16px !important;
+  }
+  .player-profile-chevron { font-size: 1.05rem; }
+}
+
+@media (max-width: 390px) {
+  .player-profile-badge {
+    max-width: 100%;
+    padding-left: 7px !important;
+    padding-right: 7px !important;
+  }
+  .player-membership-label { font-size: .62rem; }
+}

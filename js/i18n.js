@@ -27,6 +27,7 @@ const I18N = {
     });
 
     localStorage.setItem(this.storageKey, lang);
+    try { window.XingchenPlayer?.render?.(); } catch (_) {}
   },
 
   getInitialLanguage() {

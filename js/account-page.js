@@ -2,7 +2,7 @@
   const LANG_KEY = 'xingchen-language';
   const T = {
     'zh-CN': {
-      eyebrow:'V0.10.7.5 · ACCOUNT BINDING', title:'绑定云端账号',
+      eyebrow:'V0.10.7.6 · ACCOUNT BINDING', title:'绑定云端账号',
       lead:'把当前临时云端身份绑定到邮箱。原本的玩家资料、每日签、塔罗、星盘与合盘都会继续保留在同一个 UUID 下。',
       identity:'当前身份', temporary:'临时云端身份', bound:'正式云端账号', local:'本机模式', uuid:'User UUID', email:'绑定邮箱', none:'尚未绑定',
       support:'支持 QQ邮箱、Foxmail、163、126、Outlook、iCloud、Gmail 等常用邮箱，不限制邮箱域名。',
@@ -18,7 +18,7 @@
       noCloud:'尚未建立云端身份，请先返回首页等待匿名身份建立。'
     },
     'zh-TW': {
-      eyebrow:'V0.10.7.5 · ACCOUNT BINDING', title:'綁定雲端帳號',
+      eyebrow:'V0.10.7.6 · ACCOUNT BINDING', title:'綁定雲端帳號',
       lead:'把目前的臨時雲端身分綁定到信箱。原本的玩家資料、每日籤、塔羅、星盤與合盤都會繼續保留在同一個 UUID 下。',
       identity:'目前身分', temporary:'臨時雲端身分', bound:'正式雲端帳號', local:'本機模式', uuid:'User UUID', email:'綁定信箱', none:'尚未綁定',
       support:'支援 QQ信箱、Foxmail、163、126、Outlook、iCloud、Gmail 等常用信箱，不限制信箱網域。',
@@ -34,7 +34,7 @@
       noCloud:'尚未建立雲端身分，請先返回首頁等待匿名身分建立。'
     },
     en: {
-      eyebrow:'V0.10.7.5 · ACCOUNT BINDING', title:'Bind cloud account',
+      eyebrow:'V0.10.7.6 · ACCOUNT BINDING', title:'Bind cloud account',
       lead:'Link the current temporary cloud identity to an email address. Existing profile, fortune, tarot, natal and synastry data stays under the same user UUID.',
       identity:'Current identity', temporary:'Temporary cloud identity', bound:'Bound cloud account', local:'Local-only mode', uuid:'User UUID', email:'Bound email', none:'Not bound yet',
       support:'Works with standard email providers including QQ Mail, Foxmail, 163, 126, Outlook, iCloud and Gmail. No domain allowlist is used.',

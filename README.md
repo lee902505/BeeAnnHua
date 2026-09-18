@@ -1,3 +1,17 @@
+# 星辰日记 / Stellar Diary — V0.10.7.6
+
+## V0.10.7.6 — Membership Status + Profile Entry Polish
+
+- 首页与核心功能页右上玩家名称前新增账号身份：匿名云端身份显示 **游客：**，邮箱已绑定账号显示 **正式会员：**；繁体与英文同步提供对应文案。
+- 玩家名称从单纯文字改成明显可点击的精品胶囊控件：名称保留性别色、增加细点线、`查看资料` 提示与箭头，手机端自动压缩为箭头提示。
+- 点击玩家名称仍打开原本玩家资料视窗；已有玩家资料时标题改为「我的星辰资料」，不再显示首次设置文案。
+- Auth 状态变化后 Header 会即时从「游客」切换为「正式会员」，无需重新整理页面。
+- 两人合盘页补上与其他核心功能一致的玩家资料入口。
+- 记录目前 Supabase Custom SMTP / 星辰日记邮件品牌化设置于 `docs/EMAIL_BRANDING.md`；Gmail App Password 不进入源码或 GitHub。
+- Account Binding、Cloud Sync、RLS、UUID 与既有资料结构均保持不变。
+
+---
+
 # 星辰日记 / Stellar Diary — V0.10.7.5
 
 ## V0.10.7.5 — Account Binding（Email）
