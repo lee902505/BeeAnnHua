@@ -222,6 +222,58 @@
     }
   }
 
+
+  function clearAccountLocalData() {
+    const keys = [
+      'xingchen-player-profile-v1',
+      'xingchen-astrology-last-input-v1',
+      'xingchen-report-payload-natal-v1',
+      'xingchen-report-payload-synastry-v1',
+      'xingchen-fortune-history',
+      'xingchen-tarot-history-v1',
+      'xingchen-api-outbox-v1',
+      'stellar-diary-cloud-sync-meta-v1',
+      'stellar-diary-pending-bind-email-v1',
+      'stellar-diary-pending-bind-mode-v1',
+      'stellar-diary-pending-login-v1',
+      'stellar-diary-account-restore-pending-v1',
+      'stellar-diary-guest-local-backup-v1'
+    ];
+    keys.forEach(key => { try { localStorage.removeItem(key); } catch (_) {} });
+    lastProfileSyncAt = null;
+  }
+
+  async function signOutToGuest() {
+    const instance = client();
+    if (!instance) return {ok:false,error:'Supabase client 尚未就绪。'};
+    if (!currentUser?.id) {
+      const state = await refresh();
+      return {ok:Boolean(state?.signedIn && state?.isAnonymous), state, error:state?.error || ''};
+    }
+
+    try {
+      // Never discard a member's unsynced local copy during an account switch.
+      if (!isAnonymousUser(currentUser) && window.XingchenCloudSync?.syncAll) {
+        const syncResult = await window.XingchenCloudSync.syncAll('before-account-switch');
+        if (syncResult?.phase && syncResult.phase !== 'ready') {
+          return {ok:false,error:syncResult.error || '当前资料尚未完整同步，暂不退出。请联网并同步成功后再试。'};
+        }
+      }
+
+      clearAccountLocalData();
+      const {error} = await instance.auth.signOut({scope:'local'});
+      if (error) throw error;
+      setState('signed-out', null, null);
+      const guest = await createAnonymous(instance);
+      if (!guest?.signedIn || !guest?.isAnonymous) {
+        return {ok:false,error:guest?.error || '已退出账号，但建立新的游客身份失败。',state:guest};
+      }
+      return {ok:true,state:guest};
+    } catch (error) {
+      return {ok:false,error:friendlyError(error) || String(error?.message || error),raw:error};
+    }
+  }
+
   function bindAuthListener(instance) {
     if (authSubscription) return;
     try {
@@ -272,6 +324,7 @@
     refresh,
     refreshUser,
     syncProfile,
+    signOutToGuest,
     status,
     getUser: () => currentUser,
     isAnonymous: () => isAnonymousUser(currentUser)

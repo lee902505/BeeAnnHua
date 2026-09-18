@@ -109,7 +109,7 @@
     const normalized = normalizeEmail(email || readPendingEmail());
     const code = String(token || '').replace(/\s+/g, '');
     if (!validEmail(normalized)) return {ok:false, error:'找不到待绑定邮箱，请重新发送绑定邮件。'};
-    if (!/^\d{6}$/.test(code)) return {ok:false, error:'请输入邮件中的 6 位验证码。'};
+    if (!/^\d{8}$/.test(code)) return {ok:false, error:'请输入邮件中的 8 位验证码。'};
 
     const sb = client();
     if (!sb) return {ok:false, error:'Supabase client 尚未就绪。'};

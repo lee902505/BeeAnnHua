@@ -1,9 +1,9 @@
-# V0.10.7.10 Email Link + OTP Templates
+# V0.10.7.11 Email Link + OTP Templates
 
-V0.10.7.10 supports two user-facing verification methods:
+V0.10.7.11 supports two user-facing verification methods:
 
 1. Open the Stellar Diary email and click the verification/sign-in button.
-2. Enter the 6-digit OTP shown in the same email.
+2. Enter the 8-digit OTP shown in the same email.
 
 Supabase Hosted Email Templates must include both `{{ .ConfirmationURL }}` and `{{ .Token }}` for both methods to appear.
 
@@ -34,7 +34,7 @@ Use this for first-time anonymous-account email binding and later email changes.
     <p style="margin:0 0 16px;font-size:15px;line-height:1.9;color:#61556d;">您可以选择任一种方式完成验证：</p>
 
     <div style="margin:20px 0;padding:20px;border-radius:16px;background:#faf7fd;border:1px solid #eadff2;text-align:center;">
-      <div style="font-size:13px;color:#8d7aa5;margin-bottom:8px;">方式一 · 输入 6 位验证码</div>
+      <div style="font-size:13px;color:#8d7aa5;margin-bottom:8px;">方式一 · 输入 8 位验证码</div>
       <div style="font-size:34px;font-weight:800;letter-spacing:.22em;color:#392b57;">{{ .Token }}</div>
     </div>
 
@@ -75,7 +75,7 @@ Use this for signing in to an already-linked account from a new device.
     <p style="margin:0 0 16px;font-size:15px;line-height:1.9;color:#61556d;">我们收到了在新设备登录「星辰日记」的请求。您可以选择任一种方式完成登录：</p>
 
     <div style="margin:20px 0;padding:20px;border-radius:16px;background:#faf7fd;border:1px solid #eadff2;text-align:center;">
-      <div style="font-size:13px;color:#8d7aa5;margin-bottom:8px;">方式一 · 输入 6 位登录验证码</div>
+      <div style="font-size:13px;color:#8d7aa5;margin-bottom:8px;">方式一 · 输入 8 位登录验证码</div>
       <div style="font-size:34px;font-weight:800;letter-spacing:.22em;color:#392b57;">{{ .Token }}</div>
     </div>
 

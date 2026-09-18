@@ -61,6 +61,7 @@
     .action-row:hover{transform:translateY(-1px);border-color:rgba(232,201,143,.42);background:rgba(244,222,182,.07)}
     .action-row strong{display:block;font-size:15px}.action-row small{display:block;margin-top:5px;color:#ad9fb8;line-height:1.5}.action-arrow{color:#e6c991;font-size:24px;line-height:1}
     .action-row.upcoming{cursor:default;opacity:.58}.action-row.upcoming:hover{transform:none;border-color:rgba(255,255,255,.08);background:rgba(255,255,255,.035)}
+    .action-row.danger{border-color:rgba(226,145,160,.16)}.action-row.danger strong{color:#f5ced5}.action-row.danger .action-arrow{color:#dca7b1}.action-row.danger:hover{border-color:rgba(226,145,160,.36);background:rgba(205,103,126,.07)}
     .soon{font-size:11px;padding:5px 8px;border:1px solid rgba(232,201,143,.3);border-radius:999px;color:#e5ca9a;white-space:nowrap}
 
     .sync-overview{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:14px 0 17px;border-bottom:1px solid rgba(255,255,255,.08)}
@@ -85,7 +86,8 @@
 
     .verify-choice{margin-top:17px;padding:16px;border-radius:19px;border:1px solid rgba(232,201,143,.25);background:rgba(255,255,255,.025)}
     .verify-choice[hidden]{display:none!important}.verify-title{margin:0 0 11px;color:#f6e8d1;font-size:15px}.verify-methods{display:grid;grid-template-columns:1fr 38px 1fr;gap:10px;align-items:stretch}.verify-method{padding:15px;border:1px solid rgba(232,201,143,.18);border-radius:16px;background:rgba(11,8,20,.48)}.verify-method h3{margin:0 0 7px;font-size:14px;color:#fff8ee}.verify-method p{margin:0 0 12px;color:#a99bb5;font-size:12px;line-height:1.65}.verify-icon{display:inline-grid;place-items:center;width:31px;height:31px;border-radius:50%;margin-bottom:10px;background:rgba(232,201,143,.12);color:#e8c98f}.verify-or{align-self:center;text-align:center;color:#8f819a;font-size:12px;position:relative}.verify-or:before,.verify-or:after{content:"";position:absolute;left:50%;width:1px;height:35%;background:rgba(232,201,143,.16)}.verify-or:before{bottom:58%}.verify-or:after{top:58%}
-    .mail-check-btn{width:100%;justify-content:center}.otp-boxes{display:flex;gap:6px;justify-content:space-between;margin:10px 0 12px}.otp-box{width:42px;height:49px;border-radius:12px;border:1px solid rgba(232,201,143,.28);background:#0f0b18;color:#fff;text-align:center;font:700 20px/1 inherit;outline:none}.otp-box:focus{border-color:rgba(232,201,143,.78);box-shadow:0 0 0 3px rgba(232,201,143,.08)}
+    .mail-check-btn{width:100%;justify-content:center}.otp-boxes{display:flex;gap:5px;justify-content:space-between;margin:10px 0 12px}.otp-box{width:38px;height:49px;border-radius:12px;border:1px solid rgba(232,201,143,.28);background:#0f0b18;color:#fff;text-align:center;font:700 20px/1 inherit;outline:none}.otp-box:focus{border-color:rgba(232,201,143,.78);box-shadow:0 0 0 3px rgba(232,201,143,.08)}
+    .logout-confirm{margin-top:10px;padding:15px 16px;border:1px solid rgba(226,145,160,.24);border-radius:16px;background:rgba(100,41,58,.12)}.logout-confirm[hidden]{display:none!important}.logout-confirm h3{margin:0 0 7px;font-size:14px;color:#ffe9ed}.logout-confirm p{margin:0;color:#baaab4;font-size:12px;line-height:1.65}.logout-confirm-actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:13px}.danger-btn{appearance:none;border:1px solid rgba(226,145,160,.42);border-radius:999px;padding:11px 17px;background:rgba(175,70,94,.18);color:#ffe8ed;font:700 13px/1 inherit;cursor:pointer}.danger-btn:hover{background:rgba(175,70,94,.28)}
     .login-panel{margin-top:16px;padding:20px;border-radius:21px;border:1px solid rgba(232,201,143,.29);background:rgba(15,11,25,.72)}.login-panel[hidden]{display:none!important}
     .restore-panel{margin-top:16px;padding:22px;border-radius:22px;border:1px solid rgba(232,201,143,.34);background:linear-gradient(145deg,rgba(78,58,116,.42),rgba(15,11,25,.83))}.restore-panel[hidden]{display:none!important}.restore-panel h2{margin:0 0 8px;font-size:19px}.restore-panel p{margin:0;color:#c9bed2;line-height:1.75;font-size:13px}.restore-source{margin-top:17px;padding:14px;border-radius:17px;border:1px solid rgba(232,201,143,.12);background:rgba(255,255,255,.026)}.restore-source.cloud{background:linear-gradient(145deg,rgba(232,201,143,.055),rgba(255,255,255,.018));border-color:rgba(232,201,143,.2)}.restore-source-title{display:flex;align-items:center;gap:8px;margin:0 0 10px;font-size:13px;color:#f2dfbd;font-weight:720}.restore-source-title:before{content:"✦";font-size:11px;color:#e8c98f}.restore-counts{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.restore-count{padding:10px;border-radius:13px;background:rgba(255,255,255,.045);border:1px solid rgba(232,201,143,.12);text-align:center}.restore-count b{display:block;font-size:20px;color:#fff8ef}.restore-count span{font-size:11px;color:#a99bb5}.restore-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:17px}.restore-actions button{flex:1 1 220px}
 
@@ -96,7 +98,7 @@
     .footer-actions{display:flex;justify-content:center;margin-top:18px}.back-btn{display:inline-flex;text-decoration:none}
 
     @media(max-width:720px){.content-grid{grid-template-columns:1fr}.data-grid{grid-template-columns:repeat(2,1fr)}.member-card{padding:23px}.member-card:after{font-size:58px;right:31px}.member-name{font-size:27px}}
-    @media(max-width:480px){.page{width:min(100% - 18px,860px)}.topbar{margin-bottom:23px}.brand{font-size:18px}h1{font-size:36px}.lead{font-size:14px}.member-card{border-radius:24px}.panel{padding:18px;border-radius:20px}.action-row{padding:14px}.sync-overview{align-items:flex-start;flex-direction:column}.sync-btn{width:100%}.otp-row{grid-template-columns:1fr}.otp-row .primary-btn{width:100%}.verify-methods{grid-template-columns:1fr}.verify-or{padding:4px 0}.verify-or:before,.verify-or:after{display:none}.otp-box{width:calc((100% - 25px)/6);max-width:46px}.restore-counts{grid-template-columns:repeat(2,1fr)}.tech-row{grid-template-columns:1fr;gap:5px}.data-tile{min-height:94px}.member-card:after{opacity:.7}}
+    @media(max-width:480px){.page{width:min(100% - 18px,860px)}.topbar{margin-bottom:23px}.brand{font-size:18px}h1{font-size:36px}.lead{font-size:14px}.member-card{border-radius:24px}.panel{padding:18px;border-radius:20px}.action-row{padding:14px}.sync-overview{align-items:flex-start;flex-direction:column}.sync-btn{width:100%}.otp-row{grid-template-columns:1fr}.otp-row .primary-btn{width:100%}.verify-methods{grid-template-columns:1fr}.verify-or{padding:4px 0}.verify-or:before,.verify-or:after{display:none}.otp-box{width:calc((100% - 35px)/8);max-width:40px;min-width:0}.restore-counts{grid-template-columns:repeat(2,1fr)}.tech-row{grid-template-columns:1fr;gap:5px}.data-tile{min-height:94px}.member-card:after{opacity:.7}}
   </style>
 </head>
 <body>
@@ -106,7 +108,7 @@
       <a class="home-link" href="index.html" id="topHome">返回首页</a>
     </div>
 
-    <div class="eyebrow" id="eyebrow">V0.10.7.10 · CLOUD ACCOUNT CENTER</div>
+    <div class="eyebrow" id="eyebrow">V0.10.7.11 · CLOUD ACCOUNT CENTER</div>
     <h1 id="title">云端账号</h1>
     <p class="lead" id="lead"></p>
 
@@ -130,6 +132,18 @@
             <span><strong id="restoreTitle"></strong><small id="restoreDesc"></small></span>
             <span class="action-arrow">›</span>
           </button>
+          <button class="action-row danger" id="logoutAction" type="button" hidden>
+            <span><strong id="logoutTitle"></strong><small id="logoutDesc"></small></span>
+            <span class="action-arrow">↪</span>
+          </button>
+          <div class="logout-confirm" id="logoutConfirmBox" hidden>
+            <h3 id="logoutConfirmTitle"></h3>
+            <p id="logoutConfirmDesc"></p>
+            <div class="logout-confirm-actions">
+              <button class="secondary-btn" id="logoutCancelBtn" type="button"></button>
+              <button class="danger-btn" id="logoutConfirmBtn" type="button"></button>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -261,13 +275,13 @@
   </main>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="js/supabase-public-config.js?v=0.10.7.10"></script>
-  <script src="js/supabase-config.js?v=0.10.7.10"></script>
-  <script src="js/supabase-client.js?v=0.10.7.10"></script>
-  <script src="js/supabase-auth.js?v=0.10.7.10"></script>
-  <script src="js/account-binding.js?v=0.10.7.10"></script>
-  <script src="js/account-login.js?v=0.10.7.10"></script>
-  <script src="js/cloud-sync.js?v=0.10.7.10"></script>
-  <script src="js/account-page.js?v=0.10.7.10"></script>
+  <script src="js/supabase-public-config.js?v=0.10.7.11"></script>
+  <script src="js/supabase-config.js?v=0.10.7.11"></script>
+  <script src="js/supabase-client.js?v=0.10.7.11"></script>
+  <script src="js/supabase-auth.js?v=0.10.7.11"></script>
+  <script src="js/account-binding.js?v=0.10.7.11"></script>
+  <script src="js/account-login.js?v=0.10.7.11"></script>
+  <script src="js/cloud-sync.js?v=0.10.7.11"></script>
+  <script src="js/account-page.js?v=0.10.7.11"></script>
 </body>
 </html>

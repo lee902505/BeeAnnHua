@@ -1,11 +1,11 @@
-# V0.10.7.10 — Cross-device Login & Restore
+# V0.10.7.11 — Cross-device Login & Restore
 
 ## User flow
 
 1. New device opens Stellar Diary and receives a temporary anonymous UUID.
 2. User opens Cloud Account → **已有账号？登录 / 恢复**.
 3. Enter the previously linked email. `signInWithOtp(..., shouldCreateUser:false)` sends the branded login email.
-4. User can either click the email button or enter the 6-digit `{{ .Token }}` code.
+4. User can either click the email button or enter the 8-digit `{{ .Token }}` code.
 5. After the original member session is restored, automatic Cloud Sync remains guarded.
 6. The page compares:
    - guest-local counts on the current device, and

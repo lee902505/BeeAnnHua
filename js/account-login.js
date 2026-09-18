@@ -112,7 +112,7 @@
       try { values[key] = localStorage.getItem(key); } catch (_) { values[key] = null; }
     });
     writeJson(GUEST_BACKUP_KEY, {
-      version: '0.10.7.10',
+      version: '0.10.7.11',
       createdAt: new Date().toISOString(),
       fromUserId: fromUserId || '',
       counts: countLocal(),
@@ -162,7 +162,7 @@
 
   function beginPending(email, fromUserId) {
     const pending = {
-      version: '0.10.7.10',
+      version: '0.10.7.11',
       mode: 'existing-login',
       email: normalizeEmail(email),
       fromUserId: fromUserId || '',
@@ -249,7 +249,7 @@
     const normalized = normalizeEmail(email || pending?.email);
     const code = String(token || '').replace(/\D+/g, '');
     if (!validEmail(normalized)) return {ok:false, error:'找不到待登录邮箱，请重新发送登录邮件。'};
-    if (!/^\d{6}$/.test(code)) return {ok:false, error:'请输入邮件中的 6 位验证码。'};
+    if (!/^\d{8}$/.test(code)) return {ok:false, error:'请输入邮件中的 8 位验证码。'};
 
     const sb = client();
     if (!sb) return {ok:false, error:'Supabase client 尚未就绪。'};

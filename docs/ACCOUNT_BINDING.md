@@ -1,4 +1,4 @@
-# V0.10.7.10 — Account Binding
+# V0.10.7.11 — Account Binding
 
 ## Goal
 
@@ -10,7 +10,7 @@ Upgrade the current anonymous Supabase user into a recoverable email-linked acco
 2. User opens `account.html`.
 3. User enters any normal email address (QQ Mail, Foxmail, 163, 126, Outlook, iCloud, Gmail, etc.).
 4. `supabase.auth.updateUser({ email })` starts the email-linking flow.
-5. User confirms through the email link, or enters a 6-digit OTP if the configured email template exposes `{{ .Token }}`.
+5. User confirms through the email link, or enters a 8-digit OTP if the configured email template exposes `{{ .Token }}`.
 6. After confirmation, `is_anonymous` becomes false while the same Auth user UUID is retained.
 7. Cloud Sync continues to use the same `user_id`, so existing rows remain attached to the same account.
 

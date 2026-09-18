@@ -1,4 +1,4 @@
-# 星辰日记 / Stellar Diary — V0.10.7.10
+# 星辰日记 / Stellar Diary — V0.10.7.11
 
 ## Cross-device Restore Finalization
 
@@ -7,7 +7,7 @@
 - 保留两种恢复策略：
   - **使用原账号云端资料（推荐）**：以原会员云端内容覆盖当前设备的游客本机资料。
   - **合并这台设备的游客资料**：明确选择后才执行 local-first 合并与去重。
-- Email 绑定／更换与既有账号登录的 UI 文案正式按生产模板处理：邮件均明确支持 **验证按钮 + 6 位验证码** 两种方式。
+- Email 绑定／更换与既有账号登录的 UI 文案正式按生产模板处理：邮件均明确支持 **验证按钮 + 8 位验证码** 两种方式。
 - 恢复完成后会清理临时 restore 状态与游客备份标记，避免后续同步长期卡在 restore guard。
 - `account.html` 的恢复比较区针对手机保持 2×2 卡片布局；桌机显示双资料来源区块。
 - 无数据库 Schema 变更；既有 RLS、Anonymous Auth、Cloud Sync、Public Publishable Key 与 Gmail Custom SMTP 架构保持不变。
@@ -23,13 +23,13 @@ Supabase Dashboard 已应配置：
 
 ---
 
-# 星辰日记 / Stellar Diary — V0.10.7.10
+# 星辰日记 / Stellar Diary — V0.10.7.11
 
 ## Existing Account Login & Dual Verification
 
 - 云端账号中心新增「已有账号？登录 / 恢复」：新手机／新浏览器先以游客身份进入，再用之前绑定的 Email 登录原本正式会员账号。
 - 登录邮件使用 Supabase passwordless `signInWithOtp(... shouldCreateUser:false)`，不会因为输错邮箱而自动建立新正式账号。
-- 绑定／更换邮箱与既有账号登录均提供两条明显路径：**点击邮件按钮** 或 **输入 6 位验证码**。
+- 绑定／更换邮箱与既有账号登录均提供两条明显路径：**点击邮件按钮** 或 **输入 8 位验证码**。
 - OTP 输入改成 6 格手机友善输入，支持自动跳格、退格与整串验证码贴上。
 - 新设备登录成功后，在用户选择资料处理方式前暂停自动 Cloud Sync，避免游客资料静默写入原正式会员账号。
 - 登录原账号后提供两种恢复策略：
@@ -43,9 +43,9 @@ Supabase Dashboard 已应配置：
 
 ---
 
-# 星辰日记 / Stellar Diary — V0.10.7.10
+# 星辰日记 / Stellar Diary — V0.10.7.11
 
-## V0.10.7.10 — Public Supabase Connection
+## V0.10.7.11 — Public Supabase Connection
 
 - Added `js/supabase-public-config.js` as the single public browser config source.
 - All pages now load the public Supabase config before `supabase-config.js`.
@@ -59,9 +59,9 @@ Supabase Dashboard 已应配置：
 
 ---
 
-# 星辰日记 / Stellar Diary — V0.10.7.10
+# 星辰日记 / Stellar Diary — V0.10.7.11
 
-## V0.10.7.10 — Cloud Account Center Visual Upgrade
+## V0.10.7.11 — Cloud Account Center Visual Upgrade
 
 - `account.html` 从工程式绑定页升级为正式玩家可见的「云端账号中心」。
 - 第一屏改为星辰会员卡：优先显示游客／正式会员、玩家名称、性别、绑定邮箱与云端同步状态。
@@ -75,9 +75,9 @@ Supabase Dashboard 已应配置：
 
 ---
 
-# 星辰日记 / Stellar Diary — V0.10.7.10
+# 星辰日记 / Stellar Diary — V0.10.7.11
 
-## V0.10.7.10 — Membership Status + Profile Entry Polish
+## V0.10.7.11 — Membership Status + Profile Entry Polish
 
 - 首页与核心功能页右上玩家名称前新增账号身份：匿名云端身份显示 **游客：**，邮箱已绑定账号显示 **正式会员：**；繁体与英文同步提供对应文案。
 - 玩家名称从单纯文字改成明显可点击的精品胶囊控件：名称保留性别色、增加细点线、`查看资料` 提示与箭头，手机端自动压缩为箭头提示。
@@ -96,7 +96,7 @@ Supabase Dashboard 已应配置：
 - 新增 `account.html` 云端账号绑定页。
 - 匿名 Supabase UUID 可直接绑定通用 Email，不限制邮箱域名；QQ邮箱 / Foxmail / 163 / 126 / Outlook / iCloud / Gmail 均可输入。
 - 绑定使用 `auth.updateUser({ email })`，确认后继续沿用同一个 UUID，因此既有 `profiles`、每日签、塔罗、星盘、合盘记录不会换账号。
-- 支持邮件确认链接；若 Supabase 邮件模板包含 6 位 Token，也可在页面直接输入 OTP 完成 `email_change` 验证。
+- 支持邮件确认链接；若 Supabase 邮件模板包含 8 位 Token，也可在页面直接输入 OTP 完成 `email_change` 验证。
 - 玩家资料弹窗新增「绑定邮箱账号 / 管理云端账号」入口。
 - `supabase-test.html` 新增 Account 状态与账号管理入口。
 - 本版仍维持 local-first + Cloud Sync Phase 1；跨设备“已有邮箱账号登录／恢复”留给下一阶段。

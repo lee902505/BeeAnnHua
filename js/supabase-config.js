@@ -1,12 +1,12 @@
 (() => {
   const STORAGE_KEY = 'stellar-diary-supabase-publishable-key-v1';
 
-  // Public browser configuration only. V0.10.7.10 prefers the checked-in
+  // Public browser configuration only. V0.10.7.11 prefers the checked-in
   // js/supabase-public-config.js so every new phone/browser can connect without
   // manually pasting a key. localStorage remains as a developer fallback.
   // NEVER put sb_secret_ / service_role / DB password in public frontend files.
   const DEFAULTS = {
-    appVersion: '0.10.7.10',
+    appVersion: '0.10.7.11',
     projectUrl: 'https://zbiiasduaypykhwvuxye.supabase.co',
     publishableKey: '',
     schema: 'public',
