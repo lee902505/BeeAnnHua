@@ -9184,21 +9184,25 @@ b {
 }
 
 /* =====================================================================
-   V0.11.0.1 · iOS mobile birthplace picker sharpness hotfix
-   Safari can apply backdrop-filter from the body overlay to the fixed
-   picker compositing layer as well, making both the page and picker look
-   blurred. Keep the dim overlay but remove backdrop blur, and promote the
-   picker to its own sharp compositing layer.
+   V0.11.0.2 · iOS mobile birthplace picker contrast hotfix
+   The picker is mounted directly below <body> while open so it cannot be
+   trapped under the form section's stacking context. Keep the backdrop
+   translucent and blur-free, while giving the picker a brighter surface.
    ===================================================================== */
 @media (max-width: 760px) {
   body.city-picker-active::before {
-    background: rgba(14, 10, 20, .82) !important;
+    background: rgba(12, 15, 31, .42) !important;
     backdrop-filter: none !important;
     -webkit-backdrop-filter: none !important;
     pointer-events: none;
   }
 
   .astro-city-field.is-picker-open {
+    border-color: rgba(242, 211, 170, .32) !important;
+    background:
+      radial-gradient(circle at 12% 0%, rgba(131, 151, 218, .18), transparent 34%),
+      linear-gradient(180deg, #343a59 0%, #292d47 100%) !important;
+    box-shadow: 0 24px 72px rgba(5, 7, 18, .38), inset 0 1px 0 rgba(255,255,255,.05) !important;
     filter: none !important;
     -webkit-filter: none !important;
     backdrop-filter: none !important;
@@ -9206,6 +9210,11 @@ b {
     isolation: isolate;
     transform: translateZ(0);
     -webkit-transform: translateZ(0);
+  }
+
+  .astro-city-field.is-picker-open .astro-city-search > input {
+    border-color: rgba(242, 211, 170, .24) !important;
+    background: rgba(255, 255, 255, .075) !important;
   }
 
   .astro-city-field.is-picker-open .astro-city-search,

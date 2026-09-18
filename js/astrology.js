@@ -200,6 +200,22 @@
     return $('birthCity')?.closest('.astro-city-field');
   }
 
+  function mountCityPicker(field) {
+    if (!field || field.__xingchenCityPickerAnchor) return;
+    const anchor = document.createComment('xingchen-city-picker-anchor');
+    field.parentNode.insertBefore(anchor, field);
+    field.__xingchenCityPickerAnchor = anchor;
+    document.body.appendChild(field);
+  }
+
+  function restoreCityPicker(field) {
+    const anchor = field?.__xingchenCityPickerAnchor;
+    if (!anchor?.parentNode) return;
+    anchor.parentNode.insertBefore(field, anchor);
+    anchor.remove();
+    delete field.__xingchenCityPickerAnchor;
+  }
+
   function ensureCityPickerClose() {
     const field = cityFieldElement();
     if (!field || field.querySelector('[data-city-picker-close]')) return;
@@ -218,6 +234,7 @@
     ensureCityPickerClose();
     const field = cityFieldElement();
     if (!field) return;
+    mountCityPicker(field);
     field.classList.add('is-picker-open');
     document.body.classList.add('city-picker-active');
   }
@@ -226,6 +243,7 @@
     const field = cityFieldElement();
     field?.classList.remove('is-picker-open');
     document.body.classList.remove('city-picker-active');
+    restoreCityPicker(field);
 
     if (hideResults) {
       $('cityResults').hidden = true;
