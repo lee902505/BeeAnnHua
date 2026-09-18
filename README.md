@@ -1,4 +1,22 @@
-# 星辰日记 / Stellar Diary — V0.10.7.4
+# 星辰日记 / Stellar Diary — V0.10.7.5
+
+## V0.10.7.5 — Account Binding（Email）
+
+- 新增 `account.html` 云端账号绑定页。
+- 匿名 Supabase UUID 可直接绑定通用 Email，不限制邮箱域名；QQ邮箱 / Foxmail / 163 / 126 / Outlook / iCloud / Gmail 均可输入。
+- 绑定使用 `auth.updateUser({ email })`，确认后继续沿用同一个 UUID，因此既有 `profiles`、每日签、塔罗、星盘、合盘记录不会换账号。
+- 支持邮件确认链接；若 Supabase 邮件模板包含 6 位 Token，也可在页面直接输入 OTP 完成 `email_change` 验证。
+- 玩家资料弹窗新增「绑定邮箱账号 / 管理云端账号」入口。
+- `supabase-test.html` 新增 Account 状态与账号管理入口。
+- 本版仍维持 local-first + Cloud Sync Phase 1；跨设备“已有邮箱账号登录／恢复”留给下一阶段。
+
+### Supabase 测试前必要设置
+
+1. Authentication → Sign In / Providers：开启 **Allow manual linking**。
+2. 保持 Email provider 可用、Confirm email 开启。
+3. Authentication → URL Configuration：将 GitHub Pages 站点设为 Site URL，并允许 `account.html` 作为 Redirect URL。
+4. 正式给 QQ / 163 / 126 等外部邮箱使用前，建议配置 Custom SMTP；开发阶段默认寄信服务仅用于测试。
+
 
 ## Cloud Sync Phase 1 · 核心资料云端同步
 - 新增 `js/cloud-sync.js`，在匿名 Supabase Auth 身份准备完成后自动合并本机与云端资料。

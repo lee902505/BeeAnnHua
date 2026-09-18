@@ -64,6 +64,9 @@
     if (/invalid api key|api key.*invalid/i.test(raw)) {
       return 'Supabase Publishable Key 无效。';
     }
+    if (/manual.*link|identity.*link.*disabled|linking.*disabled/i.test(raw)) {
+      return 'Supabase 尚未开启 Allow manual linking。';
+    }
     if (/failed to fetch|network/i.test(raw)) {
       return '无法连接 Supabase，请检查网络或 Project URL。';
     }
@@ -188,6 +191,24 @@
     }
   }
 
+  async function refreshUser() {
+    const instance = client();
+    if (!instance) return setState('error', currentUser, new Error('Supabase client 尚未就绪。'));
+    try {
+      const {data, error} = await instance.auth.getUser();
+      if (error) throw error;
+      const user = data?.user || null;
+      if (user?.id) {
+        setState('ready', user, null);
+        await syncProfile(false);
+        return snapshot();
+      }
+      return setState('signed-out', null, null);
+    } catch (error) {
+      return setState('error', currentUser, error);
+    }
+  }
+
   function bindAuthListener(instance) {
     if (authSubscription) return;
     try {
@@ -236,6 +257,7 @@
   window.XingchenAuth = Object.freeze({
     init,
     refresh,
+    refreshUser,
     syncProfile,
     status,
     getUser: () => currentUser,

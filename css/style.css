@@ -8645,3 +8645,24 @@ b {
 .profile-cloud-sync.is-ready > b { color:#5c7f72; }
 .profile-cloud-sync.is-partial > b { color:#a07848; }
 .profile-cloud-sync.is-offline > b { color:#8b7788; }
+
+/* V0.10.7.5 — account binding entry */
+.profile-account-btn {
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height:40px;
+  margin-top:12px;
+  padding:9px 16px;
+  border:1px solid rgba(169,132,76,.34);
+  border-radius:999px;
+  background:linear-gradient(180deg,rgba(255,249,238,.92),rgba(242,225,204,.9));
+  color:#443650;
+  font-size:13px;
+  font-weight:650;
+  letter-spacing:.04em;
+  text-decoration:none;
+  box-shadow:0 8px 24px rgba(76,55,96,.08);
+}
+.profile-account-btn:hover { transform:translateY(-1px); box-shadow:0 10px 28px rgba(76,55,96,.12); }
+.profile-account-btn[hidden] { display:none !important; }
