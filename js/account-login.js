@@ -51,13 +51,68 @@
     };
   }
 
+  async function countCloud(userId) {
+    const sb = client();
+    if (!sb || !userId) return {fortune:0, tarot:0, natal:0, synastry:0, ready:false};
+
+    const tables = [
+      ['fortune', 'fortune_history'],
+      ['tarot', 'tarot_history'],
+      ['natal', 'natal_charts'],
+      ['synastry', 'synastry_reports']
+    ];
+
+    const out = {fortune:0, tarot:0, natal:0, synastry:0, ready:true};
+    const results = await Promise.all(tables.map(async ([key, table]) => {
+      try {
+        const {count, error} = await sb
+          .from(table)
+          .select('id', {count:'exact', head:true})
+          .eq('user_id', userId);
+        if (error) throw error;
+        return [key, Number(count || 0), null];
+      } catch (error) {
+        return [key, 0, error];
+      }
+    }));
+
+    const errors = [];
+    results.forEach(([key, count, error]) => {
+      out[key] = count;
+      if (error) errors.push(String(error?.message || error));
+    });
+    if (errors.length) {
+      out.ready = false;
+      out.error = errors[0];
+    }
+    return out;
+  }
+
+  async function hydrateRemoteCounts(user) {
+    const pending = readRestorePending() || readPendingLogin();
+    if (!pending || !user?.id || (pending.fromUserId && pending.fromUserId === user.id)) return null;
+    const remoteCounts = await countCloud(user.id);
+    const latest = readRestorePending() || pending;
+    const next = {
+      ...latest,
+      toUserId: user.id,
+      toEmail: user.email || latest.email || '',
+      cloudCounts: remoteCounts,
+      cloudCountsAt: new Date().toISOString()
+    };
+    saveRestorePending(next);
+    savePendingLogin({...next});
+    try { window.dispatchEvent(new CustomEvent('stellar:account-restore-pending',{detail:next})); } catch (_) {}
+    return next;
+  }
+
   function backupGuestLocal(fromUserId) {
     const values = {};
     DATA_KEYS.forEach(key => {
       try { values[key] = localStorage.getItem(key); } catch (_) { values[key] = null; }
     });
     writeJson(GUEST_BACKUP_KEY, {
-      version: '0.10.7.9',
+      version: '0.10.7.10',
       createdAt: new Date().toISOString(),
       fromUserId: fromUserId || '',
       counts: countLocal(),
@@ -107,7 +162,7 @@
 
   function beginPending(email, fromUserId) {
     const pending = {
-      version: '0.10.7.9',
+      version: '0.10.7.10',
       mode: 'existing-login',
       email: normalizeEmail(email),
       fromUserId: fromUserId || '',
@@ -185,6 +240,7 @@
     saveRestorePending(next);
     savePendingLogin({...next});
     try { window.dispatchEvent(new CustomEvent('stellar:account-restore-pending',{detail:next})); } catch (_) {}
+    setTimeout(() => hydrateRemoteCounts(user).catch(() => {}), 0);
     return next;
   }
 
@@ -240,6 +296,7 @@
       }
       saveRestorePending(null);
       savePendingLogin(null);
+      try { localStorage.removeItem(GUEST_BACKUP_KEY); } catch (_) {}
       try { window.dispatchEvent(new CustomEvent('stellar:account-restore-complete',{detail:{choice,result}})); } catch (_) {}
       return {ok:true, choice, result};
     } catch (error) {
@@ -263,6 +320,8 @@
     normalizeEmail,
     readPendingLogin,
     readRestorePending,
+    countCloud,
+    hydrateRemoteCounts,
     clearPending,
     redirectUrl
   });

@@ -1,6 +1,6 @@
-# V0.10.7.9 Email Link + OTP Templates
+# V0.10.7.10 Email Link + OTP Templates
 
-V0.10.7.9 supports two user-facing verification methods:
+V0.10.7.10 supports two user-facing verification methods:
 
 1. Open the Stellar Diary email and click the verification/sign-in button.
 2. Enter the 6-digit OTP shown in the same email.

@@ -1,4 +1,29 @@
-# 星辰日记 / Stellar Diary — V0.10.7.9
+# 星辰日记 / Stellar Diary — V0.10.7.10
+
+## Cross-device Restore Finalization
+
+- 将跨设备登录／恢复流程从“能登录”完善为“可比较后恢复”：登录原正式会员后，同时显示**这台设备的游客资料**与**原账号云端资料**数量。
+- 恢复前会读取原账号云端的每日签、塔罗、本命星盘、两人合盘数量；Cloud Sync 在用户选择前继续保持暂停，避免游客资料误写入正式账号。
+- 保留两种恢复策略：
+  - **使用原账号云端资料（推荐）**：以原会员云端内容覆盖当前设备的游客本机资料。
+  - **合并这台设备的游客资料**：明确选择后才执行 local-first 合并与去重。
+- Email 绑定／更换与既有账号登录的 UI 文案正式按生产模板处理：邮件均明确支持 **验证按钮 + 6 位验证码** 两种方式。
+- 恢复完成后会清理临时 restore 状态与游客备份标记，避免后续同步长期卡在 restore guard。
+- `account.html` 的恢复比较区针对手机保持 2×2 卡片布局；桌机显示双资料来源区块。
+- 无数据库 Schema 变更；既有 RLS、Anonymous Auth、Cloud Sync、Public Publishable Key 与 Gmail Custom SMTP 架构保持不变。
+
+### Production email templates
+
+Supabase Dashboard 已应配置：
+
+- **Change email address**：保留 `{{ .ConfirmationURL }}` 与 `{{ .Token }}`。
+- **Magic Link / OTP**：保留 `{{ .ConfirmationURL }}` 与 `{{ .Token }}`。
+
+这两封信分别用于“绑定／更换邮箱”和“新设备登录已有账号”。
+
+---
+
+# 星辰日记 / Stellar Diary — V0.10.7.10
 
 ## Existing Account Login & Dual Verification
 
@@ -18,9 +43,9 @@
 
 ---
 
-# 星辰日记 / Stellar Diary — V0.10.7.9
+# 星辰日记 / Stellar Diary — V0.10.7.10
 
-## V0.10.7.9 — Public Supabase Connection
+## V0.10.7.10 — Public Supabase Connection
 
 - Added `js/supabase-public-config.js` as the single public browser config source.
 - All pages now load the public Supabase config before `supabase-config.js`.
@@ -34,9 +59,9 @@
 
 ---
 
-# 星辰日记 / Stellar Diary — V0.10.7.9
+# 星辰日记 / Stellar Diary — V0.10.7.10
 
-## V0.10.7.9 — Cloud Account Center Visual Upgrade
+## V0.10.7.10 — Cloud Account Center Visual Upgrade
 
 - `account.html` 从工程式绑定页升级为正式玩家可见的「云端账号中心」。
 - 第一屏改为星辰会员卡：优先显示游客／正式会员、玩家名称、性别、绑定邮箱与云端同步状态。
@@ -50,9 +75,9 @@
 
 ---
 
-# 星辰日记 / Stellar Diary — V0.10.7.9
+# 星辰日记 / Stellar Diary — V0.10.7.10
 
-## V0.10.7.9 — Membership Status + Profile Entry Polish
+## V0.10.7.10 — Membership Status + Profile Entry Polish
 
 - 首页与核心功能页右上玩家名称前新增账号身份：匿名云端身份显示 **游客：**，邮箱已绑定账号显示 **正式会员：**；繁体与英文同步提供对应文案。
 - 玩家名称从单纯文字改成明显可点击的精品胶囊控件：名称保留性别色、增加细点线、`查看资料` 提示与箭头，手机端自动压缩为箭头提示。
