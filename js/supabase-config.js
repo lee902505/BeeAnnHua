@@ -1,13 +1,12 @@
 (() => {
   const STORAGE_KEY = 'stellar-diary-supabase-publishable-key-v1';
 
-  // Public browser configuration only.
-  // The publishable key is intentionally blank in this build because the
-  // dashboard screenshot only exposed a truncated value. A publishable key is
-  // safe for browser use, but NEVER put sb_secret_ / service_role / DB password
-  // in this file or anywhere in GitHub Pages.
+  // Public browser configuration only. V0.10.7.8 prefers the checked-in
+  // js/supabase-public-config.js so every new phone/browser can connect without
+  // manually pasting a key. localStorage remains as a developer fallback.
+  // NEVER put sb_secret_ / service_role / DB password in public frontend files.
   const DEFAULTS = {
-    appVersion: '0.10.7.7',
+    appVersion: '0.10.7.8',
     projectUrl: 'https://zbiiasduaypykhwvuxye.supabase.co',
     publishableKey: '',
     schema: 'public',
@@ -56,7 +55,8 @@
       projectUrl,
       schema: override.schema || DEFAULTS.schema,
       configured: isConfigured(),
-      keySource: isPublishableKey(configuredKey) ? 'file' : (localKey ? 'localStorage' : 'missing'),
+      keySource: isPublishableKey(configuredKey) ? 'public-file' : (localKey ? 'localStorage' : 'missing'),
+      publicFileReady: isPublishableKey(configuredKey),
       keyPrefix: publishableKey ? `${publishableKey.slice(0, 18)}…` : ''
     };
   }

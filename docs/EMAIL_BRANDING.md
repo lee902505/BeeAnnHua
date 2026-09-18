@@ -1,6 +1,6 @@
 # Stellar Diary · Email Branding / SMTP
 
-V0.10.7.7 records the production-facing email branding currently configured in Supabase.
+V0.10.7.8 records the production-facing email branding currently configured in Supabase.
 
 ## Custom SMTP
 

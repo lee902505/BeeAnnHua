@@ -1,6 +1,22 @@
-# 星辰日记 / Stellar Diary — V0.10.7.7
+# 星辰日记 / Stellar Diary — V0.10.7.8
 
-## V0.10.7.7 — Cloud Account Center Visual Upgrade
+## V0.10.7.8 — Public Supabase Connection
+
+- Added `js/supabase-public-config.js` as the single public browser config source.
+- All pages now load the public Supabase config before `supabase-config.js`.
+- New phones/browsers can automatically initialize Supabase and Anonymous Auth once the full `sb_publishable_...` value is inserted.
+- Existing localStorage Publishable Key is retained only as a developer fallback.
+- No secret/service-role/SMTP/database credentials are included in frontend files.
+- Account Center, Anonymous Auth, Cloud Sync, RLS and local-first behavior are unchanged.
+- See `docs/PUBLIC_SUPABASE_CONNECTION.md`.
+
+> Final production activation requires replacing `__PASTE_FULL_SB_PUBLISHABLE_KEY_HERE__` in `js/supabase-public-config.js` with the project's full Publishable Key.
+
+---
+
+# 星辰日记 / Stellar Diary — V0.10.7.8
+
+## V0.10.7.8 — Cloud Account Center Visual Upgrade
 
 - `account.html` 从工程式绑定页升级为正式玩家可见的「云端账号中心」。
 - 第一屏改为星辰会员卡：优先显示游客／正式会员、玩家名称、性别、绑定邮箱与云端同步状态。
@@ -14,9 +30,9 @@
 
 ---
 
-# 星辰日记 / Stellar Diary — V0.10.7.7
+# 星辰日记 / Stellar Diary — V0.10.7.8
 
-## V0.10.7.7 — Membership Status + Profile Entry Polish
+## V0.10.7.8 — Membership Status + Profile Entry Polish
 
 - 首页与核心功能页右上玩家名称前新增账号身份：匿名云端身份显示 **游客：**，邮箱已绑定账号显示 **正式会员：**；繁体与英文同步提供对应文案。
 - 玩家名称从单纯文字改成明显可点击的精品胶囊控件：名称保留性别色、增加细点线、`查看资料` 提示与箭头，手机端自动压缩为箭头提示。

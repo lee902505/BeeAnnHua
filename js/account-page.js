@@ -6,7 +6,7 @@
 
   const T = {
     'zh-CN': {
-      brand:'星辰日记', home:'返回首页', eyebrow:'V0.10.7.7 · CLOUD ACCOUNT CENTER',
+      brand:'星辰日记', home:'返回首页', eyebrow:'V0.10.7.8 · CLOUD ACCOUNT CENTER',
       titleGuest:'云端账号', titleMember:'云端账号',
       leadGuest:'先以游客身份轻松使用；绑定邮箱后可保护当前云端身份，并为跨设备恢复做好准备。',
       leadMember:'管理你的正式会员身份、邮箱安全与云端资料。功能入口优先呈现，技术信息收纳在页面底部。',
@@ -24,7 +24,7 @@
       back:'返回首页', noCloud:'尚未建立云端身份。', syncOk:'全部资料同步完成，本机副本仍会保留。'
     },
     'zh-TW': {
-      brand:'星辰日記', home:'返回首頁', eyebrow:'V0.10.7.7 · CLOUD ACCOUNT CENTER',
+      brand:'星辰日記', home:'返回首頁', eyebrow:'V0.10.7.8 · CLOUD ACCOUNT CENTER',
       titleGuest:'雲端帳號', titleMember:'雲端帳號', leadGuest:'先以遊客身分輕鬆使用；綁定信箱後可保護目前雲端身分，並為跨裝置恢復做好準備。', leadMember:'管理你的正式會員身分、信箱安全與雲端資料。功能入口優先呈現，技術資訊收納在頁面底部。',
       guest:'遊客', member:'正式會員', traveler:'星辰旅人', tempIdentity:'臨時雲端身分', noEmail:'尚未綁定信箱', syncReady:'雲端同步已開啟', syncWorking:'正在同步資料…', syncOffline:'目前離線 · 本機副本仍保留', syncWaiting:'等待雲端身分', syncPartial:'部分資料等待重試',
       securityTitle:'帳號與安全', securityDesc:'管理信箱綁定與未來的帳號恢復方式。', bindEmail:'綁定信箱', changeEmail:'更換綁定信箱', bindEmailDesc:'綁定後可保護目前 UUID，並為跨裝置恢復做準備。', changeEmailDesc:'更換驗證信箱，原有雲端資料與 UUID 不會改變。', restoreTitle:'換裝置登入 / 恢復帳號', restoreDesc:'下一階段加入使用已綁定信箱在新裝置恢復雲端資料。', soon:'下一階段',
@@ -34,7 +34,7 @@
       techTitle:'帳號技術資訊', identity:'雲端身分', temporary:'臨時雲端身分', bound:'正式雲端帳號', local:'本機模式', email:'綁定信箱', uuid:'User UUID', techLastSync:'最後同步', copy:'複製', copied:'已複製', back:'返回首頁', noCloud:'尚未建立雲端身分。', syncOk:'全部資料同步完成，本機副本仍會保留。'
     },
     en: {
-      brand:'Stellar Diary', home:'Back home', eyebrow:'V0.10.7.7 · CLOUD ACCOUNT CENTER', titleGuest:'Cloud account', titleMember:'Cloud account', leadGuest:'Use the site instantly as a guest. Link an email to protect this cloud identity and prepare for cross-device recovery.', leadMember:'Manage your member identity, email security and cloud data. Everyday actions come first; technical details stay at the bottom.',
+      brand:'Stellar Diary', home:'Back home', eyebrow:'V0.10.7.8 · CLOUD ACCOUNT CENTER', titleGuest:'Cloud account', titleMember:'Cloud account', leadGuest:'Use the site instantly as a guest. Link an email to protect this cloud identity and prepare for cross-device recovery.', leadMember:'Manage your member identity, email security and cloud data. Everyday actions come first; technical details stay at the bottom.',
       guest:'Guest', member:'Member', traveler:'Stellar traveler', tempIdentity:'Temporary cloud identity', noEmail:'No email linked', syncReady:'Cloud sync is on', syncWorking:'Syncing data…', syncOffline:'Offline · local copy kept', syncWaiting:'Waiting for cloud identity', syncPartial:'Some data will retry', securityTitle:'Account & security', securityDesc:'Manage your linked email and future recovery options.', bindEmail:'Link email', changeEmail:'Change linked email', bindEmailDesc:'Protect this UUID and prepare for cross-device recovery.', changeEmailDesc:'Change the verification email without moving cloud data or changing your UUID.', restoreTitle:'Sign in on another device / recover', restoreDesc:'The next phase will restore cloud data on a new device using your linked email.', soon:'Next phase', syncTitle:'Cloud sync', syncDesc:'Local-first: cloud and local copies merge, and successful sync never deletes the local copy.', syncNow:'Sync now', syncHintReady:'Your records continue to merge with the cloud.', syncHintWait:'Sync becomes available when cloud identity is ready.', lastSync:'Last sync:', never:'Not synced yet', dataTitle:'Cloud data', dataDesc:'A quick overview of records stored under this cloud identity.', fortune:'Daily fortunes', tarot:'Tarot readings', natal:'Natal charts', synastry:'Synastry', bindTitle:'Link email to protect account', changeTitle:'Change linked email', support:'Supports QQ Mail, Foxmail, 163, 126, Outlook, iCloud, Gmail and other standard email providers.', emailLabel:'Email address', emailPlaceholder:'name@example.com', send:'Send verification email', resend:'Resend', sent:'Verification email sent. Open the confirmation link; if the template provides a 6-digit code, you may enter it below.', otpLabel:'6-digit code (optional)', otpPlaceholder:'000000', verify:'Verify & finish', testing:'Working…', pending:'Pending email', pendingHint:'If it does not arrive, wait at least 60 seconds before resending.', successBind:'Email binding complete. The same UUID is now a permanent cloud account and existing data stays in place.', successChange:'Email change complete. Existing cloud data and UUID remain unchanged.', techTitle:'Account technical details', identity:'Cloud identity', temporary:'Temporary cloud identity', bound:'Bound cloud account', local:'Local-only mode', email:'Linked email', uuid:'User UUID', techLastSync:'Last sync', copy:'Copy', copied:'Copied', back:'Back home', noCloud:'No cloud identity is available yet.', syncOk:'All data synced. Local copies are still kept.'
     }
   };
