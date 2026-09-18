@@ -9182,3 +9182,40 @@ b {
   .stellar-report-badges span,
   .stellar-report-preview-signals span { font-size: .7rem; }
 }
+
+/* =====================================================================
+   V0.11.0.1 · iOS mobile birthplace picker sharpness hotfix
+   Safari can apply backdrop-filter from the body overlay to the fixed
+   picker compositing layer as well, making both the page and picker look
+   blurred. Keep the dim overlay but remove backdrop blur, and promote the
+   picker to its own sharp compositing layer.
+   ===================================================================== */
+@media (max-width: 760px) {
+  body.city-picker-active::before {
+    background: rgba(14, 10, 20, .82) !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    pointer-events: none;
+  }
+
+  .astro-city-field.is-picker-open {
+    filter: none !important;
+    -webkit-filter: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    isolation: isolate;
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+  }
+
+  .astro-city-field.is-picker-open .astro-city-search,
+  .astro-city-field.is-picker-open .astro-city-results,
+  .astro-city-field.is-picker-open .astro-city-result,
+  .astro-city-field.is-picker-open input,
+  .astro-city-field.is-picker-open button,
+  .astro-city-field.is-picker-open small,
+  .astro-city-field.is-picker-open span {
+    filter: none !important;
+    -webkit-filter: none !important;
+  }
+}
