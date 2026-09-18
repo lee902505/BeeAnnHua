@@ -1,4 +1,4 @@
-# V0.10.7.6 — Account Binding
+# V0.10.7.7 — Account Binding
 
 ## Goal
 

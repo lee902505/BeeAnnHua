@@ -1,5 +1,5 @@
 (() => {
-  const VERSION = '0.10.7.6';
+  const VERSION = '0.10.7.7';
   const META_KEY = 'stellar-diary-cloud-sync-meta-v1';
   const KEYS = Object.freeze({
     natal: 'xingchen-report-payload-natal-v1',

@@ -8646,7 +8646,7 @@ b {
 .profile-cloud-sync.is-partial > b { color:#a07848; }
 .profile-cloud-sync.is-offline > b { color:#8b7788; }
 
-/* V0.10.7.6 — account binding entry */
+/* V0.10.7.7 — account binding entry */
 .profile-account-btn {
   display:inline-flex;
   align-items:center;
@@ -8668,7 +8668,7 @@ b {
 .profile-account-btn[hidden] { display:none !important; }
 
 /* =====================================================================
-   V0.10.7.6 · Header membership status + profile affordance
+   V0.10.7.7 · Header membership status + profile affordance
    Guest / member state is shown before the player name. The whole badge
    now reads as an intentional interactive control rather than plain text.
    ===================================================================== */

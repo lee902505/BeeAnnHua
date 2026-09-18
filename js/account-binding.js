@@ -1,5 +1,6 @@
 (() => {
   const PENDING_EMAIL_KEY = 'stellar-diary-pending-bind-email-v1';
+  const PENDING_MODE_KEY = 'stellar-diary-pending-bind-mode-v1';
 
   function auth() { return window.XingchenAuth || null; }
   function client() { return window.XingchenSupabase?.getClient?.() || null; }
@@ -23,6 +24,20 @@
     try {
       if (email) localStorage.setItem(PENDING_EMAIL_KEY, normalizeEmail(email));
       else localStorage.removeItem(PENDING_EMAIL_KEY);
+    } catch (_) {}
+  }
+
+  function readPendingMode() {
+    try {
+      const value = localStorage.getItem(PENDING_MODE_KEY);
+      return value === 'change' ? 'change' : value === 'bind' ? 'bind' : '';
+    } catch (_) { return ''; }
+  }
+
+  function savePendingMode(mode) {
+    try {
+      if (mode === 'bind' || mode === 'change') localStorage.setItem(PENDING_MODE_KEY, mode);
+      else localStorage.removeItem(PENDING_MODE_KEY);
     } catch (_) {}
   }
 
@@ -68,7 +83,9 @@
     const a = auth();
     const state = a?.status?.() || {};
     if (!state.signedIn) return {ok:false, error:'尚未建立云端身份。'};
-    if (!state.isAnonymous) return {ok:false, error:'当前已经是正式云端账号。'};
+    if (state.email && normalizeEmail(state.email) === normalized) {
+      return {ok:false, error:'这个邮箱已经是当前账号的绑定邮箱。'};
+    }
 
     const sb = client();
     if (!sb) return {ok:false, error:'Supabase client 尚未就绪。'};
@@ -80,8 +97,9 @@
       );
       if (result.error) throw result.error;
       savePendingEmail(normalized);
+      savePendingMode(state.isAnonymous ? 'bind' : 'change');
       await a.refreshUser?.();
-      return {ok:true, email:normalized, data:result.data};
+      return {ok:true, email:normalized, mode:readPendingMode(), data:result.data};
     } catch (error) {
       return {ok:false, error:friendly(error), raw:error};
     }
@@ -103,9 +121,11 @@
         type: 'email_change'
       });
       if (error) throw error;
+      const mode = readPendingMode();
       savePendingEmail('');
+      savePendingMode('');
       await auth()?.refreshUser?.();
-      return {ok:true, data, user:data?.user || auth()?.getUser?.() || null};
+      return {ok:true, mode, data, user:data?.user || auth()?.getUser?.() || null};
     } catch (error) {
       return {ok:false, error:friendly(error), raw:error};
     }
@@ -139,7 +159,8 @@
     validEmail,
     normalizeEmail,
     readPendingEmail,
-    clearPending: () => savePendingEmail(''),
+    readPendingMode,
+    clearPending: () => { savePendingEmail(''); savePendingMode(''); },
     redirectUrl
   });
 })();
