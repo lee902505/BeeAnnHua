@@ -71,11 +71,11 @@
     const rect = host.getBoundingClientRect();
     const meteor = document.createElement('span');
     const isWish = isHome && Math.random() < .12;
-    const length = Math.round((isHome ? 92 : 72) + Math.random() * (isHome ? 86 : 62));
+    const length = Math.round((isHome ? 118 : 92) + Math.random() * (isHome ? 96 : 74));
     const duration = Math.round((isWish ? 1450 : 950) + Math.random() * 520);
-    const startX = -length - Math.random() * Math.max(40, rect.width * .18);
+    const startX = rect.width + Math.random() * Math.max(32, rect.width * .12);
     const startY = Math.max(8, rect.height * (.08 + Math.random() * .42));
-    const travelX = rect.width + length * 2 + Math.random() * rect.width * .18;
+    const travelX = -(rect.width + length * 2 + Math.random() * rect.width * .18);
     const travelY = Math.max(80, rect.height * (.28 + Math.random() * .24));
 
     meteor.className = `xingchen-meteor${isWish ? ' is-wish' : ''}`;
@@ -85,7 +85,7 @@
     meteor.style.setProperty('--meteor-start-y', `${startY}px`);
     meteor.style.setProperty('--meteor-travel-x', `${travelX}px`);
     meteor.style.setProperty('--meteor-travel-y', `${travelY}px`);
-    meteor.style.setProperty('--meteor-angle', `${18 + Math.random() * 9}deg`);
+    meteor.style.setProperty('--meteor-angle', `${-(18 + Math.random() * 9)}deg`);
 
     activeCount += 1;
     field.appendChild(meteor);
@@ -100,8 +100,8 @@
 
   function nextDelay() {
     const compact = window.matchMedia?.('(max-width: 760px)').matches;
-    const min = isHome ? (compact ? 6500 : 4800) : (compact ? 11000 : 8200);
-    const spread = isHome ? (compact ? 6500 : 5200) : (compact ? 9000 : 7600);
+    const min = isHome ? (compact ? 3400 : 2400) : (compact ? 5800 : 4200);
+    const spread = isHome ? (compact ? 3400 : 3000) : (compact ? 4800 : 4200);
     return min + Math.random() * spread;
   }
 
@@ -110,7 +110,7 @@
     timer = window.setTimeout(() => {
       spawnMeteor();
       schedule(false);
-    }, initial ? (isHome ? 1100 : 2200) : nextDelay());
+    }, initial ? (isHome ? 700 : 1300) : nextDelay());
   }
 
   document.addEventListener('visibilitychange', () => {
