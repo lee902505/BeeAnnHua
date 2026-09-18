@@ -617,6 +617,12 @@
       window.XingchenAstrologyFull.render(result);
     }
 
+    if (window.XingchenStellarInterpretation?.prepare) {
+      window.XingchenStellarInterpretation.prepare(result).catch(error => {
+        console.error('[StellarInterpretation prepare]', error);
+      });
+    }
+
     $('astroResult').hidden = false;
     requestAnimationFrame(() => $('astroResult').scrollIntoView({behavior:'smooth',block:'start'}));
   }

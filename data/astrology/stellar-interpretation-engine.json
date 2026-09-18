@@ -1,0 +1,164 @@
+{
+  "version": "1.0.0",
+  "name": "Stellar Interpretation Engine",
+  "method": {
+    "zh-CN": "本地规则式本命盘整合引擎。先读取天文计算结果，再综合核心三要素、命主星、行星落座落宫、元素与模式分布、紧密相位、逆行及大型格局，按主题权重排序后生成长篇报告。它不调用外部 AI，也不会重新计算天体位置。",
+    "zh-TW": "本地規則式本命盤整合引擎。先讀取天文計算結果，再綜合核心三要素、命主星、行星落座落宮、元素與模式分布、緊密相位、逆行及大型格局，按主題權重排序後生成長篇報告。它不呼叫外部 AI，也不會重新計算天體位置。",
+    "en": "A local rule-based natal synthesis engine. It reads the astronomical chart result, combines core placements, chart ruler, signs, houses, elements, modalities, tight aspects, retrogrades and major patterns, then ranks themes before composing a long-form report. It does not call an external AI or recalculate astronomy."
+  },
+  "themeWeights": {
+    "identity": {
+      "planets": {
+        "sun": 8,
+        "moon": 2,
+        "saturn": 1
+      },
+      "houses": {
+        "1": 5,
+        "10": 4,
+        "5": 2
+      },
+      "chartRuler": 5,
+      "angular": 2,
+      "asc": 6
+    },
+    "emotion": {
+      "planets": {
+        "moon": 8,
+        "neptune": 2,
+        "pluto": 2,
+        "saturn": 1
+      },
+      "houses": {
+        "4": 5,
+        "12": 4,
+        "8": 3,
+        "2": 2
+      },
+      "angular": 1
+    },
+    "mind": {
+      "planets": {
+        "mercury": 8,
+        "uranus": 2,
+        "jupiter": 2
+      },
+      "houses": {
+        "3": 5,
+        "9": 4,
+        "6": 2,
+        "10": 2
+      },
+      "chartRulerMercury": 7
+    },
+    "relationship": {
+      "planets": {
+        "venus": 7,
+        "mars": 5,
+        "moon": 3,
+        "pluto": 2
+      },
+      "houses": {
+        "5": 4,
+        "7": 6,
+        "8": 5,
+        "11": 2
+      },
+      "angular": 1
+    },
+    "drive": {
+      "planets": {
+        "mars": 8,
+        "sun": 3,
+        "saturn": 3,
+        "pluto": 2
+      },
+      "houses": {
+        "1": 4,
+        "6": 4,
+        "10": 4,
+        "12": 2
+      },
+      "angular": 2
+    },
+    "career": {
+      "planets": {
+        "sun": 5,
+        "saturn": 5,
+        "jupiter": 3,
+        "mercury": 2
+      },
+      "houses": {
+        "2": 3,
+        "6": 4,
+        "10": 6,
+        "11": 2
+      },
+      "mc": 4,
+      "chartRuler": 2,
+      "angular": 2
+    },
+    "growth": {
+      "planets": {
+        "saturn": 6,
+        "jupiter": 4,
+        "pluto": 4,
+        "uranus": 2,
+        "neptune": 2
+      },
+      "houses": {
+        "8": 4,
+        "9": 4,
+        "12": 5,
+        "6": 2
+      },
+      "hardAspect": 1.5,
+      "pattern": 2
+    }
+  },
+  "scoreScale": {
+    "base": 48,
+    "max": 97,
+    "aspectTightBonus": 4,
+    "aspectBonus": 2,
+    "retrogradeBonus": 1
+  },
+  "sectionOrder": [
+    "identity",
+    "emotion",
+    "mind",
+    "relationship",
+    "drive",
+    "career",
+    "growth"
+  ],
+  "labels": {
+    "zh-CN": {
+      "identity": "核心人格",
+      "emotion": "情绪安全感",
+      "mind": "思考与表达",
+      "relationship": "关系与亲密",
+      "drive": "行动与压力",
+      "career": "事业与方向",
+      "growth": "成长与整合"
+    },
+    "zh-TW": {
+      "identity": "核心人格",
+      "emotion": "情緒安全感",
+      "mind": "思考與表達",
+      "relationship": "關係與親密",
+      "drive": "行動與壓力",
+      "career": "事業與方向",
+      "growth": "成長與整合"
+    },
+    "en": {
+      "identity": "Core Identity",
+      "emotion": "Emotional Security",
+      "mind": "Thinking & Expression",
+      "relationship": "Relationships & Intimacy",
+      "drive": "Action & Pressure",
+      "career": "Career & Direction",
+      "growth": "Growth & Integration"
+    }
+  }
+}
