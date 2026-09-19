@@ -9763,10 +9763,11 @@ body.farm-modal-open { overflow: hidden; }
   pointer-events:none;
 }
 .farm-field {
-  --farm-tile-w:118px;
-  --farm-row-shift:48px;
-  --farm-row-overlap:-29px;
-  width:calc((var(--farm-tile-w) * 5) + (var(--farm-row-shift) * 3));
+  --farm-tile-w:126px;
+  --farm-col-step:105px;
+  --farm-row-shift:58px;
+  --farm-row-overlap:-20px;
+  width:calc((var(--farm-col-step) * 4) + var(--farm-tile-w) + (var(--farm-row-shift) * 3));
   max-width:100%;
   display:flex;
   flex-direction:column;
@@ -9783,7 +9784,7 @@ body.farm-modal-open { overflow: hidden; }
 }
 .farm-plot-row {
   display:grid;
-  grid-template-columns:repeat(5,var(--farm-tile-w));
+  grid-template-columns:repeat(5,var(--farm-col-step));
   gap:0;
   width:max-content;
   transform:translateX(calc(var(--farm-row) * var(--farm-row-shift)));
@@ -9813,7 +9814,7 @@ body.farm-modal-open { overflow: hidden; }
 .farm-plot:hover,
 .farm-plot:focus-visible {
   z-index:40;
-  transform:translateY(-10px) scale(1.035);
+  transform:translateY(-12px) scale(1.035);
   filter:brightness(1.07) drop-shadow(0 10px 8px rgba(67,48,23,.18));
   outline:none;
 }
@@ -9824,7 +9825,7 @@ body.farm-modal-open { overflow: hidden; }
 .farm-plot:active { z-index:45; transform:translateY(-2px) scale(.975); }
 .farm-soil {
   position:absolute;
-  inset:-16% -13%;
+  inset:-8% -7%;
   overflow:visible;
   display:flex;
   align-items:center;
@@ -10174,9 +10175,10 @@ body.farm-modal-open { overflow: hidden; }
 @media (max-width: 1050px) {
   .farm-field-wrap { left:13%; right:14.5%; }
   .farm-field {
-    --farm-tile-w:104px;
-    --farm-row-shift:42px;
-    --farm-row-overlap:-25px;
+    --farm-tile-w:112px;
+    --farm-col-step:94px;
+    --farm-row-shift:51px;
+    --farm-row-overlap:-18px;
   }
   .farm-side-actions { width:132px; }
   .farm-side-actions button { padding:9px 11px; min-height:54px; }
@@ -10214,17 +10216,18 @@ body.farm-modal-open { overflow: hidden; }
     justify-content:center;
   }
   .farm-field {
-    --farm-tile-w:67px;
-    --farm-row-shift:25px;
-    --farm-row-overlap:-15px;
-    width:calc((var(--farm-tile-w) * 5) + (var(--farm-row-shift) * 3));
+    --farm-tile-w:72px;
+    --farm-col-step:60px;
+    --farm-row-shift:31px;
+    --farm-row-overlap:-11px;
+    width:calc((var(--farm-col-step) * 4) + var(--farm-tile-w) + (var(--farm-row-shift) * 3));
     margin:0 auto;
     padding:0;
     transform:translate(-4%,14px);
     filter:drop-shadow(0 10px 12px rgba(55,69,31,.12));
   }
   .farm-plot { aspect-ratio:1.5/1; border-radius:10px; }
-  .farm-soil { inset:-15% -12%; padding-top:5%; }
+  .farm-soil { inset:-8% -7%; padding-top:5%; }
   .farm-plot:hover { transform:translateY(0) scale(1); filter:none; }
   .farm-plot:active { transform:translateY(-5px) scale(1.025); filter:brightness(1.05); }
   .farm-crop-visual { font-size:1.22rem; }
@@ -10289,8 +10292,9 @@ body.farm-modal-open { overflow: hidden; }
   .farm-field-wrap { top:23%; }
   .farm-field {
     --farm-tile-w:60px;
-    --farm-row-shift:22px;
-    --farm-row-overlap:-13px;
+    --farm-col-step:50px;
+    --farm-row-shift:25px;
+    --farm-row-overlap:-9px;
     transform:translate(-4%,12px);
   }
   .farm-crop-name { display:none; }
