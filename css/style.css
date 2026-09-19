@@ -9786,7 +9786,7 @@ body.farm-modal-open { overflow: hidden; }
   display:flex;
   flex-direction:column;
   gap:0;
-  padding:4px 54px 12px 6px;
+  padding:4px 42px 8px 4px;
   background:transparent;
   border:0;
   box-shadow:none;
@@ -9798,9 +9798,9 @@ body.farm-modal-open { overflow: hidden; }
   display:grid;
   grid-template-columns:repeat(5,minmax(76px,1fr));
   gap:0;
-  transform:translateX(calc(var(--farm-row) * 27px));
+  transform:translateX(calc(var(--farm-row) * 39px));
 }
-.farm-plot-row + .farm-plot-row { margin-top:-9px; }
+.farm-plot-row + .farm-plot-row { margin-top:-16px; }
 .farm-plot {
   position:relative;
   appearance:none;
@@ -9819,7 +9819,7 @@ body.farm-modal-open { overflow: hidden; }
 .farm-plot:active { transform:translateY(1px) scale(.97); }
 .farm-soil {
   position:absolute;
-  inset:-3%;
+  inset:-8%;
   overflow:visible;
   display:flex;
   align-items:center;
@@ -10170,7 +10170,10 @@ body.farm-modal-open { overflow: hidden; }
   .farm-field-wrap { left:22%; right:16%; }
   .farm-side-actions { width:132px; }
   .farm-side-actions button { padding:9px 11px; min-height:54px; }
-  .farm-plot-row { grid-template-columns:repeat(5,minmax(63px,1fr)); }
+  .farm-plot-row {
+    grid-template-columns:repeat(5,minmax(63px,1fr));
+    transform:translateX(calc(var(--farm-row) * 28px));
+  }
 }
 
 @media (max-width: 760px) {
@@ -10220,11 +10223,11 @@ body.farm-modal-open { overflow: hidden; }
   }
   .farm-plot-row {
     grid-template-columns:repeat(5,minmax(48px,1fr));
-    transform:translateX(calc(var(--farm-row) * 13px));
+    transform:translateX(calc(var(--farm-row) * 18px));
   }
-  .farm-plot-row + .farm-plot-row { margin-top:-5px; }
+  .farm-plot-row + .farm-plot-row { margin-top:-9px; }
   .farm-plot { aspect-ratio:1.5/1; border-radius:10px; }
-  .farm-soil { inset:-3%; padding-top:5%; }
+  .farm-soil { inset:-7%; padding-top:5%; }
   .farm-crop-visual { font-size:1.22rem; }
   .farm-crop-name { font-size:.47rem; }
   .farm-crop-time { display:none; }
@@ -10286,7 +10289,10 @@ body.farm-modal-open { overflow: hidden; }
   .farm-scene { min-height:630px; }
   .farm-field-wrap { top:29%; }
   .farm-field { padding-right:31px; }
-  .farm-plot-row { grid-template-columns:repeat(5,minmax(43px,1fr)); }
+  .farm-plot-row {
+    grid-template-columns:repeat(5,minmax(43px,1fr));
+    transform:translateX(calc(var(--farm-row) * 16px));
+  }
   .farm-crop-name { display:none; }
   .farm-guide-strip { grid-template-columns:1fr; }
   .farm-guide-strip article { min-height:102px; }

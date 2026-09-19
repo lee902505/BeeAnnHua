@@ -200,8 +200,8 @@
     if (fieldOpen) fieldOpen.textContent = unlocked;
     const next = nextLandUnlock();
     $('farmUnlockTip').textContent = next
-      ? `目前可使用 ${unlocked} / 20 格农地 · Lv.${next.level} 再解锁 ${next.count - unlocked} 格`
-      : '完整 20 格农地已经全部开放';
+      ? `Lv.${next.level} 再解锁 ${next.count - unlocked} 格农地`
+      : '20 格农地已经全部开放';
   }
 
   function renderField() {
