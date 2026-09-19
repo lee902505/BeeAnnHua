@@ -9388,7 +9388,7 @@ b {
   53% { transform: translateY(-2px) rotate(.14deg); }
 }
 
-/* V0.11.1.5 · Mobile touch micro-response for the five home cards.
+/* V0.11.1.6 · Mobile touch micro-response for the five home cards.
    A finger touching a non-control area reacts immediately, while native
    vertical scrolling remains untouched. A true tap still gets the fuller
    V0.11.1.2 response handled by .is-reacting. */
@@ -9421,4 +9421,36 @@ b {
 @keyframes home-art-touch-glow {
   0%, 100% { opacity: 0; }
   36% { opacity: .58; }
+}
+
+
+/* V0.11.1.6 · Question-aware tarot answer layer */
+.tarot-page-body .tarot-direct-answer {
+  grid-column: 1 / -1;
+  position: relative;
+  overflow: hidden;
+  border-color: rgba(237, 204, 152, .42);
+  background:
+    radial-gradient(circle at 92% 10%, rgba(237, 204, 152, .10), transparent 38%),
+    linear-gradient(135deg, rgba(69, 49, 91, .34), rgba(30, 24, 49, .52));
+}
+.tarot-page-body .tarot-direct-answer::before {
+  content: '✦';
+  position: absolute;
+  right: 18px;
+  top: 12px;
+  font-size: 1.1rem;
+  opacity: .34;
+}
+.tarot-page-body .tarot-direct-answer h4 {
+  color: #f5dbac;
+}
+.tarot-page-body .tarot-direct-answer p {
+  font-size: 1.04rem;
+  line-height: 1.9;
+  color: #fffaf4;
+}
+.tarot-history-answer {
+  border-left: 2px solid rgba(237, 204, 152, .5);
+  padding-left: 12px;
 }

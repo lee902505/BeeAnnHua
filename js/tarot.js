@@ -41,6 +41,7 @@
       waiting: '请先翻开前一张',
       combinationLabel: '整体组合解读',
       combinationTitle: '把牌连起来看',
+      directAnswerHeading: '先给你一句话答案',
       storyHeading: '牌面故事',
       structureHeading: '结构重点',
       finalAdviceHeading: '这组牌给你的建议',
@@ -69,7 +70,7 @@
       historyHint:'结果保存在当前浏览器，最多保留最近 10 则。',
       historyEmpty:'还没有完成的塔罗记录。全部牌翻开后，会自动保存在这里。',
       historyClear:'清空记录', historyClearConfirm:'确定要清空这台浏览器里的塔罗历史记录吗？',
-      historyGeneral:'一般指引', historyCards:'牌面', historyStory:'牌面故事',
+      historyGeneral:'一般指引', historyCards:'牌面', historyAnswer:'直接回答', historyStory:'牌面故事',
       historyStructure:'结构重点', historyAdvice:'最终建议'
     },
     'zh-TW': {
@@ -95,6 +96,7 @@
       waiting: '請先翻開前一張',
       combinationLabel: '整體組合解讀',
       combinationTitle: '把牌連起來看',
+      directAnswerHeading: '先給你一句話答案',
       storyHeading: '牌面故事',
       structureHeading: '結構重點',
       finalAdviceHeading: '這組牌給你的建議',
@@ -123,7 +125,7 @@
       historyHint:'結果保存在目前瀏覽器，最多保留最近 10 則。',
       historyEmpty:'還沒有完成的塔羅紀錄。全部牌翻開後，會自動保存在這裡。',
       historyClear:'清空紀錄', historyClearConfirm:'確定要清空這台瀏覽器裡的塔羅歷史紀錄嗎？',
-      historyGeneral:'一般指引', historyCards:'牌面', historyStory:'牌面故事',
+      historyGeneral:'一般指引', historyCards:'牌面', historyAnswer:'直接回答', historyStory:'牌面故事',
       historyStructure:'結構重點', historyAdvice:'最終建議'
     },
     'en': {
@@ -149,6 +151,7 @@
       waiting: 'Reveal the previous card first',
       combinationLabel: 'Combined reading',
       combinationTitle: 'Read the cards as one story',
+      directAnswerHeading: 'Direct answer',
       storyHeading: 'Narrative',
       structureHeading: 'Structural signals',
       finalAdviceHeading: 'Advice from this spread',
@@ -168,6 +171,12 @@
       loadError: 'The tarot data could not be loaded. Please open the site through Go Live or GitHub Pages.',
       scrollTop: 'Back to top',
       bottomHome: 'Back home',
+      historyButton:'History', historyTitle:'Recent tarot readings',
+      historyHint:'Saved in this browser, up to the latest 10 readings.',
+      historyEmpty:'No completed tarot readings yet. A reading is saved after every card is revealed.',
+      historyClear:'Clear history', historyClearConfirm:'Clear tarot history stored in this browser?',
+      historyGeneral:'General guidance', historyCards:'Cards', historyAnswer:'Direct answer', historyStory:'Narrative',
+      historyStructure:'Structural signals', historyAdvice:'Final advice',
       placeholderGeneral: 'e.g. What deserves my attention right now?',
       placeholderLove: 'e.g. How may this relationship develop from here?',
       placeholderCareer: 'e.g. What direction should I take with my current work?',
@@ -323,6 +332,7 @@
     byId('revealGuideText').textContent = ui('revealGuideText');
     byId('combinationLabel').textContent = ui('combinationLabel');
     byId('combinationTitle').textContent = ui('combinationTitle');
+    byId('directAnswerHeading').textContent = ui('directAnswerHeading');
     byId('storyHeading').textContent = ui('storyHeading');
     byId('structureHeading').textContent = ui('structureHeading');
     byId('finalAdviceHeading').textContent = ui('finalAdviceHeading');
@@ -515,6 +525,10 @@
               <h3>${escapeHtml(ui('historyCards'))}</h3>
               <ol class="tarot-history-cards">${cards}</ol>
             </section>
+            ${record.directAnswer ? `<section class="tarot-history-answer">
+              <h3>${escapeHtml(ui('historyAnswer') || ui('directAnswerHeading'))}</h3>
+              <p>${escapeHtml(record.directAnswer)}</p>
+            </section>` : ''}
             <section>
               <h3>${escapeHtml(ui('historyStory'))}</h3>
               <p>${escapeHtml(record.story || '')}</p>
@@ -557,6 +571,7 @@
         positionName:positionName(item.position)
       })),
       signals:signalChips(analysis),
+      directAnswer:texts.directAnswer || '',
       story:texts.story,
       structure:texts.structure,
       finalAdvice:texts.finalAdvice
@@ -734,7 +749,7 @@
     }, 440);
   }
 
-  function sendTarotBark(analysis) {
+  function sendTarotBark(analysis, texts) {
     if (!window.XingchenBark?.send) return;
 
     const player = window.XingchenPlayer?.label?.() || '未命名玩家';
@@ -757,9 +772,10 @@
       '牌面：',
       ...cards,
       '',
-      `牌面故事：${buildStory(state.currentDraw, analysis)}`,
-      `结构重点：${buildStructure(analysis)}`,
-      `最终建议：${buildFinalAdvice(state.currentDraw, analysis)}`
+      `直接回答：${texts?.directAnswer || buildDirectAnswer(state.currentDraw, analysis, analyseQuestion())}`,
+      `牌面故事：${texts?.story || buildStory(state.currentDraw, analysis)}`,
+      `结构重点：${texts?.structure || buildStructure(analysis)}`,
+      `最终建议：${texts?.finalAdvice || buildFinalAdvice(state.currentDraw, analysis)}`
     ].filter(Boolean).join('\n');
 
     window.XingchenBark.send({
@@ -772,14 +788,17 @@
 
   function revealCombination() {
     const analysis = analyseStructure(state.currentDraw);
+    const questionProfile = analyseQuestion();
     const texts = {
-      story:buildStory(state.currentDraw, analysis),
+      directAnswer:buildDirectAnswer(state.currentDraw, analysis, questionProfile),
+      story:buildStory(state.currentDraw, analysis, questionProfile),
       structure:buildStructure(analysis),
-      finalAdvice:buildFinalAdvice(state.currentDraw, analysis)
+      finalAdvice:buildFinalAdvice(state.currentDraw, analysis, questionProfile)
     };
 
     byId('signalChips').innerHTML =
       signalChips(analysis).map(x => `<span>${escapeHtml(x)}</span>`).join('');
+    byId('directAnswerText').textContent = texts.directAnswer;
     byId('storyText').textContent = texts.story;
     byId('structureText').textContent = texts.structure;
     byId('finalAdviceText').textContent = texts.finalAdvice;
@@ -792,7 +811,7 @@
     });
 
     saveCompletedTarotHistory(analysis,texts);
-    sendTarotBark(analysis);
+    sendTarotBark(analysis,texts);
   }
 
   function analyseStructure(draw) {
@@ -955,7 +974,228 @@
       || labels.general[currentLanguage()];
   }
 
-  function buildStory(draw) {
+  // V0.11.1.6 · Question-aware local interpretation engine.
+  // This deliberately stays deterministic and local: no question text is sent to an AI service.
+  function analyseQuestion() {
+    const q = (state.question || '').trim();
+    const spreadKey = selectedSpread()?.key || '';
+    const lower = q.toLowerCase();
+    const has = (pattern) => pattern.test(q) || pattern.test(lower);
+
+    let intent = 'general';
+    if (spreadKey === 'choice5') intent = 'choice';
+    else if (has(/什么时候|什麼時候|何时|幾時|何時|多久|哪一天|幾天|几天|when|how long|what time/i)) intent = 'timing';
+    else if (has(/为什么|為什麼|因为|因為|原因|怎么会|怎麼會|为何|為何|why/i)) intent = 'reason';
+    else if (state.selectedTopic === 'love' && has(/复合|復合|和好|重新在一起|重来|重來|回到一起|reconcil/i)) intent = 'reconcile';
+    else if (state.selectedTopic === 'love' && has(/喜欢我|喜歡我|爱我|愛我|在意我|想我|对我.*感觉|對我.*感覺|心里.*我|心裡.*我|怎么看我|怎麼看我|feel.*about me|like me|love me/i)) intent = 'feelings';
+    else if (has(/主动|主動|联系|聯絡|找我|回我|消息|行动|行動|表白|告白|约我|約我|开口|開口|会来|會來|will.*contact|will.*message|reach out/i)) intent = 'action';
+    else if (has(/应不应该|應不應該|该不该|該不該|要不要|值不值得|值得吗|值得嗎|怎么选|怎麼選|should i|which should|worth it/i)) intent = 'decision';
+    else if (has(/会不会|會不會|能不能|是不是|是否|有没有|有沒有|will it|can i|yes or no/i)) intent = 'binary';
+    else if (has(/发展|發展|走向|结果|結果|未来|未來|接下来|接下來|最后|最後|会怎样|會怎樣|如何发展|如何發展|outcome|future|develop/i)) intent = 'development';
+    else if (has(/怎么办|怎麼辦|怎么做|怎麼做|建议|建議|如何处理|如何處理|what should|advice/i)) intent = 'advice';
+
+    return {
+      raw:q,
+      intent,
+      hasQuestion:Boolean(q),
+      topic:state.selectedTopic,
+      spread:spreadKey
+    };
+  }
+
+  const positiveToneTerms = [
+    '新开始','新開始','自由','信任','行动','行動','资源','資源','创造','創造','直觉','直覺','成长','成長','丰盛','豐盛','稳定','穩定','成功','希望','疗愈','療癒','喜悦','喜悅','庆祝','慶祝','合作','和谐','和諧','吸引','热情','熱情','勇气','勇氣','平衡','清晰','沟通','溝通','前进','前進','机会','機會','收获','收穫','满足','滿足','成就','承诺','承諾','支持','安全','成熟','恢复','恢復','完成','智慧','掌控','突破','好运','好運','幸福','连接','連結','亲密','親密','互惠','坚定','堅定'
+  ];
+  const challengingToneTerms = [
+    '鲁莽','魯莽','逃避','准备不足','準備不足','分心','操控','混乱','混亂','秘密','阻碍','阻礙','拖延','冲突','衝突','失落','焦虑','焦慮','恐惧','恐懼','欺骗','欺騙','控制','停滞','停滯','孤立','不安','破裂','危机','危機','压力','壓力','争执','爭執','犹豫','猶豫','依赖','依賴','嫉妒','固执','固執','背叛','痛苦','悲伤','悲傷','耗损','耗損','匮乏','匱乏','束缚','束縛','执念','執念','幻觉','幻覺','隐藏','隱藏','防御','防禦','冷淡','延迟','延遲','过度','過度','未完成','受阻','结束','結束','崩塌','牺牲','犧牲','压抑','壓抑','怀疑','懷疑'
+  ];
+
+  function cardTone(item) {
+    const text = `${item?.meaning?.keywords?.join(' ') || ''} ${item?.meaning?.meaning || ''}`;
+    let positive = 0;
+    let challenging = 0;
+    positiveToneTerms.forEach(term => { if (text.includes(term)) positive += 1; });
+    challengingToneTerms.forEach(term => { if (text.includes(term)) challenging += 1; });
+
+    let score = (positive - challenging) * 0.32;
+    if (!positive && !challenging) score += item?.reversed ? -0.18 : 0.12;
+    if (item?.reversed) score -= 0.14;
+    return Math.max(-1, Math.min(1, score));
+  }
+
+  function positionWeight(item) {
+    const spread = selectedSpread()?.key;
+    const key = item?.position?.key || '';
+    const weights = {
+      single:{guidance:1.2},
+      weekly3:{current:0.75,trend:1.25,advice:0.8},
+      monthly5:{early:0.5,mid1:0.65,mid2:0.8,late:1.2,advice:0.75},
+      relationship5:{self:0.55,other:0.9,core:1.2,obstacle:1.0,direction:1.35},
+      choice5:{current:0.45,optionA:0.9,optionAOutcome:1.25,optionB:0.9,optionBOutcome:1.25}
+    };
+    return weights[spread]?.[key] || 1;
+  }
+
+  function spreadTendency(draw) {
+    let weighted = 0;
+    let totalWeight = 0;
+    draw.forEach(item => {
+      const weight = positionWeight(item);
+      weighted += cardTone(item) * weight;
+      totalWeight += weight;
+    });
+    return totalWeight ? weighted / totalWeight : 0;
+  }
+
+  function branchTendency(items) {
+    if (!items?.length) return 0;
+    return items.reduce((sum,item,index) => sum + cardTone(item) * (index === items.length - 1 ? 1.35 : 1),0)
+      / items.reduce((sum,_,index) => sum + (index === items.length - 1 ? 1.35 : 1),0);
+  }
+
+  function tendencyBand(score) {
+    if (score >= 0.42) return 'supportive';
+    if (score >= 0.12) return 'leaning-supportive';
+    if (score <= -0.42) return 'challenging';
+    if (score <= -0.12) return 'leaning-challenging';
+    return 'mixed';
+  }
+
+  function keyThemes(items, limit = 3) {
+    const seen = new Set();
+    const result = [];
+    (items || []).forEach(item => {
+      (item?.meaning?.keywords || []).forEach(keyword => {
+        const value = String(keyword || '').trim();
+        if (!value || seen.has(value)) return;
+        seen.add(value);
+        result.push(value);
+      });
+    });
+    return result.slice(0, limit);
+  }
+
+  function mostRelevantItems(draw, profile) {
+    const byKey = (key) => draw.find(item => item.position?.key === key);
+    if (profile.intent === 'reason' && profile.spread === 'relationship5') {
+      return [byKey('obstacle'),byKey('other'),byKey('core')].filter(Boolean);
+    }
+    if ((profile.intent === 'feelings' || profile.intent === 'action' || profile.intent === 'reconcile') && profile.spread === 'relationship5') {
+      return [byKey('other'),byKey('core'),byKey('direction'),byKey('obstacle')].filter(Boolean);
+    }
+    if (profile.intent === 'timing') return draw.slice(-Math.min(3,draw.length));
+    return [...draw].sort((a,b) => positionWeight(b) - positionWeight(a)).slice(0,Math.min(3,draw.length));
+  }
+
+  function buildDirectAnswer(draw, analysis, profile = analyseQuestion()) {
+    const lang = currentLanguage();
+    const score = spreadTendency(draw);
+    const band = tendencyBand(score);
+    const relevant = mostRelevantItems(draw, profile);
+    const themes = keyThemes(relevant,3);
+    const themeText = themes.length ? themes.join(lang === 'en' ? ', ' : '、') : '';
+    const q = profile.raw;
+    const zh = lang !== 'en';
+    const trad = lang === 'zh-TW';
+
+    if (profile.intent === 'choice' && draw.length >= 5) {
+      const A = state.optionA || ui('optionA');
+      const B = state.optionB || ui('optionB');
+      const aScore = branchTendency([draw[1],draw[2]]);
+      const bScore = branchTendency([draw[3],draw[4]]);
+      const diff = aScore - bScore;
+      if (lang === 'en') {
+        if (Math.abs(diff) < 0.18) return `The two paths are close. ${A} and ${B} carry different trade-offs rather than a clear winner; compare which cost you are more willing to carry.`;
+        const better = diff > 0 ? A : B;
+        return `${better} currently reads as the smoother path, but the cards still describe conditions rather than a guaranteed outcome.`;
+      }
+      if (Math.abs(diff) < 0.18) return `${trad ? '兩條路目前差距不大' : '两条路目前差距不大'}；「${A}」與「${B}」比較像各有代價，重點不是硬選一個絕對正確答案，而是看你更願意承擔哪一種成本。`;
+      const better = diff > 0 ? A : B;
+      return `${trad ? '目前牌面較偏向' : '目前牌面较偏向'}「${better}」這條路較順，但這是條件式傾向，不代表結果已經被固定。`;
+    }
+
+    if (!profile.hasQuestion) {
+      if (lang === 'en') return band.includes('supportive') ? 'The overall flow is constructive: move forward, but keep the advice card as your practical checkpoint.' : band.includes('challenging') ? 'The spread is asking for adjustment before acceleration; resolve the blocked part first.' : 'The spread is mixed: there is room to move, but the next step matters more than forcing a final verdict.';
+      return band.includes('supportive')
+        ? (trad ? '整體牌勢偏順，現在可以往前走，但要把建議位當成行動前的檢查點。' : '整体牌势偏顺，现在可以往前走，但要把建议位当成行动前的检查点。')
+        : band.includes('challenging')
+          ? (trad ? '整體阻力偏高，現在不是硬推的時候；先處理卡住的環節，後面的路會比較清楚。' : '整体阻力偏高，现在不是硬推的时候；先处理卡住的环节，后面的路会比较清楚。')
+          : (trad ? '牌面訊號有好有壞，事情不是不能走，而是暫時不適合急著下最終結論。' : '牌面讯号有好有坏，事情不是不能走，而是暂时不适合急着下最终结论。');
+    }
+
+    if (profile.intent === 'reason') {
+      if (lang === 'en') return `The core cause looks less like one isolated event and more like a mix of ${themeText || 'the pressures shown in the key positions'}. Read the obstacle and counterpart cards together before blaming a single factor.`;
+      return `${trad ? '核心原因比較不像單一事件' : '核心原因比较不像单一事件'}，而是「${themeText || (trad ? '牌面中的幾股壓力' : '牌面中的几股压力')}」疊在一起。尤其要把阻礙位與對方／環境位一起看，不宜只抓一個原因下結論。`;
+    }
+
+    if (profile.intent === 'feelings') {
+      if (lang === 'en') {
+        if (score >= 0.28) return `The relationship energy suggests genuine interest or emotional connection, but it still needs consistent behavior to become something reliable.`;
+        if (score <= -0.28) return `The cards do not show enough stable emotional investment right now; distance, hesitation or self-protection is stronger than clear pursuit.`;
+        return `There are emotional signals, but they are mixed. Interest may exist, yet the current pattern is not stable enough to treat as a clear declaration.`;
+      }
+      if (score >= 0.28) return `${trad ? '這組牌偏向「有感受／有在意」' : '这组牌偏向“有感受／有在意”'}，但能不能變成穩定關係，要看對方是否有持續而一致的實際行動。`;
+      if (score <= -0.28) return `${trad ? '目前牌面看不到足夠穩定的情感投入' : '目前牌面看不到足够稳定的情感投入'}；退縮、顧慮或自我保護的能量，比明確追求更強。`;
+      return `${trad ? '牌面裡有感情訊號，但彼此矛盾' : '牌面里有感情讯号，但彼此矛盾'}；可以說「不是完全沒感覺」，但現在還不足以把它當成明確承諾。`;
+    }
+
+    if (profile.intent === 'action') {
+      if (lang === 'en') return score >= 0.3 ? 'There is a reasonable chance of action or contact, though the pace still depends on whether the current hesitation is resolved.' : score <= -0.3 ? 'Short-term initiative looks weak. Waiting for a clear action is more realistic than assuming contact is imminent.' : 'Contact is possible, but the signal is inconsistent; watch actual follow-through rather than reading too much into small signs.';
+      if (score >= 0.3) return `${trad ? '偏向有機會出現主動或聯絡' : '偏向有机会出现主动或联系'}，但速度仍取決於目前的猶豫或阻力能不能被處理。`;
+      if (score <= -0.3) return `${trad ? '短期主動性偏弱' : '短期主动性偏弱'}；與其預設對方很快會行動，不如先觀察是否真的出現明確而持續的動作。`;
+      return `${trad ? '有聯絡／行動的可能，但訊號不穩定' : '有联系／行动的可能，但讯号不稳定'}；真正值得判斷的是後續有沒有持續，而不是單次訊息或一時熱度。`;
+    }
+
+    if (profile.intent === 'reconcile') {
+      if (lang === 'en') return score >= 0.3 ? 'Reconnection is possible, but only if the old obstacle is handled differently this time.' : score <= -0.3 ? 'The cards lean away from a smooth reconciliation in the near term; unresolved issues are still stronger than reunion energy.' : 'Reconciliation is not ruled out, but the conditions are not mature enough for a confident yes.';
+      if (score >= 0.3) return `${trad ? '有重新靠近的可能' : '有重新靠近的可能'}，但前提是舊問題要用不同方式處理；如果互動模式不變，復合也容易回到原本的卡點。`;
+      if (score <= -0.3) return `${trad ? '短期不太像能順利復合' : '短期不太像能顺利复合'}，未處理的阻礙仍比重新連結的力量更強。`;
+      return `${trad ? '復合並非完全沒有可能，但條件還沒成熟' : '复合并非完全没有可能，但条件还没成熟'}；目前更適合看阻礙能否被真正處理，而不是急著追一個「會／不會」。`;
+    }
+
+    if (profile.intent === 'timing') {
+      if (lang === 'en') return analysis.orientationFlow === 'clearing' && score > -0.1 ? 'Timing looks closer once the current blockage begins to clear. The cards show sequence and readiness, not a reliable calendar date.' : analysis.orientationFlow === 'tightening' || score < -0.25 ? 'The conditions do not look fully ready yet. More delay or adjustment is likely before the event can move naturally.' : 'The timing is still fluid. Watch for the conditions described by the later cards rather than forcing an exact date.';
+      if (analysis.orientationFlow === 'clearing' && score > -0.1) return `${trad ? '時間點正在接近，但要先等目前的卡點鬆開' : '时间点正在接近，但要先等目前的卡点松开'}。牌面比較能看出「條件成熟的順序」，不適合硬換算成某一天。`;
+      if (analysis.orientationFlow === 'tightening' || score < -0.25) return `${trad ? '目前條件還沒完全到位，時間上偏向需要再等' : '目前条件还没完全到位，时间上偏向需要再等'}；後段阻力仍在增加，先看事情是否開始出現實際鬆動。`;
+      return `${trad ? '時間仍有變動性' : '时间仍有变动性'}；與其猜固定日期，更適合觀察後段牌所代表的條件何時真正出現。`;
+    }
+
+    if (profile.intent === 'decision') {
+      if (lang === 'en') return score >= 0.28 ? 'The cards lean toward taking the step, provided you can meet the practical conditions shown in the spread.' : score <= -0.28 ? 'The cards lean toward slowing down or reconsidering before committing; the current friction is meaningful.' : 'This is not a clean yes/no decision. Clarify the trade-off first, then choose the path whose cost you can actually accept.';
+      if (score >= 0.28) return `${trad ? '牌面偏向可以往前做' : '牌面偏向可以往前做'}，但不是無條件的「可以」；先確認現實條件與風險都有被照顧。`;
+      if (score <= -0.28) return `${trad ? '目前更適合先停一下、重整條件再決定' : '目前更适合先停一下、重整条件再决定'}；眼前的阻力不是小雜音，而是需要納入判斷的重要訊號。`;
+      return `${trad ? '這不是很乾脆的「要／不要」' : '这不是很干脆的“要／不要”'}；先把你願意承擔的代價說清楚，答案會比硬問吉凶更實際。`;
+    }
+
+    if (profile.intent === 'binary') {
+      if (lang === 'en') return score >= 0.35 ? 'The spread leans yes, but conditionally rather than absolutely.' : score <= -0.35 ? 'The spread currently leans no / not yet, with meaningful resistance still present.' : 'The spread is too mixed for a clean yes/no; the conditions matter more than the binary verdict.';
+      if (score >= 0.35) return `${trad ? '整體偏向「可以／有機會」' : '整体偏向“可以／有机会”'}，但屬於有條件成立，不是百分之百保證。`;
+      if (score <= -0.35) return `${trad ? '目前偏向「不容易／還不是時候」' : '目前偏向“不容易／还不是时候”'}，主要阻力仍然存在。`;
+      return `${trad ? '牌面不足以乾脆回答「是」或「否」' : '牌面不足以干脆回答“是”或“否”'}；真正決定結果的是接下來條件有沒有改變。`;
+    }
+
+    if (profile.intent === 'development') {
+      if (lang === 'en') return score >= 0.28 ? 'The direction is constructive, but the spread still asks for steady follow-through rather than assuming the outcome is secured.' : score <= -0.28 ? 'The near-term development is bumpy; without adjustment, the current pattern is more likely to stall or create distance.' : 'The development is still open. The later cards show both opportunity and correction, so the outcome depends heavily on what happens next.';
+      if (score >= 0.28) return `${trad ? '後續走勢偏正向' : '后续走势偏正向'}，但需要持續投入，不能把目前的好訊號直接當成結果已經確定。`;
+      if (score <= -0.28) return `${trad ? '短期走勢比較顛簸' : '短期走势比较颠簸'}；如果互動或做法不調整，事情比較容易停住、延遲或拉開距離。`;
+      return `${trad ? '後續仍是開放局面' : '后续仍是开放局面'}；有機會，也有需要修正的地方，下一步怎麼做會明顯影響結果。`;
+    }
+
+    if (profile.intent === 'advice') {
+      const last = draw[draw.length - 1];
+      if (lang === 'en') return `Start with the most workable next step: ${last?.meaning?.advice || 'deal with the clearest issue first, then reassess.'}`;
+      return `${trad ? '現在最重要的不是一次想完全部答案，而是先做一個可執行的下一步' : '现在最重要的不是一次想完全部答案，而是先做一个可执行的下一步'}：${last?.meaning?.advice || (trad ? '先處理最明顯的卡點，再看下一步。' : '先处理最明显的卡点，再看下一步。')}`;
+    }
+
+    if (lang === 'en') return band.includes('supportive') ? `The spread leans constructive. ${themeText ? `The key themes are ${themeText}.` : ''}` : band.includes('challenging') ? `The spread highlights meaningful resistance. ${themeText ? `Watch ${themeText}.` : ''}` : `The message is mixed, so keep the situation open and judge it by what actually develops next.`;
+    return band.includes('supportive')
+      ? `${trad ? '整體傾向偏正向' : '整体倾向偏正向'}${themeText ? `，關鍵在「${themeText}」` : ''}。`
+      : band.includes('challenging')
+        ? `${trad ? '目前阻力比順勢更明顯' : '目前阻力比顺势更明显'}${themeText ? `，尤其要留意「${themeText}」` : ''}。`
+        : `${trad ? '目前訊號偏混合，先保留彈性' : '目前讯号偏混合，先保留弹性'}；真正答案要看接下來實際發展。`;
+  }
+
+  function buildStory(draw, analysis, profile = analyseQuestion()) {
     const lang = currentLanguage();
     const spread = selectedSpread();
 
@@ -964,7 +1204,8 @@
       if (lang === 'en') {
         return `${positionName(item.position)} is represented by ${cardName(item.card)} (${orientationText(item.reversed)}). ${item.meaning.meaning}`;
       }
-      return `${positionName(item.position)}抽到「${cardName(item.card)}・${orientationText(item.reversed)}」。${item.meaning.meaning}`;
+      const qLead = state.question ? `${lang === 'zh-TW' ? '放回你問的「' : '放回你问的“'}${state.question}${lang === 'zh-TW' ? '」裡' : '”里'}，` : '';
+      return `${qLead}${positionName(item.position)}落在「${cardName(item.card)}・${orientationText(item.reversed)}」。${item.meaning.meaning} 這張牌真正要你抓住的是「${keyThemes([item],2).join('、')}」。`;
     }
 
     if (spread.key === 'relationship5') {
@@ -976,7 +1217,13 @@
       }
 
       const trad = lang === 'zh-TW';
-      return `${trad ? '你自身這一側' : '你自身这一侧'}是「${cardName(self.card)}・${orientationText(self.reversed)}」，${counterpart}是「${cardName(other.card)}・${orientationText(other.reversed)}」；${trad ? '互動核心' : '互动核心'}落在「${cardName(core.card)}」，主要${trad ? '阻礙' : '阻碍'}是「${cardName(obstacle.card)}」。最後的「${cardName(direction.card)}」代表目前最值得採取的發展方向。這五張牌會把「自己、外在一側、彼此互動」拆開來看，避免把單一位置直接當成全部答案。`;
+      const selfTheme = keyThemes([self],2).join('、');
+      const otherTheme = keyThemes([other],2).join('、');
+      const coreTheme = keyThemes([core],2).join('、');
+      const obstacleTheme = keyThemes([obstacle],2).join('、');
+      const directionTheme = keyThemes([direction],2).join('、');
+      const qLead = state.question ? `${trad ? '針對你問的' : '针对你问的'}「${state.question}」，` : '';
+      return `${qLead}${trad ? '你這一側' : '你这一侧'}呈現「${selfTheme || cardName(self.card)}」，${counterpart}則呈現「${otherTheme || cardName(other.card)}」。真正把兩邊連在一起的核心是「${coreTheme || cardName(core.card)}」，所以這段互動不能只看某一方有沒有感覺；目前最明顯的卡點落在「${obstacleTheme || cardName(obstacle.card)}」。最後方向位的「${directionTheme || cardName(direction.card)}」是在告訴你：接下來若要讓局面改變，應該把力氣放在哪裡。`;
     }
 
     if (spread.key === 'choice5') {
@@ -995,7 +1242,10 @@
       return `Read as a sequence, the spread moves through ${parts.join(' → ')}. Later positions show how earlier energy develops, is challenged or can be handled, so the cards should not be read as isolated verdicts.`;
     }
     const trad = lang === 'zh-TW';
-    return `${trad ? '把牌連成一條線看' : '把牌连成一条线看'}，${trad ? '這組牌依序走過' : '这组牌依序走过'}：${parts.join(' → ')}。${trad ? '越後面的牌，越是在說前面的能量會怎麼發展、被修正，或應該怎麼處理；不要把每張牌當成互不相關的結論。' : '越后面的牌，越是在说前面的能量会怎么发展、被修正，或应该怎么处理；不要把每张牌当成互不相关的结论。'}`;
+    const firstThemes = keyThemes(draw.slice(0,Math.ceil(draw.length/2)),2).join('、');
+    const lastThemes = keyThemes(draw.slice(Math.floor(draw.length/2)),2).join('、');
+    const qLead = state.question ? `${trad ? '放回你問的' : '放回你问的'}「${state.question}」，` : '';
+    return `${qLead}${trad ? '這組牌不是幾張各說各話，而是一條發展線' : '这组牌不是几张各说各话，而是一条发展线'}：${parts.join(' → ')}。前段主要圍繞「${firstThemes || (trad ? '目前狀態' : '目前状态')}」，後段則把焦點帶到「${lastThemes || (trad ? '後續調整' : '后续调整')}」。${trad ? '也就是說，真正的答案不只在第一張牌，而在於前面的狀態能不能被後面的行動與選擇修正。' : '也就是说，真正的答案不只在第一张牌，而在于前面的状态能不能被后面的行动与选择修正。'}`;
   }
 
   function buildStructure(a) {
@@ -1157,7 +1407,7 @@
     const lang = currentLanguage();
     if (!q) return '';
 
-    const isTiming = /(什么时候|何时|多久|幾時|何時|多久|when|how long)/i.test(q);
+    const isTiming = /(什么时候|什麼時候|何时|多久|幾時|何時|when|how long)/i.test(q);
     const isBinary = /(会不会|能不能|是不是|是否|會不會|能不能|是不是|是否|will it|should i|yes or no)/i.test(q);
 
     if (isTiming) {
@@ -1178,7 +1428,7 @@
     return '';
   }
 
-  function buildFinalAdvice(draw, analysis) {
+  function buildFinalAdvice(draw, analysis, profile = analyseQuestion()) {
     const lang = currentLanguage();
     const spread = selectedSpread();
     const topic = localized(selectedTopic().name);
@@ -1226,7 +1476,33 @@
       core = `${lead}${tone}`;
     }
 
-    return qPrefix + core + questionFraming();
+    const humanTail = (() => {
+      if (!state.question || lang === 'en') return '';
+      const trad = lang === 'zh-TW';
+      if (profile.intent === 'feelings' || profile.intent === 'action' || profile.intent === 'reconcile') {
+        return trad
+          ? ' 判斷這段關係時，請把「持續性、是否願意投入時間、是否把話說清楚」放在曖昧訊號之前。'
+          : ' 判断这段关系时，请把“持续性、是否愿意投入时间、是否把话说清楚”放在暧昧讯号之前。';
+      }
+      if (profile.intent === 'reason') {
+        return trad
+          ? ' 如果你想驗證這個原因是否成立，最有用的不是繼續猜，而是觀察後續行為是否和牌面指出的卡點一致。'
+          : ' 如果你想验证这个原因是否成立，最有用的不是继续猜，而是观察后续行为是否和牌面指出的卡点一致。';
+      }
+      if (profile.intent === 'decision') {
+        return trad
+          ? ' 做決定前，最好把「最壞情況能不能承受」也一起算進去，這會比只看牌面吉凶更可靠。'
+          : ' 做决定前，最好把“最坏情况能不能承受”也一起算进去，这会比只看牌面吉凶更可靠。';
+      }
+      if (profile.intent === 'timing') {
+        return trad
+          ? ' 等你看到現實中開始出現對應條件，再把它視為時間正在靠近的訊號。'
+          : ' 等你看到现实中开始出现对应条件，再把它视为时间正在靠近的讯号。';
+      }
+      return '';
+    })();
+
+    return qPrefix + core + humanTail + questionFraming();
   }
 
   async function init() {
