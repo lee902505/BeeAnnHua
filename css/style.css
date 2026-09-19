@@ -9388,7 +9388,7 @@ b {
   53% { transform: translateY(-2px) rotate(.14deg); }
 }
 
-/* V0.11.1.6 · Mobile touch micro-response for the five home cards.
+/* V0.11.1.7 · Mobile touch micro-response for the five home cards.
    A finger touching a non-control area reacts immediately, while native
    vertical scrolling remains untouched. A true tap still gets the fuller
    V0.11.1.2 response handled by .is-reacting. */
@@ -9424,7 +9424,7 @@ b {
 }
 
 
-/* V0.11.1.6 · Question-aware tarot answer layer */
+/* V0.11.1.7 · Teacher-style tarot answer layer */
 .tarot-page-body .tarot-direct-answer {
   grid-column: 1 / -1;
   position: relative;
@@ -9453,4 +9453,11 @@ b {
 .tarot-history-answer {
   border-left: 2px solid rgba(237, 204, 152, .5);
   padding-left: 12px;
+}
+
+/* V0.11.1.7 · Teacher-style tarot paragraphs */
+.tarot-page-body .tarot-combination-body p,
+.tarot-history-answer p,
+.tarot-history-advice p {
+  white-space: pre-line;
 }

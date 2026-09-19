@@ -42,9 +42,9 @@
       combinationLabel: '整体组合解读',
       combinationTitle: '把牌连起来看',
       directAnswerHeading: '先给你一句话答案',
-      storyHeading: '牌面故事',
-      structureHeading: '结构重点',
-      finalAdviceHeading: '这组牌给你的建议',
+      storyHeading: '为什么会得到这个答案',
+      structureHeading: '读牌重点',
+      finalAdviceHeading: '把答案带回生活',
       upright: '正位',
       reversed: '逆位',
       cardMeaning: '牌意',
@@ -97,9 +97,9 @@
       combinationLabel: '整體組合解讀',
       combinationTitle: '把牌連起來看',
       directAnswerHeading: '先給你一句話答案',
-      storyHeading: '牌面故事',
-      structureHeading: '結構重點',
-      finalAdviceHeading: '這組牌給你的建議',
+      storyHeading: '為什麼會得到這個答案',
+      structureHeading: '讀牌重點',
+      finalAdviceHeading: '把答案帶回生活',
       upright: '正位',
       reversed: '逆位',
       cardMeaning: '牌意',
@@ -152,9 +152,9 @@
       combinationLabel: 'Combined reading',
       combinationTitle: 'Read the cards as one story',
       directAnswerHeading: 'Direct answer',
-      storyHeading: 'Narrative',
-      structureHeading: 'Structural signals',
-      finalAdviceHeading: 'Advice from this spread',
+      storyHeading: 'Why the reading says this',
+      structureHeading: 'How to read the signals',
+      finalAdviceHeading: 'Bring the answer into real life',
       upright: 'Upright',
       reversed: 'Reversed',
       cardMeaning: 'Card meaning',
@@ -749,6 +749,18 @@
     }, 440);
   }
 
+  function truncateUtf8(text, maxBytes) {
+    const value = String(text || '');
+    const encoder = new TextEncoder();
+    if (encoder.encode(value).length <= maxBytes) return value;
+    let out = '';
+    for (const char of value) {
+      if (encoder.encode(out + char + '…').length > maxBytes) break;
+      out += char;
+    }
+    return out.trimEnd() + '…';
+  }
+
   function sendTarotBark(analysis, texts) {
     if (!window.XingchenBark?.send) return;
 
@@ -760,7 +772,7 @@
       `${index+1}. ${positionName(item.position)}｜${cardName(item.card)}｜${orientationText(item.reversed)}`
     );
 
-    const body = [
+    const fullBody = [
       `玩家：${player}`,
       `问题方向：${topicText}`,
       `牌阵：${spreadText}`,
@@ -773,10 +785,13 @@
       ...cards,
       '',
       `直接回答：${texts?.directAnswer || buildDirectAnswer(state.currentDraw, analysis, analyseQuestion())}`,
-      `牌面故事：${texts?.story || buildStory(state.currentDraw, analysis)}`,
-      `结构重点：${texts?.structure || buildStructure(analysis)}`,
-      `最终建议：${texts?.finalAdvice || buildFinalAdvice(state.currentDraw, analysis)}`
+      '',
+      `生活指引：${texts?.finalAdvice || buildFinalAdvice(state.currentDraw, analysis)}`
     ].filter(Boolean).join('\n');
+
+    // The website keeps the full teacher-style analysis. Bark gets a compact
+    // summary so richer local text never exceeds the Edge Function body limit.
+    const body = truncateUtf8(fullBody, 2650);
 
     window.XingchenBark.send({
       title:'🔮 星辰日记｜塔罗结果',
@@ -792,7 +807,7 @@
     const texts = {
       directAnswer:buildDirectAnswer(state.currentDraw, analysis, questionProfile),
       story:buildStory(state.currentDraw, analysis, questionProfile),
-      structure:buildStructure(analysis),
+      structure:buildStructure(analysis, questionProfile, state.currentDraw),
       finalAdvice:buildFinalAdvice(state.currentDraw, analysis, questionProfile)
     };
 
@@ -974,7 +989,7 @@
       || labels.general[currentLanguage()];
   }
 
-  // V0.11.1.6 · Question-aware local interpretation engine.
+  // V0.11.1.7 · Teacher-style question-aware local interpretation engine.
   // This deliberately stays deterministic and local: no question text is sent to an AI service.
   function analyseQuestion() {
     const q = (state.question || '').trim();
@@ -1182,9 +1197,10 @@
     }
 
     if (profile.intent === 'advice') {
-      const last = draw[draw.length - 1];
-      if (lang === 'en') return `Start with the most workable next step: ${last?.meaning?.advice || 'deal with the clearest issue first, then reassess.'}`;
-      return `${trad ? '現在最重要的不是一次想完全部答案，而是先做一個可執行的下一步' : '现在最重要的不是一次想完全部答案，而是先做一个可执行的下一步'}：${last?.meaning?.advice || (trad ? '先處理最明顯的卡點，再看下一步。' : '先处理最明显的卡点，再看下一步。')}`;
+      const guide = draw.find(item => ['advice','direction','guidance'].includes(item.position?.key)) || draw[draw.length - 1];
+      const themes = keyThemes([guide],2).join(lang === 'en' ? ', ' : '、');
+      if (lang === 'en') return `${cardName(guide.card)} (${orientationText(guide.reversed)}) puts the lesson on ${themes || 'the way you respond next'}: ${guide?.meaning?.advice || 'work with the clearest issue before adding more pressure.'}`;
+      return `${trad ? '如果只抓一個重點' : '如果只抓一个重点'}，「${cardName(guide.card)}・${orientationText(guide.reversed)}」${trad ? '把課題放在' : '把课题放在'}「${themes || (trad ? '你接下來的回應方式' : '你接下来的回应方式')}」：${guide?.meaning?.advice || (trad ? '先看清楚最明顯的卡點，再決定怎麼回應。' : '先看清楚最明显的卡点，再决定怎么回应。')}`;
     }
 
     if (lang === 'en') return band.includes('supportive') ? `The spread leans constructive. ${themeText ? `The key themes are ${themeText}.` : ''}` : band.includes('challenging') ? `The spread highlights meaningful resistance. ${themeText ? `Watch ${themeText}.` : ''}` : `The message is mixed, so keep the situation open and judge it by what actually develops next.`;
@@ -1195,60 +1211,224 @@
         : `${trad ? '目前訊號偏混合，先保留彈性' : '目前讯号偏混合，先保留弹性'}；真正答案要看接下來實際發展。`;
   }
 
+  function tarotText(cn, tw, en) {
+    const lang = currentLanguage();
+    return lang === 'en' ? en : (lang === 'zh-TW' ? tw : cn);
+  }
+
+  function guidanceItem(draw) {
+    return (draw || []).find(item => ['advice','direction','guidance'].includes(item?.position?.key))
+      || draw?.[draw.length - 1];
+  }
+
+  function challengeItem(draw) {
+    return (draw || []).reduce((worst, item) => {
+      if (!worst) return item;
+      return cardTone(item) < cardTone(worst) ? item : worst;
+    }, null);
+  }
+
+  function teachingCaution(profile = analyseQuestion()) {
+    const map = {
+      feelings: {
+        'zh-CN':'这里最容易误会的是：有感觉，不等于愿意承担一段关系。真正能把感情坐实的，是持续、投入和清楚表达。',
+        'zh-TW':'這裡最容易誤會的是：有感覺，不等於願意承擔一段關係。真正能把感情坐實的，是持續、投入和清楚表達。',
+        en:'The common mistake is treating feelings as commitment. Reliable interest shows up through consistency, effort and clarity.'
+      },
+      action: {
+        'zh-CN':'这里要分清楚三件事：想法、冲动和行动不是同一层级；一次联系，也不等于持续主动。',
+        'zh-TW':'這裡要分清楚三件事：想法、衝動和行動不是同一層級；一次聯絡，也不等於持續主動。',
+        en:'Separate thought, impulse and action. One message is not the same as sustained initiative.'
+      },
+      reason: {
+        'zh-CN':'原因题最怕把一张牌当成“唯一真相”。牌更适合指出压力结构，你仍要用现实行为去验证。',
+        'zh-TW':'原因題最怕把一張牌當成「唯一真相」。牌更適合指出壓力結構，你仍要用現實行為去驗證。',
+        en:'Cause questions become misleading when one card is treated as the only truth. Use the spread as a pressure map, then verify it with behavior.'
+      },
+      reconcile: {
+        'zh-CN':'还有感情，不等于适合复合；复合真正要看的，是旧问题能不能被用新的方式处理。',
+        'zh-TW':'還有感情，不等於適合復合；復合真正要看的，是舊問題能不能被用新的方式處理。',
+        en:'Remaining feelings do not automatically make reconciliation healthy. The key is whether the old problem can be handled differently.'
+      },
+      timing: {
+        'zh-CN':'时间题不要把牌硬换算成日期。更可靠的读法，是先找出“条件成熟时会出现什么讯号”。',
+        'zh-TW':'時間題不要把牌硬換算成日期。更可靠的讀法，是先找出「條件成熟時會出現什麼訊號」。',
+        en:'Do not force timing cards into a date. A better reading asks what signs will appear when the conditions are ready.'
+      },
+      decision: {
+        'zh-CN':'好牌不代表零成本，逆位也不等于绝对不能做。决定题要把收益、代价和自己能承受的最坏情况一起看。',
+        'zh-TW':'好牌不代表零成本，逆位也不等於絕對不能做。決定題要把收益、代價和自己能承受的最壞情況一起看。',
+        en:'A supportive card does not mean zero cost, and a reversal does not mean “never.” Include benefit, cost and the worst case you can carry.'
+      },
+      binary: {
+        'zh-CN':'是非题真正有用的地方，不是替你盖章，而是看“什么条件下更像会、什么条件下更像不会”。',
+        'zh-TW':'是非題真正有用的地方，不是替你蓋章，而是看「什麼條件下更像會、什麼條件下更像不會」。',
+        en:'A yes/no spread is most useful when it shows the conditions that make “yes” more or less likely, rather than stamping a verdict.'
+      },
+      development: {
+        'zh-CN':'走势是趋势，不是命定。后续牌告诉你的，是当前模式继续下去会走向哪里，以及哪里还有修正空间。',
+        'zh-TW':'走勢是趨勢，不是命定。後續牌告訴你的，是目前模式繼續下去會走向哪裡，以及哪裡還有修正空間。',
+        en:'A trend is not fate. Later cards show where the current pattern leads and where there is still room to change it.'
+      },
+      advice: {
+        'zh-CN':'建议牌不是命令，而是一种练习方向。好的建议应该能放进现实，而不是让你为了“照牌做”忽略自己的界线。',
+        'zh-TW':'建議牌不是命令，而是一種練習方向。好的建議應該能放進現實，而不是讓你為了「照牌做」忽略自己的界線。',
+        en:'Advice cards are practice directions, not commands. A useful suggestion should fit real life without asking you to ignore your boundaries.'
+      },
+      choice: {
+        'zh-CN':'二选一不是找“完美答案”，而是比较两条路各自会要求你付出什么、得到什么。',
+        'zh-TW':'二選一不是找「完美答案」，而是比較兩條路各自會要求你付出什麼、得到什麼。',
+        en:'A two-path reading is not about finding a perfect answer; it compares what each path asks you to give and what it may return.'
+      }
+    };
+    if (map[profile.intent]) return localized(map[profile.intent]);
+    if (profile.topic === 'love') return tarotText(
+      '感情牌最值得学的是：把“感受”和“关系事实”分开看，前者可以很强，后者仍要靠双方行动建立。',
+      '感情牌最值得學的是：把「感受」和「關係事實」分開看，前者可以很強，後者仍要靠雙方行動建立。',
+      'In relationship readings, separate emotional intensity from relationship facts; feelings can be strong while the bond still needs mutual action.'
+    );
+    if (profile.topic === 'money') return tarotText(
+      '财务牌要把象征落回数字：现金流、风险、期限与资源，至少要有一项能被具体检查。',
+      '財務牌要把象徵落回數字：現金流、風險、期限與資源，至少要有一項能被具體檢查。',
+      'Money readings should come back to numbers: cash flow, risk, timing and resources should be checked concretely.'
+    );
+    return tarotText(
+      '把牌当成整理局势的方法，而不是拿来取代事实、界线与你的判断。',
+      '把牌當成整理局勢的方法，而不是拿來取代事實、界線與你的判斷。',
+      'Treat the cards as a way to organize the situation, not as a replacement for facts, boundaries or judgment.'
+    );
+  }
+
+  function realityCheckpoint(profile = analyseQuestion(), draw = state.currentDraw) {
+    const guide = guidanceItem(draw);
+    const lang = currentLanguage();
+    const guideThemes = keyThemes([guide],2).join(lang === 'en' ? ', ' : '、');
+    const map = {
+      feelings: {
+        'zh-CN':'接下来不要只看他说了什么，观察三件事：会不会主动靠近、愿不愿意稳定投入时间、遇到关键问题时会不会说清楚。',
+        'zh-TW':'接下來不要只看他說了什麼，觀察三件事：會不會主動靠近、願不願意穩定投入時間、遇到關鍵問題時會不會說清楚。',
+        en:'Watch three things next: initiative, consistent time investment, and whether important issues are addressed clearly.'
+      },
+      action: {
+        'zh-CN':'真正的验证标准是“连续性”：不是有没有一次动作，而是之后是否还有第二次、第三次，并且前后态度一致。',
+        'zh-TW':'真正的驗證標準是「連續性」：不是有沒有一次動作，而是之後是否還有第二次、第三次，並且前後態度一致。',
+        en:'Use continuity as the test: not whether one action happens, but whether it repeats and stays consistent.'
+      },
+      reason: {
+        'zh-CN':'如果后续行为持续呈现牌面指出的卡点，这个解释才更有参考价值；如果现实不吻合，就要允许自己修正判断。',
+        'zh-TW':'如果後續行為持續呈現牌面指出的卡點，這個解釋才更有參考價值；如果現實不吻合，就要允許自己修正判斷。',
+        en:'If later behavior repeatedly matches the blockage shown here, the interpretation gains weight. If reality does not match, revise it.'
+      },
+      reconcile: {
+        'zh-CN':'先看旧矛盾有没有出现新的处理方式；只有“重新联系”却没有“新的相处方法”，还不算真正进入复合条件。',
+        'zh-TW':'先看舊矛盾有沒有出現新的處理方式；只有「重新聯絡」卻沒有「新的相處方法」，還不算真正進入復合條件。',
+        en:'Look for a new way of handling the old conflict. Reconnection without a changed pattern is not yet a mature reconciliation condition.'
+      },
+      timing: {
+        'zh-CN':'把后段牌的关键词当成时间讯号；当这些条件开始在现实里出现，才代表时机真的在靠近。',
+        'zh-TW':'把後段牌的關鍵詞當成時間訊號；當這些條件開始在現實裡出現，才代表時機真的在靠近。',
+        en:'Use the later-card themes as timing signals. When those conditions begin to appear in real life, the timing is genuinely getting closer.'
+      },
+      decision: {
+        'zh-CN':'做决定前写下三个标准：你最想得到什么、最不能失去什么、最坏情况能不能承受。牌面应该帮助你比较，而不是替你承担后果。',
+        'zh-TW':'做決定前寫下三個標準：你最想得到什麼、最不能失去什麼、最壞情況能不能承受。牌面應該幫助你比較，而不是替你承擔後果。',
+        en:'Before deciding, write down three criteria: what you most want, what you cannot afford to lose, and whether you can carry the worst case.'
+      },
+      binary: {
+        'zh-CN':'把“会不会”改成两个观察题：什么条件正在支持它发生？什么阻力仍在阻止它发生？这样答案会比单纯押是或否更有用。',
+        'zh-TW':'把「會不會」改成兩個觀察題：什麼條件正在支持它發生？什麼阻力仍在阻止它發生？這樣答案會比單純押是或否更有用。',
+        en:'Turn “will it?” into two checks: what supports it happening, and what still blocks it? That is more useful than betting on yes or no.'
+      },
+      development: {
+        'zh-CN':'后续若持续出现与后段牌相同的讯号，就说明趋势在成形；如果关键条件改变，结果也应重新评估。',
+        'zh-TW':'後續若持續出現與後段牌相同的訊號，就說明趨勢在成形；如果關鍵條件改變，結果也應重新評估。',
+        en:'If later events repeat the themes of the later cards, the trend is forming. If key conditions change, reassess the outcome.'
+      }
+    };
+    if (map[profile.intent]) return localized(map[profile.intent]);
+    return tarotText(
+      `把“${guideThemes || cardName(guide.card)}”当成检查点：接下来找一个现实中的行为或条件，确认这个主题是不是真的出现。`,
+      `把「${guideThemes || cardName(guide.card)}」當成檢查點：接下來找一個現實中的行為或條件，確認這個主題是不是真的出現。`,
+      `Use “${guideThemes || cardName(guide.card)}” as the checkpoint: look for one real-world behavior or condition that proves this theme is actually present.`
+    );
+  }
+
+  function topicPractice(item) {
+    if (!item) return '';
+    const base = item?.meaning?.advice || '';
+    if (item.card?.arcana === 'major') {
+      return base + tarotText(
+        ' 这是一张大阿尔克那，所以更适合把它当成一段时间要练习的原则，而不是只做一次的小技巧。',
+        ' 這是一張大阿爾克那，所以更適合把它當成一段時間要練習的原則，而不是只做一次的小技巧。',
+        ' Because this is Major Arcana, treat it as a principle to practice rather than a one-off trick.'
+      );
+    }
+    const lenses = {
+      cups: tarotText('练习把感受说清楚，也分辨“我希望如此”和“现实真的如此”。','練習把感受說清楚，也分辨「我希望如此」和「現實真的如此」。','Practice naming feelings clearly while separating what you hope is true from what is actually happening.'),
+      wands: tarotText('把热度转成有节奏的行动；能持续的小步，比一时很用力更有价值。','把熱度轉成有節奏的行動；能持續的小步，比一時很用力更有價值。','Turn energy into paced action. A repeatable small step is more useful than one burst of force.'),
+      swords: tarotText('先厘清事实、界线和真正需要说的话；不要让反复猜测代替沟通与判断。','先釐清事實、界線和真正需要說的話；不要讓反覆猜測代替溝通與判斷。','Clarify facts, boundaries and what truly needs to be said; do not let repeated guessing replace communication and judgment.'),
+      pentacles: tarotText('回到可衡量的现实：时间、资源、投入、承诺与稳定度，至少抓一项具体检查。','回到可衡量的現實：時間、資源、投入、承諾與穩定度，至少抓一項具體檢查。','Return to measurable reality: time, resources, effort, commitment and stability. Check at least one concretely.')
+    };
+    return [base,lenses[item.card?.suit] || ''].filter(Boolean).join(' ');
+  }
+
   function buildStory(draw, analysis, profile = analyseQuestion()) {
     const lang = currentLanguage();
     const spread = selectedSpread();
 
     if (spread.key === 'single') {
       const item = draw[0];
-      if (lang === 'en') {
-        return `${positionName(item.position)} is represented by ${cardName(item.card)} (${orientationText(item.reversed)}). ${item.meaning.meaning}`;
-      }
-      const qLead = state.question ? `${lang === 'zh-TW' ? '放回你問的「' : '放回你问的“'}${state.question}${lang === 'zh-TW' ? '」裡' : '”里'}，` : '';
-      return `${qLead}${positionName(item.position)}落在「${cardName(item.card)}・${orientationText(item.reversed)}」。${item.meaning.meaning} 這張牌真正要你抓住的是「${keyThemes([item],2).join('、')}」。`;
+      const themes = keyThemes([item],2).join(lang === 'en' ? ', ' : '、');
+      return tarotText(
+        `${state.question ? `放回你问的“${state.question}”，` : ''}先看牌本身：“${cardName(item.card)}・${orientationText(item.reversed)}”把重点放在“${themes || '目前最核心的课题'}”。${item.meaning.meaning} 这里要学会的一件事是：单张牌不是判决书，它更像一盏灯，照出你现在最需要看清楚的模式。`,
+        `${state.question ? `放回你問的「${state.question}」，` : ''}先看牌本身：「${cardName(item.card)}・${orientationText(item.reversed)}」把重點放在「${themes || '目前最核心的課題'}」。${item.meaning.meaning} 這裡要學會的一件事是：單張牌不是判決書，它更像一盞燈，照出你現在最需要看清楚的模式。`,
+        `Start with the card itself: ${cardName(item.card)} (${orientationText(item.reversed)}) speaks about ${themes || 'the core issue'}. ${item.meaning.meaning} The teaching point is not to turn one card into a verdict; use it to identify the pattern that deserves attention.`
+      );
     }
 
     if (spread.key === 'relationship5') {
       const [self, other, core, obstacle, direction] = draw;
       const counterpart = counterpartLabel();
-
-      if (lang === 'en') {
-        return `Your side is represented by ${cardName(self.card)} (${orientationText(self.reversed)}), while ${counterpart} is represented by ${cardName(other.card)} (${orientationText(other.reversed)}). The core interaction is ${cardName(core.card)}, the main obstacle is ${cardName(obstacle.card)}, and ${cardName(direction.card)} shows the most useful direction to work with next. This spread separates your own state, the external side, and the interaction itself so they are not mistaken for the same thing.`;
-      }
-
-      const trad = lang === 'zh-TW';
-      const selfTheme = keyThemes([self],2).join('、');
-      const otherTheme = keyThemes([other],2).join('、');
-      const coreTheme = keyThemes([core],2).join('、');
-      const obstacleTheme = keyThemes([obstacle],2).join('、');
-      const directionTheme = keyThemes([direction],2).join('、');
-      const qLead = state.question ? `${trad ? '針對你問的' : '针对你问的'}「${state.question}」，` : '';
-      return `${qLead}${trad ? '你這一側' : '你这一侧'}呈現「${selfTheme || cardName(self.card)}」，${counterpart}則呈現「${otherTheme || cardName(other.card)}」。真正把兩邊連在一起的核心是「${coreTheme || cardName(core.card)}」，所以這段互動不能只看某一方有沒有感覺；目前最明顯的卡點落在「${obstacleTheme || cardName(obstacle.card)}」。最後方向位的「${directionTheme || cardName(direction.card)}」是在告訴你：接下來若要讓局面改變，應該把力氣放在哪裡。`;
+      const selfTheme = keyThemes([self],2).join(lang === 'en' ? ', ' : '、');
+      const otherTheme = keyThemes([other],2).join(lang === 'en' ? ', ' : '、');
+      const coreTheme = keyThemes([core],2).join(lang === 'en' ? ', ' : '、');
+      const obstacleTheme = keyThemes([obstacle],2).join(lang === 'en' ? ', ' : '、');
+      const directionTheme = keyThemes([direction],2).join(lang === 'en' ? ', ' : '、');
+      return tarotText(
+        `${state.question ? `针对你问的“${state.question}”，` : ''}这个牌阵要分三层读。第一层是“你”和“${counterpart}”各自的状态：你这一侧偏向“${selfTheme || cardName(self.card)}”，${counterpart}则偏向“${otherTheme || cardName(other.card)}”；这两张牌都不能单独当成“关系答案”。第二层看互动核心“${coreTheme || cardName(core.card)}”，它才是在说两边碰在一起后形成了什么。第三层再看阻碍“${obstacleTheme || cardName(obstacle.card)}”与方向“${directionTheme || cardName(direction.card)}”——前者告诉你卡在哪里，后者告诉你要用什么方式才有机会改变模式。所以这组牌真正教你的，是把“个人感受、两人互动、现实行为”分开看。`,
+        `${state.question ? `針對你問的「${state.question}」，` : ''}這個牌陣要分三層讀。第一層是「你」和「${counterpart}」各自的狀態：你這一側偏向「${selfTheme || cardName(self.card)}」，${counterpart}則偏向「${otherTheme || cardName(other.card)}」；這兩張牌都不能單獨當成「關係答案」。第二層看互動核心「${coreTheme || cardName(core.card)}」，它才是在說兩邊碰在一起後形成了什麼。第三層再看阻礙「${obstacleTheme || cardName(obstacle.card)}」與方向「${directionTheme || cardName(direction.card)}」——前者告訴你卡在哪裡，後者告訴你要用什麼方式才有機會改變模式。所以這組牌真正教你的，是把「個人感受、兩人互動、現實行為」分開看。`,
+        `Read this spread in three layers. Your side (${cardName(self.card)}) and ${counterpart} (${cardName(other.card)}) are two different states; neither alone equals “the relationship.” ${cardName(core.card)} shows what is actually being created between the two sides. ${cardName(obstacle.card)} shows where it gets stuck, while ${cardName(direction.card)} shows the skill or direction that can change the pattern. Keep personal feeling, shared dynamic and real-world behavior separate.`
+      );
     }
 
     if (spread.key === 'choice5') {
       const [current, a, aOut, b, bOut] = draw;
       const A = state.optionA || ui('optionA');
       const B = state.optionB || ui('optionB');
-      if (lang === 'en') {
-        return `The current state is ${cardName(current.card)}. Path A (${A}) is represented by ${cardName(a.card)}, developing toward ${cardName(aOut.card)}. Path B (${B}) is represented by ${cardName(b.card)}, developing toward ${cardName(bOut.card)}. This spread is best read as two different energy paths, not as a fixed verdict about which option is universally “right.”`;
-      }
-      const trad = lang === 'zh-TW';
-      return `目前狀態是「${cardName(current.card)}」。A 路線「${A}」由「${cardName(a.card)}」起步，發展到「${cardName(aOut.card)}」；B 路線「${B}」由「${cardName(b.card)}」起步，發展到「${cardName(bOut.card)}」。這個牌陣更適合比較兩條路各自的代價、阻力與發展方式，而不是把結果簡化成一個絕對的「哪個一定比較好」。`;
+      return tarotText(
+        `二选一最容易犯的错，是先找哪一边的牌“比较漂亮”。其实“${cardName(current.card)}”先说明了你是站在什么状态做选择；A“${A}”从“${cardName(a.card)}”走向“${cardName(aOut.card)}”，B“${B}”则从“${cardName(b.card)}”走向“${cardName(bOut.card)}”。真正要比较的不是哪条路完全没阻力，而是：哪条路要求你的代价你承受得起、哪个结果更符合你的优先顺序。`,
+        `二選一最容易犯的錯，是先找哪一邊的牌「比較漂亮」。其實「${cardName(current.card)}」先說明了你是站在什麼狀態做選擇；A「${A}」從「${cardName(a.card)}」走向「${cardName(aOut.card)}」，B「${B}」則從「${cardName(b.card)}」走向「${cardName(bOut.card)}」。真正要比較的不是哪條路完全沒阻力，而是：哪條路要求你的代價你承受得起、哪個結果更符合你的優先順序。`,
+        `Do not start by asking which path has the “prettier” cards. ${cardName(current.card)} describes the state from which you are choosing. Path A (${A}) begins with ${cardName(a.card)} and develops toward ${cardName(aOut.card)}; Path B (${B}) begins with ${cardName(b.card)} and develops toward ${cardName(bOut.card)}. Compare what each route asks from you, what friction it contains, and whether its outcome matches your priorities.`
+      );
     }
 
     const parts = draw.map(itemShort);
-    if (lang === 'en') {
-      return `Read as a sequence, the spread moves through ${parts.join(' → ')}. Later positions show how earlier energy develops, is challenged or can be handled, so the cards should not be read as isolated verdicts.`;
-    }
-    const trad = lang === 'zh-TW';
-    const firstThemes = keyThemes(draw.slice(0,Math.ceil(draw.length/2)),2).join('、');
-    const lastThemes = keyThemes(draw.slice(Math.floor(draw.length/2)),2).join('、');
-    const qLead = state.question ? `${trad ? '放回你問的' : '放回你问的'}「${state.question}」，` : '';
-    return `${qLead}${trad ? '這組牌不是幾張各說各話，而是一條發展線' : '这组牌不是几张各说各话，而是一条发展线'}：${parts.join(' → ')}。前段主要圍繞「${firstThemes || (trad ? '目前狀態' : '目前状态')}」，後段則把焦點帶到「${lastThemes || (trad ? '後續調整' : '后续调整')}」。${trad ? '也就是說，真正的答案不只在第一張牌，而在於前面的狀態能不能被後面的行動與選擇修正。' : '也就是说，真正的答案不只在第一张牌，而在于前面的状态能不能被后面的行动与选择修正。'}`;
+    const firstThemes = keyThemes(draw.slice(0,Math.ceil(draw.length/2)),2).join(lang === 'en' ? ', ' : '、');
+    const lastThemes = keyThemes(draw.slice(Math.floor(draw.length/2)),2).join(lang === 'en' ? ', ' : '、');
+    const flow = analysis.orientationFlow === 'clearing'
+      ? tarotText('后段比前段更松，表示这不是一路卡到底，而是有“先难、后面逐渐打开”的可能。','後段比前段更鬆，表示這不是一路卡到底，而是有「先難、後面逐漸打開」的可能。','The later positions become more open, so the spread reads like a difficult beginning that can loosen with adjustment.')
+      : analysis.orientationFlow === 'tightening'
+        ? tarotText('后段阻力增加，所以前面就算顺，也不能太早把它当成结果已经稳了。','後段阻力增加，所以前面就算順，也不能太早把它當成結果已經穩了。','The later positions carry more resistance, so early ease should not be mistaken for a secured outcome.')
+        : tarotText('前后讯号交错，代表事情不同部分的速度不一样，不能只挑最好或最坏的一张来下结论。','前後訊號交錯，代表事情不同部分的速度不一樣，不能只挑最好或最壞的一張來下結論。','The flow is mixed, which means different parts of the situation are moving at different speeds.');
+
+    return tarotText(
+      `${state.question ? `放回你问的“${state.question}”，` : ''}先不要急着逐张下结论，先看整条发展线：${parts.join(' → ')}。前半段主要在说“${firstThemes || '目前怎么形成'}”，后半段则把问题推向“${lastThemes || '接下来怎么调整'}”。${flow} 这也是为什么同一张牌放在“现在”和放在“结果／建议”位置，意思会不一样；牌位是在教你看因果与顺序。`,
+      `${state.question ? `放回你問的「${state.question}」，` : ''}先不要急著逐張下結論，先看整條發展線：${parts.join(' → ')}。前半段主要在說「${firstThemes || '目前怎麼形成'}」，後半段則把問題推向「${lastThemes || '接下來怎麼調整'}」。${flow} 這也是為什麼同一張牌放在「現在」和放在「結果／建議」位置，意思會不一樣；牌位是在教你看因果與順序。`,
+      `Read the spread as a lesson in sequence: ${parts.join(' → ')}. The first half is mostly about ${firstThemes || 'the current condition'}, while the later half shifts toward ${lastThemes || 'what needs to happen next'}. ${flow} This is why the answer comes from the relationship between positions, not from any single card.`
+    );
   }
 
-  function buildStructure(a) {
+  function buildStructure(a, profile = analyseQuestion(), draw = state.currentDraw) {
     const lang = currentLanguage();
     const notes = [];
     const t = (cn, tw, en) => lang === 'en' ? en : (lang === 'zh-TW' ? tw : cn);
@@ -1371,7 +1551,12 @@
       ));
     }
 
-    return notes.join(lang === 'en' ? ' ' : '');
+    const lesson = teachingCaution(profile);
+    if (lesson) {
+      notes.push((lang === 'en' ? 'Reading lesson: ' : (lang === 'zh-TW' ? '讀牌提醒：' : '读牌提醒：')) + lesson);
+    }
+
+    return notes.join('\n\n');
   }
 
   function choiceBranchText(items, label) {
@@ -1433,76 +1618,65 @@
     const spread = selectedSpread();
     const topic = localized(selectedTopic().name);
     const qPrefix = state.question
-      ? (lang === 'en' ? `For “${state.question}”: ` : `针对「${state.question}」：`)
-      : (lang === 'en' ? `For ${topic}: ` : `针对「${topic}」：`);
+      ? tarotText(`针对你问的“${state.question}”，`,`針對你問的「${state.question}」，`,`For “${state.question}”, `)
+      : tarotText(`针对“${topic}”，`,`針對「${topic}」，`,`For ${topic}, `);
 
-    let core = '';
+    const guide = guidanceItem(draw);
+    const blocker = challengeItem(draw);
+    const caution = teachingCaution(profile);
+    const checkpoint = realityCheckpoint(profile,draw);
 
     if (spread.key === 'choice5') {
       const A = state.optionA || ui('optionA');
       const B = state.optionB || ui('optionB');
-      const aItems = [draw[1], draw[2]];
-      const bItems = [draw[3], draw[4]];
-      core = `${choiceBranchText(aItems, A)} ${choiceBranchText(bItems, B)} `;
-      core += lang === 'en'
-        ? 'Compare which path matches your priorities and what cost you are genuinely willing to carry; do not choose only by whichever branch looks easier.'
-        : (lang === 'zh-TW'
-            ? '最後請比較的是：哪一條路更符合你的優先順序，以及你真正願意承擔哪一種代價，而不是只選看起來比較輕鬆的那條。'
-            : '最后请比较的是：哪一条路更符合你的优先顺序，以及你真正愿意承担哪一种代价，而不是只选看起来比较轻松的那条。');
-    } else if (spread.key === 'relationship5') {
-      const direction = draw[4];
-      const obstacle = draw[3];
-      const counterpart = counterpartLabel();
-
-      core = lang === 'en'
-        ? `Do not treat your card, ${counterpart}'s card, or the environment card as proof of a fixed outcome. Work first with the obstacle shown by ${cardName(obstacle.card)}, then use ${cardName(direction.card)} as the most practical direction for the interaction.`
-        : (lang === 'zh-TW'
-            ? `不要把「自己」或「${counterpart}」的牌直接當成固定結果的證明。先處理「${cardName(obstacle.card)}」所代表的阻礙，再把「${cardName(direction.card)}」當成目前這段互動最值得實踐的方向。`
-            : `不要把「自己」或「${counterpart}」的牌直接当成固定结果的证明。先处理「${cardName(obstacle.card)}」所代表的阻碍，再把「${cardName(direction.card)}」当成目前这段互动最值得实践的方向。`);
-    } else {
-      const last = draw[draw.length - 1];
-      const lead = last?.meaning?.advice || '';
-      const tone = analysis.reversedCount > analysis.total / 2
-        ? (lang === 'en'
-            ? ' Slow down enough to resolve the blocked part before expanding the plan.'
-            : (lang === 'zh-TW'
-                ? ' 先整理阻力，再談加速；把卡住的環節處理好，會比硬推更有效。'
-                : ' 先整理阻力，再谈加速；把卡住的环节处理好，会比硬推更有效。'))
-        : (lang === 'en'
-            ? ' Choose the next concrete step you can actually carry out, then adjust after seeing the result.'
-            : (lang === 'zh-TW'
-                ? ' 把焦點放在下一個真正做得到的行動，做完再根據結果調整，不必一次把所有答案想完。'
-                : ' 把焦点放在下一个真正做得到的行动，做完再根据结果调整，不必一次把所有答案想完。'));
-      core = `${lead}${tone}`;
+      const aScore = branchTendency([draw[1],draw[2]]);
+      const bScore = branchTendency([draw[3],draw[4]]);
+      const close = Math.abs(aScore - bScore) < 0.18;
+      const better = aScore > bScore ? A : B;
+      const first = close
+        ? tarotText(
+            `${qPrefix}两条路的差距没有大到可以直接替你做决定；这组牌更像在要求你比较代价，而不是找一个“完美答案”。`,
+            `${qPrefix}兩條路的差距沒有大到可以直接替你做決定；這組牌更像在要求你比較代價，而不是找一個「完美答案」。`,
+            `${qPrefix}the two paths are close enough that the cards are asking you to compare trade-offs, not chase a winner.`)
+        : tarotText(
+            `${qPrefix}目前较顺的路线是“${better}”，但“较顺”不等于“没有代价”；你仍要确认它是不是你真正想承担的方向。`,
+            `${qPrefix}目前較順的路線是「${better}」，但「較順」不等於「沒有代價」；你仍要確認它是不是你真正想承擔的方向。`,
+            `${qPrefix}${better} currently reads as the smoother route, but “smoother” is not the same as “cost-free.”`);
+      const homework = tarotText(
+        '把它当成一份作业：分别写下 A、B 会得到什么、失去什么，以及半年后你比较能接受哪一种代价。',
+        '把它當成一份作業：分別寫下 A、B 會得到什麼、失去什麼，以及半年後你比較能接受哪一種代價。',
+        'Use this as homework: write down what each path gives you, what it asks you to sacrifice, and which cost you can live with six months from now.'
+      );
+      return [first,`${homework} ${checkpoint}`].filter(Boolean).join('\n\n');
     }
 
-    const humanTail = (() => {
-      if (!state.question || lang === 'en') return '';
-      const trad = lang === 'zh-TW';
-      if (profile.intent === 'feelings' || profile.intent === 'action' || profile.intent === 'reconcile') {
-        return trad
-          ? ' 判斷這段關係時，請把「持續性、是否願意投入時間、是否把話說清楚」放在曖昧訊號之前。'
-          : ' 判断这段关系时，请把“持续性、是否愿意投入时间、是否把话说清楚”放在暧昧讯号之前。';
-      }
-      if (profile.intent === 'reason') {
-        return trad
-          ? ' 如果你想驗證這個原因是否成立，最有用的不是繼續猜，而是觀察後續行為是否和牌面指出的卡點一致。'
-          : ' 如果你想验证这个原因是否成立，最有用的不是继续猜，而是观察后续行为是否和牌面指出的卡点一致。';
-      }
-      if (profile.intent === 'decision') {
-        return trad
-          ? ' 做決定前，最好把「最壞情況能不能承受」也一起算進去，這會比只看牌面吉凶更可靠。'
-          : ' 做决定前，最好把“最坏情况能不能承受”也一起算进去，这会比只看牌面吉凶更可靠。';
-      }
-      if (profile.intent === 'timing') {
-        return trad
-          ? ' 等你看到現實中開始出現對應條件，再把它視為時間正在靠近的訊號。'
-          : ' 等你看到现实中开始出现对应条件，再把它视为时间正在靠近的讯号。';
-      }
-      return '';
-    })();
+    if (spread.key === 'relationship5') {
+      const obstacle = draw.find(x => x.position?.key === 'obstacle') || blocker;
+      const direction = draw.find(x => x.position?.key === 'direction') || guide;
+      const first = tarotText(
+        `${qPrefix}先不要急着追结果；这组牌要你先处理“${cardName(obstacle.card)}・${orientationText(obstacle.reversed)}”代表的卡点，再去练习“${cardName(direction.card)}・${orientationText(direction.reversed)}”带来的方向。换句话说，阻碍牌是在教你“问题在哪”，方向牌是在教你“新的做法是什么”。`,
+        `${qPrefix}先不要急著追結果；這組牌要你先處理「${cardName(obstacle.card)}・${orientationText(obstacle.reversed)}」代表的卡點，再去練習「${cardName(direction.card)}・${orientationText(direction.reversed)}」帶來的方向。換句話說，阻礙牌是在教你「問題在哪」，方向牌是在教你「新的做法是什麼」。`,
+        `${qPrefix}the spread asks you to work with ${cardName(obstacle.card)} before expecting the relationship to behave like ${cardName(direction.card)}. The obstacle is the lesson, and the direction card is the skill to practice.`
+      );
+      return [first,`${topicPractice(direction)} ${checkpoint}`].filter(Boolean).join('\n\n') + questionFraming();
+    }
 
-    return qPrefix + core + humanTail + questionFraming();
+    const guideLead = tarotText(
+      `${qPrefix}真正适合带回生活练习的，是“${cardName(guide.card)}・${orientationText(guide.reversed)}”。${topicPractice(guide)}`,
+      `${qPrefix}真正適合帶回生活練習的，是「${cardName(guide.card)}・${orientationText(guide.reversed)}」。${topicPractice(guide)}`,
+      `${qPrefix}the practical teaching card is ${cardName(guide.card)} (${orientationText(guide.reversed)}). ${topicPractice(guide)}`
+    );
+
+    const blockerText = blocker && blocker !== guide
+      ? tarotText(
+          `这组牌里最需要留意的是“${cardName(blocker.card)}・${orientationText(blocker.reversed)}”。它比较像你容易被绊住的地方，不是要你害怕，而是提醒你别用旧方法重复同一个问题。`,
+          `這組牌裡最需要留意的是「${cardName(blocker.card)}・${orientationText(blocker.reversed)}」。它比較像你容易被絆住的地方，不是要你害怕，而是提醒你別用舊方法重複同一個問題。`,
+          `The card that deserves the most caution is ${cardName(blocker.card)} (${orientationText(blocker.reversed)}); it shows where your usual pattern may trip you up.`)
+      : '';
+
+    return [guideLead,blockerText,checkpoint]
+      .filter(Boolean)
+      .join('\n\n') + questionFraming();
   }
 
   async function init() {
