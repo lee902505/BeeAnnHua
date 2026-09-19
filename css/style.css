@@ -9319,3 +9319,71 @@ b {
     -webkit-filter: none !important;
   }
 }
+
+/* V0.11.1.2 · A gentle response for the five home illustrations. */
+@media (prefers-reduced-motion: no-preference) {
+  .home-main .home-panel {
+    transition: transform .38s cubic-bezier(.22,.8,.25,1),
+                box-shadow .38s ease;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .home-main .home-panel:hover,
+    .home-main .home-panel:focus-within {
+      transform: translateY(-5px);
+      box-shadow: 0 25px 52px rgba(36,31,54,.25);
+    }
+  }
+
+  @media (min-width: 761px) {
+    .home-main .home-panel.is-reacting {
+      animation: home-card-respond .64s ease-out both;
+    }
+  }
+
+  @media (max-width: 760px) {
+    .home-main .home-panel.is-reacting {
+      animation: home-mobile-card-respond .64s ease-out both;
+      box-shadow: 0 19px 40px rgba(35,31,56,.23) !important;
+    }
+    .home-main .panel-art {
+      transform-origin: 50% 60%;
+    }
+    .home-main .home-panel.is-reacting .panel-art {
+      animation: home-art-respond .64s ease-out both;
+    }
+    .home-main .panel-art::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background: radial-gradient(circle at 70% 35%, rgba(255,248,220,.23), transparent 55%);
+      opacity: 0;
+    }
+    .home-main .home-panel.is-reacting .panel-art::after {
+      animation: home-art-glow .64s ease-out both;
+    }
+  }
+}
+
+@keyframes home-card-respond {
+  0%, 100% { transform: translateY(-5px) rotate(0); }
+  23% { transform: translateY(-8px) rotate(-.45deg); }
+  53% { transform: translateY(-6px) rotate(.32deg); }
+  76% { transform: translateY(-5px) rotate(-.12deg); }
+}
+@keyframes home-art-respond {
+  0%, 100% { transform: scale(1) rotate(0); }
+  23% { transform: scale(1.024) rotate(-.65deg); }
+  53% { transform: scale(1.016) rotate(.48deg); }
+  76% { transform: scale(1.007) rotate(-.18deg); }
+}
+@keyframes home-art-glow {
+  0%, 100% { opacity: 0; }
+  28% { opacity: 1; }
+}
+@keyframes home-mobile-card-respond {
+  0%, 100% { transform: translateY(0) rotate(0); }
+  23% { transform: translateY(-3px) rotate(-.18deg); }
+  53% { transform: translateY(-2px) rotate(.14deg); }
+}

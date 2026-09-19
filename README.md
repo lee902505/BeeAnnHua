@@ -1,3 +1,20 @@
+# V0.11.1.4 — Bark 安全推播接回
+
+- 每日籤、塔羅、本命盤的原有推播觸發改由 Supabase Edge Function `bark-push` 代送，Bark 裝置金鑰只存於 Supabase 機密設定。
+- 加入 Supabase 雲端身分驗證、推播類型／長度驗證與資料庫推播次數限制；網站純靜態上傳後，仍須按 `docs/BARK_PUSH_DEPLOYMENT.md` 部署函式與設定新的金鑰才能恢復推播。
+
+# V0.11.1.3 — 公開版安全修正
+
+- 移除公開前端曾包含的 Bark 裝置金鑰。Bark 推播暫停，直到受保護的後端代送功能接入；每日籤、塔羅、星盤等本身仍可使用。
+- 移除會直接覆寫瀏覽器玩家資料的測試入口 `test-profile.html`，避免公開版使用者誤開。
+- 曾經包含該金鑰的舊版本若已上傳公開網站，須至 Bark 端更新裝置金鑰。不要再發布 V0.11.1.2 或更早含此金鑰的壓縮檔。
+
+# V0.11.1.2 — 首頁五張功能卡片的輕互動
+
+- 電腦滑過卡片時輕微抬起，點擊時柔和搖擺。
+- 手機點按插畫時短暫擺動與透光；滑動頁面不會誤觸。
+- 尊重系統的減少動態效果設定，五個功能入口與原有流星效果照常運作。
+
 # 星辰日记 / Stellar Diary — V0.11.0
 
 ## Stellar Interpretation Engine — 本地完整星辰报告
@@ -1122,8 +1139,8 @@ V0.10.3 的完整 12 宫深度解读、Bark、玩家资料、每日运势、塔�
 Bark 正文限制约 2800 UTF-8 bytes，超出自动截断，减少 APNs payload 过长导致推送失败的风险。
 
 ## 安全
-当前 `js/bark.js` 含真实 Bark Key，仅供本机 / 私人测试。
-正式上传公开 GitHub 前必须改用 Cloudflare Worker / Edge Function 等服务端代理，不能公开 Bark Key。
+V0.11.1.3 移除前端 Bark Key 並暫停推播；V0.11.1.4 改為由 Supabase Edge Function 代送。
+請完成 `docs/BARK_PUSH_DEPLOYMENT.md` 的伺服器部署與機密設定才能恢復推播。
 
 ---
 
