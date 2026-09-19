@@ -9387,3 +9387,38 @@ b {
   23% { transform: translateY(-3px) rotate(-.18deg); }
   53% { transform: translateY(-2px) rotate(.14deg); }
 }
+
+/* V0.11.1.5 · Mobile touch micro-response for the five home cards.
+   A finger touching a non-control area reacts immediately, while native
+   vertical scrolling remains untouched. A true tap still gets the fuller
+   V0.11.1.2 response handled by .is-reacting. */
+@media (max-width: 760px) and (prefers-reduced-motion: no-preference) {
+  .home-main .home-panel.is-touching {
+    animation: home-card-touch .34s cubic-bezier(.22,.78,.28,1) both;
+  }
+
+  .home-main .home-panel.is-touching .panel-art {
+    animation: home-art-touch .34s cubic-bezier(.22,.78,.28,1) both;
+  }
+
+  .home-main .home-panel.is-touching .panel-art::after {
+    animation: home-art-touch-glow .34s ease-out both;
+  }
+}
+
+@keyframes home-card-touch {
+  0%, 100% { transform: translateY(0) rotate(0); }
+  34% { transform: translateY(-2px) rotate(-.12deg); }
+  68% { transform: translateY(-1px) rotate(.08deg); }
+}
+
+@keyframes home-art-touch {
+  0%, 100% { transform: scale(1) rotate(0); }
+  38% { transform: scale(1.012) rotate(-.25deg); }
+  72% { transform: scale(1.006) rotate(.15deg); }
+}
+
+@keyframes home-art-touch-glow {
+  0%, 100% { opacity: 0; }
+  36% { opacity: .58; }
+}

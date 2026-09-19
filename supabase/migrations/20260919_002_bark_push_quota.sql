@@ -36,14 +36,14 @@ begin
     into v_global_count
     from private.bark_push_quota
    where day_utc = v_day;
-  if v_global_count >= 50 then return false; end if;
+  if v_global_count >= 2000 then return false; end if;
 
   select push_count, last_push_at
     into v_user_count, v_last_push
     from private.bark_push_quota
    where day_utc = v_day and user_id = p_user_id;
-  if coalesce(v_user_count, 0) >= 6 then return false; end if;
-  if v_last_push is not null and v_last_push > now() - interval '20 seconds' then
+  if coalesce(v_user_count, 0) >= 15 then return false; end if;
+  if v_last_push is not null and v_last_push > now() - interval '10 seconds' then
     return false;
   end if;
 
