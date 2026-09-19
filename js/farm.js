@@ -196,6 +196,8 @@
     $('farmExpNeed').textContent = formatNumber(need);
     $('farmExpFill').style.width = `${pct}%`;
     const unlocked = unlockedLandCount();
+    const fieldOpen = $('farmFieldOpen');
+    if (fieldOpen) fieldOpen.textContent = unlocked;
     const next = nextLandUnlock();
     $('farmUnlockTip').textContent = next
       ? `目前可使用 ${unlocked} / 20 格农地 · Lv.${next.level} 再解锁 ${next.count - unlocked} 格`
