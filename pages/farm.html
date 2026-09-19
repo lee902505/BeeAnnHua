@@ -1,8 +1,139 @@
-<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>farm | 星辰日记</title><link rel="stylesheet" href="../css/style.css?v=0.11.1.7"></head><body><div class="site-shell"><section class="home-panel panel-astrology" style="border-radius:32px"><div class="panel-content"><h1>功能页面已建立</h1><p class="panel-desc">V0.1 先建立入口，正式功能下一阶段接入。</p><a class="primary-btn" href="../index.html">返回首页 →</a></div></section></div>  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="../js/supabase-public-config.js?v=0.11.1.7"></script>
-  <script src="../js/supabase-config.js?v=0.11.1.7"></script>
-  <script src="../js/supabase-client.js?v=0.11.1.7"></script>
-  <script src="../js/supabase-auth.js?v=0.11.1.7"></script>
-  <script src="../js/cloud-sync.js?v=0.11.1.7"></script>
-  <script src="../js/shooting-stars.js?v=0.11.1.7"></script>
-</body></html>
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#6d7f4b" />
+  <meta name="description" content="星辰农场：种植、收成、升级、解锁农地与作物，逐步经营属于你的温暖小农场。" />
+  <title>星辰农场 | 星辰日记</title>
+  <link rel="stylesheet" href="../css/style.css?v=0.12.0" />
+</head>
+<body class="farm-page-body" id="pageTop">
+  <div class="site-shell farm-shell">
+    <header class="subpage-header farm-subpage-header">
+      <a class="brand" href="../index.html">
+        <span class="brand-title">星辰日记</span>
+        <span class="brand-subtitle">Your Stars, Your Story</span>
+      </a>
+      <div class="subpage-header-actions">
+        <button class="player-profile-badge" type="button" data-player-profile hidden></button>
+        <a class="back-link" href="../index.html">返回首页</a>
+      </div>
+    </header>
+
+    <main class="farm-main">
+      <section class="farm-topbar" aria-label="农场状态">
+        <div class="farm-title-block">
+          <p class="panel-en">STELLAR FARM</p>
+          <h1><span id="farmOwnerName">我的</span>农场</h1>
+          <p>种下耐心，收获属于自己的小小丰盛。</p>
+        </div>
+
+        <section class="farm-status-card" aria-label="等级与金币">
+          <div class="farm-level-line">
+            <span class="farm-level-badge"><small>LEVEL</small><strong id="farmLevel">1</strong></span>
+            <span class="farm-coins"><i aria-hidden="true">●</i><strong id="farmCoins">100</strong><small>金币</small></span>
+          </div>
+          <div class="farm-exp-head">
+            <span>农场经验</span>
+            <b><span id="farmExpCurrent">0</span> / <span id="farmExpNeed">100</span> EXP</b>
+          </div>
+          <div class="farm-exp-track" aria-label="经验进度">
+            <div class="farm-exp-fill" id="farmExpFill"></div>
+            <span class="farm-exp-seed" aria-hidden="true">🌱</span>
+            <span class="farm-exp-bloom" aria-hidden="true">✦</span>
+          </div>
+          <div class="farm-unlock-tip" id="farmUnlockTip">目前可使用 6 / 20 格农地</div>
+        </section>
+      </section>
+
+      <section class="farm-game-card">
+        <div class="farm-scene" aria-label="农场主场景">
+          <div class="farm-sky" aria-hidden="true">
+            <span class="farm-cloud cloud-a"></span>
+            <span class="farm-cloud cloud-b"></span>
+            <span class="farm-sun"></span>
+          </div>
+          <div class="farm-hills" aria-hidden="true"></div>
+          <div class="farm-house" aria-hidden="true">
+            <span class="farm-house-roof"></span>
+            <span class="farm-house-body"></span>
+            <span class="farm-house-door"></span>
+            <span class="farm-house-window window-a"></span>
+            <span class="farm-house-window window-b"></span>
+            <span class="farm-chimney"></span>
+          </div>
+          <div class="farm-fence" aria-hidden="true">
+            <span></span><span></span><span></span><span></span><span></span><span></span>
+          </div>
+          <div class="farm-shed-copy" aria-hidden="true">STAR FARM</div>
+
+          <div class="farm-field-wrap">
+            <div class="farm-field-heading">
+              <div>
+                <span>MY FIELD</span>
+                <strong>西北 → 东南 · 20 格农田</strong>
+              </div>
+              <small id="farmFieldHint">点击空地选择种子；成熟后点击即可收成。</small>
+            </div>
+            <div class="farm-field" id="farmField" aria-label="20 格农田"></div>
+          </div>
+
+          <aside class="farm-side-actions" aria-label="农场功能">
+            <button type="button" data-farm-panel="ranking"><span>🏆</span><b>排行榜</b></button>
+            <button type="button" data-farm-panel="shop"><span>🛒</span><b>商店</b></button>
+            <button type="button" data-farm-panel="bag"><span>🎒</span><b>背包</b></button>
+            <button type="button" data-farm-panel="friends"><span>👥</span><b>好友</b></button>
+            <button type="button" data-farm-panel="tasks" class="farm-task-button"><span>📜</span><b>任务</b><i id="farmTaskDot" hidden></i></button>
+          </aside>
+        </div>
+
+        <div class="farm-bottom-note">
+          <span>🌿</span>
+          <p id="farmTipText">新手礼物已经放进背包：红萝卜种子 ×3、小麦种子 ×2。</p>
+        </div>
+      </section>
+
+      <section class="farm-guide-strip" aria-label="农场玩法">
+        <article><span>01</span><b>播种</b><p>从背包选择种子，种进已经开放的农地。</p></article>
+        <article><span>02</span><b>等待成长</b><p>离开网页也会继续计算时间，回来就能接着收成。</p></article>
+        <article><span>03</span><b>收成升级</b><p>每格成熟作物产出 4～5 个，并获得对应 EXP。</p></article>
+        <article><span>04</span><b>扩张农场</b><p>升级会解锁新作物与更多土地，最终开放完整 20 格。</p></article>
+      </section>
+
+      <nav class="farm-bottom-nav" aria-label="页面导航">
+        <button type="button" id="farmScrollTop"><span>↑</span><b>TOP</b></button>
+        <a href="../index.html"><span>⌂</span><b>HOME</b></a>
+      </nav>
+    </main>
+  </div>
+
+  <div class="farm-modal" id="farmModal" hidden>
+    <div class="farm-modal-backdrop" data-farm-close></div>
+    <section class="farm-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="farmModalTitle">
+      <button type="button" class="farm-modal-close" data-farm-close aria-label="关闭">×</button>
+      <div class="farm-modal-head">
+        <span id="farmModalIcon">🌱</span>
+        <div>
+          <small id="farmModalEyebrow">STELLAR FARM</small>
+          <h2 id="farmModalTitle">农场</h2>
+          <p id="farmModalSubtitle"></p>
+        </div>
+      </div>
+      <div class="farm-modal-body" id="farmModalBody"></div>
+    </section>
+  </div>
+
+  <div class="farm-toast-region" id="farmToastRegion" aria-live="polite" aria-atomic="true"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../js/supabase-public-config.js?v=0.12.0"></script>
+  <script src="../js/supabase-config.js?v=0.12.0"></script>
+  <script src="../js/supabase-client.js?v=0.12.0"></script>
+  <script src="../js/supabase-auth.js?v=0.12.0"></script>
+  <script src="../js/cloud-sync.js?v=0.12.0"></script>
+  <script src="../js/player-profile.js?v=0.12.0"></script>
+  <script src="../js/farm.js?v=0.12.0"></script>
+  <script src="../js/shooting-stars.js?v=0.12.0"></script>
+</body>
+</html>
