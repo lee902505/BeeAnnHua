@@ -69,6 +69,7 @@
   let cloudUserId = '';
   let cloudSyncTimer = null;
   let cloudBusy = false;
+  let cloudPushQueued = false;
   let cloudLastSyncedAt = 0;
 
   // Multiplayer farm data is intentionally kept separate from the private
@@ -183,7 +184,14 @@
   }
 
   function saveState({touch=true, sync=true} = {}) {
-    if (touch) state.updatedAt = Date.now();
+    if (touch) {
+      // Keep the local revision strictly monotonic. Several farm actions can
+      // happen inside the same millisecond (batch planting / task rewards), so
+      // Date.now() alone is not enough to tell an in-flight cloud snapshot
+      // from a newer local edit.
+      const previous = Number(state.updatedAt) || 0;
+      state.updatedAt = Math.max(Date.now(), previous + 1);
+    }
     writeLocalState();
     if (sync) {
       markLocalDirty();
@@ -236,35 +244,77 @@
   }
 
   async function pushCloudState(force = false) {
-    if ((!cloudReady && !force) || cloudBusy) return {ok:false, skipped:true};
+    if (!cloudReady && !force) return {ok:false, skipped:true};
     const sb = cloudClient();
     const user = cloudAuthUser();
     if (!sb || !user?.id) return {ok:false, skipped:true};
+
+    // Do not silently drop a save request while another request is in flight.
+    // This was the source of the F5 rollback bug: an older request could finish
+    // after a newer local edit and incorrectly mark the whole farm as synced.
+    if (cloudBusy) {
+      cloudPushQueued = true;
+      return {ok:false, queued:true};
+    }
+
     cloudUserId = user.id;
     cloudBusy = true;
+    cloudPushQueued = false;
     setCloudStatus('syncing', '☁ 正在同步');
+
+    let uploadSucceeded = false;
     try {
       state.ownerUserId = user.id;
       writeLocalState();
+
+      // Freeze exactly what this request is sending. Never pass the live state
+      // object to the network layer because batch planting can mutate it while
+      // the request is still being serialized / uploaded.
+      const snapshotStamp = Number(state.updatedAt) || Date.now();
+      const snapshot = typeof structuredClone === 'function'
+        ? structuredClone(state)
+        : JSON.parse(JSON.stringify(state));
       const payload = {
         user_id:user.id,
-        state:state,
-        client_updated_at:Number(state.updatedAt) || Date.now()
+        state:snapshot,
+        client_updated_at:snapshotStamp
       };
+
       const {error} = await sb.from(CLOUD_TABLE).upsert(payload, {onConflict:'user_id'});
       if (error) throw error;
+      uploadSucceeded = true;
       cloudReady = true;
       cloudLastSyncedAt = Date.now();
-      markLocalClean(user.id);
-      setCloudStatus('ready', '☁ 云端已同步');
-      return {ok:true};
+
+      const currentStamp = Number(state.updatedAt) || 0;
+      if (currentStamp === snapshotStamp && !cloudPushQueued) {
+        markLocalClean(user.id);
+        setCloudStatus('ready', '☁ 云端已同步');
+      } else {
+        // A newer local action happened while this snapshot was uploading.
+        // Keep the dirty marker and flush the newest state immediately after
+        // this request releases the single-flight lock.
+        markLocalDirty();
+        cloudPushQueued = true;
+        setCloudStatus('syncing', '☁ 正在同步');
+      }
+      return {ok:true, snapshotStamp};
     } catch (error) {
+      // Never clear the dirty marker after a failed upload. The next page load
+      // will prefer the local copy and retry, so F5 cannot resurrect an old
+      // task reward or erase a freshly planted mystery box.
+      markLocalDirty();
       cloudReady = false;
       if (relationMissing(error)) setCloudStatus('setup', '☁ 云端待启用');
       else setCloudStatus('error', '☁ 云端暂不可用');
       return {ok:false, error};
     } finally {
       cloudBusy = false;
+      if (uploadSucceeded && cloudPushQueued && cloudReady) {
+        cloudPushQueued = false;
+        clearTimeout(cloudSyncTimer);
+        cloudSyncTimer = setTimeout(() => pushCloudState(true), 0);
+      }
     }
   }
 

@@ -232,6 +232,7 @@
       'xingchen-fortune-history',
       'xingchen-tarot-history-v1',
       'xingchen-farm-v1',
+      'xingchen-farm-v1-sync-meta',
       'xingchen-api-outbox-v1',
       'stellar-diary-cloud-sync-meta-v1',
       'stellar-diary-pending-bind-email-v1',
