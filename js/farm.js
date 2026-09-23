@@ -7,6 +7,7 @@
   const INITIAL_COINS = 100;
   const CLOUD_TABLE = 'farm_saves';
   const CLOUD_SYNC_DELAY = 700;
+  const SYNC_META_KEY = 'xingchen-farm-v1-sync-meta';
 
   const CROPS = [
     { id:'carrot', name:'红萝卜', icon:'🥕', seedPrice:8, growMinutes:20, yieldMin:4, yieldMax:5, sellPrice:3, exp:4, unlockLevel:1, note:'成长快速，适合刚开始经营农场。' },
@@ -152,10 +153,42 @@
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (_) {}
   }
 
+  function readSyncMeta() {
+    try {
+      const raw = JSON.parse(localStorage.getItem(SYNC_META_KEY) || 'null');
+      return raw && typeof raw === 'object' ? raw : {dirty:false, userId:'', changedAt:0};
+    } catch (_) {
+      return {dirty:false, userId:'', changedAt:0};
+    }
+  }
+
+  function writeSyncMeta(meta) {
+    try { localStorage.setItem(SYNC_META_KEY, JSON.stringify(meta)); } catch (_) {}
+  }
+
+  function markLocalDirty() {
+    const userId = cloudAuthUser()?.id || state.ownerUserId || '';
+    writeSyncMeta({dirty:true, userId, changedAt:Date.now()});
+  }
+
+  function markLocalClean(userId = cloudAuthUser()?.id || state.ownerUserId || '') {
+    writeSyncMeta({dirty:false, userId, changedAt:Date.now()});
+  }
+
+  function hasUnsyncedLocalChanges(userId) {
+    const meta = readSyncMeta();
+    if (!meta.dirty) return false;
+    if (meta.userId && userId && meta.userId !== userId) return false;
+    return true;
+  }
+
   function saveState({touch=true, sync=true} = {}) {
     if (touch) state.updatedAt = Date.now();
     writeLocalState();
-    if (sync) scheduleCloudPush();
+    if (sync) {
+      markLocalDirty();
+      scheduleCloudPush();
+    }
   }
 
   function setCloudStatus(mode, text) {
@@ -222,6 +255,7 @@
       if (error) throw error;
       cloudReady = true;
       cloudLastSyncedAt = Date.now();
+      markLocalClean(user.id);
       setCloudStatus('ready', '☁ 云端已同步');
       return {ok:true};
     } catch (error) {
@@ -261,17 +295,30 @@
       const remoteStamp = Number(data.client_updated_at) || new Date(data.updated_at || 0).getTime() || 0;
       const localStamp = Number(state.updatedAt) || 0;
       const belongsToDifferentUser = Boolean(state.ownerUserId && state.ownerUserId !== user.id);
-      const shouldUseRemote = preferRemote || belongsToDifferentUser || !hadLocalStateAtBoot || remoteStamp > localStamp;
+      const localDirty = !belongsToDifferentUser && hasUnsyncedLocalChanges(user.id);
+      // Never let a stale cloud copy overwrite a local action that was already
+      // committed to localStorage but did not finish its network sync before F5.
+      // This is intentionally stronger than comparing client/server clocks,
+      // because those clocks can differ and server-side friend actions can also
+      // advance client_updated_at.
+      const shouldUseRemote = belongsToDifferentUser || (!localDirty && (preferRemote || !hadLocalStateAtBoot || remoteStamp > localStamp));
       cloudReady = true;
-      if (shouldUseRemote) {
+      if (localDirty) {
+        state.ownerUserId = user.id;
+        writeLocalState();
+        await pushCloudState(true);
+        renderAll();
+      } else if (shouldUseRemote) {
         state = normalizeState(data.state);
         state.updatedAt = Math.max(remoteStamp, Number(state.updatedAt) || 0);
         state.ownerUserId = user.id;
         writeLocalState();
+        markLocalClean(user.id);
         renderAll();
       } else if (localStamp > remoteStamp) {
         await pushCloudState(true);
       } else {
+        markLocalClean(user.id);
         setCloudStatus('ready', '☁ 云端已同步');
       }
       cloudLastSyncedAt = Date.now();
@@ -596,6 +643,7 @@
         state = normalizeState(payload.thief_state);
         state.ownerUserId = user.id;
         writeLocalState();
+        markLocalClean(user.id);
         cloudReady = true;
         cloudLastSyncedAt = Date.now();
         setCloudStatus('ready', '☁ 云端已同步');
@@ -941,6 +989,7 @@
     }
 
     saveState();
+    if (cloudReady) await pushCloudState(true);
     renderAll();
     toast(`${crop.icon} 已种下 ${crop.name} ×${chosen.length} 格`, crop.isMystery ? '4 小时后揭晓随机蔬果。' : `${crop.growMinutes} 分钟后回来看看。`);
   }
@@ -1133,7 +1182,7 @@
     return state.claimedTasks.includes(task.id);
   }
 
-  function claimTask(id) {
+  async function claimTask(id) {
     const task = TASKS.find(t => t.id === id);
     if (!task || task.future || !isTaskComplete(task) || isTaskClaimed(task)) return;
     state.claimedTasks.push(id);
@@ -1145,6 +1194,7 @@
       });
     }
     saveState();
+    if (cloudReady) await pushCloudState(true);
     renderAll();
     toast('📜 任务奖励已领取', `${task.title} · ${task.rewardText}`, 'task');
   }
@@ -1516,6 +1566,12 @@
     });
     document.addEventListener('visibilitychange', () => {
       if (!document.hidden && cloudReady && Date.now() - cloudLastSyncedAt > 15000) pullCloudState();
+    });
+    window.addEventListener('pagehide', () => {
+      if (cloudReady && hasUnsyncedLocalChanges(cloudUserId)) {
+        // Best effort only; the persistent dirty flag is the real F5 safety net.
+        pushCloudState(true).catch(() => {});
+      }
     });
 
     // The first visit task is intentionally ready immediately. Do not touch the

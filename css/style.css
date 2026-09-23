@@ -10917,3 +10917,5 @@ body.farm-modal-open { overflow: hidden; }
   .farm-plot.is-mystery-crop .farm-crop-visual,
   .farm-visit-field .farm-plot.is-stealing .farm-soil { animation:none !important; }
 }
+
+/* ===== V0.13.5 F5 CLOUD-SYNC CONSISTENCY FIX (JS ONLY) ===== */
