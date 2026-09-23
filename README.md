@@ -1,3 +1,9 @@
+## V0.13.7 cache refresh fix
+
+- Farm page assets now use `?v=0.13.7` so browsers do not reuse V0.13.5 JavaScript after deployment.
+- Homepage farm link uses `pages/farm.html?v=0.13.7` to force a fresh farm HTML load.
+- Keeps the V0.13.6 F5/cloud-sync race fix.
+
 # V0.13.6 — F5 存档一致性修复
 
 本版修复两个会在重新整理页面后出现的存档问题：

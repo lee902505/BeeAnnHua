@@ -1,6 +1,7 @@
 (() => {
   'use strict';
 
+  const FARM_BUILD = '0.13.7';
   const STORAGE_KEY = 'xingchen-farm-v1';
   const VERSION = 1;
   const PLOT_COUNT = 20;
@@ -1600,6 +1601,7 @@
   }
 
   function init() {
+    try { console.info(`[Stellar Farm] build ${FARM_BUILD}`); } catch (_) {}
     document.addEventListener('click', handleClick);
     document.addEventListener('input', event => {
       if (event.target.matches('#farmPlantQtyRange')) updatePlantQuantity(event.target.value);
