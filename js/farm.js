@@ -158,7 +158,7 @@
   function multiplayerMissing(error) {
     const text = String(error?.message || error || '');
     return error?.code === '42P01' || error?.code === 'PGRST202' ||
-      /get_farm_rankings|get_farm_friends|request_farm_friend|farm_friendships|schema cache|does not exist|could not find/i.test(text);
+      /get_farm_rankings|get_farm_friends|get_friend_farm|request_farm_friend|farm_friendships|schema cache|does not exist|could not find/i.test(text);
   }
 
   function escapeHtml(value) {
@@ -167,6 +167,10 @@
 
   function genderSymbol(sex) {
     return sex === 'male' ? '♂' : sex === 'female' ? '♀' : '';
+  }
+
+  function coinInline(value, {label=false} = {}) {
+    return `<span class="farm-coin-inline"><i class="farm-coin-mini" aria-hidden="true"></i><span>${formatNumber(value)}</span>${label ? '<small>金币</small>' : ''}</span>`;
   }
 
   function scheduleCloudPush() {
@@ -407,6 +411,95 @@
       await Promise.all([loadFriends(true), loadRankings(true)]);
     } catch (error) {
       toast('好友操作失败', multiplayerMissing(error) ? '请先执行多人农场 SQL。' : '请稍后再试。');
+    }
+  }
+
+
+  function renderFriendFarmVisit(payload) {
+    const friendLevel = Math.max(1, Number(payload?.level) || 1);
+    const unlocked = unlockedLandCount(friendLevel);
+    const rawPlots = Array.isArray(payload?.plots) ? payload.plots : [];
+    const plots = Array.from({length:PLOT_COUNT}, (_, index) => {
+      const raw = rawPlots[index] || {};
+      return {id:index, cropId:raw?.cropId || null, plantedAt:Number(raw?.plantedAt) || null};
+    });
+    let matureCount = 0;
+    const tiles = [];
+
+    for (let row = 0; row < 4; row += 1) {
+      for (let col = 0; col < 5; col += 1) {
+        const index = row * 5 + col;
+        const plot = plots[index];
+        let cls = 'farm-plot farm-visit-plot';
+        let content = '';
+
+        if (index >= unlocked) {
+          cls += ' is-locked';
+          content = `<span class="farm-soil"><i>🔒</i><small>Lv.${unlockLevelForPlot(index)}</small></span>`;
+        } else if (!plot.cropId || !cropById(plot.cropId)) {
+          cls += ' is-empty';
+          content = '<span class="farm-soil"><i>·</i><small>空地</small></span>';
+        } else {
+          const crop = cropById(plot.cropId);
+          const progress = progressFor(plot, crop);
+          const stage = stageFor(progress);
+          const remaining = Math.max(0, crop.growMinutes * 60 * 1000 - (Date.now() - plot.plantedAt));
+          cls += ` has-crop stage-${stage.key}`;
+          if (progress >= 1) { cls += ' is-mature'; matureCount += 1; }
+          content = `<span class="farm-soil"><span class="farm-crop-visual" aria-hidden="true">${crop.icon}</span><span class="farm-crop-name">${crop.name}</span><small class="farm-crop-time">${progress >= 1 ? '已成熟' : formatDuration(remaining)}</small></span>`;
+        }
+
+        tiles.push(`<div class="${cls}" style="--farm-row:${row};--farm-col:${col};--farm-depth:${(row * 10) + col}">${content}</div>`);
+      }
+    }
+
+    const name = escapeHtml(payload?.display_name || '星辰农友');
+    const sex = genderSymbol(payload?.sex);
+    return `
+      <section class="farm-visit-summary">
+        <div><b>${name}${sex ? ` <i>${sex}</i>` : ''}</b><small>Lv.${formatNumber(friendLevel)}</small></div>
+        <span>${coinInline(payload?.coins || 0, {label:true})}</span>
+        <em>成熟 ${matureCount} 格</em>
+      </section>
+      <div class="farm-visit-scene">
+        <div class="farm-visit-field">${tiles.join('')}</div>
+      </div>
+      <div class="farm-visit-actions"><button type="button" class="farm-friend-action" data-open-panel="friends">← 返回好友列表</button></div>`;
+  }
+
+  async function visitFriend(friendId) {
+    const sb = cloudClient();
+    const user = cloudAuthUser();
+    if (!sb || !user?.id || !friendId) return;
+
+    openModal({
+      icon:'🏡', eyebrow:'FARM VISIT', title:'正在前往好友农场',
+      subtitle:'正在读取好友最新的云端农场状态。',
+      body:'<div class="farm-network-state"><span class="farm-spinner"></span><b>沿着小路走过去…</b></div>'
+    });
+
+    try {
+      const {data, error} = await sb.rpc('get_friend_farm', {p_friend:friendId});
+      if (error) throw error;
+      const payload = data && typeof data === 'object' ? data : {};
+      if (!payload.ok) {
+        const message = payload.reason === 'not_friend' ? '只有已经互相确认的好友才能拜访农场。'
+          : payload.reason === 'no_farm' ? '这位好友还没有建立云端农场。'
+          : '暂时无法进入这座农场。';
+        openModal({icon:'🏡', eyebrow:'FARM VISIT', title:'暂时无法拜访', subtitle:message, body:'<div class="farm-visit-actions"><button type="button" class="farm-friend-action" data-open-panel="friends">返回好友列表</button></div>'});
+        return;
+      }
+      openModal({
+        icon:'🏡', eyebrow:'FARM VISIT',
+        title:`${payload.display_name || '好友'}的农场`,
+        subtitle:'看看好友最近种了什么；目前拜访为查看模式。',
+        body:renderFriendFarmVisit(payload)
+      });
+    } catch (error) {
+      const detail = multiplayerMissing(error)
+        ? '请先在 Supabase SQL Editor 执行 20260923_005_farm_friend_visits.sql。'
+        : '好友农场暂时读取失败，请稍后再试。';
+      openModal({icon:'🏡', eyebrow:'FARM VISIT', title:'拜访失败', subtitle:detail, body:'<div class="farm-visit-actions"><button type="button" class="farm-friend-action" data-open-panel="friends">返回好友列表</button></div>'});
     }
   }
 
@@ -912,7 +1005,7 @@
       bag:{icon:'🎒', eyebrow:'INVENTORY', title:'我的背包', subtitle:'种子用于播种；成熟作物可以在这里出售换取金币。'},
       tasks:{icon:'📜', eyebrow:'FARM QUEST', title:'农场任务', subtitle:'跟着任务认识农场，完成目标还能拿到种子、金币与经验。'},
       ranking:{icon:'🏆', eyebrow:'RANKING', title:'农场排行榜', subtitle:'查看真实云端玩家的等级榜与金币榜，也可以直接发送好友申请。'},
-      friends:{icon:'👥', eyebrow:'FRIENDS', title:'农场好友', subtitle:'管理好友申请与好友列表；拜访与偷菜会在下一阶段接上。'}
+      friends:{icon:'👥', eyebrow:'FRIENDS', title:'农场好友', subtitle:'管理好友申请与好友列表，也可以直接拜访好友农场。'}
     }[panel];
     if (!meta) return;
     openModal({...meta, body:''});
@@ -991,14 +1084,14 @@
         const relation = String(row.relation_state || 'none');
         let action = '';
         if (row.user_id === currentUserId || relation === 'self') action = '<span class="farm-relation-label is-self">自己</span>';
-        else if (relation === 'friend') action = '<span class="farm-relation-label is-friend">✓ 好友</span>';
+        else if (relation === 'friend') action = `<button type="button" class="farm-friend-action is-visit" data-friend-visit="${escapeHtml(row.user_id)}">拜访</button>`;
         else if (relation === 'pending_out') action = '<span class="farm-relation-label is-pending">已申请</span>';
         else if (relation === 'pending_in') action = '<button type="button" class="farm-friend-action is-notice" data-open-panel="friends">待确认</button>';
         else action = `<button type="button" class="farm-friend-action" data-friend-add="${escapeHtml(row.user_id)}">＋ 好友</button>`;
         return `<article class="farm-ranking-row ${relation === 'self' ? 'is-self' : ''}">
           <div class="farm-rank-no">${medal}</div>
           <div class="farm-rank-player"><b>${escapeHtml(row.display_name)} <i>${genderSymbol(row.sex)}</i></b><small>Lv.${formatNumber(row.farm_level)}</small></div>
-          <div class="farm-rank-value"><b>${rankingSort === 'coins' ? `🪙 ${formatNumber(row.coins)}` : `Lv.${formatNumber(row.farm_level)}`}</b><small>${rankingSort === 'coins' ? `Lv.${formatNumber(row.farm_level)}` : `🪙 ${formatNumber(row.coins)}`}</small></div>
+          <div class="farm-rank-value"><b>${rankingSort === 'coins' ? coinInline(row.coins) : `Lv.${formatNumber(row.farm_level)}`}</b><small>${rankingSort === 'coins' ? `Lv.${formatNumber(row.farm_level)}` : coinInline(row.coins)}</small></div>
           <div class="farm-rank-action">${action}</div>
         </article>`;
       }).join('') : '';
@@ -1007,14 +1100,14 @@
         <div class="farm-ranking-toolbar">
           <div class="farm-ranking-tabs" role="tablist" aria-label="排行榜类型">
             <button type="button" data-ranking-tab="level" class="${rankingSort === 'level' ? 'is-active' : ''}">🌿 等级榜</button>
-            <button type="button" data-ranking-tab="coins" class="${rankingSort === 'coins' ? 'is-active' : ''}">🪙 金币榜</button>
+            <button type="button" data-ranking-tab="coins" class="${rankingSort === 'coins' ? 'is-active' : ''}"><span class="farm-coin-mini" aria-hidden="true"></span> 金币榜</button>
           </div>
           <button type="button" class="farm-refresh-button" data-refresh-ranking ${rankingLoading ? 'disabled' : ''}>↻ 刷新</button>
         </div>
         ${rankingLoading ? '<div class="farm-network-state"><span class="farm-spinner"></span><b>正在读取真实农场排名…</b></div>' : ''}
         ${rankingError ? `<div class="farm-network-state is-error"><b>⚠ ${escapeHtml(rankingError)}</b></div>` : ''}
         ${!rankingLoading && !rankingError && !rows.length ? '<div class="farm-network-state"><b>目前还没有可显示的农场玩家。</b><small>玩家建立云端农场后会自动出现在这里。</small></div>' : ''}
-        ${!rankingLoading && !rankingError && rows.length ? `<div class="farm-ranking-list">${list}</div><p class="farm-multiplayer-note">排行榜读取真实云端农场资料；目前为测试阶段，拜访与偷菜将在下一版接上。</p>` : ''}`;
+        ${!rankingLoading && !rankingError && rows.length ? `<div class="farm-ranking-list">${list}</div>` : ''}`;
       return;
     }
 
@@ -1027,11 +1120,11 @@
       const friendCard = (row, mode) => {
         const safeId = escapeHtml(row.user_id);
         const base = `<div class="farm-friend-avatar">${row.sex === 'male' ? '♂' : row.sex === 'female' ? '♀' : '🌱'}</div>
-          <div class="farm-friend-copy"><b>${escapeHtml(row.display_name)}</b><small>Lv.${formatNumber(row.farm_level)} · 🪙 ${formatNumber(row.coins)}</small></div>`;
+          <div class="farm-friend-copy"><b>${escapeHtml(row.display_name)}</b><small>Lv.${formatNumber(row.farm_level)} · ${coinInline(row.coins)}</small></div>`;
         let actions = '';
         if (mode === 'incoming') actions = `<div class="farm-friend-buttons"><button type="button" class="is-primary" data-friend-accept="${safeId}">接受</button><button type="button" data-friend-reject="${safeId}">忽略</button></div>`;
         else if (mode === 'outgoing') actions = `<div class="farm-friend-buttons"><span>等待对方确认</span><button type="button" data-friend-cancel="${safeId}">取消</button></div>`;
-        else actions = `<div class="farm-friend-buttons"><button type="button" disabled title="下一阶段开放">拜访农场</button><button type="button" data-friend-remove="${safeId}">删除</button></div>`;
+        else actions = `<div class="farm-friend-buttons"><button type="button" class="is-primary" data-friend-visit="${safeId}">拜访农场</button><button type="button" data-friend-remove="${safeId}">删除</button></div>`;
         return `<article class="farm-friend-row">${base}${actions}</article>`;
       };
 
@@ -1043,7 +1136,7 @@
           ${incoming.length ? `<section class="farm-friend-section"><header><b>📩 收到的申请</b><span>${incoming.length}</span></header>${incoming.map(row => friendCard(row,'incoming')).join('')}</section>` : ''}
           <section class="farm-friend-section"><header><b>👥 我的好友</b><span>${accepted.length}</span></header>${accepted.length ? accepted.map(row => friendCard(row,'friend')).join('') : '<p class="farm-empty-state">还没有好友。可以到排行榜找到农友并点击「＋ 好友」。</p>'}</section>
           ${outgoing.length ? `<section class="farm-friend-section"><header><b>⏳ 已送出的申请</b><span>${outgoing.length}</span></header>${outgoing.map(row => friendCard(row,'outgoing')).join('')}</section>` : ''}
-          <p class="farm-multiplayer-note">好友关系已经接上 Supabase。下一阶段会开放拜访好友 20 格农田与偷菜。</p>` : ''}`;
+          ` : ''}`;
     }
   }
 
@@ -1152,6 +1245,8 @@
     if (friendCancel) { removeFriend(friendCancel.dataset.friendCancel, 'request'); return; }
     const friendRemove = event.target.closest('[data-friend-remove]');
     if (friendRemove) { removeFriend(friendRemove.dataset.friendRemove, 'friend'); return; }
+    const friendVisit = event.target.closest('[data-friend-visit]');
+    if (friendVisit) { visitFriend(friendVisit.dataset.friendVisit); return; }
 
     const plot = event.target.closest('[data-plot]');
     if (plot) {
