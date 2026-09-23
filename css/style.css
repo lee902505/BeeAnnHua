@@ -10561,3 +10561,147 @@ body.farm-modal-open { overflow: hidden; }
 @media (prefers-reduced-motion: reduce) {
   .farm-exp-fill::after,.is-mature .farm-crop-visual,.farm-soil.is-just-planted,.farm-harvest-all.is-ready,.farm-soil.is-batch-harvesting { animation:none !important; }
 }
+
+/* V0.13.1 — real farm rankings + friends */
+.farm-ranking-toolbar,
+.farm-friends-summary {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  margin-bottom:14px;
+}
+.farm-ranking-tabs {
+  display:flex;
+  gap:8px;
+  padding:4px;
+  border-radius:16px;
+  background:rgba(111,126,78,.08);
+}
+.farm-ranking-tabs button,
+.farm-refresh-button {
+  appearance:none;
+  border:1px solid rgba(115,132,78,.16);
+  background:rgba(255,255,255,.66);
+  color:#6c7154;
+  border-radius:12px;
+  padding:9px 14px;
+  font:inherit;
+  font-weight:700;
+  cursor:pointer;
+  transition:transform .18s ease, background .18s ease, border-color .18s ease, box-shadow .18s ease;
+}
+.farm-ranking-tabs button:hover,
+.farm-refresh-button:hover { transform:translateY(-1px); border-color:rgba(154,123,57,.34); box-shadow:0 6px 16px rgba(93,78,46,.08); }
+.farm-ranking-tabs button.is-active { background:#66764c; color:#fffdf5; border-color:#66764c; box-shadow:0 7px 18px rgba(79,93,54,.17); }
+.farm-refresh-button:disabled { opacity:.48; cursor:default; transform:none; box-shadow:none; }
+
+.farm-ranking-list { display:grid; gap:8px; }
+.farm-ranking-row {
+  display:grid;
+  grid-template-columns:54px minmax(150px,1fr) minmax(105px,auto) minmax(92px,auto);
+  align-items:center;
+  gap:12px;
+  min-height:68px;
+  padding:9px 12px;
+  border:1px solid rgba(130,121,91,.13);
+  border-radius:16px;
+  background:rgba(255,255,255,.54);
+  transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+}
+.farm-ranking-row:hover { transform:translateY(-1px); border-color:rgba(139,126,81,.23); box-shadow:0 8px 20px rgba(82,70,40,.07); }
+.farm-ranking-row.is-self { background:linear-gradient(100deg,rgba(229,237,207,.78),rgba(255,255,255,.65)); border-color:rgba(111,137,68,.27); }
+.farm-rank-no { width:42px; height:42px; display:grid; place-items:center; border-radius:13px; background:rgba(119,137,82,.09); font-size:1.3rem; color:#75805e; font-weight:800; }
+.farm-rank-no > span { font-size:.92rem; }
+.farm-rank-player { min-width:0; display:flex; flex-direction:column; gap:3px; }
+.farm-rank-player b { color:#566143; font-size:.96rem; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.farm-rank-player b i { font-style:normal; color:#77a2ad; margin-left:3px; }
+.farm-rank-player small { color:#958b77; }
+.farm-rank-value { text-align:right; display:flex; flex-direction:column; gap:2px; }
+.farm-rank-value b { color:#5c6748; }
+.farm-rank-value small { color:#9a8b6c; }
+.farm-rank-action { display:flex; justify-content:flex-end; }
+.farm-friend-action,
+.farm-friend-buttons button {
+  appearance:none;
+  border:1px solid rgba(119,137,82,.23);
+  background:#fffdf7;
+  color:#66764c;
+  border-radius:11px;
+  padding:8px 12px;
+  font:inherit;
+  font-size:.78rem;
+  font-weight:700;
+  cursor:pointer;
+  transition:transform .16s ease, background .16s ease, box-shadow .16s ease;
+}
+.farm-friend-action:hover,
+.farm-friend-buttons button:hover { transform:translateY(-1px); background:#f4f8e9; box-shadow:0 5px 12px rgba(87,101,59,.08); }
+.farm-friend-action.is-notice { background:#fff3d8; color:#9a6f24; border-color:rgba(176,126,39,.25); }
+.farm-relation-label { display:inline-flex; align-items:center; justify-content:center; min-width:70px; padding:7px 10px; border-radius:999px; font-size:.76rem; font-weight:700; }
+.farm-relation-label.is-self { color:#66764c; background:rgba(112,135,73,.11); }
+.farm-relation-label.is-friend { color:#55704d; background:rgba(103,158,92,.12); }
+.farm-relation-label.is-pending { color:#9a7f52; background:rgba(188,154,94,.12); }
+
+.farm-network-state {
+  min-height:160px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+  padding:24px;
+  text-align:center;
+  border-radius:18px;
+  background:rgba(255,255,255,.42);
+  color:#74705f;
+}
+.farm-network-state b { color:#606b49; }
+.farm-network-state small { color:#988c78; }
+.farm-network-state.is-error { background:rgba(255,239,226,.52); }
+.farm-network-state.is-error b { color:#9b6449; }
+.farm-spinner { width:24px; height:24px; border:3px solid rgba(105,123,76,.18); border-top-color:#6a7b4c; border-radius:50%; animation:farm-spin .75s linear infinite; }
+@keyframes farm-spin { to { transform:rotate(360deg); } }
+.farm-multiplayer-note { margin:14px 2px 0; color:#938874; font-size:.76rem; line-height:1.65; text-align:center; }
+
+.farm-friends-summary { padding:10px 12px; border-radius:15px; background:rgba(255,255,255,.48); }
+.farm-friends-summary > span { color:#817865; font-size:.82rem; }
+.farm-friends-summary > span b { color:#596449; font-size:.95rem; }
+.farm-friend-section { margin-top:16px; }
+.farm-friend-section > header { display:flex; align-items:center; justify-content:space-between; margin:0 4px 8px; color:#677151; }
+.farm-friend-section > header span { min-width:28px; height:24px; padding:0 8px; display:grid; place-items:center; border-radius:999px; background:rgba(113,130,78,.1); color:#788162; font-size:.75rem; }
+.farm-friend-row {
+  display:grid;
+  grid-template-columns:46px minmax(130px,1fr) auto;
+  align-items:center;
+  gap:11px;
+  margin-bottom:8px;
+  padding:10px 12px;
+  border:1px solid rgba(130,121,91,.13);
+  border-radius:15px;
+  background:rgba(255,255,255,.54);
+}
+.farm-friend-avatar { width:42px; height:42px; display:grid; place-items:center; border-radius:14px; background:rgba(115,134,77,.1); color:#65774d; font-size:1.08rem; font-weight:800; }
+.farm-friend-copy { min-width:0; display:flex; flex-direction:column; gap:3px; }
+.farm-friend-copy b { color:#566143; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.farm-friend-copy small { color:#978b74; }
+.farm-friend-buttons { display:flex; align-items:center; justify-content:flex-end; gap:7px; }
+.farm-friend-buttons .is-primary { background:#66764c; color:#fff; border-color:#66764c; }
+.farm-friend-buttons span { color:#a08c68; font-size:.76rem; }
+.farm-friend-buttons button:disabled { opacity:.48; cursor:not-allowed; transform:none; box-shadow:none; }
+
+@media (max-width:720px) {
+  .farm-ranking-toolbar { align-items:stretch; flex-direction:column; }
+  .farm-ranking-tabs { width:100%; }
+  .farm-ranking-tabs button { flex:1; }
+  .farm-refresh-button { align-self:flex-end; }
+  .farm-ranking-row { grid-template-columns:44px minmax(0,1fr) auto; gap:8px; padding:9px; }
+  .farm-rank-no { width:38px; height:38px; }
+  .farm-rank-value { grid-column:2; grid-row:2; text-align:left; flex-direction:row; gap:8px; font-size:.76rem; }
+  .farm-rank-action { grid-column:3; grid-row:1 / span 2; }
+  .farm-friend-action { padding:7px 9px; }
+  .farm-friends-summary { flex-wrap:wrap; }
+  .farm-friends-summary .farm-refresh-button { margin-left:auto; }
+  .farm-friend-row { grid-template-columns:42px minmax(0,1fr); }
+  .farm-friend-buttons { grid-column:1 / -1; justify-content:flex-end; }
+}

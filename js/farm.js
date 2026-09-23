@@ -42,9 +42,9 @@
     { id:'plant3', title:'让农地热闹起来', desc:'累计播种 3 次。', type:'plant', target:3, reward:{seeds:{wheat:2}, exp:20}, rewardText:'小麦种子 ×2 · EXP +20' },
     { id:'harvest1', title:'第一份收成', desc:'收成任意一格成熟作物。', type:'harvest', target:1, reward:{coins:20, exp:35}, rewardText:'金币 ×20 · EXP +35' },
     { id:'sell1', title:'第一次交易', desc:'出售任意农作物。', type:'sell', target:1, reward:{seeds:{corn:2}, exp:25}, rewardText:'玉米种子 ×2 · EXP +25' },
-    { id:'friend1', title:'第一位农友', desc:'加入 1 位好友。多人好友系统将在下一阶段开放。', type:'friend', target:1, reward:{seeds:{corn:3}}, rewardText:'玉米种子 ×3', future:true },
-    { id:'friend5', title:'热闹小农场', desc:'好友达到 5 人。', type:'friend', target:5, reward:{seeds:{strawberry:3}}, rewardText:'草莓种子 ×3', future:true },
-    { id:'friend10', title:'农场交友达人', desc:'好友达到 10 人。', type:'friend', target:10, reward:{seeds:{pumpkin:3}}, rewardText:'南瓜种子 ×3', future:true }
+    { id:'friend1', title:'第一位农友', desc:'加入 1 位农场好友。', type:'friend', target:1, reward:{seeds:{corn:3}}, rewardText:'玉米种子 ×3' },
+    { id:'friend5', title:'热闹小农场', desc:'好友达到 5 人。', type:'friend', target:5, reward:{seeds:{strawberry:3}}, rewardText:'草莓种子 ×3' },
+    { id:'friend10', title:'农场交友达人', desc:'好友达到 10 人。', type:'friend', target:10, reward:{seeds:{pumpkin:3}}, rewardText:'南瓜种子 ×3' }
   ];
 
   const hadLocalStateAtBoot = (() => { try { return localStorage.getItem(STORAGE_KEY) != null; } catch (_) { return false; } })();
@@ -57,6 +57,19 @@
   let cloudSyncTimer = null;
   let cloudBusy = false;
   let cloudLastSyncedAt = 0;
+
+  // Multiplayer farm data is intentionally kept separate from the private
+  // farm save. Rankings expose only level/coins/name; friend actions go
+  // through authenticated Supabase RPCs created by migration 004.
+  let rankingSort = 'level';
+  let rankingRows = [];
+  let rankingLoading = false;
+  let rankingError = '';
+  let rankingLoadedAt = 0;
+  let friendRows = [];
+  let friendsLoading = false;
+  let friendsError = '';
+  let friendsLoadedAt = 0;
 
   const $ = (id) => document.getElementById(id);
   const cropById = (id) => CROPS.find(c => c.id === id);
@@ -140,6 +153,20 @@
   function relationMissing(error) {
     const text = String(error?.message || error || '');
     return error?.code === '42P01' || /farm_saves|schema cache|does not exist|could not find/i.test(text);
+  }
+
+  function multiplayerMissing(error) {
+    const text = String(error?.message || error || '');
+    return error?.code === '42P01' || error?.code === 'PGRST202' ||
+      /get_farm_rankings|get_farm_friends|request_farm_friend|farm_friendships|schema cache|does not exist|could not find/i.test(text);
+  }
+
+  function escapeHtml(value) {
+    return String(value ?? '').replace(/[&<>'"]/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[ch]));
+  }
+
+  function genderSymbol(sex) {
+    return sex === 'male' ? '♂' : sex === 'female' ? '♀' : '';
   }
 
   function scheduleCloudPush() {
@@ -242,6 +269,144 @@
       await pullCloudState({preferRemote});
     } catch (_) {
       setCloudStatus('local', '☁ 本机存档');
+    }
+  }
+
+
+  async function prepareMultiplayerIdentity() {
+    try { await window.XingchenAuth?.syncProfile?.(true); } catch (_) {}
+    if (cloudReady && !cloudBusy) {
+      try { await pushCloudState(true); } catch (_) {}
+    }
+  }
+
+  function syncFriendStat(rows = friendRows) {
+    const count = rows.filter(row => row.relation_state === 'friend').length;
+    if ((Number(state.stats.friend) || 0) === count) return;
+    state.stats.friend = count;
+    saveState();
+    renderTaskDot();
+  }
+
+  async function loadRankings(force = false) {
+    if (rankingLoading) return;
+    if (!force && rankingLoadedAt && Date.now() - rankingLoadedAt < 10000) return;
+    const sb = cloudClient();
+    const user = cloudAuthUser();
+    if (!sb || !user?.id) {
+      rankingError = '请先建立云端身份后再查看排行榜。';
+      renderActivePanel();
+      return;
+    }
+    rankingLoading = true;
+    rankingError = '';
+    renderActivePanel();
+    try {
+      await prepareMultiplayerIdentity();
+      const {data, error} = await sb.rpc('get_farm_rankings', {p_sort:rankingSort, p_limit:50});
+      if (error) throw error;
+      rankingRows = Array.isArray(data) ? data : [];
+      rankingLoadedAt = Date.now();
+    } catch (error) {
+      rankingRows = [];
+      rankingError = multiplayerMissing(error)
+        ? '多人农场尚未启用：请先在 Supabase SQL Editor 执行 20260923_004_farm_rankings_friends.sql。'
+        : '排行榜暂时读取失败，请稍后再试。';
+    } finally {
+      rankingLoading = false;
+      renderActivePanel();
+    }
+  }
+
+  async function loadFriends(force = false) {
+    if (friendsLoading) return;
+    if (!force && friendsLoadedAt && Date.now() - friendsLoadedAt < 10000) return;
+    const sb = cloudClient();
+    const user = cloudAuthUser();
+    if (!sb || !user?.id) {
+      friendsError = '请先建立云端身份后再使用好友功能。';
+      renderActivePanel();
+      return;
+    }
+    friendsLoading = true;
+    friendsError = '';
+    renderActivePanel();
+    try {
+      await prepareMultiplayerIdentity();
+      const {data, error} = await sb.rpc('get_farm_friends');
+      if (error) throw error;
+      friendRows = Array.isArray(data) ? data : [];
+      friendsLoadedAt = Date.now();
+      syncFriendStat(friendRows);
+    } catch (error) {
+      friendRows = [];
+      friendsError = multiplayerMissing(error)
+        ? '好友系统尚未启用：请先在 Supabase SQL Editor 执行 20260923_004_farm_rankings_friends.sql。'
+        : '好友资料暂时读取失败，请稍后再试。';
+    } finally {
+      friendsLoading = false;
+      renderActivePanel();
+    }
+  }
+
+  function invalidateMultiplayer() {
+    rankingLoadedAt = 0;
+    friendsLoadedAt = 0;
+  }
+
+  async function requestFriend(targetId) {
+    const sb = cloudClient();
+    if (!sb || !targetId) return;
+    try {
+      const {data, error} = await sb.rpc('request_farm_friend', {p_target:targetId});
+      if (error) throw error;
+      const result = String(data || '');
+      const messages = {
+        requested:['👥 好友申请已送出','等对方接受后就会出现在好友列表。'],
+        accepted:['🤝 已成为农场好友','你们刚好互相发出了好友申请。'],
+        already_friend:['👥 已经是好友','可以到好友列表查看对方。'],
+        pending:['⏳ 申请已经送出','等待对方确认即可。'],
+        invalid_target:['无法加入好友','不能把自己加入好友。'],
+        not_found:['找不到这位农友','对方可能尚未建立农场。']
+      };
+      const msg = messages[result] || ['好友操作完成',''];
+      toast(msg[0], msg[1], result === 'accepted' ? 'task' : 'normal');
+      invalidateMultiplayer();
+      await Promise.all([loadRankings(true), loadFriends(true)]);
+    } catch (error) {
+      toast('好友申请失败', multiplayerMissing(error) ? '请先执行多人农场 SQL。' : '请稍后再试。');
+    }
+  }
+
+  async function respondFriend(otherId, accept) {
+    const sb = cloudClient();
+    if (!sb || !otherId) return;
+    try {
+      const {data, error} = await sb.rpc('respond_farm_friend', {p_other:otherId, p_accept:Boolean(accept)});
+      if (error) throw error;
+      const result = String(data || '');
+      if (result === 'accepted') toast('🤝 好友申请已接受', '现在已经是农场好友。', 'task');
+      else if (result === 'rejected') toast('已忽略好友申请', '这次不会加入好友列表。');
+      else toast('好友状态已更新');
+      invalidateMultiplayer();
+      await Promise.all([loadFriends(true), loadRankings(true)]);
+    } catch (error) {
+      toast('好友操作失败', multiplayerMissing(error) ? '请先执行多人农场 SQL。' : '请稍后再试。');
+    }
+  }
+
+  async function removeFriend(otherId, mode = 'friend') {
+    const sb = cloudClient();
+    if (!sb || !otherId) return;
+    if (mode === 'friend' && !window.confirm('确定要删除这位农场好友吗？')) return;
+    try {
+      const {error} = await sb.rpc('remove_farm_friend', {p_other:otherId});
+      if (error) throw error;
+      toast(mode === 'request' ? '已取消好友申请' : '好友已删除');
+      invalidateMultiplayer();
+      await Promise.all([loadFriends(true), loadRankings(true)]);
+    } catch (error) {
+      toast('好友操作失败', multiplayerMissing(error) ? '请先执行多人农场 SQL。' : '请稍后再试。');
     }
   }
 
@@ -746,8 +911,8 @@
       shop:{icon:'🛒', eyebrow:'FARM SHOP', title:'种子商店', subtitle:'不同作物会随着农场等级逐步解锁。'},
       bag:{icon:'🎒', eyebrow:'INVENTORY', title:'我的背包', subtitle:'种子用于播种；成熟作物可以在这里出售换取金币。'},
       tasks:{icon:'📜', eyebrow:'FARM QUEST', title:'农场任务', subtitle:'跟着任务认识农场，完成目标还能拿到种子、金币与经验。'},
-      ranking:{icon:'🏆', eyebrow:'RANKING', title:'农场排行榜', subtitle:'等级榜与金币榜将在多人云端农场接入后启用。'},
-      friends:{icon:'👥', eyebrow:'FRIENDS', title:'农场好友', subtitle:'好友、拜访与偷菜会在多人云端阶段一起开放。'}
+      ranking:{icon:'🏆', eyebrow:'RANKING', title:'农场排行榜', subtitle:'查看真实云端玩家的等级榜与金币榜，也可以直接发送好友申请。'},
+      friends:{icon:'👥', eyebrow:'FRIENDS', title:'农场好友', subtitle:'管理好友申请与好友列表；拜访与偷菜会在下一阶段接上。'}
     }[panel];
     if (!meta) return;
     openModal({...meta, body:''});
@@ -817,26 +982,68 @@
     }
 
     if (activePanel === 'ranking') {
+      if (!rankingLoading && !rankingLoadedAt && !rankingError) setTimeout(() => loadRankings(false), 0);
+      const rows = rankingRows;
+      const currentUserId = cloudAuthUser()?.id || '';
+      const list = rows.length ? rows.map(row => {
+        const rank = Number(row.rank_no) || 0;
+        const medal = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : `<span>${rank}</span>`;
+        const relation = String(row.relation_state || 'none');
+        let action = '';
+        if (row.user_id === currentUserId || relation === 'self') action = '<span class="farm-relation-label is-self">自己</span>';
+        else if (relation === 'friend') action = '<span class="farm-relation-label is-friend">✓ 好友</span>';
+        else if (relation === 'pending_out') action = '<span class="farm-relation-label is-pending">已申请</span>';
+        else if (relation === 'pending_in') action = '<button type="button" class="farm-friend-action is-notice" data-open-panel="friends">待确认</button>';
+        else action = `<button type="button" class="farm-friend-action" data-friend-add="${escapeHtml(row.user_id)}">＋ 好友</button>`;
+        return `<article class="farm-ranking-row ${relation === 'self' ? 'is-self' : ''}">
+          <div class="farm-rank-no">${medal}</div>
+          <div class="farm-rank-player"><b>${escapeHtml(row.display_name)} <i>${genderSymbol(row.sex)}</i></b><small>Lv.${formatNumber(row.farm_level)}</small></div>
+          <div class="farm-rank-value"><b>${rankingSort === 'coins' ? `🪙 ${formatNumber(row.coins)}` : `Lv.${formatNumber(row.farm_level)}`}</b><small>${rankingSort === 'coins' ? `Lv.${formatNumber(row.farm_level)}` : `🪙 ${formatNumber(row.coins)}`}</small></div>
+          <div class="farm-rank-action">${action}</div>
+        </article>`;
+      }).join('') : '';
+
       body.innerHTML = `
-        <div class="farm-coming-soon">
-          <div class="farm-coming-mark">🏆</div>
-          <h3>先把自己的农场种起来</h3>
-          <p>排行榜会读取真实云端玩家资料，分成「等级榜」与「金币榜」。为了不显示假的玩家与假的名次，这一版先不伪造排行榜数据。</p>
-          <div class="farm-coming-preview"><span>等级榜</span><b>Lv. 1 → Lv. 25+</b><span>金币榜</span><b>真实玩家资产排行</b></div>
-          <small>下一阶段接入 Supabase 农场资料后，会从排行榜直接加好友、拜访农场。</small>
-        </div>`;
+        <div class="farm-ranking-toolbar">
+          <div class="farm-ranking-tabs" role="tablist" aria-label="排行榜类型">
+            <button type="button" data-ranking-tab="level" class="${rankingSort === 'level' ? 'is-active' : ''}">🌿 等级榜</button>
+            <button type="button" data-ranking-tab="coins" class="${rankingSort === 'coins' ? 'is-active' : ''}">🪙 金币榜</button>
+          </div>
+          <button type="button" class="farm-refresh-button" data-refresh-ranking ${rankingLoading ? 'disabled' : ''}>↻ 刷新</button>
+        </div>
+        ${rankingLoading ? '<div class="farm-network-state"><span class="farm-spinner"></span><b>正在读取真实农场排名…</b></div>' : ''}
+        ${rankingError ? `<div class="farm-network-state is-error"><b>⚠ ${escapeHtml(rankingError)}</b></div>` : ''}
+        ${!rankingLoading && !rankingError && !rows.length ? '<div class="farm-network-state"><b>目前还没有可显示的农场玩家。</b><small>玩家建立云端农场后会自动出现在这里。</small></div>' : ''}
+        ${!rankingLoading && !rankingError && rows.length ? `<div class="farm-ranking-list">${list}</div><p class="farm-multiplayer-note">排行榜读取真实云端农场资料；目前为测试阶段，拜访与偷菜将在下一版接上。</p>` : ''}`;
       return;
     }
 
     if (activePanel === 'friends') {
+      if (!friendsLoading && !friendsLoadedAt && !friendsError) setTimeout(() => loadFriends(false), 0);
+      const incoming = friendRows.filter(row => row.relation_state === 'pending_in');
+      const accepted = friendRows.filter(row => row.relation_state === 'friend');
+      const outgoing = friendRows.filter(row => row.relation_state === 'pending_out');
+
+      const friendCard = (row, mode) => {
+        const safeId = escapeHtml(row.user_id);
+        const base = `<div class="farm-friend-avatar">${row.sex === 'male' ? '♂' : row.sex === 'female' ? '♀' : '🌱'}</div>
+          <div class="farm-friend-copy"><b>${escapeHtml(row.display_name)}</b><small>Lv.${formatNumber(row.farm_level)} · 🪙 ${formatNumber(row.coins)}</small></div>`;
+        let actions = '';
+        if (mode === 'incoming') actions = `<div class="farm-friend-buttons"><button type="button" class="is-primary" data-friend-accept="${safeId}">接受</button><button type="button" data-friend-reject="${safeId}">忽略</button></div>`;
+        else if (mode === 'outgoing') actions = `<div class="farm-friend-buttons"><span>等待对方确认</span><button type="button" data-friend-cancel="${safeId}">取消</button></div>`;
+        else actions = `<div class="farm-friend-buttons"><button type="button" disabled title="下一阶段开放">拜访农场</button><button type="button" data-friend-remove="${safeId}">删除</button></div>`;
+        return `<article class="farm-friend-row">${base}${actions}</article>`;
+      };
+
       body.innerHTML = `
-        <div class="farm-coming-soon">
-          <div class="farm-coming-mark">👥</div>
-          <h3>好友系统正在准备土地</h3>
-          <p>好友会使用星辰日记现有的玩家身分。未来可以拜访好友农场、查看成熟作物，并随机偷取 1～3 个；地主无论如何至少保留 1 个。</p>
-          <div class="farm-coming-preview"><span>好友拜访</span><b>查看好友 20 格农田</b><span>偷菜规则</span><b>1～3 个 · 保底剩 1</b></div>
-          <small>这一部分需要 Supabase 做服务器验证，避免玩家自行修改金钱或重复偷取。</small>
-        </div>`;
+        <div class="farm-friends-summary"><span>👥 好友 <b>${accepted.length}</b></span><span>📩 待确认 <b>${incoming.length}</b></span><button type="button" class="farm-refresh-button" data-refresh-friends ${friendsLoading ? 'disabled' : ''}>↻ 刷新</button></div>
+        ${friendsLoading ? '<div class="farm-network-state"><span class="farm-spinner"></span><b>正在读取好友资料…</b></div>' : ''}
+        ${friendsError ? `<div class="farm-network-state is-error"><b>⚠ ${escapeHtml(friendsError)}</b></div>` : ''}
+        ${!friendsLoading && !friendsError ? `
+          ${incoming.length ? `<section class="farm-friend-section"><header><b>📩 收到的申请</b><span>${incoming.length}</span></header>${incoming.map(row => friendCard(row,'incoming')).join('')}</section>` : ''}
+          <section class="farm-friend-section"><header><b>👥 我的好友</b><span>${accepted.length}</span></header>${accepted.length ? accepted.map(row => friendCard(row,'friend')).join('') : '<p class="farm-empty-state">还没有好友。可以到排行榜找到农友并点击「＋ 好友」。</p>'}</section>
+          ${outgoing.length ? `<section class="farm-friend-section"><header><b>⏳ 已送出的申请</b><span>${outgoing.length}</span></header>${outgoing.map(row => friendCard(row,'outgoing')).join('')}</section>` : ''}
+          <p class="farm-multiplayer-note">好友关系已经接上 Supabase。下一阶段会开放拜访好友 20 格农田与偷菜。</p>` : ''}`;
     }
   }
 
@@ -920,6 +1127,31 @@
       harvestAll();
       return;
     }
+
+    const rankingTab = event.target.closest('[data-ranking-tab]');
+    if (rankingTab) {
+      const next = rankingTab.dataset.rankingTab === 'coins' ? 'coins' : 'level';
+      if (rankingSort !== next) {
+        rankingSort = next;
+        rankingLoadedAt = 0;
+        loadRankings(true);
+      }
+      return;
+    }
+
+    if (event.target.closest('[data-refresh-ranking]')) { rankingLoadedAt = 0; loadRankings(true); return; }
+    if (event.target.closest('[data-refresh-friends]')) { friendsLoadedAt = 0; loadFriends(true); return; }
+
+    const friendAdd = event.target.closest('[data-friend-add]');
+    if (friendAdd) { requestFriend(friendAdd.dataset.friendAdd); return; }
+    const friendAccept = event.target.closest('[data-friend-accept]');
+    if (friendAccept) { respondFriend(friendAccept.dataset.friendAccept, true); return; }
+    const friendReject = event.target.closest('[data-friend-reject]');
+    if (friendReject) { respondFriend(friendReject.dataset.friendReject, false); return; }
+    const friendCancel = event.target.closest('[data-friend-cancel]');
+    if (friendCancel) { removeFriend(friendCancel.dataset.friendCancel, 'request'); return; }
+    const friendRemove = event.target.closest('[data-friend-remove]');
+    if (friendRemove) { removeFriend(friendRemove.dataset.friendRemove, 'friend'); return; }
 
     const plot = event.target.closest('[data-plot]');
     if (plot) {
@@ -1012,8 +1244,8 @@
       if (event.key === 'Escape' && !$('farmModal').hidden) closeModal();
     });
     $('farmScrollTop')?.addEventListener('click', () => window.scrollTo({top:0, behavior:'smooth'}));
-    window.addEventListener('stellar:player-profile-saved', renderOwner);
-    window.addEventListener('stellar:profile-updated', renderOwner);
+    window.addEventListener('stellar:player-profile-saved', () => { renderOwner(); invalidateMultiplayer(); });
+    window.addEventListener('stellar:profile-updated', () => { renderOwner(); invalidateMultiplayer(); });
     window.addEventListener('stellar:auth-state', event => {
       const nextUserId = event.detail?.userId || '';
       if (cloudUserId && nextUserId && nextUserId !== cloudUserId) bootstrapCloud(true);
@@ -1028,7 +1260,7 @@
     state.stats.visit = Math.max(1, Number(state.stats.visit) || 0);
     saveState({touch:false, sync:false});
     renderAll();
-    bootstrapCloud(false);
+    bootstrapCloud(false).then(() => loadFriends(true)).catch(() => {});
 
     if (tickTimer) clearInterval(tickTimer);
     tickTimer = setInterval(tick, 1000);
