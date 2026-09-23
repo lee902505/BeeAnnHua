@@ -211,10 +211,6 @@
     const fragment = document.createDocumentFragment();
 
     for (let row = 0; row < 4; row += 1) {
-      const rowEl = document.createElement('div');
-      rowEl.className = 'farm-plot-row';
-      rowEl.style.setProperty('--farm-row', row);
-
       for (let col = 0; col < 5; col += 1) {
         const index = row * 5 + col;
         const plot = state.plots[index];
@@ -222,7 +218,9 @@
         btn.type = 'button';
         btn.className = 'farm-plot';
         btn.dataset.plot = String(index);
+        btn.style.setProperty('--farm-row', row);
         btn.style.setProperty('--farm-col', col);
+        btn.style.setProperty('--farm-depth', (row * 10) + col);
 
         if (index >= unlocked) {
           const lvl = unlockLevelForPlot(index);
@@ -249,9 +247,8 @@
               <small class="farm-crop-time">${progress >= 1 ? '可以收成' : formatDuration(remaining)}</small>
             </span>`;
         }
-        rowEl.appendChild(btn);
+        fragment.appendChild(btn);
       }
-      fragment.appendChild(rowEl);
     }
 
     host.replaceChildren(fragment);

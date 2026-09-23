@@ -9763,67 +9763,62 @@ body.farm-modal-open { overflow: hidden; }
   pointer-events:none;
 }
 .farm-field {
-  /* Tightly interlocked NW→SE field: neighboring soil tiles visually share edges. */
-  --farm-tile-w:140px;
-  --farm-col-step:104px;
-  --farm-row-shift:52px;
-  --farm-row-overlap:-38px;
-  width:calc((var(--farm-col-step) * 4) + var(--farm-tile-w) + (var(--farm-row-shift) * 3));
+  /* V0.12.6: true edge-to-edge isometric lattice.
+     Each plot follows the two visible edge vectors of the PNG, so the 20 soils
+     read as one continuous NW→SE field instead of four overlapping horizontal rows. */
+  --farm-tile-w:150px;
+  --farm-tile-h:100px;
+  --farm-col-x:82px;
+  --farm-col-y:46px;
+  --farm-row-x:-55px;
+  --farm-row-y:31px;
+  --farm-origin-x:165px;
+  position:relative;
+  width:643px;
+  height:377px;
   max-width:100%;
-  display:flex;
-  flex-direction:column;
-  align-items:flex-start;
-  gap:0;
   padding:0;
   background:transparent;
   border:0;
   box-shadow:none;
-  transform:translate(-2%,8px);
+  transform:translate(-3%,4px);
   transform-origin:center;
   filter:drop-shadow(0 16px 18px rgba(67,74,36,.14));
   pointer-events:auto;
 }
-.farm-plot-row {
-  display:grid;
-  grid-template-columns:repeat(5,var(--farm-col-step));
-  gap:0;
-  width:max-content;
-  transform:translateX(calc(var(--farm-row) * var(--farm-row-shift)));
-  overflow:visible;
-}
-.farm-plot-row + .farm-plot-row { margin-top:var(--farm-row-overlap); }
-.farm-plot-row:has(.farm-plot:hover),
-.farm-plot-row:has(.farm-plot:focus-visible) { position:relative; z-index:60; }
+.farm-plot-row { display:contents; }
 .farm-plot {
-  position:relative;
-  z-index:1;
+  position:absolute;
+  left:calc(var(--farm-origin-x) + (var(--farm-col) * var(--farm-col-x)) + (var(--farm-row) * var(--farm-row-x)));
+  top:calc((var(--farm-col) * var(--farm-col-y)) + (var(--farm-row) * var(--farm-row-y)));
+  z-index:calc(1 + var(--farm-depth));
   appearance:none;
   min-width:0;
   width:var(--farm-tile-w);
-  aspect-ratio:1.5 / 1;
+  height:var(--farm-tile-h);
   padding:0;
   background:transparent;
   cursor:pointer;
   border:0;
   border-radius:18px;
   transform:translateY(0) scale(1);
-  transform-origin:50% 64%;
+  transform-origin:50% 66%;
   transition:transform .18s cubic-bezier(.2,.85,.25,1.15), filter .18s ease;
   -webkit-tap-highlight-color:transparent;
   will-change:transform;
 }
 .farm-plot:hover,
 .farm-plot:focus-visible {
-  z-index:40;
-  transform:translateY(-9px) scale(1.015);
-  filter:brightness(1.07) drop-shadow(0 10px 8px rgba(67,48,23,.18));
+  z-index:90;
+  transform:translateY(-11px) scale(1.025);
+  filter:brightness(1.075) drop-shadow(0 11px 9px rgba(67,48,23,.22));
   outline:none;
 }
 .farm-plot:hover .farm-soil::before,
 .farm-plot:focus-visible .farm-soil::before {
-  filter:brightness(1.055) drop-shadow(0 9px 7px rgba(68,42,19,.28));
+  filter:brightness(1.06) drop-shadow(0 10px 8px rgba(68,42,19,.3));
 }
-.farm-plot:active { z-index:45; transform:translateY(-2px) scale(.975); }
+.farm-plot:active { z-index:95; transform:translateY(-3px) scale(.98); }
 .farm-soil {
   position:absolute;
   inset:-8% -7%;
@@ -10171,10 +10166,15 @@ body.farm-modal-open { overflow: hidden; }
 @media (max-width: 1050px) {
   .farm-field-wrap { left:13%; right:14.5%; }
   .farm-field {
-    --farm-tile-w:124px;
-    --farm-col-step:92px;
-    --farm-row-shift:46px;
-    --farm-row-overlap:-34px;
+    --farm-tile-w:132px;
+    --farm-tile-h:88px;
+    --farm-col-x:72px;
+    --farm-col-y:40px;
+    --farm-row-x:-48px;
+    --farm-row-y:27px;
+    --farm-origin-x:144px;
+    width:566px;
+    height:330px;
   }
   .farm-side-actions { width:132px; }
   .farm-side-actions button { padding:9px 11px; min-height:54px; }
@@ -10212,17 +10212,21 @@ body.farm-modal-open { overflow: hidden; }
     justify-content:center;
   }
   .farm-field {
-    --farm-tile-w:78px;
-    --farm-col-step:58px;
-    --farm-row-shift:29px;
-    --farm-row-overlap:-21px;
-    width:calc((var(--farm-col-step) * 4) + var(--farm-tile-w) + (var(--farm-row-shift) * 3));
+    --farm-tile-w:82px;
+    --farm-tile-h:55px;
+    --farm-col-x:45px;
+    --farm-col-y:25px;
+    --farm-row-x:-30px;
+    --farm-row-y:17px;
+    --farm-origin-x:90px;
+    width:353px;
+    height:207px;
     margin:0 auto;
     padding:0;
-    transform:translate(-4%,14px);
+    transform:translate(-1%,12px);
     filter:drop-shadow(0 10px 12px rgba(55,69,31,.12));
   }
-  .farm-plot { aspect-ratio:1.5/1; border-radius:10px; }
+  .farm-plot { border-radius:10px; }
   .farm-soil { inset:-8% -7%; padding-top:5%; }
   .farm-plot:hover { transform:translateY(0) scale(1); filter:none; }
   .farm-plot:active { transform:translateY(-5px) scale(1.025); filter:brightness(1.05); }
