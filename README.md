@@ -1,3 +1,10 @@
+## V0.13.8 durable farm mutation journal
+
+- Adds a persistent local mutation journal for task rewards and planting so F5/navigation cannot resurrect stale cloud state.
+- Cloud writes are verified by reading the saved revision back before pending mutations are cleared.
+- Pending task claims and planted plots are replayed idempotently after cloud restore when needed.
+- Farm/account cache-busting updated to 0.13.8.
+
 ## V0.13.7 cache refresh fix
 
 - Farm page assets now use `?v=0.13.7` so browsers do not reuse V0.13.5 JavaScript after deployment.

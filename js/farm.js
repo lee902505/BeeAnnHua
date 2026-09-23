@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const FARM_BUILD = '0.13.7';
+  const FARM_BUILD = '0.13.8';
   const STORAGE_KEY = 'xingchen-farm-v1';
   const VERSION = 1;
   const PLOT_COUNT = 20;
@@ -9,6 +9,7 @@
   const CLOUD_TABLE = 'farm_saves';
   const CLOUD_SYNC_DELAY = 700;
   const SYNC_META_KEY = 'xingchen-farm-v1-sync-meta';
+  const PENDING_OPS_KEY = 'xingchen-farm-v1-pending-ops';
 
   const CROPS = [
     { id:'carrot', name:'红萝卜', icon:'🥕', seedPrice:8, growMinutes:20, yieldMin:4, yieldMax:5, sellPrice:3, exp:4, unlockLevel:1, note:'成长快速，适合刚开始经营农场。' },
@@ -168,6 +169,130 @@
     try { localStorage.setItem(SYNC_META_KEY, JSON.stringify(meta)); } catch (_) {}
   }
 
+  function readPendingOps() {
+    try {
+      const raw = JSON.parse(localStorage.getItem(PENDING_OPS_KEY) || '[]');
+      return Array.isArray(raw) ? raw.filter(op => op && typeof op === 'object' && op.id && op.type) : [];
+    } catch (_) {
+      return [];
+    }
+  }
+
+  function writePendingOps(ops) {
+    try { localStorage.setItem(PENDING_OPS_KEY, JSON.stringify(Array.isArray(ops) ? ops : [])); } catch (_) {}
+  }
+
+  function mutationUserId() {
+    return cloudAuthUser()?.id || state.ownerUserId || '';
+  }
+
+  function pendingOpsForUser(userId = mutationUserId()) {
+    return readPendingOps().filter(op => !op.userId || !userId || op.userId === userId);
+  }
+
+  function newMutationId(prefix = 'farm') {
+    const random = globalThis.crypto?.randomUUID?.() || Math.random().toString(36).slice(2);
+    return `${prefix}-${Date.now()}-${random}`;
+  }
+
+  function queuePendingOp(op) {
+    const ops = readPendingOps();
+    const next = {
+      ...op,
+      id: op.id || newMutationId(op.type || 'farm'),
+      userId: op.userId ?? mutationUserId(),
+      createdAt: Number(op.createdAt) || Date.now()
+    };
+    ops.push(next);
+    writePendingOps(ops.slice(-80));
+    markLocalDirty();
+    return next;
+  }
+
+  function taskById(id) {
+    return TASKS.find(task => task.id === id) || null;
+  }
+
+  function applyTaskReward(task, {silent=false} = {}) {
+    if (!task || state.claimedTasks.includes(task.id)) return false;
+    state.claimedTasks.push(task.id);
+    if (task.reward.coins) state.coins += task.reward.coins;
+    if (task.reward.exp) addExp(task.reward.exp, {silent});
+    if (task.reward.seeds) {
+      Object.entries(task.reward.seeds).forEach(([cropId, qty]) => {
+        state.seeds[cropId] = (state.seeds[cropId] || 0) + qty;
+      });
+    }
+    return true;
+  }
+
+  function plantMutationApplied(targetState, op) {
+    if (!Array.isArray(op?.plots) || !op.plots.length) return true;
+    return op.plots.every(item => {
+      const plot = targetState?.plots?.[Number(item.index)];
+      return plot && plot.cropId === op.cropId && Number(plot.plantedAt) === Number(item.plantedAt);
+    });
+  }
+
+  function pendingOpApplied(targetState, op) {
+    if (!op || !targetState) return false;
+    if (op.type === 'claim-task') return Array.isArray(targetState.claimedTasks) && targetState.claimedTasks.includes(op.taskId);
+    if (op.type === 'plant') return plantMutationApplied(targetState, op);
+    return false;
+  }
+
+  function clearConfirmedPendingOps(remoteState, userId) {
+    const ops = readPendingOps();
+    const remaining = ops.filter(op => {
+      if (op.userId && userId && op.userId !== userId) return true;
+      return !pendingOpApplied(remoteState, op);
+    });
+    if (remaining.length !== ops.length) writePendingOps(remaining);
+    return remaining;
+  }
+
+  function replayPendingOps(userId = mutationUserId()) {
+    const ops = pendingOpsForUser(userId);
+    if (!ops.length) return false;
+    let changed = false;
+
+    for (const op of ops) {
+      if (op.type === 'claim-task') {
+        const task = taskById(op.taskId);
+        if (task && applyTaskReward(task, {silent:true})) changed = true;
+        continue;
+      }
+
+      if (op.type === 'plant' && Array.isArray(op.plots)) {
+        for (const item of op.plots) {
+          const index = Number(item.index);
+          const plot = state.plots[index];
+          if (!plot) continue;
+          if (plot.cropId === op.cropId && Number(plot.plantedAt) === Number(item.plantedAt)) continue;
+          if (plot.cropId || (state.seeds[op.cropId] || 0) <= 0) continue;
+          state.seeds[op.cropId] -= 1;
+          plot.cropId = op.cropId;
+          plot.plantedAt = Number(item.plantedAt) || Date.now();
+          plot.resultCropId = item.resultCropId || null;
+          plot.harvestYield = Number(item.harvestYield) || 1;
+          plot.stolenCount = 0;
+          state.stats.plant += 1;
+          state.history.push({type:'plant', cropId:op.cropId, plotId:index, at:plot.plantedAt, recovered:true, mutationId:op.id});
+          changed = true;
+        }
+      }
+    }
+
+    if (changed) {
+      const previous = Number(state.updatedAt) || 0;
+      state.updatedAt = Math.max(Date.now(), previous + 1);
+      state.ownerUserId = userId || state.ownerUserId || '';
+      writeLocalState();
+      markLocalDirty();
+    }
+    return changed;
+  }
+
   function markLocalDirty() {
     const userId = cloudAuthUser()?.id || state.ownerUserId || '';
     writeSyncMeta({dirty:true, userId, changedAt:Date.now()});
@@ -283,23 +408,44 @@
 
       const {error} = await sb.from(CLOUD_TABLE).upsert(payload, {onConflict:'user_id'});
       if (error) throw error;
+
+      // A successful HTTP write is not enough for destructive local cleanup.
+      // Read the row back and confirm the exact revision before clearing the
+      // durable mutation journal. This makes F5/navigation safe even when a
+      // request is interrupted or an older cloud copy races with the browser.
+      const {data:verified, error:verifyError} = await sb
+        .from(CLOUD_TABLE)
+        .select('state,client_updated_at')
+        .eq('user_id', user.id)
+        .maybeSingle();
+      if (verifyError) throw verifyError;
+      const verifiedStamp = Number(verified?.client_updated_at) || 0;
+      if (!verified?.state || verifiedStamp !== snapshotStamp) {
+        uploadSucceeded = true;
+        cloudReady = true;
+        cloudLastSyncedAt = Date.now();
+        markLocalDirty();
+        cloudPushQueued = true;
+        setCloudStatus('syncing', '☁ 正在确认');
+        return {ok:false, pending:true, snapshotStamp, verifiedStamp};
+      }
+
+      clearConfirmedPendingOps(verified.state, user.id);
       uploadSucceeded = true;
       cloudReady = true;
       cloudLastSyncedAt = Date.now();
 
       const currentStamp = Number(state.updatedAt) || 0;
-      if (currentStamp === snapshotStamp && !cloudPushQueued) {
+      const stillPending = pendingOpsForUser(user.id).length > 0;
+      if (currentStamp === snapshotStamp && !cloudPushQueued && !stillPending) {
         markLocalClean(user.id);
         setCloudStatus('ready', '☁ 云端已同步');
       } else {
-        // A newer local action happened while this snapshot was uploading.
-        // Keep the dirty marker and flush the newest state immediately after
-        // this request releases the single-flight lock.
         markLocalDirty();
         cloudPushQueued = true;
         setCloudStatus('syncing', '☁ 正在同步');
       }
-      return {ok:true, snapshotStamp};
+      return {ok:true, snapshotStamp, verifiedStamp};
     } catch (error) {
       // Never clear the dirty marker after a failed upload. The next page load
       // will prefer the local copy and retry, so F5 cannot resurrect an old
@@ -346,7 +492,8 @@
       const remoteStamp = Number(data.client_updated_at) || new Date(data.updated_at || 0).getTime() || 0;
       const localStamp = Number(state.updatedAt) || 0;
       const belongsToDifferentUser = Boolean(state.ownerUserId && state.ownerUserId !== user.id);
-      const localDirty = !belongsToDifferentUser && hasUnsyncedLocalChanges(user.id);
+      const hasPendingOps = !belongsToDifferentUser && pendingOpsForUser(user.id).length > 0;
+      const localDirty = !belongsToDifferentUser && (hasUnsyncedLocalChanges(user.id) || hasPendingOps);
       // Never let a stale cloud copy overwrite a local action that was already
       // committed to localStorage but did not finish its network sync before F5.
       // This is intentionally stronger than comparing client/server clocks,
@@ -356,6 +503,7 @@
       cloudReady = true;
       if (localDirty) {
         state.ownerUserId = user.id;
+        replayPendingOps(user.id);
         writeLocalState();
         await pushCloudState(true);
         renderAll();
@@ -731,7 +879,7 @@
     return LAND_UNLOCKS.find(item => item.level > state.level) || null;
   }
 
-  function addExp(amount) {
+  function addExp(amount, {silent=false} = {}) {
     if (!amount) return;
     state.exp += amount;
     const unlockedBefore = unlockedLandCount(state.level);
@@ -750,8 +898,10 @@
       let extra = `升到 Lv.${state.level}`;
       if (unlockedAfter > unlockedBefore) extra += ` · 新农地 +${unlockedAfter - unlockedBefore}`;
       if (newlyCrops.length) extra += ` · 解锁 ${newlyCrops.map(c => c.name).join('、')}`;
-      toast('🌟 农场升级！', extra, 'level');
-      pulseExp();
+      if (!silent) {
+        toast('🌟 农场升级！', extra, 'level');
+        pulseExp();
+      }
     }
   }
 
@@ -1014,21 +1164,33 @@
     if (qty <= 0) return;
 
     const chosen = targets.slice(0, qty);
+    const basePlantedAt = Date.now();
+    const mutation = queuePendingOp({
+      type:'plant',
+      cropId,
+      plots:chosen.map((index, offset) => ({
+        index,
+        plantedAt:basePlantedAt + offset,
+        resultCropId:crop.isMystery ? randomMysteryCropId() : null,
+        harvestYield:crop.isMystery ? 1 : randomInt(crop.yieldMin, crop.yieldMax)
+      }))
+    });
     closeModal();
 
-    for (let i = 0; i < chosen.length; i += 1) {
-      const index = chosen[i];
+    for (let i = 0; i < mutation.plots.length; i += 1) {
+      const item = mutation.plots[i];
+      const index = Number(item.index);
       const plot = state.plots[index];
       if (!plot || plot.cropId || (state.seeds[cropId] || 0) <= 0) continue;
 
       state.seeds[cropId] -= 1;
       plot.cropId = cropId;
-      plot.plantedAt = Date.now();
-      plot.resultCropId = crop.isMystery ? randomMysteryCropId() : null;
-      plot.harvestYield = crop.isMystery ? 1 : randomInt(crop.yieldMin, crop.yieldMax);
+      plot.plantedAt = Number(item.plantedAt);
+      plot.resultCropId = item.resultCropId || null;
+      plot.harvestYield = Number(item.harvestYield) || 1;
       plot.stolenCount = 0;
       state.stats.plant += 1;
-      state.history.push({type:'plant', cropId, plotId:index, at:Date.now()});
+      state.history.push({type:'plant', cropId, plotId:index, at:plot.plantedAt, mutationId:mutation.id});
       saveState();
       renderField();
       renderStats();
@@ -1236,14 +1398,12 @@
   async function claimTask(id) {
     const task = TASKS.find(t => t.id === id);
     if (!task || task.future || !isTaskComplete(task) || isTaskClaimed(task)) return;
-    state.claimedTasks.push(id);
-    if (task.reward.coins) state.coins += task.reward.coins;
-    if (task.reward.exp) addExp(task.reward.exp);
-    if (task.reward.seeds) {
-      Object.entries(task.reward.seeds).forEach(([cropId, qty]) => {
-        state.seeds[cropId] = (state.seeds[cropId] || 0) + qty;
-      });
-    }
+
+    // Journal the idempotent claim before touching coins/EXP. If the user hits
+    // F5 immediately, this record survives and will be replayed exactly once
+    // after cloud restore instead of resurrecting the old unclaimed task.
+    queuePendingOp({type:'claim-task', taskId:id});
+    applyTaskReward(task);
     saveState();
     if (cloudReady) await pushCloudState(true);
     renderAll();

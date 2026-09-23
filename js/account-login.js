@@ -8,7 +8,9 @@
     'xingchen-report-payload-synastry-v1',
     'xingchen-fortune-history',
     'xingchen-tarot-history-v1',
-    'xingchen-farm-v1'
+    'xingchen-farm-v1',
+    'xingchen-farm-v1-sync-meta',
+    'xingchen-farm-v1-pending-ops'
   ];
 
   function auth() { return window.XingchenAuth || null; }
