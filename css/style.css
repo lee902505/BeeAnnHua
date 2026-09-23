@@ -10076,6 +10076,170 @@ body.farm-modal-open { overflow: hidden; }
 .farm-detail-progress i { display:block; height:100%; border-radius:inherit; background:linear-gradient(90deg,#91af66,#d7cd6d); }
 .farm-soft-note { margin:14px 0 0; padding:13px 15px; color:#746a5b; line-height:1.7; font-size:.78rem; border-radius:14px; background:rgba(121,139,86,.08); }
 
+
+/* V0.12.9 — batch planting quantity selector */
+.farm-plant-quantity {
+  --farm-qty-pct:0%;
+  display:grid;
+  gap:18px;
+}
+.farm-plant-summary {
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:9px;
+}
+.farm-plant-summary > div {
+  min-width:0;
+  padding:12px 10px;
+  text-align:center;
+  border-radius:14px;
+  background:rgba(255,255,255,.52);
+  border:1px solid rgba(112,91,60,.11);
+}
+.farm-plant-summary span,
+.farm-plant-summary b { display:block; }
+.farm-plant-summary span { color:#8b806d; font-size:.66rem; }
+.farm-plant-summary b { margin-top:3px; color:#5c6748; font-size:.82rem; }
+.farm-qty-title { text-align:center; color:#776b58; font-size:.76rem; font-weight:700; letter-spacing:.04em; }
+.farm-qty-stepper {
+  display:grid;
+  grid-template-columns:52px minmax(110px,1fr) 52px;
+  align-items:center;
+  gap:13px;
+  max-width:360px;
+  margin:0 auto;
+}
+.farm-qty-stepper button {
+  width:52px;
+  height:52px;
+  border-radius:16px;
+  color:#fffcef;
+  background:linear-gradient(180deg,#7d8f5c,#657848);
+  box-shadow:0 5px 0 rgba(72,87,51,.18),0 9px 18px rgba(64,72,43,.12);
+  cursor:pointer;
+  font-size:1.7rem;
+  line-height:1;
+  transition:transform .14s ease, filter .14s ease;
+}
+.farm-qty-stepper button:hover { transform:translateY(-2px); filter:brightness(1.06); }
+.farm-qty-stepper button:active { transform:translateY(2px); box-shadow:0 2px 0 rgba(72,87,51,.18); }
+.farm-qty-stepper strong {
+  display:flex;
+  align-items:baseline;
+  justify-content:center;
+  gap:5px;
+  min-height:52px;
+  padding:8px 18px;
+  border-radius:18px;
+  color:#586344;
+  background:rgba(255,255,255,.62);
+  border:1px solid rgba(110,91,59,.13);
+  font-size:1.75rem;
+  font-variant-numeric:tabular-nums;
+}
+.farm-qty-stepper strong small { color:#8b806d; font-size:.72rem; font-weight:600; }
+.farm-qty-range-wrap { max-width:570px; width:100%; margin:0 auto; }
+.farm-qty-range {
+  width:100%;
+  height:10px;
+  appearance:none;
+  -webkit-appearance:none;
+  border-radius:999px;
+  outline:none;
+  background:linear-gradient(90deg,#81985b 0 var(--farm-qty-pct),#ddd5bd var(--farm-qty-pct) 100%);
+  box-shadow:inset 0 1px 3px rgba(75,67,49,.13);
+  cursor:pointer;
+}
+.farm-qty-range:disabled { cursor:default; opacity:.75; }
+.farm-qty-range::-webkit-slider-thumb {
+  appearance:none;
+  -webkit-appearance:none;
+  width:26px;
+  height:26px;
+  border-radius:50%;
+  border:4px solid #fff8e8;
+  background:#71884f;
+  box-shadow:0 3px 9px rgba(70,77,48,.28);
+  cursor:grab;
+}
+.farm-qty-range::-moz-range-thumb {
+  width:20px;
+  height:20px;
+  border-radius:50%;
+  border:4px solid #fff8e8;
+  background:#71884f;
+  box-shadow:0 3px 9px rgba(70,77,48,.28);
+  cursor:grab;
+}
+.farm-qty-range-labels {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-top:8px;
+  color:#928673;
+  font-size:.7rem;
+}
+.farm-qty-range-labels button {
+  padding:4px 9px;
+  border-radius:999px;
+  color:#65764b;
+  background:rgba(120,140,80,.09);
+  cursor:pointer;
+  font-weight:700;
+}
+.farm-plant-costline {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  max-width:570px;
+  width:100%;
+  margin:0 auto;
+  padding:12px 14px;
+  border-radius:14px;
+  color:#716655;
+  background:rgba(119,137,82,.08);
+}
+.farm-plant-costline b { color:#5d6948; }
+.farm-plant-actions { display:flex; justify-content:flex-end; gap:9px; padding-top:2px; }
+.farm-plant-actions button,
+.farm-seed-bag-row > button {
+  padding:9px 14px;
+  border-radius:11px;
+  cursor:pointer;
+  font-weight:700;
+  transition:transform .15s ease, filter .15s ease;
+}
+.farm-plant-actions button:hover,
+.farm-seed-bag-row > button:hover:not(:disabled) { transform:translateY(-1px); filter:brightness(1.04); }
+.farm-plant-actions .is-primary,
+.farm-seed-bag-row > button {
+  color:#fffdf0;
+  background:#6d7d50;
+}
+.farm-plant-actions .is-secondary { color:#695f4f; background:#e7dcc0; }
+.farm-seed-bag-row { grid-template-columns:42px minmax(0,1fr) auto auto; }
+.farm-seed-bag-row > button { padding:7px 11px; font-size:.7rem; }
+.farm-seed-bag-row > button:disabled { cursor:not-allowed; color:#8b8270; background:#ddd5be; opacity:.7; }
+.farm-soil.is-just-planted { animation:farm-just-planted .48s cubic-bezier(.2,.85,.25,1.18); }
+
+@keyframes farm-just-planted {
+  0% { transform:translateY(0) scale(.96); filter:brightness(.92); }
+  45% { transform:translateY(-10px) scale(1.055); filter:brightness(1.11); }
+  72% { transform:translateY(-3px) scale(.99); }
+  100% { transform:translateY(0) scale(1); filter:none; }
+}
+
+@media (max-width:680px) {
+  .farm-plant-summary { grid-template-columns:1fr 1fr; }
+  .farm-qty-stepper { grid-template-columns:48px minmax(90px,1fr) 48px; gap:9px; }
+  .farm-qty-stepper button { width:48px; height:48px; }
+  .farm-plant-actions { display:grid; grid-template-columns:1fr 1.35fr; }
+  .farm-plant-actions button { min-height:44px; padding:9px 10px; }
+  .farm-seed-bag-row { grid-template-columns:36px minmax(0,1fr) auto; }
+  .farm-seed-bag-row > button { grid-column:2 / -1; justify-self:end; }
+}
+
 .farm-shop-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
 .farm-shop-item {
   padding:16px;
@@ -10335,5 +10499,5 @@ body.farm-modal-open { overflow: hidden; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .farm-exp-fill::after,.is-mature .farm-crop-visual { animation:none !important; }
+  .farm-exp-fill::after,.is-mature .farm-crop-visual,.farm-soil.is-just-planted { animation:none !important; }
 }

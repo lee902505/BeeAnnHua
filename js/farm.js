@@ -291,27 +291,143 @@
 
     openModal({
       icon:'🌱', eyebrow:`FIELD ${String(index + 1).padStart(2,'0')}`, title:'选择要种下的种子',
-      subtitle:'种下后会按照真实时间成长，关闭网页也会继续计时。',
+      subtitle:'选好作物后可以决定种 1 格、数格，或一次种满目前可用空地。',
       body:`<div class="farm-seed-list">${options}</div><button class="farm-inline-link" type="button" data-open-panel="shop">种子不够？前往商店 →</button>`
     });
   }
 
-  function plant(index, cropId) {
+  function emptyPlotIndices(preferredIndex = null) {
+    const unlocked = unlockedLandCount();
+    const empty = state.plots
+      .slice(0, unlocked)
+      .filter(plot => !plot.cropId)
+      .map(plot => plot.id);
+
+    if (Number.isInteger(preferredIndex) && empty.includes(preferredIndex)) {
+      return [
+        preferredIndex,
+        ...empty.filter(index => index > preferredIndex),
+        ...empty.filter(index => index < preferredIndex)
+      ];
+    }
+    return empty;
+  }
+
+  function maxPlantQuantity(cropId, preferredIndex = null) {
+    const crop = cropById(cropId);
+    if (!crop || state.level < crop.unlockLevel) return 0;
+    const owned = Math.max(0, Number(state.seeds[cropId]) || 0);
+    return Math.min(owned, emptyPlotIndices(preferredIndex).length);
+  }
+
+  function maturityClock(crop) {
+    const time = new Date(Date.now() + crop.growMinutes * 60 * 1000);
+    return time.toLocaleTimeString('zh-CN', {hour:'2-digit', minute:'2-digit', hour12:false});
+  }
+
+  function openPlantQuantity(preferredIndex, cropId, initialQty = 1, origin = 'field') {
+    const crop = cropById(cropId);
+    const maxQty = maxPlantQuantity(cropId, preferredIndex);
+    if (!crop || maxQty <= 0) {
+      toast('🌱 现在没有可种植的位置', '请确认种子数量与已开放空地。');
+      return;
+    }
+
+    const qty = Math.max(1, Math.min(maxQty, Number(initialQty) || 1));
+    const owned = Number(state.seeds[cropId]) || 0;
+    const emptyCount = emptyPlotIndices(preferredIndex).length;
+    const fieldLabel = Number.isInteger(preferredIndex)
+      ? `从第 ${preferredIndex + 1} 格开始，之后按西北 → 东南顺序填入空地。`
+      : '会按照西北 → 东南顺序，把作物种进目前可用的空地。';
+
+    openModal({
+      icon:crop.icon,
+      eyebrow:'BATCH PLANT',
+      title:`种植 ${crop.name}`,
+      subtitle:`${fieldLabel} 成熟时间约 ${crop.growMinutes} 分钟。`,
+      body:`
+        <section class="farm-plant-quantity" data-plant-quantity-root
+          data-crop-id="${crop.id}" data-preferred-plot="${Number.isInteger(preferredIndex) ? preferredIndex : ''}" data-origin="${origin}">
+          <div class="farm-plant-summary">
+            <div><span>持有种子</span><b>${owned} 包</b></div>
+            <div><span>可用空地</span><b>${emptyCount} 格</b></div>
+            <div><span>本次最多</span><b>${maxQty} 格</b></div>
+            <div><span>预计成熟</span><b>${maturityClock(crop)}</b></div>
+          </div>
+
+          <div class="farm-qty-title">本次种植数量</div>
+          <div class="farm-qty-stepper">
+            <button type="button" data-plant-qty-step="-1" aria-label="减少一格">−</button>
+            <strong><span id="farmPlantQtyValue">${qty}</span><small> / ${maxQty} 格</small></strong>
+            <button type="button" data-plant-qty-step="1" aria-label="增加一格">＋</button>
+          </div>
+
+          <div class="farm-qty-range-wrap">
+            <input id="farmPlantQtyRange" class="farm-qty-range" type="range" min="1" max="${maxQty}" step="1" value="${qty}" ${maxQty === 1 ? 'disabled' : ''} aria-label="选择种植数量" />
+            <div class="farm-qty-range-labels"><span>1</span><button type="button" data-plant-all>全部 ${maxQty}</button></div>
+          </div>
+
+          <div class="farm-plant-costline">
+            <span>${crop.icon} ${crop.name}</span>
+            <b>需要种子 ×<span id="farmPlantSeedCost">${qty}</span></b>
+          </div>
+
+          <div class="farm-plant-actions">
+            ${origin === 'field' && Number.isInteger(preferredIndex) ? `<button type="button" class="is-secondary" data-back-seed-picker="${preferredIndex}">返回选种</button>` : `<button type="button" class="is-secondary" data-open-panel="bag">返回背包</button>`}
+            <button type="button" class="is-primary" data-confirm-batch-plant>开始种植 <span id="farmPlantConfirmQty">${qty}</span> 格</button>
+          </div>
+        </section>`
+    });
+    requestAnimationFrame(() => updatePlantQuantity(qty));
+  }
+
+  function updatePlantQuantity(value) {
+    const root = document.querySelector('[data-plant-quantity-root]');
+    const range = $('farmPlantQtyRange');
+    if (!root || !range) return;
+    const max = Number(range.max) || 1;
+    const qty = Math.max(1, Math.min(max, Number(value) || 1));
+    range.value = String(qty);
+    $('farmPlantQtyValue').textContent = qty;
+    $('farmPlantSeedCost').textContent = qty;
+    $('farmPlantConfirmQty').textContent = qty;
+    root.style.setProperty('--farm-qty-pct', `${max <= 1 ? 100 : ((qty - 1) / (max - 1)) * 100}%`);
+  }
+
+  async function plantBatch(preferredIndex, cropId, qty) {
     const crop = cropById(cropId);
     if (!crop || state.level < crop.unlockLevel) return;
-    if ((state.seeds[cropId] || 0) <= 0) return;
-    const plot = state.plots[index];
-    if (!plot || plot.cropId) return;
+    const targets = emptyPlotIndices(preferredIndex);
+    const maxQty = Math.min(targets.length, Number(state.seeds[cropId]) || 0);
+    qty = Math.max(1, Math.min(maxQty, Number(qty) || 1));
+    if (qty <= 0) return;
 
-    state.seeds[cropId] -= 1;
-    plot.cropId = cropId;
-    plot.plantedAt = Date.now();
-    state.stats.plant += 1;
-    state.history.push({type:'plant', cropId, at:Date.now()});
-    saveState();
+    const chosen = targets.slice(0, qty);
     closeModal();
+
+    for (let i = 0; i < chosen.length; i += 1) {
+      const index = chosen[i];
+      const plot = state.plots[index];
+      if (!plot || plot.cropId || (state.seeds[cropId] || 0) <= 0) continue;
+
+      state.seeds[cropId] -= 1;
+      plot.cropId = cropId;
+      plot.plantedAt = Date.now();
+      state.stats.plant += 1;
+      state.history.push({type:'plant', cropId, plotId:index, at:Date.now()});
+      saveState();
+      renderField();
+      renderStats();
+      renderTaskDot();
+
+      const planted = document.querySelector(`.farm-plot[data-plot="${index}"] .farm-soil`);
+      if (planted) planted.classList.add('is-just-planted');
+      await new Promise(resolve => setTimeout(resolve, 85));
+    }
+
+    saveState();
     renderAll();
-    toast(`${crop.icon} 已经种下 ${crop.name}`, `${crop.growMinutes} 分钟后回来看看。`);
+    toast(`${crop.icon} 已种下 ${crop.name} ×${chosen.length} 格`, `${crop.growMinutes} 分钟后回来看看。`);
   }
 
   function openCropStatus(index) {
@@ -460,7 +576,12 @@
       body.innerHTML = `
         <section class="farm-bag-section">
           <header><b>🌱 种子</b><span>${seedItems.reduce((s,c)=>s+(state.seeds[c.id]||0),0)} 包</span></header>
-          <div class="farm-bag-list">${seedItems.length ? seedItems.map(c => `<div class="farm-bag-row"><span>${c.icon}</span><div><b>${c.name}种子</b><small>${c.growMinutes} 分钟成熟</small></div><em>×${state.seeds[c.id]}</em></div>`).join('') : '<p class="farm-empty-state">目前没有种子，可以到商店补货。</p>'}</div>
+          <div class="farm-bag-list">${seedItems.length ? seedItems.map(c => {
+            const levelLocked = state.level < c.unlockLevel;
+            const canPlant = !levelLocked && maxPlantQuantity(c.id) > 0;
+            const plantLabel = levelLocked ? `Lv.${c.unlockLevel} 解锁` : (canPlant ? '种植' : '暂无空地');
+            return `<div class="farm-bag-row farm-seed-bag-row"><span>${c.icon}</span><div><b>${c.name}种子</b><small>${c.growMinutes} 分钟成熟</small></div><em>×${state.seeds[c.id]}</em><button type="button" data-plant-from-bag="${c.id}" ${canPlant ? '' : 'disabled'}>${plantLabel}</button></div>`;
+          }).join('') : '<p class="farm-empty-state">目前没有种子，可以到商店补货。</p>'}</div>
         </section>
         <section class="farm-bag-section">
           <header><b>🧺 农作物</b><span>${produceItems.reduce((s,c)=>s+(state.produce[c.id]||0),0)} 个</span></header>
@@ -628,7 +749,42 @@
 
     const plantBtn = event.target.closest('[data-plant-crop]');
     if (plantBtn) {
-      plant(Number(plantBtn.dataset.plantPlot), plantBtn.dataset.plantCrop);
+      openPlantQuantity(Number(plantBtn.dataset.plantPlot), plantBtn.dataset.plantCrop, 1, 'field');
+      return;
+    }
+
+    const bagPlant = event.target.closest('[data-plant-from-bag]');
+    if (bagPlant) {
+      activePanel = null;
+      openPlantQuantity(null, bagPlant.dataset.plantFromBag, 1, 'bag');
+      return;
+    }
+
+    const qtyStep = event.target.closest('[data-plant-qty-step]');
+    if (qtyStep) {
+      const range = $('farmPlantQtyRange');
+      if (range) updatePlantQuantity(Number(range.value) + Number(qtyStep.dataset.plantQtyStep));
+      return;
+    }
+
+    if (event.target.closest('[data-plant-all]')) {
+      const range = $('farmPlantQtyRange');
+      if (range) updatePlantQuantity(range.max);
+      return;
+    }
+
+    const backSeed = event.target.closest('[data-back-seed-picker]');
+    if (backSeed) {
+      openSeedPicker(Number(backSeed.dataset.backSeedPicker));
+      return;
+    }
+
+    if (event.target.closest('[data-confirm-batch-plant]')) {
+      const root = document.querySelector('[data-plant-quantity-root]');
+      const range = $('farmPlantQtyRange');
+      if (!root || !range) return;
+      const preferred = root.dataset.preferredPlot === '' ? null : Number(root.dataset.preferredPlot);
+      plantBatch(preferred, root.dataset.cropId, Number(range.value));
       return;
     }
 
@@ -640,6 +796,9 @@
 
   function init() {
     document.addEventListener('click', handleClick);
+    document.addEventListener('input', event => {
+      if (event.target.matches('#farmPlantQtyRange')) updatePlantQuantity(event.target.value);
+    });
     document.addEventListener('keydown', event => {
       if (event.key === 'Escape' && !$('farmModal').hidden) closeModal();
     });
