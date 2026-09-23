@@ -1,3 +1,14 @@
+# V0.13.0 — 一鍵收穫＋Supabase 農場雲端存檔
+
+- 農場新增 **🧺 一鍵收穫**：有成熟作物時自動亮起並顯示可收成格數，一次收成所有成熟農地。
+- 批量收成會依農田順序逐格彈起，最後統整各作物數量與總 EXP；單格點擊收成仍保留。
+- 新增私人 Supabase `farm_saves` 雲端存檔，localStorage 仍作為離線備援。
+- 農場右上顯示雲端狀態：連接中／同步中／已同步／待啟用／本機存檔。
+- 第一次啟用雲端時會把既有本機農場上傳；新裝置若已有雲端存檔則自動還原。不同 Supabase 使用者不會互相覆蓋農場。
+- 雲端存檔使用 RLS，每個 authenticated 使用者（包含 Anonymous Auth）只能讀寫自己的 `user_id`。
+- **排行榜尚未直接使用這份 client-authoritative 存檔。** 等多人排行榜／好友／偷菜實作時，金幣與收成會改由 Supabase RPC / Edge Function 伺服器驗證，避免前端改值作弊。
+- 啟用方式見 `supabase/FARM_CLOUD_SETUP.md`，需在 SQL Editor 執行 `20260923_003_farm_cloud_save.sql`。
+
 # V0.12.9 — 批量種植與數量選擇器
 
 - 點選空地並選好作物後，不再立刻只種 1 格；新增「本次種植數量」步驟。

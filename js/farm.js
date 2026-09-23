@@ -5,6 +5,8 @@
   const VERSION = 1;
   const PLOT_COUNT = 20;
   const INITIAL_COINS = 100;
+  const CLOUD_TABLE = 'farm_saves';
+  const CLOUD_SYNC_DELAY = 700;
 
   const CROPS = [
     { id:'carrot', name:'红萝卜', icon:'🥕', seedPrice:8, growMinutes:20, yieldMin:4, yieldMax:5, sellPrice:3, exp:4, unlockLevel:1, note:'成长快速，适合刚开始经营农场。' },
@@ -45,10 +47,16 @@
     { id:'friend10', title:'农场交友达人', desc:'好友达到 10 人。', type:'friend', target:10, reward:{seeds:{pumpkin:3}}, rewardText:'南瓜种子 ×3', future:true }
   ];
 
+  const hadLocalStateAtBoot = (() => { try { return localStorage.getItem(STORAGE_KEY) != null; } catch (_) { return false; } })();
   let state = loadState();
   let activePanel = null;
   let tickTimer = null;
   let lastLevel = state.level;
+  let cloudReady = false;
+  let cloudUserId = '';
+  let cloudSyncTimer = null;
+  let cloudBusy = false;
+  let cloudLastSyncedAt = 0;
 
   const $ = (id) => document.getElementById(id);
   const cropById = (id) => CROPS.find(c => c.id === id);
@@ -69,7 +77,9 @@
       produce: {},
       stats: { visit:1, plant:0, harvest:0, sell:0, friend:0 },
       claimedTasks: [],
-      history: []
+      history: [],
+      ownerUserId: '',
+      updatedAt: Date.now()
     };
   }
 
@@ -88,6 +98,8 @@
     merged.coins = Math.max(0, Number(merged.coins) || 0);
     merged.level = Math.max(1, Number(merged.level) || 1);
     merged.exp = Math.max(0, Number(merged.exp) || 0);
+    merged.ownerUserId = typeof merged.ownerUserId === 'string' ? merged.ownerUserId : '';
+    merged.updatedAt = Math.max(0, Number(merged.updatedAt) || Number(merged.createdAt) || Date.now());
     return merged;
   }
 
@@ -100,8 +112,137 @@
     }
   }
 
-  function saveState() {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  function writeLocalState() {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (_) {}
+  }
+
+  function saveState({touch=true, sync=true} = {}) {
+    if (touch) state.updatedAt = Date.now();
+    writeLocalState();
+    if (sync) scheduleCloudPush();
+  }
+
+  function setCloudStatus(mode, text) {
+    const el = $('farmCloudStatus');
+    if (!el) return;
+    el.className = `farm-cloud-status is-${mode}`;
+    el.textContent = text;
+  }
+
+  function cloudClient() {
+    return window.XingchenSupabase?.getClient?.() || null;
+  }
+
+  function cloudAuthUser() {
+    return window.XingchenAuth?.getUser?.() || null;
+  }
+
+  function relationMissing(error) {
+    const text = String(error?.message || error || '');
+    return error?.code === '42P01' || /farm_saves|schema cache|does not exist|could not find/i.test(text);
+  }
+
+  function scheduleCloudPush() {
+    if (!cloudReady || !cloudUserId) return;
+    clearTimeout(cloudSyncTimer);
+    cloudSyncTimer = setTimeout(() => pushCloudState(false), CLOUD_SYNC_DELAY);
+  }
+
+  async function pushCloudState(force = false) {
+    if ((!cloudReady && !force) || cloudBusy) return {ok:false, skipped:true};
+    const sb = cloudClient();
+    const user = cloudAuthUser();
+    if (!sb || !user?.id) return {ok:false, skipped:true};
+    cloudUserId = user.id;
+    cloudBusy = true;
+    setCloudStatus('syncing', '☁ 正在同步');
+    try {
+      state.ownerUserId = user.id;
+      writeLocalState();
+      const payload = {
+        user_id:user.id,
+        state:state,
+        client_updated_at:Number(state.updatedAt) || Date.now()
+      };
+      const {error} = await sb.from(CLOUD_TABLE).upsert(payload, {onConflict:'user_id'});
+      if (error) throw error;
+      cloudReady = true;
+      cloudLastSyncedAt = Date.now();
+      setCloudStatus('ready', '☁ 云端已同步');
+      return {ok:true};
+    } catch (error) {
+      cloudReady = false;
+      if (relationMissing(error)) setCloudStatus('setup', '☁ 云端待启用');
+      else setCloudStatus('error', '☁ 云端暂不可用');
+      return {ok:false, error};
+    } finally {
+      cloudBusy = false;
+    }
+  }
+
+  async function pullCloudState({preferRemote=false} = {}) {
+    const sb = cloudClient();
+    const user = cloudAuthUser();
+    if (!sb || !user?.id) return {ok:false, skipped:true};
+    cloudUserId = user.id;
+    setCloudStatus('connecting', '☁ 云端连接中');
+    try {
+      const {data, error} = await sb
+        .from(CLOUD_TABLE)
+        .select('state,client_updated_at,updated_at')
+        .eq('user_id', user.id)
+        .maybeSingle();
+      if (error) throw error;
+      if (!data?.state) {
+        cloudReady = true;
+        if (state.ownerUserId && state.ownerUserId !== user.id) {
+          state = createDefaultState();
+          state.ownerUserId = user.id;
+          writeLocalState();
+          renderAll();
+        }
+        return await pushCloudState(true);
+      }
+
+      const remoteStamp = Number(data.client_updated_at) || new Date(data.updated_at || 0).getTime() || 0;
+      const localStamp = Number(state.updatedAt) || 0;
+      const belongsToDifferentUser = Boolean(state.ownerUserId && state.ownerUserId !== user.id);
+      const shouldUseRemote = preferRemote || belongsToDifferentUser || !hadLocalStateAtBoot || remoteStamp > localStamp;
+      cloudReady = true;
+      if (shouldUseRemote) {
+        state = normalizeState(data.state);
+        state.updatedAt = Math.max(remoteStamp, Number(state.updatedAt) || 0);
+        state.ownerUserId = user.id;
+        writeLocalState();
+        renderAll();
+      } else if (localStamp > remoteStamp) {
+        await pushCloudState(true);
+      } else {
+        setCloudStatus('ready', '☁ 云端已同步');
+      }
+      cloudLastSyncedAt = Date.now();
+      setCloudStatus('ready', '☁ 云端已同步');
+      return {ok:true, source:shouldUseRemote ? 'cloud' : 'local'};
+    } catch (error) {
+      cloudReady = false;
+      if (relationMissing(error)) setCloudStatus('setup', '☁ 云端待启用');
+      else setCloudStatus('error', '☁ 使用本机存档');
+      return {ok:false, error};
+    }
+  }
+
+  async function bootstrapCloud(preferRemote = false) {
+    try {
+      const authState = await window.XingchenAuth?.init?.();
+      const user = window.XingchenAuth?.getUser?.() || (authState?.userId ? {id:authState.userId} : null);
+      if (!user?.id) {
+        setCloudStatus('local', '☁ 本机存档');
+        return;
+      }
+      await pullCloudState({preferRemote});
+    } catch (_) {
+      setCloudStatus('local', '☁ 本机存档');
+    }
   }
 
   function currentExpNeed() {
@@ -178,6 +319,7 @@
     renderOwner();
     renderStats();
     renderField();
+    updateHarvestAllButton();
     renderTaskDot();
     if (activePanel) renderActivePanel();
   }
@@ -453,6 +595,67 @@
     });
   }
 
+  function maturePlotIndices() {
+    return state.plots
+      .filter(plot => {
+        if (!plot?.cropId) return false;
+        const crop = cropById(plot.cropId);
+        return crop && progressFor(plot, crop) >= 1;
+      })
+      .map(plot => plot.id);
+  }
+
+  function updateHarvestAllButton() {
+    const button = $('farmHarvestAll');
+    const count = $('farmHarvestReadyCount');
+    if (!button || !count) return;
+    const ready = maturePlotIndices().length;
+    count.textContent = ready;
+    button.disabled = ready <= 0;
+    button.classList.toggle('is-ready', ready > 0);
+    button.setAttribute('aria-label', ready > 0 ? `一键收获 ${ready} 格成熟作物` : '目前没有成熟作物');
+  }
+
+  async function harvestAll() {
+    const ready = maturePlotIndices();
+    if (!ready.length) {
+      toast('🧺 还没有成熟作物', '等作物成熟后，就能在这里一次全部收成。');
+      return;
+    }
+
+    const button = $('farmHarvestAll');
+    if (button) button.disabled = true;
+    const totals = {};
+    let totalExp = 0;
+
+    for (const index of ready) {
+      const plot = state.plots[index];
+      const crop = cropById(plot?.cropId);
+      if (!crop || progressFor(plot, crop) < 1) continue;
+
+      const tile = document.querySelector(`.farm-plot[data-plot="${index}"] .farm-soil`);
+      if (tile) tile.classList.add('is-batch-harvesting');
+      await new Promise(resolve => setTimeout(resolve, 75));
+
+      const amount = randomInt(crop.yieldMin, crop.yieldMax);
+      state.produce[crop.id] = (state.produce[crop.id] || 0) + amount;
+      totals[crop.id] = (totals[crop.id] || 0) + amount;
+      totalExp += crop.exp;
+      state.stats.harvest += 1;
+      state.history.push({type:'harvest', cropId:crop.id, amount, at:Date.now(), batch:true});
+      plot.cropId = null;
+      plot.plantedAt = null;
+    }
+
+    addExp(totalExp);
+    saveState();
+    renderAll();
+    const summary = Object.entries(totals)
+      .map(([cropId, amount]) => { const crop = cropById(cropId); return `${crop?.icon || ''}${crop?.name || cropId} ×${amount}`; })
+      .join('、');
+    toast(`🧺 一键收获完成 · ${ready.length} 格`, `${summary}${totalExp ? ` · EXP +${totalExp}` : ''}`, 'harvest');
+  }
+
   function harvest(index) {
     const plot = state.plots[index];
     const crop = cropById(plot.cropId);
@@ -700,6 +903,7 @@
       if (time) time.textContent = progress >= 1 ? '可以收成' : formatDuration(remaining);
       btn.setAttribute('aria-label', `${crop.name}，${progress >= 1 ? '已成熟，点击收成' : `${stage.label}，剩余 ${formatDuration(remaining)}`}`);
     });
+    updateHarvestAllButton();
   }
 
   function tick() {
@@ -712,6 +916,11 @@
   }
 
   function handleClick(event) {
+    if (event.target.closest('#farmHarvestAll')) {
+      harvestAll();
+      return;
+    }
+
     const plot = event.target.closest('[data-plot]');
     if (plot) {
       onPlotClick(Number(plot.dataset.plot));
@@ -805,11 +1014,21 @@
     $('farmScrollTop')?.addEventListener('click', () => window.scrollTo({top:0, behavior:'smooth'}));
     window.addEventListener('stellar:player-profile-saved', renderOwner);
     window.addEventListener('stellar:profile-updated', renderOwner);
+    window.addEventListener('stellar:auth-state', event => {
+      const nextUserId = event.detail?.userId || '';
+      if (cloudUserId && nextUserId && nextUserId !== cloudUserId) bootstrapCloud(true);
+    });
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden && cloudReady && Date.now() - cloudLastSyncedAt > 15000) pullCloudState();
+    });
 
-    // The first visit task is intentionally ready immediately.
+    // The first visit task is intentionally ready immediately. Do not touch the
+    // local revision before the initial cloud comparison, otherwise an older
+    // browser copy could incorrectly look newer than the server save.
     state.stats.visit = Math.max(1, Number(state.stats.visit) || 0);
-    saveState();
+    saveState({touch:false, sync:false});
     renderAll();
+    bootstrapCloud(false);
 
     if (tickTimer) clearInterval(tickTimer);
     tickTimer = setInterval(tick, 1000);

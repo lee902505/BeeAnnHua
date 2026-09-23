@@ -7,7 +7,8 @@
     'xingchen-report-payload-natal-v1',
     'xingchen-report-payload-synastry-v1',
     'xingchen-fortune-history',
-    'xingchen-tarot-history-v1'
+    'xingchen-tarot-history-v1',
+    'xingchen-farm-v1'
   ];
 
   function auth() { return window.XingchenAuth || null; }

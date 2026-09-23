@@ -9918,6 +9918,58 @@ body.farm-modal-open { overflow: hidden; }
   filter:drop-shadow(0 6px 5px rgba(68,42,19,.2)) drop-shadow(0 0 9px rgba(255,221,112,.5));
 }
 
+
+.farm-cloud-status {
+  margin-top:8px;
+  font-size:.66rem;
+  letter-spacing:.04em;
+  color:rgba(241,238,213,.68);
+}
+.farm-cloud-status.is-ready { color:#dff0c5; }
+.farm-cloud-status.is-syncing,.farm-cloud-status.is-connecting { color:#f1e5a9; }
+.farm-cloud-status.is-setup,.farm-cloud-status.is-error { color:#ffd2a6; }
+.farm-cloud-status.is-local { color:rgba(241,238,213,.58); }
+
+.farm-harvest-all {
+  position:absolute;
+  z-index:8;
+  right:18.5%;
+  bottom:7.5%;
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  min-height:42px;
+  padding:9px 13px;
+  border-radius:999px;
+  color:#6d5b36;
+  background:linear-gradient(180deg,rgba(255,249,215,.96),rgba(229,211,151,.96));
+  border:2px solid rgba(143,104,46,.58);
+  box-shadow:0 6px 0 rgba(104,77,39,.18),0 10px 20px rgba(66,53,32,.13);
+  cursor:pointer;
+  transition:transform .18s ease,filter .18s ease,opacity .18s ease,box-shadow .18s ease;
+}
+.farm-harvest-all span { font-size:1.05rem; }
+.farm-harvest-all b { font-size:.78rem; letter-spacing:.04em; }
+.farm-harvest-all em {
+  min-width:22px; height:22px; padding:0 6px; display:grid; place-items:center;
+  border-radius:999px; font-style:normal; font-size:.68rem; font-weight:800;
+  color:#fff7d8; background:#76824f;
+}
+.farm-harvest-all:disabled { opacity:.48; cursor:default; filter:grayscale(.3); box-shadow:none; }
+.farm-harvest-all.is-ready { animation:farm-harvest-ready 2.2s ease-in-out infinite; }
+.farm-harvest-all.is-ready:hover { transform:translateY(-3px) scale(1.02); filter:brightness(1.04); }
+.farm-soil.is-batch-harvesting { animation:farm-batch-harvest .34s cubic-bezier(.2,.9,.24,1.2) both; }
+
+@keyframes farm-harvest-ready {
+  0%,100%{box-shadow:0 6px 0 rgba(104,77,39,.18),0 10px 20px rgba(66,53,32,.13)}
+  50%{box-shadow:0 7px 0 rgba(104,77,39,.18),0 12px 24px rgba(66,53,32,.14),0 0 0 5px rgba(242,218,129,.16)}
+}
+@keyframes farm-batch-harvest {
+  0%{transform:translateY(0) scale(1)}
+  55%{transform:translateY(-13px) scale(1.07)}
+  100%{transform:translateY(-2px) scale(.98)}
+}
+
 .farm-side-actions {
   position:absolute;
   z-index:7;
@@ -10077,7 +10129,7 @@ body.farm-modal-open { overflow: hidden; }
 .farm-soft-note { margin:14px 0 0; padding:13px 15px; color:#746a5b; line-height:1.7; font-size:.78rem; border-radius:14px; background:rgba(121,139,86,.08); }
 
 
-/* V0.12.9 — batch planting quantity selector */
+/* V0.13.0 — batch planting quantity selector */
 .farm-plant-quantity {
   --farm-qty-pct:0%;
   display:grid;
@@ -10431,6 +10483,14 @@ body.farm-modal-open { overflow: hidden; }
   .farm-crop-name { font-size:.47rem; }
   .farm-crop-time { display:none; }
   .farm-plot.is-empty .farm-soil small,.farm-plot.is-locked .farm-soil small { font-size:.45rem; }
+  .farm-harvest-all {
+    right:14px;
+    bottom:84px;
+    min-height:38px;
+    padding:7px 11px;
+  }
+  .farm-harvest-all b { font-size:.69rem; }
+  .farm-harvest-all em { min-width:20px; height:20px; font-size:.62rem; }
   .farm-side-actions {
     position:fixed;
     left:0; right:0; bottom:0; top:auto;
@@ -10499,5 +10559,5 @@ body.farm-modal-open { overflow: hidden; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .farm-exp-fill::after,.is-mature .farm-crop-visual,.farm-soil.is-just-planted { animation:none !important; }
+  .farm-exp-fill::after,.is-mature .farm-crop-visual,.farm-soil.is-just-planted,.farm-harvest-all.is-ready,.farm-soil.is-batch-harvesting { animation:none !important; }
 }
