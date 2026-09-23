@@ -446,7 +446,7 @@
           const remaining = Math.max(0, crop.growMinutes * 60 * 1000 - (Date.now() - plot.plantedAt));
           cls += ` has-crop stage-${stage.key}`;
           if (progress >= 1) { cls += ' is-mature'; matureCount += 1; }
-          content = `<span class="farm-soil"><span class="farm-crop-visual" aria-hidden="true">${crop.icon}</span><span class="farm-crop-name">${crop.name}</span><small class="farm-crop-time">${progress >= 1 ? '已成熟' : formatDuration(remaining)}</small></span>`;
+          content = `<span class="farm-soil"><small class="farm-crop-time">${progress >= 1 ? '已成熟' : formatDuration(remaining)}</small><span class="farm-crop-visual" aria-hidden="true">${crop.icon}</span><span class="farm-crop-name">${crop.name}</span></span>`;
         }
 
         tiles.push(`<div class="${cls}" style="--farm-row:${row};--farm-col:${col};--farm-depth:${(row * 10) + col}">${content}</div>`);
@@ -642,9 +642,9 @@
           btn.setAttribute('aria-label', `${crop.name}，${progress >= 1 ? '已成熟，点击收成' : `${stage.label}，剩余 ${formatDuration(remaining)}`}`);
           btn.innerHTML = `
             <span class="farm-soil">
+              <small class="farm-crop-time">${progress >= 1 ? '可以收成' : formatDuration(remaining)}</small>
               <span class="farm-crop-visual" aria-hidden="true">${crop.icon}</span>
               <span class="farm-crop-name">${crop.name}</span>
-              <small class="farm-crop-time">${progress >= 1 ? '可以收成' : formatDuration(remaining)}</small>
             </span>`;
         }
         // Pointer hit area follows the diamond-shaped soil instead of the
