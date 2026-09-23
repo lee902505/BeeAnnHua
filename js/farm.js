@@ -247,6 +247,10 @@
               <small class="farm-crop-time">${progress >= 1 ? '可以收成' : formatDuration(remaining)}</small>
             </span>`;
         }
+        // Pointer hit area follows the diamond-shaped soil instead of the
+        // plot button's large rectangular box. This prevents an overlapping
+        // neighbour from swallowing clicks meant for a middle plot.
+        btn.insertAdjacentHTML('beforeend', '<span class="farm-hit-area" aria-hidden="true"></span>');
         fragment.appendChild(btn);
       }
     }
