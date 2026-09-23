@@ -247,7 +247,6 @@
               <span class="farm-crop-visual" aria-hidden="true">${crop.icon}</span>
               <span class="farm-crop-name">${crop.name}</span>
               <small class="farm-crop-time">${progress >= 1 ? '可以收成' : formatDuration(remaining)}</small>
-              <span class="farm-growth-mini"><i style="width:${Math.round(progress * 100)}%"></i></span>
             </span>`;
         }
         rowEl.appendChild(btn);
