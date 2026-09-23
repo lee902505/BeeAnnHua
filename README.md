@@ -1,9 +1,16 @@
-## V0.13.8 durable farm mutation journal
+## V0.13.9 authoritative farm save RPC
+
+- Replaces browser direct `farm_saves` upsert with `public.save_farm_state(...)`.
+- RPC binds writes to `auth.uid()` server-side and refuses older revisions.
+- Fixes the verified production symptom where local 120 coins / claimed task reverted because Supabase still stored 100 / `[]`.
+- Run `supabase/migrations/20260924_007_farm_save_rpc.sql` once before testing this build.
+
+## V0.13.9 durable farm mutation journal
 
 - Adds a persistent local mutation journal for task rewards and planting so F5/navigation cannot resurrect stale cloud state.
 - Cloud writes are verified by reading the saved revision back before pending mutations are cleared.
 - Pending task claims and planted plots are replayed idempotently after cloud restore when needed.
-- Farm/account cache-busting updated to 0.13.8.
+- Farm/account cache-busting updated to 0.13.9.
 
 ## V0.13.7 cache refresh fix
 

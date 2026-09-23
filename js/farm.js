@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const FARM_BUILD = '0.13.8';
+  const FARM_BUILD = '0.13.9';
   const STORAGE_KEY = 'xingchen-farm-v1';
   const VERSION = 1;
   const PLOT_COUNT = 20;
@@ -406,19 +406,18 @@
         client_updated_at:snapshotStamp
       };
 
-      const {error} = await sb.from(CLOUD_TABLE).upsert(payload, {onConflict:'user_id'});
-      if (error) throw error;
-
-      // A successful HTTP write is not enough for destructive local cleanup.
-      // Read the row back and confirm the exact revision before clearing the
-      // durable mutation journal. This makes F5/navigation safe even when a
-      // request is interrupted or an older cloud copy races with the browser.
-      const {data:verified, error:verifyError} = await sb
-        .from(CLOUD_TABLE)
-        .select('state,client_updated_at')
-        .eq('user_id', user.id)
-        .maybeSingle();
-      if (verifyError) throw verifyError;
+      // Use a SECURITY DEFINER RPC for writes instead of browser-side upsert.
+      // The direct table write proved unreliable in production for the farm
+      // (the row stayed at 100 coins / [] claimed_tasks even after a local
+      // reward). The RPC binds the write to auth.uid() server-side and returns
+      // the exact revision that actually reached Postgres.
+      const {data:savedRows, error:saveError} = await sb.rpc('save_farm_state', {
+        p_state: snapshot,
+        p_client_updated_at: snapshotStamp
+      });
+      if (saveError) throw saveError;
+      const saved = Array.isArray(savedRows) ? savedRows[0] : savedRows;
+      const verified = saved && typeof saved === 'object' ? saved : null;
       const verifiedStamp = Number(verified?.client_updated_at) || 0;
       if (!verified?.state || verifiedStamp !== snapshotStamp) {
         uploadSucceeded = true;
@@ -452,8 +451,13 @@
       // task reward or erase a freshly planted mystery box.
       markLocalDirty();
       cloudReady = false;
-      if (relationMissing(error)) setCloudStatus('setup', '☁ 云端待启用');
-      else setCloudStatus('error', '☁ 云端暂不可用');
+      console.error('[Stellar Farm] cloud save failed', error);
+      const text = String(error?.message || error || '');
+      if (relationMissing(error) || /save_farm_state|PGRST202|function .* does not exist/i.test(text)) {
+        setCloudStatus('setup', '☁ 请执行 007 云端存档 SQL');
+      } else {
+        setCloudStatus('error', '☁ 云端暂不可用');
+      }
       return {ok:false, error};
     } finally {
       cloudBusy = false;
