@@ -555,9 +555,38 @@
     setTimeout(() => card.classList.remove('is-leveling'), 1200);
   }
 
+  function refreshFieldTimers() {
+    const host = $('farmField');
+    if (!host) return;
+
+    host.querySelectorAll('.farm-plot[data-plot]').forEach(btn => {
+      const index = Number(btn.dataset.plot);
+      const plot = state.plots[index];
+      if (!plot?.cropId) return;
+
+      const crop = cropById(plot.cropId);
+      if (!crop) return;
+
+      const progress = progressFor(plot, crop);
+      const stage = stageFor(progress);
+      const remaining = Math.max(0, crop.growMinutes * 60 * 1000 - (Date.now() - plot.plantedAt));
+
+      ['seed','sprout','growing','almost','mature'].forEach(key => btn.classList.remove(`stage-${key}`));
+      btn.classList.add(`stage-${stage.key}`);
+      btn.classList.toggle('is-mature', progress >= 1);
+
+      const time = btn.querySelector('.farm-crop-time');
+      if (time) time.textContent = progress >= 1 ? '可以收成' : formatDuration(remaining);
+      btn.setAttribute('aria-label', `${crop.name}，${progress >= 1 ? '已成熟，点击收成' : `${stage.label}，剩余 ${formatDuration(remaining)}`}`);
+    });
+  }
+
   function tick() {
     renderStats();
-    renderField();
+    // Do not rebuild all 20 buttons every second. Replacing the DOM while the
+    // pointer is resting on a plot makes hover feel jittery; only countdowns
+    // and growth-stage classes need a one-second refresh.
+    refreshFieldTimers();
     if (activePanel === 'tasks') renderActivePanel();
   }
 

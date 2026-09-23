@@ -9806,19 +9806,23 @@ body.farm-modal-open { overflow: hidden; }
   transition:transform .18s cubic-bezier(.2,.85,.25,1.15), filter .18s ease;
   -webkit-tap-highlight-color:transparent;
   will-change:transform;
-  /* V0.12.7: the plots visually interlock, so the full rectangular button
-     must not steal pointer input from neighbouring diamonds. */
+  /* V0.12.8: keep the large transparent tile box out of pointer hit-testing.
+     Only the small central diamond below can receive the mouse/touch. */
   pointer-events:none;
 }
 .farm-hit-area {
   position:absolute;
-  inset:0;
+  /* Deliberately much smaller than the PNG silhouette.  The farm tiles are
+     edge-to-edge, so a compact centre target prevents the upper row from
+     swallowing the second row while still making each plot easy to select. */
+  left:21%;
+  right:21%;
+  top:22%;
+  bottom:22%;
   z-index:12;
   display:block;
-  /* Match the visible alpha silhouette of farm-plot.webp, with a small
-     inward margin so the middle plots remain easy to target. */
-  clip-path:polygon(42% 10%, 95% 58%, 58% 92%, 5% 43%);
-  -webkit-clip-path:polygon(42% 10%, 95% 58%, 58% 92%, 5% 43%);
+  clip-path:polygon(42% 0, 100% 48%, 58% 100%, 0 52%);
+  -webkit-clip-path:polygon(42% 0, 100% 48%, 58% 100%, 0 52%);
   pointer-events:auto;
   cursor:pointer;
   touch-action:manipulation;
@@ -9826,15 +9830,22 @@ body.farm-modal-open { overflow: hidden; }
 .farm-plot:hover,
 .farm-plot:focus-visible {
   z-index:90;
-  transform:translateY(-11px) scale(1.025);
-  filter:brightness(1.075) drop-shadow(0 11px 9px rgba(67,48,23,.22));
+  /* Do not move the button itself: moving the hit target under the cursor
+     caused hover to repeatedly enter/leave on tightly packed rows. */
+  transform:none;
+  filter:none;
   outline:none;
+}
+.farm-plot:hover .farm-soil,
+.farm-plot:focus-visible .farm-soil {
+  transform:translateY(-9px) scale(1.025);
 }
 .farm-plot:hover .farm-soil::before,
 .farm-plot:focus-visible .farm-soil::before {
   filter:brightness(1.06) drop-shadow(0 10px 8px rgba(68,42,19,.3));
 }
-.farm-plot:active { z-index:95; transform:translateY(-3px) scale(.98); }
+.farm-plot:active { z-index:95; transform:none; }
+.farm-plot:active .farm-soil { transform:translateY(-3px) scale(.985); }
 .farm-soil {
   position:absolute;
   inset:-8% -7%;
@@ -9851,6 +9862,10 @@ body.farm-modal-open { overflow: hidden; }
   border-radius:0;
   box-shadow:none;
   text-shadow:0 1px 3px rgba(56,32,13,.58);
+  transform:translateY(0) scale(1);
+  transform-origin:50% 58%;
+  transition:transform .18s cubic-bezier(.2,.85,.25,1.15);
+  will-change:transform;
 }
 .farm-soil::before {
   content:"";
@@ -10244,8 +10259,10 @@ body.farm-modal-open { overflow: hidden; }
   }
   .farm-plot { border-radius:10px; }
   .farm-soil { inset:-8% -7%; padding-top:5%; }
-  .farm-plot:hover { transform:translateY(0) scale(1); filter:none; }
-  .farm-plot:active { transform:translateY(-5px) scale(1.025); filter:brightness(1.05); }
+  .farm-plot:hover { transform:none; filter:none; }
+  .farm-plot:hover .farm-soil { transform:translateY(0) scale(1); }
+  .farm-plot:active { transform:none; filter:none; }
+  .farm-plot:active .farm-soil { transform:translateY(-4px) scale(1.02); }
   .farm-crop-visual { font-size:1.22rem; }
   .farm-crop-name { font-size:.47rem; }
   .farm-crop-time { display:none; }
