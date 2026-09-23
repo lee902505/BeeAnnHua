@@ -19,6 +19,18 @@
     { id:'starfruit', name:'星辰果', icon:'✨', seedPrice:260, growMinutes:480, yieldMin:4, yieldMax:5, sellPrice:85, exp:45, unlockLevel:25, note:'农场后期作物，睡前种下最合适。' }
   ];
 
+  const MYSTERY_CROP = {
+    id:'mystery', name:'蔬果盲盒', icon:'🎁', seedPrice:5, growMinutes:240,
+    yieldMin:1, yieldMax:1, sellPrice:0, exp:12, unlockLevel:1, isMystery:true,
+    note:'只要 5 金币。种下后固定等待 4 小时，成熟时随机揭晓一种蔬果；每盒收成 1 个，稀有作物也有机会出现。'
+  };
+  const PLANTABLES = [...CROPS, MYSTERY_CROP];
+  const MYSTERY_POOL = [
+    {id:'carrot', weight:26}, {id:'wheat', weight:22}, {id:'corn', weight:18},
+    {id:'tomato', weight:14}, {id:'strawberry', weight:9}, {id:'pumpkin', weight:6},
+    {id:'grape', weight:4}, {id:'starfruit', weight:1}
+  ];
+
   const LEVEL_EXP = {
     1:100, 2:140, 3:190, 4:250, 5:320, 6:400, 7:500, 8:620, 9:750,
     10:900, 11:1060, 12:1230, 13:1410, 14:1600, 15:1800, 16:2010, 17:2230,
@@ -72,7 +84,8 @@
   let friendsLoadedAt = 0;
 
   const $ = (id) => document.getElementById(id);
-  const cropById = (id) => CROPS.find(c => c.id === id);
+  const cropById = (id) => id === MYSTERY_CROP.id ? MYSTERY_CROP : CROPS.find(c => c.id === id);
+  const seedItems = () => PLANTABLES;
 
   function defaultPlots() {
     return Array.from({length:PLOT_COUNT}, (_, i) => ({ id:i, cropId:null, plantedAt:null }));
@@ -101,7 +114,17 @@
     const merged = {...base, ...(raw || {})};
     merged.plots = Array.from({length:PLOT_COUNT}, (_, i) => {
       const old = Array.isArray(raw?.plots) ? raw.plots[i] : null;
-      return { id:i, cropId:old?.cropId || null, plantedAt:Number(old?.plantedAt) || null };
+      const harvestYield = Number(old?.harvestYield);
+      const stolenCount = Number(old?.stolenCount);
+      const resultCropId = CROPS.some(c => c.id === old?.resultCropId) ? old.resultCropId : null;
+      return {
+        id:i,
+        cropId:cropById(old?.cropId) ? old.cropId : null,
+        plantedAt:Number(old?.plantedAt) || null,
+        resultCropId,
+        harvestYield:Number.isFinite(harvestYield) && harvestYield > 0 ? Math.floor(harvestYield) : null,
+        stolenCount:Number.isFinite(stolenCount) && stolenCount > 0 ? Math.floor(stolenCount) : 0
+      };
     });
     merged.seeds = {...base.seeds, ...(raw?.seeds || {})};
     merged.produce = {...(raw?.produce || {})};
@@ -158,7 +181,7 @@
   function multiplayerMissing(error) {
     const text = String(error?.message || error || '');
     return error?.code === '42P01' || error?.code === 'PGRST202' ||
-      /get_farm_rankings|get_farm_friends|get_friend_farm|request_farm_friend|farm_friendships|schema cache|does not exist|could not find/i.test(text);
+      /get_farm_rankings|get_farm_friends|get_friend_farm|steal_friend_crop|request_farm_friend|farm_friendships|farm_steals|schema cache|does not exist|could not find/i.test(text);
   }
 
   function escapeHtml(value) {
@@ -418,12 +441,22 @@
   function renderFriendFarmVisit(payload) {
     const friendLevel = Math.max(1, Number(payload?.level) || 1);
     const unlocked = unlockedLandCount(friendLevel);
+    const friendId = String(payload?.user_id || '');
     const rawPlots = Array.isArray(payload?.plots) ? payload.plots : [];
     const plots = Array.from({length:PLOT_COUNT}, (_, index) => {
       const raw = rawPlots[index] || {};
-      return {id:index, cropId:raw?.cropId || null, plantedAt:Number(raw?.plantedAt) || null};
+      return {
+        id:index,
+        cropId:cropById(raw?.cropId) ? raw.cropId : null,
+        plantedAt:Number(raw?.plantedAt) || null,
+        resultCropId:CROPS.some(c => c.id === raw?.resultCropId) ? raw.resultCropId : null,
+        harvestYield:Number(raw?.harvestYield) || null,
+        stolenCount:Math.max(0, Number(raw?.stolenCount) || 0),
+        stolenByMe:Boolean(raw?.stolenByMe)
+      };
     });
     let matureCount = 0;
+    let stealableCount = 0;
     const tiles = [];
 
     for (let row = 0; row < 4; row += 1) {
@@ -432,6 +465,7 @@
         const plot = plots[index];
         let cls = 'farm-plot farm-visit-plot';
         let content = '';
+        let attrs = '';
 
         if (index >= unlocked) {
           cls += ' is-locked';
@@ -443,13 +477,35 @@
           const crop = cropById(plot.cropId);
           const progress = progressFor(plot, crop);
           const stage = stageFor(progress);
-          const remaining = Math.max(0, crop.growMinutes * 60 * 1000 - (Date.now() - plot.plantedAt));
+          const remainingMs = Math.max(0, crop.growMinutes * 60 * 1000 - (Date.now() - plot.plantedAt));
+          const shown = displayCropForPlot(plot, crop, progress);
           cls += ` has-crop stage-${stage.key}`;
-          if (progress >= 1) { cls += ' is-mature'; matureCount += 1; }
-          content = `<span class="farm-soil"><small class="farm-crop-time">${progress >= 1 ? '已成熟' : formatDuration(remaining)}</small><span class="farm-crop-visual" aria-hidden="true">${crop.icon}</span><span class="farm-crop-name">${crop.name}</span></span>`;
+          if (crop.isMystery) cls += ' is-mystery-crop';
+          if (progress >= 1) {
+            cls += ' is-mature';
+            matureCount += 1;
+          }
+
+          let stealTag = '';
+          if (progress >= 1) {
+            const total = crop.isMystery ? 1 : Math.max(crop.yieldMin, Math.min(crop.yieldMax, Number(plot.harvestYield) || crop.yieldMin));
+            const remain = Math.max(1, total - plot.stolenCount);
+            if (crop.isMystery || remain <= 1) {
+              stealTag = '<span class="farm-steal-tag is-protected">保底 1</span>';
+            } else if (plot.stolenByMe) {
+              stealTag = '<span class="farm-steal-tag is-done">已偷过</span>';
+            } else {
+              cls += ' can-steal';
+              stealableCount += 1;
+              attrs = ` data-steal-friend="${escapeHtml(friendId)}" data-steal-plot="${index}" aria-label="偷取 ${escapeHtml(shown.name)}"`;
+              stealTag = '<span class="farm-steal-tag">偷菜 1–3</span>';
+            }
+          }
+
+          content = `<span class="farm-soil"><small class="farm-crop-time">${progress >= 1 ? '已成熟' : formatDuration(remainingMs)}</small><span class="farm-crop-visual" aria-hidden="true">${shown.icon}</span><span class="farm-crop-name">${shown.name}</span>${stealTag}</span>`;
         }
 
-        tiles.push(`<div class="${cls}" style="--farm-row:${row};--farm-col:${col};--farm-depth:${(row * 10) + col}">${content}</div>`);
+        tiles.push(`<button type="button" class="${cls}" style="--farm-row:${row};--farm-col:${col};--farm-depth:${(row * 10) + col}"${attrs}>${content}</button>`);
       }
     }
 
@@ -459,8 +515,9 @@
       <section class="farm-visit-summary">
         <div><b>${name}${sex ? ` <i>${sex}</i>` : ''}</b><small>Lv.${formatNumber(friendLevel)}</small></div>
         <span>${coinInline(payload?.coins || 0, {label:true})}</span>
-        <em>成熟 ${matureCount} 格</em>
+        <em>成熟 ${matureCount} 格 · 可偷 ${stealableCount} 格</em>
       </section>
+      <div class="farm-steal-rule">🥷 成熟作物可以偷取 1～3 个；同一位好友对同一轮作物只能偷一次，地主永远至少保留 1 个。</div>
       <div class="farm-visit-scene">
         <div class="farm-visit-field">${tiles.join('')}</div>
       </div>
@@ -492,14 +549,67 @@
       openModal({
         icon:'🏡', eyebrow:'FARM VISIT',
         title:`${payload.display_name || '好友'}的农场`,
-        subtitle:'看看好友最近种了什么；目前拜访为查看模式。',
+        subtitle:'看看好友最近种了什么；成熟作物可以直接点击偷菜。',
         body:renderFriendFarmVisit(payload)
       });
     } catch (error) {
       const detail = multiplayerMissing(error)
-        ? '请先在 Supabase SQL Editor 执行 20260923_005_farm_friend_visits.sql。'
+        ? '请先依序执行 005 与 20260924_006_farm_steal.sql。'
         : '好友农场暂时读取失败，请稍后再试。';
       openModal({icon:'🏡', eyebrow:'FARM VISIT', title:'拜访失败', subtitle:detail, body:'<div class="farm-visit-actions"><button type="button" class="farm-friend-action" data-open-panel="friends">返回好友列表</button></div>'});
+    }
+  }
+
+
+  async function stealFriendCrop(friendId, plotId) {
+    const sb = cloudClient();
+    const user = cloudAuthUser();
+    if (!sb || !user?.id || !friendId || !Number.isInteger(Number(plotId))) return;
+
+    const tile = document.querySelector(`[data-steal-friend="${CSS.escape(friendId)}"][data-steal-plot="${Number(plotId)}"]`);
+    if (tile) {
+      tile.disabled = true;
+      tile.classList.add('is-stealing');
+    }
+
+    try {
+      const {data, error} = await sb.rpc('steal_friend_crop', {p_friend:friendId, p_plot:Number(plotId)});
+      if (error) throw error;
+      const payload = data && typeof data === 'object' ? data : {};
+      if (!payload.ok) {
+        const messages = {
+          already_stolen:['🥷 这一轮已经偷过了','等好友重新种下一轮作物后再来看看。'],
+          protected:['🌱 这格不能再偷了','地主至少会保留 1 个作物。'],
+          not_mature:['⏳ 还没成熟','等它成熟后再回来。'],
+          no_crop:['🌿 这格已经没有可偷的作物','好友可能刚刚已经收成了。'],
+          not_friend:['👥 无法偷菜','只有已经确认的农场好友才能偷菜。'],
+          no_own_farm:['☁ 请先建立自己的云端农场','建立云端农场后才能把偷到的作物放进背包。']
+        };
+        const [title, detail] = messages[payload.reason] || ['🥷 偷菜没有成功','请刷新好友农场后再试。'];
+        toast(title, detail);
+        await visitFriend(friendId);
+        return;
+      }
+
+      const crop = CROPS.find(c => c.id === payload.crop_id) || CROPS[0];
+      if (payload.thief_state && typeof payload.thief_state === 'object') {
+        state = normalizeState(payload.thief_state);
+        state.ownerUserId = user.id;
+        writeLocalState();
+        cloudReady = true;
+        cloudLastSyncedAt = Date.now();
+        setCloudStatus('ready', '☁ 云端已同步');
+        renderAll();
+      }
+      toast(`🥷 偷到 ${crop.icon}${crop.name} ×${Number(payload.amount) || 1}`, `好友这格至少还保留 ${Number(payload.owner_remaining) || 1} 个。`, 'harvest');
+      await new Promise(resolve => setTimeout(resolve, 260));
+      await visitFriend(friendId);
+    } catch (error) {
+      toast('🥷 偷菜失败', multiplayerMissing(error) ? '请先执行 20260924_006_farm_steal.sql。' : '网络暂时不稳定，请稍后再试。');
+      if (tile) {
+        tile.disabled = false;
+        tile.classList.remove('is-stealing');
+      }
     }
   }
 
@@ -637,14 +747,16 @@
           const progress = progressFor(plot, crop);
           const stage = stageFor(progress);
           const remaining = Math.max(0, crop.growMinutes * 60 * 1000 - (Date.now() - plot.plantedAt));
+          const shown = displayCropForPlot(plot, crop, progress);
           btn.classList.add('has-crop', `stage-${stage.key}`);
+          if (crop?.isMystery) btn.classList.add('is-mystery-crop');
           if (progress >= 1) btn.classList.add('is-mature');
-          btn.setAttribute('aria-label', `${crop.name}，${progress >= 1 ? '已成熟，点击收成' : `${stage.label}，剩余 ${formatDuration(remaining)}`}`);
+          btn.setAttribute('aria-label', `${shown.name}，${progress >= 1 ? '已成熟，点击收成' : `${stage.label}，剩余 ${formatDuration(remaining)}`}`);
           btn.innerHTML = `
             <span class="farm-soil">
               <small class="farm-crop-time">${progress >= 1 ? '可以收成' : formatDuration(remaining)}</small>
-              <span class="farm-crop-visual" aria-hidden="true">${crop.icon}</span>
-              <span class="farm-crop-name">${crop.name}</span>
+              <span class="farm-crop-visual" aria-hidden="true">${shown.icon}</span>
+              <span class="farm-crop-name">${shown.name}</span>
             </span>`;
         }
         // Pointer hit area follows the diamond-shaped soil instead of the
@@ -676,7 +788,7 @@
   }
 
   function openSeedPicker(index) {
-    const options = CROPS.map(crop => {
+    const options = seedItems().map(crop => {
       const owned = Number(state.seeds[crop.id]) || 0;
       const levelLocked = state.level < crop.unlockLevel;
       const unavailable = levelLocked || owned <= 0;
@@ -684,7 +796,7 @@
         <button class="farm-seed-choice ${unavailable ? 'is-disabled' : ''}" type="button"
           data-plant-crop="${crop.id}" data-plant-plot="${index}" ${unavailable ? 'disabled' : ''}>
           <span class="farm-seed-icon">${crop.icon}</span>
-          <span><b>${crop.name}</b><small>${levelLocked ? `Lv.${crop.unlockLevel} 解锁` : `拥有 ${owned} 包 · ${crop.growMinutes} 分钟成熟`}</small></span>
+          <span><b>${crop.name}${crop.isMystery ? '' : ''}</b><small>${levelLocked ? `Lv.${crop.unlockLevel} 解锁` : `拥有 ${owned} 包 · ${crop.isMystery ? '固定 4 小时 · 随机蔬果' : `${crop.growMinutes} 分钟成熟`}`}</small></span>
           <em>${levelLocked ? '🔒' : `×${owned}`}</em>
         </button>`;
     }).join('');
@@ -744,7 +856,7 @@
       icon:crop.icon,
       eyebrow:'BATCH PLANT',
       title:`种植 ${crop.name}`,
-      subtitle:`${fieldLabel} 成熟时间约 ${crop.growMinutes} 分钟。`,
+      subtitle:`${fieldLabel} ${crop.isMystery ? '固定 4 小时后随机揭晓一种蔬果。' : `成熟时间约 ${crop.growMinutes} 分钟。`}`,
       body:`
         <section class="farm-plant-quantity" data-plant-quantity-root
           data-crop-id="${crop.id}" data-preferred-plot="${Number.isInteger(preferredIndex) ? preferredIndex : ''}" data-origin="${origin}">
@@ -752,7 +864,7 @@
             <div><span>持有种子</span><b>${owned} 包</b></div>
             <div><span>可用空地</span><b>${emptyCount} 格</b></div>
             <div><span>本次最多</span><b>${maxQty} 格</b></div>
-            <div><span>预计成熟</span><b>${maturityClock(crop)}</b></div>
+            <div><span>${crop.isMystery ? '盲盒揭晓' : '预计成熟'}</span><b>${maturityClock(crop)}</b></div>
           </div>
 
           <div class="farm-qty-title">本次种植数量</div>
@@ -813,6 +925,9 @@
       state.seeds[cropId] -= 1;
       plot.cropId = cropId;
       plot.plantedAt = Date.now();
+      plot.resultCropId = crop.isMystery ? randomMysteryCropId() : null;
+      plot.harvestYield = crop.isMystery ? 1 : randomInt(crop.yieldMin, crop.yieldMax);
+      plot.stolenCount = 0;
       state.stats.plant += 1;
       state.history.push({type:'plant', cropId, plotId:index, at:Date.now()});
       saveState();
@@ -827,7 +942,7 @@
 
     saveState();
     renderAll();
-    toast(`${crop.icon} 已种下 ${crop.name} ×${chosen.length} 格`, `${crop.growMinutes} 分钟后回来看看。`);
+    toast(`${crop.icon} 已种下 ${crop.name} ×${chosen.length} 格`, crop.isMystery ? '4 小时后揭晓随机蔬果。' : `${crop.growMinutes} 分钟后回来看看。`);
   }
 
   function openCropStatus(index) {
@@ -835,18 +950,22 @@
     const crop = cropById(plot.cropId);
     const progress = progressFor(plot, crop);
     const stage = stageFor(progress);
+    const shown = displayCropForPlot(plot, crop, progress);
     const totalMs = crop.growMinutes * 60 * 1000;
     const remaining = Math.max(0, totalMs - (Date.now() - plot.plantedAt));
+    const mysteryNote = crop.isMystery
+      ? '蔬果盲盒固定成长 4 小时，成熟前不会揭晓结果；成熟后会随机变成一种蔬果，每盒收成 1 个。'
+      : `这格作物正在成长，成熟后预计可收成 ${crop.yieldMin}～${crop.yieldMax} 个。`;
     openModal({
-      icon:crop.icon, eyebrow:`FIELD ${String(index + 1).padStart(2,'0')}`, title:`${crop.name} · ${stage.label}`,
-      subtitle:`这格作物正在成长，成熟后预计可收成 ${crop.yieldMin}～${crop.yieldMax} 个。`,
+      icon:shown.icon, eyebrow:`FIELD ${String(index + 1).padStart(2,'0')}`, title:`${shown.name} · ${stage.label}`,
+      subtitle:mysteryNote,
       body:`
         <div class="farm-crop-detail">
-          <div class="farm-crop-detail-icon">${crop.icon}</div>
+          <div class="farm-crop-detail-icon">${shown.icon}</div>
           <div class="farm-crop-detail-info">
             <b>剩余 ${formatDuration(remaining)}</b>
             <div class="farm-detail-progress"><i style="width:${Math.round(progress*100)}%"></i></div>
-            <small>成熟时间 ${crop.growMinutes} 分钟 · 收成 EXP +${crop.exp}</small>
+            <small>${crop.isMystery ? '固定 4 小时 · 成熟时揭晓' : `成熟时间 ${crop.growMinutes} 分钟`} · 收成 EXP +${crop.exp}</small>
           </div>
         </div>
         <p class="farm-soft-note">不用一直停留在页面。离开后计时不会停止，回来时会依实际经过时间继续成长。</p>`
@@ -895,14 +1014,14 @@
       if (tile) tile.classList.add('is-batch-harvesting');
       await new Promise(resolve => setTimeout(resolve, 75));
 
-      const amount = randomInt(crop.yieldMin, crop.yieldMax);
-      state.produce[crop.id] = (state.produce[crop.id] || 0) + amount;
-      totals[crop.id] = (totals[crop.id] || 0) + amount;
+      const result = harvestResultForPlot(plot, crop);
+      if (!result) continue;
+      state.produce[result.crop.id] = (state.produce[result.crop.id] || 0) + result.amount;
+      totals[result.crop.id] = (totals[result.crop.id] || 0) + result.amount;
       totalExp += crop.exp;
       state.stats.harvest += 1;
-      state.history.push({type:'harvest', cropId:crop.id, amount, at:Date.now(), batch:true});
-      plot.cropId = null;
-      plot.plantedAt = null;
+      state.history.push({type:'harvest', cropId:result.crop.id, sourceCropId:crop.id, amount:result.amount, at:Date.now(), batch:true});
+      clearPlot(plot);
     }
 
     addExp(totalExp);
@@ -918,20 +1037,57 @@
     const plot = state.plots[index];
     const crop = cropById(plot.cropId);
     if (!crop || progressFor(plot, crop) < 1) return;
-    const amount = randomInt(crop.yieldMin, crop.yieldMax);
-    state.produce[crop.id] = (state.produce[crop.id] || 0) + amount;
+    const result = harvestResultForPlot(plot, crop);
+    if (!result) return;
+    state.produce[result.crop.id] = (state.produce[result.crop.id] || 0) + result.amount;
     state.stats.harvest += 1;
-    state.history.push({type:'harvest', cropId:crop.id, amount, at:Date.now()});
-    plot.cropId = null;
-    plot.plantedAt = null;
+    state.history.push({type:'harvest', cropId:result.crop.id, sourceCropId:crop.id, amount:result.amount, at:Date.now()});
+    clearPlot(plot);
     addExp(crop.exp);
     saveState();
     renderAll();
-    toast(`${crop.icon} 收成 ${crop.name} ×${amount}`, `农场经验 +${crop.exp} EXP`, 'harvest');
+    const reveal = crop.isMystery ? ` · 盲盒开出 ${result.crop.name}` : '';
+    toast(`${result.crop.icon} 收成 ${result.crop.name} ×${result.amount}`, `农场经验 +${crop.exp} EXP${reveal}`, 'harvest');
   }
 
   function randomInt(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
+
+  function randomMysteryCropId() {
+    const total = MYSTERY_POOL.reduce((sum, item) => sum + item.weight, 0);
+    let roll = Math.random() * total;
+    for (const item of MYSTERY_POOL) {
+      roll -= item.weight;
+      if (roll < 0) return item.id;
+    }
+    return 'carrot';
+  }
+
+  function displayCropForPlot(plot, crop, progress = progressFor(plot, crop)) {
+    if (!crop?.isMystery) return crop || MYSTERY_CROP;
+    if (progress < 1) return {id:'mystery', name:'蔬果盲盒', icon:'🎁'};
+    const result = CROPS.find(c => c.id === plot?.resultCropId) || CROPS[0];
+    return {id:result.id, name:`盲盒·${result.name}`, icon:result.icon};
+  }
+
+  function harvestResultForPlot(plot, crop) {
+    if (!plot || !crop) return null;
+    if (crop.isMystery) {
+      const result = CROPS.find(c => c.id === plot.resultCropId) || CROPS[0];
+      return {crop:result, amount:1};
+    }
+    const total = Math.max(crop.yieldMin, Math.min(crop.yieldMax, Number(plot.harvestYield) || randomInt(crop.yieldMin, crop.yieldMax)));
+    const stolen = Math.max(0, Math.min(total - 1, Number(plot.stolenCount) || 0));
+    return {crop, amount:Math.max(1, total - stolen)};
+  }
+
+  function clearPlot(plot) {
+    plot.cropId = null;
+    plot.plantedAt = null;
+    plot.resultCropId = null;
+    plot.harvestYield = null;
+    plot.stolenCount = 0;
   }
 
   function buySeed(cropId, qty = 1) {
@@ -947,7 +1103,7 @@
     state.seeds[cropId] = (state.seeds[cropId] || 0) + qty;
     saveState();
     renderAll();
-    toast(`${crop.icon} 买到了 ${crop.name}种子 ×${qty}`, `花费 ${cost} 金币。`);
+    toast(`${crop.icon} 买到了 ${crop.isMystery ? crop.name : `${crop.name}种子`} ×${qty}`, `花费 ${cost} 金币。`);
   }
 
   function sellProduce(cropId, qty) {
@@ -1001,7 +1157,7 @@
   function openPanel(panel) {
     activePanel = panel;
     const meta = {
-      shop:{icon:'🛒', eyebrow:'FARM SHOP', title:'种子商店', subtitle:'不同作物会随着农场等级逐步解锁。'},
+      shop:{icon:'🛒', eyebrow:'FARM SHOP', title:'种子商店', subtitle:'购买普通种子，也可以试试 5 金币一个、固定 4 小时的蔬果盲盒。'},
       bag:{icon:'🎒', eyebrow:'INVENTORY', title:'我的背包', subtitle:'种子用于播种；成熟作物可以在这里出售换取金币。'},
       tasks:{icon:'📜', eyebrow:'FARM QUEST', title:'农场任务', subtitle:'跟着任务认识农场，完成目标还能拿到种子、金币与经验。'},
       ranking:{icon:'🏆', eyebrow:'RANKING', title:'农场排行榜', subtitle:'查看真实云端玩家的等级榜与金币榜，也可以直接发送好友申请。'},
@@ -1017,12 +1173,12 @@
     if (!body || !activePanel || $('farmModal').hidden) return;
 
     if (activePanel === 'shop') {
-      body.innerHTML = `<div class="farm-shop-grid">${CROPS.map(crop => {
+      body.innerHTML = `<div class="farm-shop-grid">${seedItems().map(crop => {
         const locked = state.level < crop.unlockLevel;
         return `<article class="farm-shop-item ${locked ? 'is-locked' : ''}">
-          <div class="farm-shop-crop"><span>${crop.icon}</span><div><b>${crop.name}种子</b><small>${crop.growMinutes} 分钟成熟 · 产量 ${crop.yieldMin}～${crop.yieldMax}</small></div></div>
+          <div class="farm-shop-crop"><span>${crop.icon}</span><div><b>${crop.isMystery ? crop.name : `${crop.name}种子`}</b><small>${crop.isMystery ? '固定 4 小时 · 随机蔬果 ×1' : `${crop.growMinutes} 分钟成熟 · 产量 ${crop.yieldMin}～${crop.yieldMax}`}</small></div></div>
           <p>${crop.note}</p>
-          <div class="farm-shop-meta"><span>🪙 ${crop.seedPrice} / 包</span><span>出售 ${crop.sellPrice} / 个</span><span>EXP +${crop.exp}</span></div>
+          <div class="farm-shop-meta"><span>🪙 ${crop.seedPrice} / ${crop.isMystery ? '个' : '包'}</span>${crop.isMystery ? '<span>随机 8 种蔬果</span>' : `<span>出售 ${crop.sellPrice} / 个</span>`}<span>EXP +${crop.exp}</span></div>
           ${locked
             ? `<button disabled>🔒 Lv.${crop.unlockLevel} 解锁</button>`
             : `<div class="farm-shop-buy"><button type="button" data-buy-seed="${crop.id}" data-qty="1">买 1</button><button type="button" data-buy-seed="${crop.id}" data-qty="5">买 5</button><em>背包 ×${state.seeds[crop.id] || 0}</em></div>`}
@@ -1032,16 +1188,16 @@
     }
 
     if (activePanel === 'bag') {
-      const seedItems = CROPS.filter(c => (state.seeds[c.id] || 0) > 0);
+      const seedItemsInBag = seedItems().filter(c => (state.seeds[c.id] || 0) > 0);
       const produceItems = CROPS.filter(c => (state.produce[c.id] || 0) > 0);
       body.innerHTML = `
         <section class="farm-bag-section">
-          <header><b>🌱 种子</b><span>${seedItems.reduce((s,c)=>s+(state.seeds[c.id]||0),0)} 包</span></header>
-          <div class="farm-bag-list">${seedItems.length ? seedItems.map(c => {
+          <header><b>🌱 种子</b><span>${seedItemsInBag.reduce((s,c)=>s+(state.seeds[c.id]||0),0)} 包</span></header>
+          <div class="farm-bag-list">${seedItemsInBag.length ? seedItemsInBag.map(c => {
             const levelLocked = state.level < c.unlockLevel;
             const canPlant = !levelLocked && maxPlantQuantity(c.id) > 0;
             const plantLabel = levelLocked ? `Lv.${c.unlockLevel} 解锁` : (canPlant ? '种植' : '暂无空地');
-            return `<div class="farm-bag-row farm-seed-bag-row"><span>${c.icon}</span><div><b>${c.name}种子</b><small>${c.growMinutes} 分钟成熟</small></div><em>×${state.seeds[c.id]}</em><button type="button" data-plant-from-bag="${c.id}" ${canPlant ? '' : 'disabled'}>${plantLabel}</button></div>`;
+            return `<div class="farm-bag-row farm-seed-bag-row"><span>${c.icon}</span><div><b>${c.isMystery ? c.name : `${c.name}种子`}</b><small>${c.isMystery ? '固定 4 小时 · 随机蔬果' : `${c.growMinutes} 分钟成熟`}</small></div><em>×${state.seeds[c.id]}</em><button type="button" data-plant-from-bag="${c.id}" ${canPlant ? '' : 'disabled'}>${plantLabel}</button></div>`;
           }).join('') : '<p class="farm-empty-state">目前没有种子，可以到商店补货。</p>'}</div>
         </section>
         <section class="farm-bag-section">
@@ -1199,9 +1355,14 @@
       btn.classList.add(`stage-${stage.key}`);
       btn.classList.toggle('is-mature', progress >= 1);
 
+      const shown = displayCropForPlot(plot, crop, progress);
       const time = btn.querySelector('.farm-crop-time');
+      const visual = btn.querySelector('.farm-crop-visual');
+      const name = btn.querySelector('.farm-crop-name');
       if (time) time.textContent = progress >= 1 ? '可以收成' : formatDuration(remaining);
-      btn.setAttribute('aria-label', `${crop.name}，${progress >= 1 ? '已成熟，点击收成' : `${stage.label}，剩余 ${formatDuration(remaining)}`}`);
+      if (visual) visual.textContent = shown.icon;
+      if (name) name.textContent = shown.name;
+      btn.setAttribute('aria-label', `${shown.name}，${progress >= 1 ? '已成熟，点击收成' : `${stage.label}，剩余 ${formatDuration(remaining)}`}`);
     });
     updateHarvestAllButton();
   }
@@ -1213,6 +1374,11 @@
     // and growth-stage classes need a one-second refresh.
     refreshFieldTimers();
     if (activePanel === 'tasks') renderActivePanel();
+    // Friend steals mutate the cloud save on the server. An occasional idle
+    // pull lets an open owner page pick up those changes without manual reload.
+    if (cloudReady && !cloudBusy && !document.hidden && Date.now() - cloudLastSyncedAt > 20000) {
+      pullCloudState().catch(() => {});
+    }
   }
 
   function handleClick(event) {
@@ -1247,6 +1413,9 @@
     if (friendRemove) { removeFriend(friendRemove.dataset.friendRemove, 'friend'); return; }
     const friendVisit = event.target.closest('[data-friend-visit]');
     if (friendVisit) { visitFriend(friendVisit.dataset.friendVisit); return; }
+
+    const stealPlot = event.target.closest('[data-steal-friend][data-steal-plot]');
+    if (stealPlot) { stealFriendCrop(stealPlot.dataset.stealFriend, Number(stealPlot.dataset.stealPlot)); return; }
 
     const plot = event.target.closest('[data-plot]');
     if (plot) {

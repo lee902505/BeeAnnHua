@@ -10836,3 +10836,84 @@ body.farm-modal-open { overflow: hidden; }
 
 
 /* V0.13.3 — clearer crop countdowns + harvest control above the field */
+
+/* ===== V0.13.4 STEALING + MYSTERY VEG BOX ===== */
+.farm-shop-item:has([data-buy-seed="mystery"]) {
+  background:
+    radial-gradient(circle at 88% 10%, rgba(255,224,130,.18), transparent 34%),
+    linear-gradient(145deg, rgba(255,255,255,.68), rgba(250,243,207,.66));
+  border-color:rgba(174,135,59,.2);
+}
+.farm-shop-item:has([data-buy-seed="mystery"]) .farm-shop-crop > span {
+  filter:drop-shadow(0 4px 5px rgba(116,82,24,.18));
+}
+.farm-plot.is-mystery-crop .farm-crop-visual {
+  filter:drop-shadow(0 0 8px rgba(255,226,113,.36)) drop-shadow(0 3px 3px rgba(39,32,20,.18));
+}
+.farm-plot.is-mystery-crop:not(.is-mature) .farm-crop-visual {
+  animation:farm-mystery-box 2.6s ease-in-out infinite;
+}
+@keyframes farm-mystery-box {
+  0%,100% { transform:translateY(0) rotate(-2deg) scale(.9); }
+  50% { transform:translateY(-4px) rotate(2deg) scale(.96); }
+}
+
+.farm-steal-rule {
+  margin:-2px 0 12px;
+  padding:9px 12px;
+  border-radius:13px;
+  color:#71664f;
+  background:rgba(250,239,198,.62);
+  border:1px solid rgba(151,119,58,.12);
+  font-size:.72rem;
+  line-height:1.55;
+}
+.farm-visit-field { pointer-events:auto; }
+.farm-visit-field .farm-plot { pointer-events:none; }
+.farm-visit-field .farm-plot.can-steal {
+  pointer-events:auto;
+  cursor:pointer;
+  z-index:60 !important;
+}
+.farm-visit-field .farm-plot.can-steal .farm-soil {
+  transition:transform .16s cubic-bezier(.2,.85,.25,1.15), filter .16s ease;
+}
+.farm-visit-field .farm-plot.can-steal:hover .farm-soil {
+  transform:translateY(-9px) scale(1.035);
+  filter:brightness(1.08);
+}
+.farm-visit-field .farm-plot.can-steal:active .farm-soil { transform:translateY(-3px) scale(.99); }
+.farm-visit-field .farm-plot.is-stealing .farm-soil { animation:farm-steal-pop .5s ease both; }
+.farm-steal-tag {
+  position:absolute !important;
+  left:50%;
+  bottom:-5px;
+  transform:translateX(-50%) !important;
+  z-index:5 !important;
+  padding:2px 6px;
+  border-radius:999px;
+  color:#fff9df;
+  background:rgba(112,126,63,.9);
+  box-shadow:0 2px 5px rgba(54,53,26,.2);
+  font-size:.44rem;
+  font-style:normal;
+  font-weight:800;
+  white-space:nowrap;
+  text-shadow:none;
+}
+.farm-steal-tag.is-done { background:rgba(113,103,85,.83); color:#eee7d8; }
+.farm-steal-tag.is-protected { background:rgba(141,116,71,.82); color:#fff1ca; }
+@keyframes farm-steal-pop {
+  0% { transform:translateY(0) scale(1); }
+  42% { transform:translateY(-16px) scale(1.09) rotate(-2deg); }
+  70% { transform:translateY(-6px) scale(.98) rotate(1deg); }
+  100% { transform:translateY(-9px) scale(1.02); }
+}
+@media (max-width:720px) {
+  .farm-steal-rule { font-size:.68rem; }
+  .farm-steal-tag { bottom:-3px; padding:2px 5px; font-size:.4rem; }
+}
+@media (prefers-reduced-motion:reduce) {
+  .farm-plot.is-mystery-crop .farm-crop-visual,
+  .farm-visit-field .farm-plot.is-stealing .farm-soil { animation:none !important; }
+}
