@@ -34,3 +34,18 @@ V0.13.0 新增 `farm_saves` 私人雲端存檔。網站仍保留 localStorage �
 - 让偷菜等服务器写入也推进同一 revision。
 
 这一步用于防止旧分页、缓存版脚本或另一分页用较晚的客户端时间把正确的新存档覆盖回旧状态。
+
+## V0.13.13 必须追加：流量优化
+
+已经执行 008 后，请继续执行：
+
+`migrations/20260924_009_farm_traffic_optimization.sql`
+
+009 会：
+
+- 新增 `save_farm_state_v3`；正常存档成功仅回传 metadata，不再回传整份 state。
+- revision 冲突时才回传完整权威 state。
+- 撤销旧 `save_farm_state_v2` 的浏览器执行权限。
+- 前端平时每 60 秒只检查 `revision`，只有远端版本变化才下载完整农场存档。
+
+这一步只优化流量，不会清空既有农场资料。

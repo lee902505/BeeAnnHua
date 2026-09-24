@@ -1,13 +1,15 @@
 (() => {
   'use strict';
 
-  const FARM_BUILD = '0.13.12';
+  const FARM_BUILD = '0.13.13';
   const STORAGE_KEY = 'xingchen-farm-v1';
   const VERSION = 1;
   const PLOT_COUNT = 20;
   const INITIAL_COINS = 100;
   const CLOUD_TABLE = 'farm_saves';
   const CLOUD_SYNC_DELAY = 700;
+  const CLOUD_REVISION_POLL_MS = 60000;
+  const CLOUD_VISIBILITY_CHECK_MS = 15000;
   const SYNC_META_KEY = 'xingchen-farm-v1-sync-meta';
   const PENDING_OPS_KEY = 'xingchen-farm-v1-pending-ops';
 
@@ -73,6 +75,8 @@
   let cloudBusy = false;
   let cloudPushQueued = false;
   let cloudLastSyncedAt = 0;
+  let cloudLastRevisionCheckAt = 0;
+  let cloudRevisionCheckBusy = false;
   let cloudRevision = 0;
 
   // Multiplayer farm data is intentionally kept separate from the private
@@ -397,7 +401,7 @@
         : JSON.parse(JSON.stringify(state));
       const expectedRevision = Math.max(0, Number(cloudRevision) || 0);
 
-      const {data:savedRows, error:saveError} = await sb.rpc('save_farm_state_v2', {
+      const {data:savedRows, error:saveError} = await sb.rpc('save_farm_state_v3', {
         p_state:snapshot,
         p_client_updated_at:snapshotStamp,
         p_expected_revision:expectedRevision
@@ -405,21 +409,25 @@
       if (saveError) throw saveError;
 
       const saved = Array.isArray(savedRows) ? savedRows[0] : savedRows;
-      if (!saved?.state) throw new Error('save_farm_state_v2 did not return the farm row');
+      if (!saved || saved.revision == null) throw new Error('save_farm_state_v3 did not return save metadata');
 
       const serverRevision = Math.max(0, Number(saved.revision) || 0);
-      const verifiedStamp = Number(saved.client_updated_at) || 0;
+      const verifiedStamp = Number(saved.client_updated_at) || snapshotStamp;
       cloudReady = true;
       cloudLastSyncedAt = Date.now();
+      cloudLastRevisionCheckAt = cloudLastSyncedAt;
       uploadSucceeded = true;
 
       if (saved.applied === false) {
-        // Another tab/device already advanced the server revision. Never let this
-        // stale full-state snapshot overwrite it. Rebase journaled operations on
-        // top of the authoritative server state and retry with the new revision.
+        // Only a revision conflict returns the authoritative full state. Successful
+        // saves return metadata only, which keeps normal farm writes lightweight.
+        const authoritativeState = saved.conflict_state;
+        if (!authoritativeState || typeof authoritativeState !== 'object') {
+          throw new Error('save_farm_state_v3 conflict did not return the authoritative state');
+        }
         cloudRevision = serverRevision;
-        clearConfirmedPendingOps(saved.state, user.id);
-        state = normalizeState(saved.state);
+        clearConfirmedPendingOps(authoritativeState, user.id);
+        state = normalizeState(authoritativeState);
         state.updatedAt = Math.max(verifiedStamp, Number(state.updatedAt) || 0);
         state.ownerUserId = user.id;
         writeLocalState();
@@ -438,7 +446,9 @@
       }
 
       cloudRevision = serverRevision;
-      clearConfirmedPendingOps(saved.state, user.id);
+      // The server stored this exact frozen snapshot, so pending idempotent
+      // operations can be confirmed locally without downloading that JSON again.
+      clearConfirmedPendingOps(snapshot, user.id);
 
       const currentStamp = Number(state.updatedAt) || 0;
       const stillPending = pendingOpsForUser(user.id).length > 0;
@@ -456,10 +466,10 @@
       cloudReady = false;
       console.error('[Stellar Farm] cloud save failed', error);
       const text = String(error?.message || error || '');
-      if (relationMissing(error) || /save_farm_state_v2|PGRST202|function .* does not exist/i.test(text)) {
-        setCloudStatus('setup', '☁ 请执行 008 云端保护 SQL');
+      if (relationMissing(error) || /save_farm_state_v3|PGRST202|function .* does not exist/i.test(text)) {
+        setCloudStatus('setup', '☁ 请执行 009 流量优化 SQL');
       } else if (/permission denied|42501/i.test(text)) {
-        setCloudStatus('setup', '☁ 请更新至 V0.13.12 并执行 008 SQL');
+        setCloudStatus('setup', '☁ 请更新至 V0.13.13 并执行 009 SQL');
       } else {
         setCloudStatus('error', '☁ 云端暂不可用');
       }
@@ -547,15 +557,54 @@
       }
 
       cloudLastSyncedAt = Date.now();
+      cloudLastRevisionCheckAt = cloudLastSyncedAt;
       setCloudStatus('ready', '☁ 云端已同步');
       return {ok:true, source:'cloud', revision:cloudRevision};
     } catch (error) {
       cloudReady = false;
       const text = String(error?.message || error || '');
-      if (/revision|save_farm_state_v2|PGRST202/i.test(text)) setCloudStatus('setup', '☁ 请执行 008 云端保护 SQL');
+      if (/revision|save_farm_state_v3|PGRST202/i.test(text)) setCloudStatus('setup', '☁ 请执行 009 流量优化 SQL');
       else if (relationMissing(error)) setCloudStatus('setup', '☁ 云端待启用');
       else setCloudStatus('error', '☁ 使用本机存档');
       return {ok:false, error};
+    }
+  }
+
+  async function checkCloudRevision({force=false} = {}) {
+    if (!cloudReady || cloudBusy || cloudRevisionCheckBusy) return {ok:false, skipped:true};
+    const sb = cloudClient();
+    const user = cloudAuthUser();
+    if (!sb || !user?.id) return {ok:false, skipped:true};
+
+    const now = Date.now();
+    if (!force && now - cloudLastRevisionCheckAt < CLOUD_REVISION_POLL_MS) {
+      return {ok:true, skipped:true, revision:cloudRevision};
+    }
+
+    cloudRevisionCheckBusy = true;
+    try {
+      // Poll only the 8-byte server revision. The full JSON save is fetched only
+      // when another device, tab, or a friend steal actually changed the farm.
+      const {data, error} = await sb
+        .from(CLOUD_TABLE)
+        .select('revision')
+        .eq('user_id', user.id)
+        .maybeSingle();
+      if (error) throw error;
+
+      cloudLastRevisionCheckAt = Date.now();
+      if (!data) return await pullCloudState();
+
+      const remoteRevision = Math.max(1, Number(data.revision) || 1);
+      if (remoteRevision !== Math.max(0, Number(cloudRevision) || 0)) {
+        return await pullCloudState();
+      }
+      return {ok:true, changed:false, revision:remoteRevision};
+    } catch (error) {
+      console.warn('[Stellar Farm] revision check failed', error);
+      return {ok:false, error};
+    } finally {
+      cloudRevisionCheckBusy = false;
     }
   }
 
@@ -1679,10 +1728,10 @@
     // and growth-stage classes need a one-second refresh.
     refreshFieldTimers();
     if (activePanel === 'tasks') renderActivePanel();
-    // Friend steals mutate the cloud save on the server. An occasional idle
-    // pull lets an open owner page pick up those changes without manual reload.
-    if (cloudReady && !cloudBusy && !document.hidden && Date.now() - cloudLastSyncedAt > 20000) {
-      pullCloudState().catch(() => {});
+    // Friend steals / another device advance the server revision. Poll only the
+    // tiny revision field once per minute; download the full farm JSON only if it changed.
+    if (cloudReady && !cloudBusy && !document.hidden && Date.now() - cloudLastRevisionCheckAt >= CLOUD_REVISION_POLL_MS) {
+      checkCloudRevision().catch(() => {});
     }
   }
 
@@ -1821,7 +1870,9 @@
       if (cloudUserId && nextUserId && nextUserId !== cloudUserId) bootstrapCloud(true);
     });
     document.addEventListener('visibilitychange', () => {
-      if (!document.hidden && cloudReady && Date.now() - cloudLastSyncedAt > 15000) pullCloudState();
+      if (!document.hidden && cloudReady && Date.now() - cloudLastRevisionCheckAt > CLOUD_VISIBILITY_CHECK_MS) {
+        checkCloudRevision({force:true}).catch(() => {});
+      }
     });
     window.addEventListener('pagehide', () => {
       if (cloudReady && hasUnsyncedLocalChanges(cloudUserId)) {

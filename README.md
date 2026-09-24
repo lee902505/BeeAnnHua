@@ -1,4 +1,29 @@
-# 星辰日记 V0.13.12
+# 星辰日记 V0.13.13
+
+## V0.13.13 — Supabase 流量优化
+
+这版保持 V0.13.12 的农场玩法、Revision Guard、排行榜、好友、拜访与偷菜不变，只优化云端同步的流量与请求方式。
+
+- 农场停留期间不再每 20 秒下载整份 `farm_saves.state`。
+- 改为每 60 秒只读取 `revision`；只有 revision 真的变化时，才下载完整农场 JSON。
+- App / 浏览器切回前景时，若距离上次检查超过 15 秒，会先做一次轻量 revision 检查。
+- 自己种植、收成、商店、任务等仍会即时写入云端，不会等待 60 秒。
+- 新增 `save_farm_state_v3`：正常存档成功只回传 revision / 时间等少量 metadata，不再把完整农场 state 原样传回浏览器。
+- 只有发生多分页 / 多设备 revision 冲突时，服务器才回传完整权威 state 供客户端合并。
+- 旧 `save_farm_state_v2` 的浏览器执行权限会关闭，避免旧分页继续产生不必要流量。
+
+### 必须执行的新 SQL
+
+已执行过 008 的项目，请再执行：
+
+`supabase/migrations/20260924_009_farm_traffic_optimization.sql`
+
+Supabase SQL Editor → New Query → 贴上整份 → Ctrl+A → Run。
+成功应显示 `Success. No rows returned`。
+
+执行 009 后再上传 V0.13.13。
+
+---
 
 ## V0.13.12 修正
 
