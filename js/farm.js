@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const FARM_BUILD = '0.13.10';
+  const FARM_BUILD = '0.13.12';
   const STORAGE_KEY = 'xingchen-farm-v1';
   const VERSION = 1;
   const PLOT_COUNT = 20;
@@ -459,7 +459,7 @@
       if (relationMissing(error) || /save_farm_state_v2|PGRST202|function .* does not exist/i.test(text)) {
         setCloudStatus('setup', '☁ 请执行 008 云端保护 SQL');
       } else if (/permission denied|42501/i.test(text)) {
-        setCloudStatus('setup', '☁ 请更新至 V0.13.10 并执行 008 SQL');
+        setCloudStatus('setup', '☁ 请更新至 V0.13.12 并执行 008 SQL');
       } else {
         setCloudStatus('error', '☁ 云端暂不可用');
       }
@@ -1116,6 +1116,20 @@
     return time.toLocaleTimeString('zh-CN', {hour:'2-digit', minute:'2-digit', hour12:false});
   }
 
+  function growDurationLabel(crop) {
+    const minutes = Math.max(0, Number(crop?.growMinutes) || 0);
+    if (minutes > 0 && minutes % 60 === 0) {
+      const hours = minutes / 60;
+      return `${hours} 小时后`;
+    }
+    if (minutes >= 60) {
+      const hours = Math.floor(minutes / 60);
+      const rest = minutes % 60;
+      return `${hours} 小时 ${rest} 分钟后`;
+    }
+    return `${minutes} 分钟后`;
+  }
+
   function openPlantQuantity(preferredIndex, cropId, initialQty = 1, origin = 'field') {
     const crop = cropById(cropId);
     const maxQty = maxPlantQuantity(cropId, preferredIndex);
@@ -1143,7 +1157,7 @@
             <div><span>持有种子</span><b>${owned} 包</b></div>
             <div><span>可用空地</span><b>${emptyCount} 格</b></div>
             <div><span>本次最多</span><b>${maxQty} 格</b></div>
-            <div><span>${crop.isMystery ? '盲盒揭晓' : '预计成熟'}</span><b>${maturityClock(crop)}</b></div>
+            <div class="farm-maturity-summary"><span>${crop.isMystery ? '盲盒揭晓' : '预计成熟'}</span><b>${growDurationLabel(crop)}</b><small>约 ${maturityClock(crop)} 成熟</small></div>
           </div>
 
           <div class="farm-qty-title">本次种植数量</div>

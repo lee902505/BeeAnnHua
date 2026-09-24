@@ -10478,8 +10478,11 @@ body.farm-modal-open { overflow: hidden; }
   .farm-game-card { border-radius:0; }
   .farm-scene {
     min-height:690px;
-    background-position:center,38% center;
-    background-size:cover,auto 100%;
+    background-image:
+      linear-gradient(180deg,rgba(255,255,255,.012),rgba(63,88,35,.035)),
+      url("../images/farm/farm-background-mobile.webp");
+    background-position:center,center center;
+    background-size:cover,cover;
   }
   .farm-field-wrap {
     left:0;
@@ -10582,10 +10585,15 @@ body.farm-modal-open { overflow: hidden; }
   .farm-task-item { grid-template-columns:1fr; gap:8px; }
   .farm-task-side { justify-self:start; }
   .farm-toast-region { right:16px; bottom:82px; }
+  .farm-visit-scene {
+    background-image:url("../images/farm/farm-background-mobile.webp");
+    background-position:center center;
+    background-size:cover;
+  }
 }
 
 @media (max-width: 420px) {
-  .farm-scene { min-height:630px; }
+  .farm-scene { min-height:667px; }
   .farm-field-wrap { top:23%; }
   .farm-field {
     --farm-tile-w:66px;
@@ -10919,3 +10927,13 @@ body.farm-modal-open { overflow: hidden; }
 }
 
 /* ===== V0.13.5 F5 CLOUD-SYNC CONSISTENCY FIX (JS ONLY) ===== */
+
+/* V0.13.12 — make crop maturity estimate unambiguous: duration first, clock time second. */
+.farm-plant-summary .farm-maturity-summary small {
+  display:block;
+  margin-top:3px;
+  color:#9a907e;
+  font-size:.58rem;
+  line-height:1.25;
+  white-space:nowrap;
+}
