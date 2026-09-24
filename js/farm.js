@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const FARM_BUILD = '0.13.13';
+  const FARM_BUILD = '0.13.14';
   const STORAGE_KEY = 'xingchen-farm-v1';
   const VERSION = 1;
   const PLOT_COUNT = 20;
@@ -64,6 +64,85 @@
     { id:'friend10', title:'农场交友达人', desc:'好友达到 10 人。', type:'friend', target:10, reward:{seeds:{pumpkin:3}}, rewardText:'南瓜种子 ×3' }
   ];
 
+
+  const TITLES = [
+    {id:'newbie', name:'新手', icon:'🌱', desc:'刚踏进星辰农场时就拥有的第一枚称号。'},
+    {id:'novice_farmer', name:'新手农夫', icon:'🥕', desc:'完成第一次成熟作物收成。'},
+    {id:'farmer', name:'农夫', icon:'🌾', desc:'累计收成 10 格成熟作物。'},
+    {id:'skilled_farmer', name:'熟练农夫', icon:'🧺', desc:'累计收成 50 格成熟作物。'},
+    {id:'harvest_master', name:'丰收达人', icon:'🌻', desc:'累计收成 100 格成熟作物。'},
+    {id:'farm_master', name:'农场达人', icon:'🏡', desc:'累计收成 500 格成熟作物。'},
+    {id:'legendary_farmer', name:'传奇农夫', icon:'⭐', desc:'累计收成 1000 格成熟作物。'},
+    {id:'small_landlord', name:'小地主', icon:'🪙', desc:'农场曾经持有 1000 金币。'},
+    {id:'ten_thousand', name:'万元户', icon:'💰', desc:'农场曾经持有 10000 金币。'},
+    {id:'farm_tycoon', name:'农场富翁', icon:'👑', desc:'农场曾经持有 50000 金币。'},
+    {id:'stellar_landlord', name:'星辰地主', icon:'✨', desc:'农场曾经持有 100000 金币。'},
+    {id:'sowing_hand', name:'播种好手', icon:'🌱', desc:'累计播种 100 格农地。'},
+    {id:'blindbox_fan', name:'盲盒爱好者', icon:'🎁', desc:'累计种下 10 个蔬果盲盒。'},
+    {id:'blindbox_master', name:'盲盒达人', icon:'🎀', desc:'累计种下 100 个蔬果盲盒。'},
+    {id:'steal_rookie', name:'路过摘一颗', icon:'🥷', desc:'第一次成功从好友农场偷到作物。'},
+    {id:'steal_shadow', name:'神出鬼没', icon:'🌙', desc:'累计成功偷菜 10 次。'},
+    {id:'steal_master', name:'偷菜高手', icon:'🕶️', desc:'累计成功偷菜 50 次。'},
+    {id:'senior_farmer', name:'资深农夫', icon:'🌿', desc:'农场达到 Lv.10。'},
+    {id:'stellar_host', name:'星辰农场主', icon:'🌟', desc:'农场达到 Lv.25。'},
+    {id:'social_farmer', name:'农场社交家', icon:'🤝', desc:'拥有 20 位农场好友。'},
+    {id:'popular_host', name:'人气农场主', icon:'🎉', desc:'拥有 50 位农场好友。'}
+  ];
+
+  const ACHIEVEMENT_GROUPS = [
+    {id:'wealth', label:'财富之路', icon:'🪙'},
+    {id:'harvest', label:'丰收之路', icon:'🧺'},
+    {id:'plant', label:'播种之路', icon:'🌱'},
+    {id:'blind', label:'盲盒之路', icon:'🎁'},
+    {id:'steal', label:'偷菜之路', icon:'🥷'},
+    {id:'growth', label:'成长之路', icon:'⭐'},
+    {id:'social', label:'好友之路', icon:'🤝'}
+  ];
+
+  const ACHIEVEMENTS = [
+    {id:'wealth100', group:'wealth', title:'第一桶金', desc:'农场最高持有金币达到 100。', metric:'maxCoins', target:100, reward:{exp:10}, rewardText:'EXP +10'},
+    {id:'wealth200', group:'wealth', title:'小有积蓄', desc:'农场最高持有金币达到 200。', metric:'maxCoins', target:200, reward:{seeds:{carrot:3}}, rewardText:'红萝卜种子 ×3'},
+    {id:'wealth500', group:'wealth', title:'农场存钱筒', desc:'农场最高持有金币达到 500。', metric:'maxCoins', target:500, reward:{exp:30}, rewardText:'EXP +30'},
+    {id:'wealth1000', group:'wealth', title:'千元农户', desc:'农场最高持有金币达到 1000。', metric:'maxCoins', target:1000, reward:{seeds:{mystery:2}, title:'small_landlord'}, rewardText:'蔬果盲盒 ×2 · 称号【小地主】'},
+    {id:'wealth5000', group:'wealth', title:'家底渐厚', desc:'农场最高持有金币达到 5000。', metric:'maxCoins', target:5000, reward:{exp:100}, rewardText:'EXP +100'},
+    {id:'wealth10000', group:'wealth', title:'万元农户', desc:'农场最高持有金币达到 10000。', metric:'maxCoins', target:10000, reward:{seeds:{mystery:5}, title:'ten_thousand'}, rewardText:'蔬果盲盒 ×5 · 称号【万元户】'},
+    {id:'wealth50000', group:'wealth', title:'农场富豪', desc:'农场最高持有金币达到 50000。', metric:'maxCoins', target:50000, reward:{exp:300, title:'farm_tycoon'}, rewardText:'EXP +300 · 称号【农场富翁】'},
+    {id:'wealth100000', group:'wealth', title:'星辰大地主', desc:'农场最高持有金币达到 100000。', metric:'maxCoins', target:100000, reward:{seeds:{mystery:10}, title:'stellar_landlord'}, rewardText:'蔬果盲盒 ×10 · 称号【星辰地主】'},
+
+    {id:'harvestA1', group:'harvest', title:'第一次丰收', desc:'累计收成 1 格成熟作物。', metric:'harvest', target:1, reward:{seeds:{carrot:2}, title:'novice_farmer'}, rewardText:'红萝卜种子 ×2 · 称号【新手农夫】'},
+    {id:'harvestA5', group:'harvest', title:'渐入佳境', desc:'累计收成 5 格成熟作物。', metric:'harvest', target:5, reward:{exp:15}, rewardText:'EXP +15'},
+    {id:'harvestA10', group:'harvest', title:'熟悉农务', desc:'累计收成 10 格成熟作物。', metric:'harvest', target:10, reward:{seeds:{wheat:3}, title:'farmer'}, rewardText:'小麦种子 ×3 · 称号【农夫】'},
+    {id:'harvestA25', group:'harvest', title:'小有成果', desc:'累计收成 25 格成熟作物。', metric:'harvest', target:25, reward:{exp:40}, rewardText:'EXP +40'},
+    {id:'harvestA50', group:'harvest', title:'农田老手', desc:'累计收成 50 格成熟作物。', metric:'harvest', target:50, reward:{seeds:{mystery:2}, title:'skilled_farmer'}, rewardText:'蔬果盲盒 ×2 · 称号【熟练农夫】'},
+    {id:'harvestA100', group:'harvest', title:'百次丰收', desc:'累计收成 100 格成熟作物。', metric:'harvest', target:100, reward:{exp:120, title:'harvest_master'}, rewardText:'EXP +120 · 称号【丰收达人】'},
+    {id:'harvestA500', group:'harvest', title:'五百次收成', desc:'累计收成 500 格成熟作物。', metric:'harvest', target:500, reward:{seeds:{mystery:5}, title:'farm_master'}, rewardText:'蔬果盲盒 ×5 · 称号【农场达人】'},
+    {id:'harvestA1000', group:'harvest', title:'千次丰收', desc:'累计收成 1000 格成熟作物。', metric:'harvest', target:1000, reward:{exp:500, title:'legendary_farmer'}, rewardText:'EXP +500 · 称号【传奇农夫】'},
+
+    {id:'plantA10', group:'plant', title:'十次播种', desc:'累计播种 10 格农地。', metric:'plant', target:10, reward:{seeds:{carrot:3}}, rewardText:'红萝卜种子 ×3'},
+    {id:'plantA50', group:'plant', title:'田里总有新芽', desc:'累计播种 50 格农地。', metric:'plant', target:50, reward:{exp:50}, rewardText:'EXP +50'},
+    {id:'plantA100', group:'plant', title:'百次播种', desc:'累计播种 100 格农地。', metric:'plant', target:100, reward:{seeds:{mystery:2}, title:'sowing_hand'}, rewardText:'蔬果盲盒 ×2 · 称号【播种好手】'},
+    {id:'plantA500', group:'plant', title:'辛勤耕作', desc:'累计播种 500 格农地。', metric:'plant', target:500, reward:{exp:200}, rewardText:'EXP +200'},
+    {id:'plantA1000', group:'plant', title:'千次播种', desc:'累计播种 1000 格农地。', metric:'plant', target:1000, reward:{seeds:{mystery:5}}, rewardText:'蔬果盲盒 ×5'},
+
+    {id:'blindA1', group:'blind', title:'第一次试手气', desc:'累计种下 1 个蔬果盲盒。', metric:'blindBoxPlant', target:1, reward:{exp:10}, rewardText:'EXP +10'},
+    {id:'blindA10', group:'blind', title:'盲盒爱好者', desc:'累计种下 10 个蔬果盲盒。', metric:'blindBoxPlant', target:10, reward:{exp:50, title:'blindbox_fan'}, rewardText:'EXP +50 · 称号【盲盒爱好者】'},
+    {id:'blindA50', group:'blind', title:'拆盒不停手', desc:'累计种下 50 个蔬果盲盒。', metric:'blindBoxPlant', target:50, reward:{seeds:{mystery:5}}, rewardText:'蔬果盲盒 ×5'},
+    {id:'blindA100', group:'blind', title:'百盒收藏', desc:'累计种下 100 个蔬果盲盒。', metric:'blindBoxPlant', target:100, reward:{exp:250, title:'blindbox_master'}, rewardText:'EXP +250 · 称号【盲盒达人】'},
+
+    {id:'stealA1', group:'steal', title:'路过摘一颗', desc:'累计成功偷菜 1 次。', metric:'steals', target:1, reward:{exp:10, title:'steal_rookie'}, rewardText:'EXP +10 · 称号【路过摘一颗】'},
+    {id:'stealA10', group:'steal', title:'神出鬼没', desc:'累计成功偷菜 10 次。', metric:'steals', target:10, reward:{exp:50, title:'steal_shadow'}, rewardText:'EXP +50 · 称号【神出鬼没】'},
+    {id:'stealA50', group:'steal', title:'偷菜高手', desc:'累计成功偷菜 50 次。', metric:'steals', target:50, reward:{seeds:{mystery:3}, title:'steal_master'}, rewardText:'蔬果盲盒 ×3 · 称号【偷菜高手】'},
+    {id:'stealA100', group:'steal', title:'来无影去无踪', desc:'累计成功偷菜 100 次。', metric:'steals', target:100, reward:{exp:200}, rewardText:'EXP +200'},
+
+    {id:'level5', group:'growth', title:'农场渐渐成形', desc:'农场达到 Lv.5。', metric:'level', target:5, reward:{seeds:{mystery:1}}, rewardText:'蔬果盲盒 ×1'},
+    {id:'level10', group:'growth', title:'十级农场', desc:'农场达到 Lv.10。', metric:'level', target:10, reward:{exp:80, title:'senior_farmer'}, rewardText:'EXP +80 · 称号【资深农夫】'},
+    {id:'level20', group:'growth', title:'成熟农场', desc:'农场达到 Lv.20。', metric:'level', target:20, reward:{seeds:{mystery:5}}, rewardText:'蔬果盲盒 ×5'},
+    {id:'level25', group:'growth', title:'完整星辰农场', desc:'农场达到 Lv.25，并解锁完整 20 格农地。', metric:'level', target:25, reward:{exp:300, title:'stellar_host'}, rewardText:'EXP +300 · 称号【星辰农场主】'},
+
+    {id:'friend20', group:'social', title:'农场社交家', desc:'好友达到 20 人。', metric:'friend', target:20, reward:{seeds:{mystery:3}, title:'social_farmer'}, rewardText:'蔬果盲盒 ×3 · 称号【农场社交家】'},
+    {id:'friend50', group:'social', title:'人气农场', desc:'好友达到 50 人。', metric:'friend', target:50, reward:{exp:300, title:'popular_host'}, rewardText:'EXP +300 · 称号【人气农场主】'}
+  ];
+
   const hadLocalStateAtBoot = (() => { try { return localStorage.getItem(STORAGE_KEY) != null; } catch (_) { return false; } })();
   let state = loadState();
   let activePanel = null;
@@ -91,10 +170,14 @@
   let friendsLoading = false;
   let friendsError = '';
   let friendsLoadedAt = 0;
+  let activeTaskTab = 'newbie';
+  let activeAchievementGroup = 'wealth';
 
   const $ = (id) => document.getElementById(id);
   const cropById = (id) => id === MYSTERY_CROP.id ? MYSTERY_CROP : CROPS.find(c => c.id === id);
   const seedItems = () => PLANTABLES;
+  const titleById = (id) => TITLES.find(item => item.id === id) || TITLES[0];
+  const achievementById = (id) => ACHIEVEMENTS.find(item => item.id === id) || null;
 
   function defaultPlots() {
     return Array.from({length:PLOT_COUNT}, (_, i) => ({ id:i, cropId:null, plantedAt:null }));
@@ -110,8 +193,10 @@
       plots: defaultPlots(),
       seeds: { carrot:3, wheat:2 },
       produce: {},
-      stats: { visit:1, plant:0, harvest:0, sell:0, friend:0 },
+      stats: { visit:1, plant:0, harvest:0, sell:0, friend:0, blindBoxPlant:0, steals:0, maxCoins:INITIAL_COINS },
       claimedTasks: [],
+      claimedAchievements: [],
+      titles: { unlocked:['newbie'], equipped:'newbie' },
       history: [],
       ownerUserId: '',
       updatedAt: Date.now()
@@ -139,10 +224,21 @@
     merged.produce = {...(raw?.produce || {})};
     merged.stats = {...base.stats, ...(raw?.stats || {})};
     merged.claimedTasks = Array.isArray(raw?.claimedTasks) ? raw.claimedTasks : [];
+    merged.claimedAchievements = Array.isArray(raw?.claimedAchievements) ? raw.claimedAchievements : [];
     merged.history = Array.isArray(raw?.history) ? raw.history.slice(-30) : [];
     merged.coins = Math.max(0, Number(merged.coins) || 0);
     merged.level = Math.max(1, Number(merged.level) || 1);
     merged.exp = Math.max(0, Number(merged.exp) || 0);
+    for (const key of ['visit','plant','harvest','sell','friend','blindBoxPlant','steals']) {
+      merged.stats[key] = Math.max(0, Number(merged.stats[key]) || 0);
+    }
+    merged.stats.maxCoins = Math.max(merged.coins, Number(merged.stats.maxCoins) || 0, INITIAL_COINS);
+    const validTitleIds = new Set(TITLES.map(item => item.id));
+    const rawUnlocked = Array.isArray(raw?.titles?.unlocked) ? raw.titles.unlocked : [];
+    const unlocked = [...new Set(['newbie', ...rawUnlocked.filter(id => validTitleIds.has(id))])];
+    const equipped = validTitleIds.has(raw?.titles?.equipped) && unlocked.includes(raw.titles.equipped)
+      ? raw.titles.equipped : 'newbie';
+    merged.titles = {unlocked, equipped};
     merged.ownerUserId = typeof merged.ownerUserId === 'string' ? merged.ownerUserId : '';
     merged.updatedAt = Math.max(0, Number(merged.updatedAt) || Number(merged.createdAt) || Date.now());
     return merged;
@@ -218,6 +314,20 @@
     return TASKS.find(task => task.id === id) || null;
   }
 
+  function updateHighWatermarks() {
+    state.stats = {...createDefaultState().stats, ...(state.stats || {})};
+    state.stats.maxCoins = Math.max(INITIAL_COINS, Number(state.stats.maxCoins) || 0, Number(state.coins) || 0);
+  }
+
+  function unlockTitle(titleId) {
+    if (!TITLES.some(item => item.id === titleId)) return false;
+    if (!state.titles || typeof state.titles !== 'object') state.titles = {unlocked:['newbie'], equipped:'newbie'};
+    if (!Array.isArray(state.titles.unlocked)) state.titles.unlocked = ['newbie'];
+    if (state.titles.unlocked.includes(titleId)) return false;
+    state.titles.unlocked.push(titleId);
+    return true;
+  }
+
   function applyTaskReward(task, {silent=false} = {}) {
     if (!task || state.claimedTasks.includes(task.id)) return false;
     state.claimedTasks.push(task.id);
@@ -228,6 +338,23 @@
         state.seeds[cropId] = (state.seeds[cropId] || 0) + qty;
       });
     }
+    updateHighWatermarks();
+    return true;
+  }
+
+  function applyAchievementReward(achievement, {silent=false} = {}) {
+    if (!achievement || state.claimedAchievements.includes(achievement.id)) return false;
+    state.claimedAchievements.push(achievement.id);
+    const reward = achievement.reward || {};
+    if (reward.coins) state.coins += reward.coins;
+    if (reward.exp) addExp(reward.exp, {silent});
+    if (reward.seeds) {
+      Object.entries(reward.seeds).forEach(([cropId, qty]) => {
+        state.seeds[cropId] = (state.seeds[cropId] || 0) + qty;
+      });
+    }
+    if (reward.title) unlockTitle(reward.title);
+    updateHighWatermarks();
     return true;
   }
 
@@ -242,6 +369,8 @@
   function pendingOpApplied(targetState, op) {
     if (!op || !targetState) return false;
     if (op.type === 'claim-task') return Array.isArray(targetState.claimedTasks) && targetState.claimedTasks.includes(op.taskId);
+    if (op.type === 'claim-achievement') return Array.isArray(targetState.claimedAchievements) && targetState.claimedAchievements.includes(op.achievementId);
+    if (op.type === 'equip-title') return targetState?.titles?.equipped === op.titleId;
     if (op.type === 'plant') return plantMutationApplied(targetState, op);
     return false;
   }
@@ -268,6 +397,20 @@
         continue;
       }
 
+      if (op.type === 'claim-achievement') {
+        const achievement = achievementById(op.achievementId);
+        if (achievement && applyAchievementReward(achievement, {silent:true})) changed = true;
+        continue;
+      }
+
+      if (op.type === 'equip-title') {
+        if (state.titles?.unlocked?.includes(op.titleId) && state.titles.equipped !== op.titleId) {
+          state.titles.equipped = op.titleId;
+          changed = true;
+        }
+        continue;
+      }
+
       if (op.type === 'plant' && Array.isArray(op.plots)) {
         for (const item of op.plots) {
           const index = Number(item.index);
@@ -282,6 +425,7 @@
           plot.harvestYield = Number(item.harvestYield) || 1;
           plot.stolenCount = 0;
           state.stats.plant += 1;
+          if (op.cropId === 'mystery') state.stats.blindBoxPlant += 1;
           state.history.push({type:'plant', cropId:op.cropId, plotId:index, at:plot.plantedAt, recovered:true, mutationId:op.id});
           changed = true;
         }
@@ -315,6 +459,7 @@
   }
 
   function saveState({touch=true, sync=true} = {}) {
+    updateHighWatermarks();
     if (touch) {
       // Keep the local revision strictly monotonic. Several farm actions can
       // happen inside the same millisecond (batch planting / task rewards), so
@@ -353,7 +498,7 @@
   function multiplayerMissing(error) {
     const text = String(error?.message || error || '');
     return error?.code === '42P01' || error?.code === 'PGRST202' ||
-      /get_farm_rankings|get_farm_friends|get_friend_farm|steal_friend_crop|request_farm_friend|farm_friendships|farm_steals|schema cache|does not exist|could not find/i.test(text);
+      /get_farm_rankings_v2|get_farm_friends_v2|get_friend_farm_v2|steal_friend_crop_v2|get_farm_rankings|get_farm_friends|get_friend_farm|steal_friend_crop|request_farm_friend|farm_friendships|farm_steals|schema cache|does not exist|could not find/i.test(text);
   }
 
   function escapeHtml(value) {
@@ -469,7 +614,7 @@
       if (relationMissing(error) || /save_farm_state_v3|PGRST202|function .* does not exist/i.test(text)) {
         setCloudStatus('setup', '☁ 请执行 009 流量优化 SQL');
       } else if (/permission denied|42501/i.test(text)) {
-        setCloudStatus('setup', '☁ 请更新至 V0.13.13 并执行 009 SQL');
+        setCloudStatus('setup', '☁ 请更新至 V0.13.14 并执行 009 SQL');
       } else {
         setCloudStatus('error', '☁ 云端暂不可用');
       }
@@ -655,14 +800,14 @@
     renderActivePanel();
     try {
       await prepareMultiplayerIdentity();
-      const {data, error} = await sb.rpc('get_farm_rankings', {p_sort:rankingSort, p_limit:50});
+      const {data, error} = await sb.rpc('get_farm_rankings_v2', {p_sort:rankingSort, p_limit:50});
       if (error) throw error;
       rankingRows = Array.isArray(data) ? data : [];
       rankingLoadedAt = Date.now();
     } catch (error) {
       rankingRows = [];
       rankingError = multiplayerMissing(error)
-        ? '多人农场尚未启用：请先在 Supabase SQL Editor 执行 20260923_004_farm_rankings_friends.sql。'
+        ? '多人农场尚未启用：请先在 Supabase SQL Editor 执行 20260924_010_farm_achievements_titles.sql。'
         : '排行榜暂时读取失败，请稍后再试。';
     } finally {
       rankingLoading = false;
@@ -685,7 +830,7 @@
     renderActivePanel();
     try {
       await prepareMultiplayerIdentity();
-      const {data, error} = await sb.rpc('get_farm_friends');
+      const {data, error} = await sb.rpc('get_farm_friends_v2');
       if (error) throw error;
       friendRows = Array.isArray(data) ? data : [];
       friendsLoadedAt = Date.now();
@@ -693,7 +838,7 @@
     } catch (error) {
       friendRows = [];
       friendsError = multiplayerMissing(error)
-        ? '好友系统尚未启用：请先在 Supabase SQL Editor 执行 20260923_004_farm_rankings_friends.sql。'
+        ? '好友系统尚未启用：请先在 Supabase SQL Editor 执行 20260924_010_farm_achievements_titles.sql。'
         : '好友资料暂时读取失败，请稍后再试。';
     } finally {
       friendsLoading = false;
@@ -836,9 +981,10 @@
 
     const name = escapeHtml(payload?.display_name || '星辰农友');
     const sex = genderSymbol(payload?.sex);
+    const friendTitle = titleById(payload?.title_id || 'newbie');
     return `
       <section class="farm-visit-summary">
-        <div><b>${name}${sex ? ` <i>${sex}</i>` : ''}</b><small>Lv.${formatNumber(friendLevel)}</small></div>
+        <div><b>${name}${sex ? ` <i>${sex}</i>` : ''}</b><small>Lv.${formatNumber(friendLevel)} · <span class="farm-public-title">${friendTitle.icon}【${escapeHtml(friendTitle.name)}】</span></small></div>
         <span>${coinInline(payload?.coins || 0, {label:true})}</span>
         <em>成熟 ${matureCount} 格 · 可偷 ${stealableCount} 格</em>
       </section>
@@ -861,7 +1007,7 @@
     });
 
     try {
-      const {data, error} = await sb.rpc('get_friend_farm', {p_friend:friendId});
+      const {data, error} = await sb.rpc('get_friend_farm_v2', {p_friend:friendId});
       if (error) throw error;
       const payload = data && typeof data === 'object' ? data : {};
       if (!payload.ok) {
@@ -879,7 +1025,7 @@
       });
     } catch (error) {
       const detail = multiplayerMissing(error)
-        ? '请先依序执行 005 与 20260924_006_farm_steal.sql。'
+        ? '请先执行 20260924_010_farm_achievements_titles.sql。'
         : '好友农场暂时读取失败，请稍后再试。';
       openModal({icon:'🏡', eyebrow:'FARM VISIT', title:'拜访失败', subtitle:detail, body:'<div class="farm-visit-actions"><button type="button" class="farm-friend-action" data-open-panel="friends">返回好友列表</button></div>'});
     }
@@ -898,7 +1044,7 @@
     }
 
     try {
-      const {data, error} = await sb.rpc('steal_friend_crop', {p_friend:friendId, p_plot:Number(plotId)});
+      const {data, error} = await sb.rpc('steal_friend_crop_v2', {p_friend:friendId, p_plot:Number(plotId)});
       if (error) throw error;
       const payload = data && typeof data === 'object' ? data : {};
       if (!payload.ok) {
@@ -931,7 +1077,7 @@
       await new Promise(resolve => setTimeout(resolve, 260));
       await visitFriend(friendId);
     } catch (error) {
-      toast('🥷 偷菜失败', multiplayerMissing(error) ? '请先执行 20260924_006_farm_steal.sql。' : '网络暂时不稳定，请稍后再试。');
+      toast('🥷 偷菜失败', multiplayerMissing(error) ? '请先执行 20260924_010_farm_achievements_titles.sql。' : '网络暂时不稳定，请稍后再试。');
       if (tile) {
         tile.disabled = false;
         tile.classList.remove('is-stealing');
@@ -1023,6 +1169,12 @@
   function renderOwner() {
     const profile = window.XingchenPlayer?.getProfile?.();
     $('farmOwnerName').textContent = profile?.name ? `${profile.name}的` : '我的';
+    const badge = $('farmEquippedTitle');
+    if (badge) {
+      const title = titleById(state.titles?.equipped || 'newbie');
+      badge.innerHTML = `<span>${title.icon}</span><b>【${escapeHtml(title.name)}】</b>`;
+      badge.setAttribute('aria-label', `目前称号：${title.name}，点击管理称号`);
+    }
   }
 
   function renderStats() {
@@ -1283,6 +1435,7 @@
       plot.harvestYield = Number(item.harvestYield) || 1;
       plot.stolenCount = 0;
       state.stats.plant += 1;
+      if (crop.isMystery) state.stats.blindBoxPlant += 1;
       state.history.push({type:'plant', cropId, plotId:index, at:plot.plantedAt, mutationId:mutation.id});
       saveState();
       renderField();
@@ -1488,6 +1641,42 @@
     return state.claimedTasks.includes(task.id);
   }
 
+  function achievementProgress(achievement) {
+    if (!achievement) return 0;
+    if (achievement.metric === 'level') return Math.min(achievement.target, Number(state.level) || 1);
+    return Math.min(achievement.target, Number(state.stats?.[achievement.metric]) || 0);
+  }
+
+  function isAchievementComplete(achievement) {
+    return achievementProgress(achievement) >= achievement.target;
+  }
+
+  function isAchievementClaimed(achievement) {
+    return state.claimedAchievements.includes(achievement.id);
+  }
+
+  async function claimAchievement(id) {
+    const achievement = achievementById(id);
+    if (!achievement || !isAchievementComplete(achievement) || isAchievementClaimed(achievement)) return;
+    queuePendingOp({type:'claim-achievement', achievementId:id});
+    applyAchievementReward(achievement);
+    saveState();
+    if (cloudReady) await pushCloudState(true);
+    renderAll();
+    toast('🏅 成就奖励已领取', `${achievement.title} · ${achievement.rewardText}`, 'task');
+  }
+
+  async function equipTitle(titleId) {
+    const title = titleById(titleId);
+    if (!state.titles?.unlocked?.includes(title.id) || state.titles.equipped === title.id) return;
+    queuePendingOp({type:'equip-title', titleId:title.id});
+    state.titles.equipped = title.id;
+    saveState();
+    if (cloudReady) await pushCloudState(true);
+    renderAll();
+    toast(`${title.icon} 称号已装备`, `现在显示为【${title.name}】。`, 'task');
+  }
+
   async function claimTask(id) {
     const task = TASKS.find(t => t.id === id);
     if (!task || task.future || !isTaskComplete(task) || isTaskClaimed(task)) return;
@@ -1504,8 +1693,9 @@
   }
 
   function renderTaskDot() {
-    const hasClaimable = TASKS.some(task => !task.future && isTaskComplete(task) && !isTaskClaimed(task));
-    $('farmTaskDot').hidden = !hasClaimable;
+    const taskClaimable = TASKS.some(task => !task.future && isTaskComplete(task) && !isTaskClaimed(task));
+    const achievementClaimable = ACHIEVEMENTS.some(item => isAchievementComplete(item) && !isAchievementClaimed(item));
+    $('farmTaskDot').hidden = !(taskClaimable || achievementClaimable);
   }
 
   function openPanel(panel) {
@@ -1513,7 +1703,7 @@
     const meta = {
       shop:{icon:'🛒', eyebrow:'FARM SHOP', title:'种子商店', subtitle:'购买普通种子，也可以试试 5 金币一个、固定 4 小时的蔬果盲盒。'},
       bag:{icon:'🎒', eyebrow:'INVENTORY', title:'我的背包', subtitle:'种子用于播种；成熟作物可以在这里出售换取金币。'},
-      tasks:{icon:'📜', eyebrow:'FARM QUEST', title:'农场任务', subtitle:'跟着任务认识农场，完成目标还能拿到种子、金币与经验。'},
+      tasks:{icon:'📜', eyebrow:'FARM QUEST', title:'任务与成就', subtitle:'新手任务教你经营农场；长期成就会解锁奖励与可以展示的专属称号。'},
       ranking:{icon:'🏆', eyebrow:'RANKING', title:'农场排行榜', subtitle:'查看真实云端玩家的等级榜与金币榜，也可以直接发送好友申请。'},
       friends:{icon:'👥', eyebrow:'FRIENDS', title:'农场好友', subtitle:'管理好友申请与好友列表，也可以直接拜访好友农场。'}
     }[panel];
@@ -1565,22 +1755,68 @@
     }
 
     if (activePanel === 'tasks') {
-      body.innerHTML = `<div class="farm-task-list">${TASKS.map(task => {
-        const progress = taskProgress(task);
-        const complete = isTaskComplete(task);
-        const claimed = isTaskClaimed(task);
-        const pct = Math.min(100, Math.round((progress / task.target) * 100));
-        let action = '';
-        if (task.future) action = '<span class="farm-task-future">多人阶段开放</span>';
-        else if (claimed) action = '<span class="farm-task-claimed">✓ 已领取</span>';
-        else if (complete) action = `<button type="button" data-claim-task="${task.id}">领取奖励</button>`;
-        else action = `<span class="farm-task-progress-text">${progress} / ${task.target}</span>`;
-        return `<article class="farm-task-item ${complete ? 'is-complete' : ''} ${claimed ? 'is-claimed' : ''} ${task.future ? 'is-future' : ''}">
-          <div class="farm-task-copy"><b>${task.title}</b><p>${task.desc}</p><small>奖励：${task.rewardText}</small></div>
-          <div class="farm-task-side">${action}</div>
-          <div class="farm-task-bar"><i style="width:${task.future ? 0 : pct}%"></i></div>
-        </article>`;
-      }).join('')}</div>`;
+      const tabs = `<div class="farm-task-tabs">
+        <button type="button" data-task-tab="newbie" class="${activeTaskTab === 'newbie' ? 'is-active' : ''}">📜 新手任务</button>
+        <button type="button" data-task-tab="achievements" class="${activeTaskTab === 'achievements' ? 'is-active' : ''}">🏅 成就</button>
+        <button type="button" data-task-tab="titles" class="${activeTaskTab === 'titles' ? 'is-active' : ''}">🏷️ 称号</button>
+      </div>`;
+
+      if (activeTaskTab === 'newbie') {
+        body.innerHTML = `${tabs}<div class="farm-task-list">${TASKS.map(task => {
+          const progress = taskProgress(task);
+          const complete = isTaskComplete(task);
+          const claimed = isTaskClaimed(task);
+          const pct = Math.min(100, Math.round((progress / task.target) * 100));
+          let action = '';
+          if (task.future) action = '<span class="farm-task-future">多人阶段开放</span>';
+          else if (claimed) action = '<span class="farm-task-claimed">✓ 已领取</span>';
+          else if (complete) action = `<button type="button" data-claim-task="${task.id}">领取奖励</button>`;
+          else action = `<span class="farm-task-progress-text">${progress} / ${task.target}</span>`;
+          return `<article class="farm-task-item ${complete ? 'is-complete' : ''} ${claimed ? 'is-claimed' : ''} ${task.future ? 'is-future' : ''}">
+            <div class="farm-task-copy"><b>${task.title}</b><p>${task.desc}</p><small>奖励：${task.rewardText}</small></div>
+            <div class="farm-task-side">${action}</div>
+            <div class="farm-task-bar"><i style="width:${task.future ? 0 : pct}%"></i></div>
+          </article>`;
+        }).join('')}</div>`;
+        return;
+      }
+
+      if (activeTaskTab === 'achievements') {
+        const groups = ACHIEVEMENT_GROUPS.map(group => `<button type="button" data-achievement-group="${group.id}" class="${activeAchievementGroup === group.id ? 'is-active' : ''}">${group.icon} ${group.label}</button>`).join('');
+        const items = ACHIEVEMENTS.filter(item => item.group === activeAchievementGroup);
+        body.innerHTML = `${tabs}<div class="farm-achievement-groups">${groups}</div><div class="farm-task-list">${items.map(item => {
+          const progress = achievementProgress(item);
+          const complete = isAchievementComplete(item);
+          const claimed = isAchievementClaimed(item);
+          const pct = Math.min(100, Math.round((progress / item.target) * 100));
+          const action = claimed
+            ? '<span class="farm-task-claimed">✓ 已领取</span>'
+            : complete
+              ? `<button type="button" data-claim-achievement="${item.id}">领取奖励</button>`
+              : `<span class="farm-task-progress-text">${formatNumber(progress)} / ${formatNumber(item.target)}</span>`;
+          return `<article class="farm-task-item farm-achievement-item ${complete ? 'is-complete' : ''} ${claimed ? 'is-claimed' : ''}">
+            <div class="farm-task-copy"><b>${item.title}</b><p>${item.desc}</p><small>奖励：${item.rewardText}</small></div>
+            <div class="farm-task-side">${action}</div>
+            <div class="farm-task-bar"><i style="width:${pct}%"></i></div>
+          </article>`;
+        }).join('')}</div>`;
+        return;
+      }
+
+      const equippedTitle = titleById(state.titles?.equipped || 'newbie');
+      body.innerHTML = `${tabs}
+        <section class="farm-title-current">
+          <span>${equippedTitle.icon}</span><div><small>目前展示称号</small><b>【${escapeHtml(equippedTitle.name)}】</b><p>${escapeHtml(equippedTitle.desc)}</p></div>
+        </section>
+        <div class="farm-title-grid">${TITLES.map(title => {
+          const unlocked = state.titles?.unlocked?.includes(title.id);
+          const equipped = state.titles?.equipped === title.id;
+          return `<article class="farm-title-card ${unlocked ? 'is-unlocked' : 'is-locked'} ${equipped ? 'is-equipped' : ''}">
+            <span>${unlocked ? title.icon : '🔒'}</span>
+            <div><b>【${escapeHtml(title.name)}】</b><p>${unlocked ? escapeHtml(title.desc) : '完成对应农场成就后解锁。'}</p></div>
+            ${equipped ? '<em>使用中</em>' : unlocked ? `<button type="button" data-equip-title="${title.id}">装备</button>` : '<em>未解锁</em>'}
+          </article>`;
+        }).join('')}</div>`;
       return;
     }
 
@@ -1598,9 +1834,10 @@
         else if (relation === 'pending_out') action = '<span class="farm-relation-label is-pending">已申请</span>';
         else if (relation === 'pending_in') action = '<button type="button" class="farm-friend-action is-notice" data-open-panel="friends">待确认</button>';
         else action = `<button type="button" class="farm-friend-action" data-friend-add="${escapeHtml(row.user_id)}">＋ 好友</button>`;
+        const publicTitle = titleById(row.title_id || 'newbie');
         return `<article class="farm-ranking-row ${relation === 'self' ? 'is-self' : ''}">
           <div class="farm-rank-no">${medal}</div>
-          <div class="farm-rank-player"><b>${escapeHtml(row.display_name)} <i>${genderSymbol(row.sex)}</i></b><small>Lv.${formatNumber(row.farm_level)}</small></div>
+          <div class="farm-rank-player"><b>${escapeHtml(row.display_name)} <i>${genderSymbol(row.sex)}</i></b><small>Lv.${formatNumber(row.farm_level)} · <span class="farm-public-title">${publicTitle.icon}【${escapeHtml(publicTitle.name)}】</span></small></div>
           <div class="farm-rank-value"><b>${rankingSort === 'coins' ? coinInline(row.coins) : `Lv.${formatNumber(row.farm_level)}`}</b><small>${rankingSort === 'coins' ? `Lv.${formatNumber(row.farm_level)}` : coinInline(row.coins)}</small></div>
           <div class="farm-rank-action">${action}</div>
         </article>`;
@@ -1629,8 +1866,9 @@
 
       const friendCard = (row, mode) => {
         const safeId = escapeHtml(row.user_id);
+        const publicTitle = titleById(row.title_id || 'newbie');
         const base = `<div class="farm-friend-avatar">${row.sex === 'male' ? '♂' : row.sex === 'female' ? '♀' : '🌱'}</div>
-          <div class="farm-friend-copy"><b>${escapeHtml(row.display_name)}</b><small>Lv.${formatNumber(row.farm_level)} · ${coinInline(row.coins)}</small></div>`;
+          <div class="farm-friend-copy"><b>${escapeHtml(row.display_name)}</b><small>Lv.${formatNumber(row.farm_level)} · ${coinInline(row.coins)} · <span class="farm-public-title">${publicTitle.icon}【${escapeHtml(publicTitle.name)}】</span></small></div>`;
         let actions = '';
         if (mode === 'incoming') actions = `<div class="farm-friend-buttons"><button type="button" class="is-primary" data-friend-accept="${safeId}">接受</button><button type="button" data-friend-reject="${safeId}">忽略</button></div>`;
         else if (mode === 'outgoing') actions = `<div class="farm-friend-buttons"><span>等待对方确认</span><button type="button" data-friend-cancel="${safeId}">取消</button></div>`;
@@ -1736,6 +1974,39 @@
   }
 
   function handleClick(event) {
+    const openTitles = event.target.closest('[data-open-titles]');
+    if (openTitles) {
+      activeTaskTab = 'titles';
+      openPanel('tasks');
+      return;
+    }
+
+    const taskTab = event.target.closest('[data-task-tab]');
+    if (taskTab) {
+      activeTaskTab = ['newbie','achievements','titles'].includes(taskTab.dataset.taskTab) ? taskTab.dataset.taskTab : 'newbie';
+      renderActivePanel();
+      return;
+    }
+
+    const achievementGroup = event.target.closest('[data-achievement-group]');
+    if (achievementGroup) {
+      activeAchievementGroup = ACHIEVEMENT_GROUPS.some(group => group.id === achievementGroup.dataset.achievementGroup) ? achievementGroup.dataset.achievementGroup : 'wealth';
+      renderActivePanel();
+      return;
+    }
+
+    const achievementClaim = event.target.closest('[data-claim-achievement]');
+    if (achievementClaim) {
+      claimAchievement(achievementClaim.dataset.claimAchievement);
+      return;
+    }
+
+    const titleEquip = event.target.closest('[data-equip-title]');
+    if (titleEquip) {
+      equipTitle(titleEquip.dataset.equipTitle);
+      return;
+    }
+
     if (event.target.closest('#farmHarvestAll')) {
       harvestAll();
       return;

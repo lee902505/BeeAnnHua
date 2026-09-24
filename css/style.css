@@ -10937,3 +10937,61 @@ body.farm-modal-open { overflow: hidden; }
   line-height:1.25;
   white-space:nowrap;
 }
+
+
+/* V0.13.14 — achievements + titles */
+.farm-owner-heading { display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
+.farm-owner-heading h1 { flex:0 1 auto; }
+.farm-equipped-title {
+  display:inline-flex; align-items:center; gap:5px; padding:7px 10px;
+  border-radius:999px; border:1px solid rgba(137,112,65,.2);
+  color:#75633f; background:rgba(255,255,255,.5); cursor:pointer;
+  box-shadow:0 6px 14px rgba(91,75,48,.08); transition:.2s ease;
+}
+.farm-equipped-title:hover { transform:translateY(-2px); background:rgba(255,255,255,.78); }
+.farm-equipped-title span { font-size:.9rem; }
+.farm-equipped-title b { font-size:.72rem; letter-spacing:.04em; }
+.farm-task-tabs { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:12px; }
+.farm-task-tabs button,.farm-achievement-groups button {
+  border:1px solid rgba(112,91,60,.14); border-radius:12px; padding:9px 10px;
+  color:#6f6658; background:rgba(255,255,255,.42); cursor:pointer; font-weight:700;
+}
+.farm-task-tabs button.is-active,.farm-achievement-groups button.is-active {
+  color:#52623e; background:rgba(236,244,211,.92); border-color:rgba(111,139,75,.3);
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.5);
+}
+.farm-achievement-groups { display:flex; gap:6px; overflow-x:auto; padding:0 0 10px; scrollbar-width:thin; }
+.farm-achievement-groups button { flex:0 0 auto; padding:7px 9px; font-size:.68rem; }
+.farm-achievement-item .farm-task-copy b::before { content:'🏅 '; }
+.farm-title-current {
+  display:grid; grid-template-columns:56px minmax(0,1fr); gap:12px; align-items:center;
+  margin-bottom:12px; padding:15px; border-radius:18px;
+  background:linear-gradient(135deg,rgba(247,250,226,.9),rgba(243,231,194,.7));
+  border:1px solid rgba(113,123,72,.18);
+}
+.farm-title-current > span { width:52px; height:52px; display:grid; place-items:center; border-radius:16px; font-size:1.65rem; background:rgba(255,255,255,.65); }
+.farm-title-current small,.farm-title-current b,.farm-title-current p { display:block; }
+.farm-title-current small { color:#91856f; font-size:.66rem; }
+.farm-title-current b { margin-top:2px; color:#566143; font-size:1rem; }
+.farm-title-current p { margin:4px 0 0; color:#7f7464; font-size:.72rem; line-height:1.5; }
+.farm-title-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:9px; }
+.farm-title-card {
+  display:grid; grid-template-columns:42px minmax(0,1fr) auto; align-items:center; gap:9px;
+  min-height:76px; padding:11px 12px; border-radius:15px;
+  background:rgba(255,255,255,.5); border:1px solid rgba(111,91,60,.12);
+}
+.farm-title-card > span { font-size:1.35rem; text-align:center; }
+.farm-title-card b { color:#5b6548; font-size:.78rem; }
+.farm-title-card p { margin:3px 0 0; color:#887c69; font-size:.64rem; line-height:1.45; }
+.farm-title-card button { padding:6px 9px; border:0; border-radius:10px; color:#fff; background:#748d55; cursor:pointer; font-size:.68rem; font-weight:700; }
+.farm-title-card em { font-style:normal; color:#7d795f; font-size:.66rem; }
+.farm-title-card.is-locked { opacity:.55; filter:saturate(.55); }
+.farm-title-card.is-equipped { border-color:rgba(110,143,69,.42); background:rgba(242,249,218,.82); }
+.farm-title-card.is-equipped em { color:#5d7540; font-weight:700; }
+.farm-public-title { color:#8a713d; font-weight:700; }
+@media (max-width:760px) {
+  .farm-owner-heading { gap:8px; }
+  .farm-equipped-title { padding:6px 9px; }
+  .farm-title-grid { grid-template-columns:1fr; }
+  .farm-task-tabs button { padding:8px 5px; font-size:.68rem; }
+}
