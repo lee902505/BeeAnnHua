@@ -1,16 +1,29 @@
-## V0.13.9 authoritative farm save RPC
+# 星辰日记 V0.13.10
 
-- Replaces browser direct `farm_saves` upsert with `public.save_farm_state(...)`.
-- RPC binds writes to `auth.uid()` server-side and refuses older revisions.
-- Fixes the verified production symptom where local 120 coins / claimed task reverted because Supabase still stored 100 / `[]`.
-- Run `supabase/migrations/20260924_007_farm_save_rpc.sql` once before testing this build.
+## 农场云端存档：Revision Guard 根治版
 
-## V0.13.9 durable farm mutation journal
+这版针对已经实机确认的回滚问题：Supabase 曾先写入 `120 / ["welcome"]`，随后同一 `user_id` 又被较晚的客户端写回 `100 / []`。这不是数据库自动回滚，而是第二次客户端写入覆盖了正确状态。
 
-- Adds a persistent local mutation journal for task rewards and planting so F5/navigation cannot resurrect stale cloud state.
-- Cloud writes are verified by reading the saved revision back before pending mutations are cleared.
-- Pending task claims and planted plots are replayed idempotently after cloud restore when needed.
-- Farm/account cache-busting updated to 0.13.9.
+本版改动：
+
+- 新增 `farm_saves.revision` 服务器版本号。
+- 所有浏览器存档改用 `save_farm_state_v2`，必须携带当前服务器 revision。
+- revision 不匹配时拒绝旧快照覆盖，并返回服务器权威状态。
+- 关闭 `authenticated` 对 `farm_saves` 的直接 `insert/update/delete` 权限，旧版/缓存页面不能再直接覆盖农场。
+- 停用旧 `save_farm_state(jsonb,bigint)` 的浏览器执行权限。
+- 朋友偷菜等服务器端修改也会自动推进 revision。
+- 排行榜/好友面板不再为了读取资料强制写一次完整农场存档。
+- 好友数量只做本机 UI 快取，不再触发完整农场写入。
+
+### 必须执行的新 SQL
+
+在 Supabase SQL Editor 执行：
+
+`supabase/migrations/20260924_008_farm_revision_guard.sql`
+
+执行成功后再上传 V0.13.10。
+
+---
 
 ## V0.13.7 cache refresh fix
 

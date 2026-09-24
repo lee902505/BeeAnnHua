@@ -1,4 +1,4 @@
--- Stellar Diary V0.13.9 — authoritative farm save RPC
+-- Stellar Diary V0.13.10 — authoritative farm save RPC
 -- Run once in Supabase SQL Editor.
 -- Purpose: make browser farm saves reliable by binding writes to auth.uid()
 -- server-side instead of relying on a direct RLS table upsert.

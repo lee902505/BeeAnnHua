@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const FARM_BUILD = '0.13.9';
+  const FARM_BUILD = '0.13.10';
   const STORAGE_KEY = 'xingchen-farm-v1';
   const VERSION = 1;
   const PLOT_COUNT = 20;
@@ -73,6 +73,7 @@
   let cloudBusy = false;
   let cloudPushQueued = false;
   let cloudLastSyncedAt = 0;
+  let cloudRevision = 0;
 
   // Multiplayer farm data is intentionally kept separate from the private
   // farm save. Rankings expose only level/coins/name; friend actions go
@@ -159,9 +160,9 @@
   function readSyncMeta() {
     try {
       const raw = JSON.parse(localStorage.getItem(SYNC_META_KEY) || 'null');
-      return raw && typeof raw === 'object' ? raw : {dirty:false, userId:'', changedAt:0};
+      return raw && typeof raw === 'object' ? raw : {dirty:false, userId:'', changedAt:0, baseRevision:0};
     } catch (_) {
-      return {dirty:false, userId:'', changedAt:0};
+      return {dirty:false, userId:'', changedAt:0, baseRevision:0};
     }
   }
 
@@ -295,11 +296,11 @@
 
   function markLocalDirty() {
     const userId = cloudAuthUser()?.id || state.ownerUserId || '';
-    writeSyncMeta({dirty:true, userId, changedAt:Date.now()});
+    writeSyncMeta({dirty:true, userId, changedAt:Date.now(), baseRevision:Math.max(0, Number(cloudRevision) || 0)});
   }
 
   function markLocalClean(userId = cloudAuthUser()?.id || state.ownerUserId || '') {
-    writeSyncMeta({dirty:false, userId, changedAt:Date.now()});
+    writeSyncMeta({dirty:false, userId, changedAt:Date.now(), baseRevision:Math.max(0, Number(cloudRevision) || 0)});
   }
 
   function hasUnsyncedLocalChanges(userId) {
@@ -375,9 +376,6 @@
     const user = cloudAuthUser();
     if (!sb || !user?.id) return {ok:false, skipped:true};
 
-    // Do not silently drop a save request while another request is in flight.
-    // This was the source of the F5 rollback bug: an older request could finish
-    // after a newer local edit and incorrectly mark the whole farm as synced.
     if (cloudBusy) {
       cloudPushQueued = true;
       return {ok:false, queued:true};
@@ -393,46 +391,54 @@
       state.ownerUserId = user.id;
       writeLocalState();
 
-      // Freeze exactly what this request is sending. Never pass the live state
-      // object to the network layer because batch planting can mutate it while
-      // the request is still being serialized / uploaded.
       const snapshotStamp = Number(state.updatedAt) || Date.now();
       const snapshot = typeof structuredClone === 'function'
         ? structuredClone(state)
         : JSON.parse(JSON.stringify(state));
-      const payload = {
-        user_id:user.id,
-        state:snapshot,
-        client_updated_at:snapshotStamp
-      };
+      const expectedRevision = Math.max(0, Number(cloudRevision) || 0);
 
-      // Use a SECURITY DEFINER RPC for writes instead of browser-side upsert.
-      // The direct table write proved unreliable in production for the farm
-      // (the row stayed at 100 coins / [] claimed_tasks even after a local
-      // reward). The RPC binds the write to auth.uid() server-side and returns
-      // the exact revision that actually reached Postgres.
-      const {data:savedRows, error:saveError} = await sb.rpc('save_farm_state', {
-        p_state: snapshot,
-        p_client_updated_at: snapshotStamp
+      const {data:savedRows, error:saveError} = await sb.rpc('save_farm_state_v2', {
+        p_state:snapshot,
+        p_client_updated_at:snapshotStamp,
+        p_expected_revision:expectedRevision
       });
       if (saveError) throw saveError;
-      const saved = Array.isArray(savedRows) ? savedRows[0] : savedRows;
-      const verified = saved && typeof saved === 'object' ? saved : null;
-      const verifiedStamp = Number(verified?.client_updated_at) || 0;
-      if (!verified?.state || verifiedStamp !== snapshotStamp) {
-        uploadSucceeded = true;
-        cloudReady = true;
-        cloudLastSyncedAt = Date.now();
-        markLocalDirty();
-        cloudPushQueued = true;
-        setCloudStatus('syncing', '☁ 正在确认');
-        return {ok:false, pending:true, snapshotStamp, verifiedStamp};
-      }
 
-      clearConfirmedPendingOps(verified.state, user.id);
-      uploadSucceeded = true;
+      const saved = Array.isArray(savedRows) ? savedRows[0] : savedRows;
+      if (!saved?.state) throw new Error('save_farm_state_v2 did not return the farm row');
+
+      const serverRevision = Math.max(0, Number(saved.revision) || 0);
+      const verifiedStamp = Number(saved.client_updated_at) || 0;
       cloudReady = true;
       cloudLastSyncedAt = Date.now();
+      uploadSucceeded = true;
+
+      if (saved.applied === false) {
+        // Another tab/device already advanced the server revision. Never let this
+        // stale full-state snapshot overwrite it. Rebase journaled operations on
+        // top of the authoritative server state and retry with the new revision.
+        cloudRevision = serverRevision;
+        clearConfirmedPendingOps(saved.state, user.id);
+        state = normalizeState(saved.state);
+        state.updatedAt = Math.max(verifiedStamp, Number(state.updatedAt) || 0);
+        state.ownerUserId = user.id;
+        writeLocalState();
+        markLocalClean(user.id);
+
+        const replayed = replayPendingOps(user.id);
+        renderAll();
+        if (replayed || pendingOpsForUser(user.id).length) {
+          markLocalDirty();
+          cloudPushQueued = true;
+          setCloudStatus('syncing', '☁ 合并云端更新');
+        } else {
+          setCloudStatus('ready', '☁ 云端已同步');
+        }
+        return {ok:false, conflict:true, revision:serverRevision};
+      }
+
+      cloudRevision = serverRevision;
+      clearConfirmedPendingOps(saved.state, user.id);
 
       const currentStamp = Number(state.updatedAt) || 0;
       const stillPending = pendingOpsForUser(user.id).length > 0;
@@ -444,17 +450,16 @@
         cloudPushQueued = true;
         setCloudStatus('syncing', '☁ 正在同步');
       }
-      return {ok:true, snapshotStamp, verifiedStamp};
+      return {ok:true, snapshotStamp, verifiedStamp, revision:serverRevision};
     } catch (error) {
-      // Never clear the dirty marker after a failed upload. The next page load
-      // will prefer the local copy and retry, so F5 cannot resurrect an old
-      // task reward or erase a freshly planted mystery box.
       markLocalDirty();
       cloudReady = false;
       console.error('[Stellar Farm] cloud save failed', error);
       const text = String(error?.message || error || '');
-      if (relationMissing(error) || /save_farm_state|PGRST202|function .* does not exist/i.test(text)) {
-        setCloudStatus('setup', '☁ 请执行 007 云端存档 SQL');
+      if (relationMissing(error) || /save_farm_state_v2|PGRST202|function .* does not exist/i.test(text)) {
+        setCloudStatus('setup', '☁ 请执行 008 云端保护 SQL');
+      } else if (/permission denied|42501/i.test(text)) {
+        setCloudStatus('setup', '☁ 请更新至 V0.13.10 并执行 008 SQL');
       } else {
         setCloudStatus('error', '☁ 云端暂不可用');
       }
@@ -478,11 +483,13 @@
     try {
       const {data, error} = await sb
         .from(CLOUD_TABLE)
-        .select('state,client_updated_at,updated_at')
+        .select('state,client_updated_at,updated_at,revision')
         .eq('user_id', user.id)
         .maybeSingle();
       if (error) throw error;
+
       if (!data?.state) {
+        cloudRevision = 0;
         cloudReady = true;
         if (state.ownerUserId && state.ownerUserId !== user.id) {
           state = createDefaultState();
@@ -494,42 +501,59 @@
       }
 
       const remoteStamp = Number(data.client_updated_at) || new Date(data.updated_at || 0).getTime() || 0;
-      const localStamp = Number(state.updatedAt) || 0;
+      const remoteRevision = Math.max(1, Number(data.revision) || 1);
       const belongsToDifferentUser = Boolean(state.ownerUserId && state.ownerUserId !== user.id);
-      const hasPendingOps = !belongsToDifferentUser && pendingOpsForUser(user.id).length > 0;
-      const localDirty = !belongsToDifferentUser && (hasUnsyncedLocalChanges(user.id) || hasPendingOps);
-      // Never let a stale cloud copy overwrite a local action that was already
-      // committed to localStorage but did not finish its network sync before F5.
-      // This is intentionally stronger than comparing client/server clocks,
-      // because those clocks can differ and server-side friend actions can also
-      // advance client_updated_at.
-      const shouldUseRemote = belongsToDifferentUser || (!localDirty && (preferRemote || !hadLocalStateAtBoot || remoteStamp > localStamp));
+      const pending = !belongsToDifferentUser ? pendingOpsForUser(user.id) : [];
+      const localDirty = !belongsToDifferentUser && hasUnsyncedLocalChanges(user.id);
+      const meta = readSyncMeta();
+      const baseRevision = Math.max(0, Number(meta.baseRevision) || 0);
+
       cloudReady = true;
-      if (localDirty) {
-        state.ownerUserId = user.id;
-        replayPendingOps(user.id);
-        writeLocalState();
-        await pushCloudState(true);
-        renderAll();
-      } else if (shouldUseRemote) {
+      cloudRevision = remoteRevision;
+
+      if (belongsToDifferentUser) {
         state = normalizeState(data.state);
         state.updatedAt = Math.max(remoteStamp, Number(state.updatedAt) || 0);
         state.ownerUserId = user.id;
         writeLocalState();
         markLocalClean(user.id);
         renderAll();
-      } else if (localStamp > remoteStamp) {
+      } else if (localDirty && baseRevision === remoteRevision) {
+        // These local edits were made from exactly the current server revision,
+        // so they are safe to submit with compare-and-swap protection.
         await pushCloudState(true);
-      } else {
+        renderAll();
+      } else if (localDirty || pending.length) {
+        // The server changed since this local copy was based on it. Server wins;
+        // only explicitly journaled idempotent operations are replayed.
+        clearConfirmedPendingOps(data.state, user.id);
+        state = normalizeState(data.state);
+        state.updatedAt = Math.max(remoteStamp, Number(state.updatedAt) || 0);
+        state.ownerUserId = user.id;
+        writeLocalState();
         markLocalClean(user.id);
-        setCloudStatus('ready', '☁ 云端已同步');
+        const replayed = replayPendingOps(user.id);
+        renderAll();
+        if (replayed || pendingOpsForUser(user.id).length) await pushCloudState(true);
+      } else {
+        // A clean browser copy never pushes merely because its client clock is
+        // newer. The database row is authoritative on every normal reload.
+        state = normalizeState(data.state);
+        state.updatedAt = Math.max(remoteStamp, Number(state.updatedAt) || 0);
+        state.ownerUserId = user.id;
+        writeLocalState();
+        markLocalClean(user.id);
+        renderAll();
       }
+
       cloudLastSyncedAt = Date.now();
       setCloudStatus('ready', '☁ 云端已同步');
-      return {ok:true, source:shouldUseRemote ? 'cloud' : 'local'};
+      return {ok:true, source:'cloud', revision:cloudRevision};
     } catch (error) {
       cloudReady = false;
-      if (relationMissing(error)) setCloudStatus('setup', '☁ 云端待启用');
+      const text = String(error?.message || error || '');
+      if (/revision|save_farm_state_v2|PGRST202/i.test(text)) setCloudStatus('setup', '☁ 请执行 008 云端保护 SQL');
+      else if (relationMissing(error)) setCloudStatus('setup', '☁ 云端待启用');
       else setCloudStatus('error', '☁ 使用本机存档');
       return {ok:false, error};
     }
@@ -551,17 +575,19 @@
 
 
   async function prepareMultiplayerIdentity() {
+    // Rankings/friends only need the public profile. Never force a full farm
+    // save merely because a panel is opened; that used to create unnecessary
+    // write races with an older in-memory farm state.
     try { await window.XingchenAuth?.syncProfile?.(true); } catch (_) {}
-    if (cloudReady && !cloudBusy) {
-      try { await pushCloudState(true); } catch (_) {}
-    }
   }
 
   function syncFriendStat(rows = friendRows) {
     const count = rows.filter(row => row.relation_state === 'friend').length;
     if ((Number(state.stats.friend) || 0) === count) return;
     state.stats.friend = count;
-    saveState();
+    // Friend count is derived from the server relationship table. Keep the UI
+    // cache local, but do not turn it into a full farm save write.
+    writeLocalState();
     renderTaskDot();
   }
 
@@ -846,11 +872,11 @@
         state = normalizeState(payload.thief_state);
         state.ownerUserId = user.id;
         writeLocalState();
-        markLocalClean(user.id);
-        cloudReady = true;
-        cloudLastSyncedAt = Date.now();
-        setCloudStatus('ready', '☁ 云端已同步');
         renderAll();
+        // steal_friend_crop mutates farm_saves on the server and migration 008
+        // bumps its revision. Pull once so this tab learns that new revision
+        // before its next local mutation.
+        await pullCloudState({preferRemote:true});
       }
       toast(`🥷 偷到 ${crop.icon}${crop.name} ×${Number(payload.amount) || 1}`, `好友这格至少还保留 ${Number(payload.owner_remaining) || 1} 个。`, 'harvest');
       await new Promise(resolve => setTimeout(resolve, 260));
