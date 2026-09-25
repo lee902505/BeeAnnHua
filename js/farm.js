@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const FARM_BUILD = '0.13.18';
+  const FARM_BUILD = '0.13.19';
   const STORAGE_KEY = 'xingchen-farm-v1';
   const VERSION = 1;
   const PLOT_COUNT = 20;
@@ -31,17 +31,17 @@
   };
   const PLANTABLES = [...CROPS, MYSTERY_CROP];
 
-  // V0.13.18 — ROWEB-style crop atlas metadata. The source stays as one
+  // V0.13.19 — ROWEB-style crop atlas metadata. The source stays as one
   // transparent 4×4 sprite sheet; the browser only exposes the required cell.
   // Rows select the crop, columns select the visible growth phase. Anchor/tune
   // values keep each crop rooted to the same point on the farm plot.
   const CROP_ATLAS = Object.freeze({
     cols:4, rows:4, anchorX:50, anchorY:82,
     crops:Object.freeze({
-      carrot:Object.freeze({row:0, scale:1.00, lift:6}),
-      wheat:Object.freeze({row:1, scale:.96, lift:5}),
-      corn:Object.freeze({row:2, scale:.90, lift:6}),
-      tomato:Object.freeze({row:3, scale:.94, lift:6})
+      carrot:Object.freeze({row:0, scale:1.00, lift:14}),
+      wheat:Object.freeze({row:1, scale:.96, lift:13}),
+      corn:Object.freeze({row:2, scale:.90, lift:14}),
+      tomato:Object.freeze({row:3, scale:.94, lift:14})
     })
   });
 
