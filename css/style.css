@@ -9906,6 +9906,28 @@ body.farm-modal-open { overflow: hidden; }
   filter:drop-shadow(0 3px 3px rgba(39,32,20,.22));
   transition:transform .25s ease;
 }
+.farm-crop-visual.is-sprite {
+  display:block;
+  flex:0 0 auto;
+  width:64px;
+  height:64px;
+  margin:-10px 0 -8px;
+  background-image:url("../images/farm/crops-sheet-01.webp");
+  background-repeat:no-repeat;
+  background-size:400% 400%;
+  background-position:var(--crop-x,0%) var(--crop-y,0%);
+  filter:drop-shadow(0 4px 4px rgba(39,32,20,.2));
+  transform-origin:50% 82%;
+}
+/* Growth size is already painted into the atlas frames; do not scale sprite
+   stages again or the root anchor will visibly jump between phases. */
+.stage-seed .farm-crop-visual.is-sprite,
+.stage-sprout .farm-crop-visual.is-sprite,
+.stage-growing .farm-crop-visual.is-sprite,
+.stage-almost .farm-crop-visual.is-sprite {
+  transform:none;
+  opacity:1;
+}
 .stage-seed .farm-crop-visual { transform:scale(.55); opacity:.58; }
 .stage-sprout .farm-crop-visual { transform:scale(.7); }
 .stage-growing .farm-crop-visual { transform:scale(.86); }
@@ -10515,6 +10537,7 @@ body.farm-modal-open { overflow: hidden; }
   .farm-plot:active { transform:none; filter:none; }
   .farm-plot:active .farm-soil { transform:translateY(-4px) scale(1.02); }
   .farm-crop-visual { font-size:1.22rem; }
+  .farm-crop-visual.is-sprite { width:46px; height:46px; margin:-7px 0 -6px; }
   .farm-crop-name { font-size:.47rem; }
   .farm-crop-time {
     display:block;
@@ -10828,6 +10851,7 @@ body.farm-modal-open { overflow: hidden; }
 }
 .farm-visit-field .farm-soil { pointer-events:none; }
 .farm-visit-field .farm-crop-visual { font-size:1.22rem; }
+.farm-visit-field .farm-crop-visual.is-sprite { width:52px; height:52px; margin:-8px 0 -7px; }
 .farm-visit-field .farm-crop-name { font-size:.52rem; }
 .farm-visit-field .farm-crop-time,
 .farm-visit-field .farm-plot.is-empty .farm-soil small,
@@ -10995,3 +11019,6 @@ body.farm-modal-open { overflow: hidden; }
   .farm-title-grid { grid-template-columns:1fr; }
   .farm-task-tabs button { padding:8px 5px; font-size:.68rem; }
 }
+
+
+/* V0.13.15 — 4x4 crop growth sprite sheet (carrot / wheat / corn / tomato) */

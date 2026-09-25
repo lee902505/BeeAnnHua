@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const FARM_BUILD = '0.13.14';
+  const FARM_BUILD = '0.13.15';
   const STORAGE_KEY = 'xingchen-farm-v1';
   const VERSION = 1;
   const PLOT_COUNT = 20;
@@ -30,6 +30,13 @@
     note:'只要 5 金币。种下后固定等待 4 小时，成熟时随机揭晓一种蔬果；每盒收成 1 个，稀有作物也有机会出现。'
   };
   const PLANTABLES = [...CROPS, MYSTERY_CROP];
+
+  // V0.13.15 — crop growth sprite sheet. The first sheet is a 4×4 atlas:
+  // row 0 carrot, row 1 wheat, row 2 corn, row 3 tomato; columns are
+  // four visible growth stages. Keep the source as one image and move the
+  // background viewport, just like the Atlas/Sprite approach used in ROWEB.
+  const CROP_SPRITE_ROWS = Object.freeze({ carrot:0, wheat:1, corn:2, tomato:3 });
+
   const MYSTERY_POOL = [
     {id:'carrot', weight:26}, {id:'wheat', weight:22}, {id:'corn', weight:18},
     {id:'tomato', weight:14}, {id:'strawberry', weight:9}, {id:'pumpkin', weight:6},
@@ -972,7 +979,7 @@
             }
           }
 
-          content = `<span class="farm-soil"><small class="farm-crop-time">${progress >= 1 ? '已成熟' : formatDuration(remainingMs)}</small><span class="farm-crop-visual" aria-hidden="true">${shown.icon}</span><span class="farm-crop-name">${shown.name}</span>${stealTag}</span>`;
+          content = `<span class="farm-soil"><small class="farm-crop-time">${progress >= 1 ? '已成熟' : formatDuration(remainingMs)}</small>${cropVisualMarkup(shown, progress)}<span class="farm-crop-name">${shown.name}</span>${stealTag}</span>`;
         }
 
         tiles.push(`<button type="button" class="${cls}" style="--farm-row:${row};--farm-col:${col};--farm-depth:${(row * 10) + col}"${attrs}>${content}</button>`);
@@ -1157,6 +1164,50 @@
     return {key:'seed', label:'刚播种', icon:'•'};
   }
 
+  function cropSpriteStage(progress) {
+    // Visual stages deliberately change at 30 / 60 / 90%. The fourth frame
+    // can be visible shortly before harvest, but the crop is only collectible
+    // after progress reaches 100%.
+    if (progress >= .90) return 3;
+    if (progress >= .60) return 2;
+    if (progress >= .30) return 1;
+    return 0;
+  }
+
+  function cropSpritePosition(cropId, progress) {
+    const row = CROP_SPRITE_ROWS[cropId];
+    if (!Number.isInteger(row)) return null;
+    const col = cropSpriteStage(progress);
+    const step = 100 / 3;
+    return { row, col, x:col * step, y:row * step };
+  }
+
+  function cropVisualMarkup(shown, progress) {
+    const sprite = cropSpritePosition(shown?.id, progress);
+    if (sprite) {
+      return `<span class="farm-crop-visual is-sprite" aria-hidden="true" data-crop-sprite="${escapeHtml(shown.id)}" style="--crop-x:${sprite.x}%;--crop-y:${sprite.y}%"></span>`;
+    }
+    return `<span class="farm-crop-visual" aria-hidden="true">${escapeHtml(shown?.icon || '🌱')}</span>`;
+  }
+
+  function applyCropVisual(el, shown, progress) {
+    if (!el) return;
+    const sprite = cropSpritePosition(shown?.id, progress);
+    if (sprite) {
+      el.classList.add('is-sprite');
+      el.dataset.cropSprite = shown.id;
+      el.textContent = '';
+      el.style.setProperty('--crop-x', `${sprite.x}%`);
+      el.style.setProperty('--crop-y', `${sprite.y}%`);
+      return;
+    }
+    el.classList.remove('is-sprite');
+    delete el.dataset.cropSprite;
+    el.style.removeProperty('--crop-x');
+    el.style.removeProperty('--crop-y');
+    el.textContent = shown?.icon || '🌱';
+  }
+
   function renderAll() {
     renderOwner();
     renderStats();
@@ -1235,7 +1286,7 @@
           btn.innerHTML = `
             <span class="farm-soil">
               <small class="farm-crop-time">${progress >= 1 ? '可以收成' : formatDuration(remaining)}</small>
-              <span class="farm-crop-visual" aria-hidden="true">${shown.icon}</span>
+              ${cropVisualMarkup(shown, progress)}
               <span class="farm-crop-name">${shown.name}</span>
             </span>`;
         }
@@ -1952,7 +2003,7 @@
       const visual = btn.querySelector('.farm-crop-visual');
       const name = btn.querySelector('.farm-crop-name');
       if (time) time.textContent = progress >= 1 ? '可以收成' : formatDuration(remaining);
-      if (visual) visual.textContent = shown.icon;
+      applyCropVisual(visual, shown, progress);
       if (name) name.textContent = shown.name;
       btn.setAttribute('aria-label', `${shown.name}，${progress >= 1 ? '已成熟，点击收成' : `${stage.label}，剩余 ${formatDuration(remaining)}`}`);
     });
