@@ -9912,7 +9912,7 @@ body.farm-modal-open { overflow: hidden; }
   width:64px;
   height:64px;
   margin:-10px 0 -8px;
-  background-image:url("../images/farm/crops-sheet-01.webp?v=0.13.19");
+  background-image:url("../images/farm/crops-sheet-01.webp?v=0.13.20");
   background-repeat:no-repeat;
   background-size:400% 400%;
   background-position:var(--crop-x,0%) var(--crop-y,0%);
@@ -11023,11 +11023,48 @@ body.farm-modal-open { overflow: hidden; }
 }
 
 
-/* V0.13.19 — 4x4 crop growth sprite sheet (carrot / wheat / corn / tomato) */
+/* V0.13.20 — 4x4 crop growth sprite sheet (carrot / wheat / corn / tomato) */
 
-/* V0.13.19 — atlas-anchor crop animation: keep the root fixed while the plant breathes. */
+/* V0.13.20 — atlas-anchor crop animation: keep the root fixed while the plant breathes. */
 @keyframes farm-crop-ready-sprite {
   0%,100% { transform:translateY(calc(-1 * var(--crop-lift,0px))) scale(var(--crop-scale,1)); }
   45% { transform:translateY(calc(-4px - var(--crop-lift,0px))) scale(calc(var(--crop-scale,1) * 1.035)); }
   70% { transform:translateY(calc(-1px - var(--crop-lift,0px))) scale(calc(var(--crop-scale,1) * .995)); }
+}
+
+/* V0.13.20 — crop position + readable labels.
+   Move atlas crops slightly upward while keeping text/countdown above foliage. */
+.farm-crop-visual.is-sprite {
+  z-index:3;
+}
+.farm-crop-time,
+.farm-crop-name {
+  z-index:8 !important;
+  isolation:isolate;
+}
+.farm-crop-name {
+  display:inline-block;
+  max-width:76px;
+  padding:1px 4px;
+  border-radius:999px;
+  line-height:1.15;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  color:#fff4d4;
+  background:rgba(70,48,27,.52);
+  box-shadow:0 2px 5px rgba(50,33,17,.15);
+  text-shadow:0 1px 2px rgba(43,28,14,.72);
+  pointer-events:none;
+}
+.farm-crop-time {
+  position:relative;
+  z-index:9 !important;
+  box-shadow:0 2px 6px rgba(50,33,17,.22);
+}
+@media (max-width:760px) {
+  .farm-crop-name { max-width:58px; padding:1px 3px; }
+}
+@media (max-width:420px) {
+  .farm-crop-name { display:none; }
 }
