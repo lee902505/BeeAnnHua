@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const FARM_BUILD = '0.13.22';
+  const FARM_BUILD = '0.13.23';
   const STORAGE_KEY = 'xingchen-farm-v1';
   const VERSION = 1;
   const PLOT_COUNT = 20;
@@ -31,7 +31,7 @@
   };
   const PLANTABLES = [...CROPS, MYSTERY_CROP];
 
-  // V0.13.22 — ROWEB-style crop atlas metadata. The source stays as one
+  // V0.13.23 — ROWEB-style crop atlas metadata. The source stays as one
   // transparent 4×4 sprite sheet; the browser only exposes the required cell.
   // Rows select the crop, columns select the visible growth phase. Anchor/tune
   // values keep each crop rooted to the same point on the farm plot.
@@ -2043,7 +2043,11 @@
     // pointer is resting on a plot makes hover feel jittery; only countdowns
     // and growth-stage classes need a one-second refresh.
     refreshFieldTimers();
-    if (activePanel === 'tasks') renderActivePanel();
+    // Task/achievement panels must NOT be rebuilt every second. On iOS, replacing
+    // the horizontal achievement-group scroller resets scrollLeft to 0 while the
+    // finger is dragging, which feels like a rubber-band snap-back. Task UI is
+    // rerendered by actual state-changing actions instead.
+    if (activePanel !== 'tasks') renderTaskDot();
     // Friend steals / another device advance the server revision. Poll only the
     // tiny revision field once per minute; download the full farm JSON only if it changed.
     if (cloudReady && !cloudBusy && !document.hidden && Date.now() - cloudLastRevisionCheckAt >= CLOUD_REVISION_POLL_MS) {
