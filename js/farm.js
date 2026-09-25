@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const FARM_BUILD = '0.13.15';
+  const FARM_BUILD = '0.13.16';
   const STORAGE_KEY = 'xingchen-farm-v1';
   const VERSION = 1;
   const PLOT_COUNT = 20;
@@ -31,11 +31,19 @@
   };
   const PLANTABLES = [...CROPS, MYSTERY_CROP];
 
-  // V0.13.15 — crop growth sprite sheet. The first sheet is a 4×4 atlas:
-  // row 0 carrot, row 1 wheat, row 2 corn, row 3 tomato; columns are
-  // four visible growth stages. Keep the source as one image and move the
-  // background viewport, just like the Atlas/Sprite approach used in ROWEB.
-  const CROP_SPRITE_ROWS = Object.freeze({ carrot:0, wheat:1, corn:2, tomato:3 });
+  // V0.13.16 — ROWEB-style crop atlas metadata. The source stays as one
+  // transparent 4×4 sprite sheet; the browser only exposes the required cell.
+  // Rows select the crop, columns select the visible growth phase. Anchor/tune
+  // values keep each crop rooted to the same point on the farm plot.
+  const CROP_ATLAS = Object.freeze({
+    cols:4, rows:4, anchorX:50, anchorY:82,
+    crops:Object.freeze({
+      carrot:Object.freeze({row:0, scale:1.00, lift:0}),
+      wheat:Object.freeze({row:1, scale:.96, lift:1}),
+      corn:Object.freeze({row:2, scale:.90, lift:2}),
+      tomato:Object.freeze({row:3, scale:.94, lift:1})
+    })
+  });
 
   const MYSTERY_POOL = [
     {id:'carrot', weight:26}, {id:'wheat', weight:22}, {id:'corn', weight:18},
@@ -1175,17 +1183,23 @@
   }
 
   function cropSpritePosition(cropId, progress) {
-    const row = CROP_SPRITE_ROWS[cropId];
-    if (!Number.isInteger(row)) return null;
+    const meta = CROP_ATLAS.crops[cropId];
+    if (!meta) return null;
     const col = cropSpriteStage(progress);
-    const step = 100 / 3;
-    return { row, col, x:col * step, y:row * step };
+    const xStep = 100 / (CROP_ATLAS.cols - 1);
+    const yStep = 100 / (CROP_ATLAS.rows - 1);
+    return {
+      row:meta.row, col,
+      x:col * xStep, y:meta.row * yStep,
+      scale:meta.scale, lift:meta.lift,
+      anchorX:CROP_ATLAS.anchorX, anchorY:CROP_ATLAS.anchorY
+    };
   }
 
   function cropVisualMarkup(shown, progress) {
     const sprite = cropSpritePosition(shown?.id, progress);
     if (sprite) {
-      return `<span class="farm-crop-visual is-sprite" aria-hidden="true" data-crop-sprite="${escapeHtml(shown.id)}" style="--crop-x:${sprite.x}%;--crop-y:${sprite.y}%"></span>`;
+      return `<span class="farm-crop-visual is-sprite" aria-hidden="true" data-crop-sprite="${escapeHtml(shown.id)}" style="--crop-x:${sprite.x}%;--crop-y:${sprite.y}%;--crop-scale:${sprite.scale};--crop-lift:${sprite.lift}px;--crop-anchor-x:${sprite.anchorX}%;--crop-anchor-y:${sprite.anchorY}%"></span>`;
     }
     return `<span class="farm-crop-visual" aria-hidden="true">${escapeHtml(shown?.icon || '🌱')}</span>`;
   }
@@ -1199,12 +1213,20 @@
       el.textContent = '';
       el.style.setProperty('--crop-x', `${sprite.x}%`);
       el.style.setProperty('--crop-y', `${sprite.y}%`);
+      el.style.setProperty('--crop-scale', String(sprite.scale));
+      el.style.setProperty('--crop-lift', `${sprite.lift}px`);
+      el.style.setProperty('--crop-anchor-x', `${sprite.anchorX}%`);
+      el.style.setProperty('--crop-anchor-y', `${sprite.anchorY}%`);
       return;
     }
     el.classList.remove('is-sprite');
     delete el.dataset.cropSprite;
     el.style.removeProperty('--crop-x');
     el.style.removeProperty('--crop-y');
+    el.style.removeProperty('--crop-scale');
+    el.style.removeProperty('--crop-lift');
+    el.style.removeProperty('--crop-anchor-x');
+    el.style.removeProperty('--crop-anchor-y');
     el.textContent = shown?.icon || '🌱';
   }
 
