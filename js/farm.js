@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const FARM_BUILD = '0.13.20';
+  const FARM_BUILD = '0.13.21';
   const STORAGE_KEY = 'xingchen-farm-v1';
   const VERSION = 1;
   const PLOT_COUNT = 20;
@@ -31,12 +31,12 @@
   };
   const PLANTABLES = [...CROPS, MYSTERY_CROP];
 
-  // V0.13.20 — ROWEB-style crop atlas metadata. The source stays as one
+  // V0.13.21 — ROWEB-style crop atlas metadata. The source stays as one
   // transparent 4×4 sprite sheet; the browser only exposes the required cell.
   // Rows select the crop, columns select the visible growth phase. Anchor/tune
   // values keep each crop rooted to the same point on the farm plot.
   const CROP_ATLAS = Object.freeze({
-    cols:4, rows:4, anchorX:50, anchorY:82,
+    cols:4, rows:4, anchorX:50, anchorY:82, shiftX:8, shiftY:-7,
     crops:Object.freeze({
       carrot:Object.freeze({row:0, scale:1.00, lift:18}),
       wheat:Object.freeze({row:1, scale:.96, lift:17}),
@@ -1192,6 +1192,7 @@
       row:meta.row, col,
       x:col * xStep, y:meta.row * yStep,
       scale:meta.scale, lift:meta.lift,
+      shiftX:CROP_ATLAS.shiftX, shiftY:CROP_ATLAS.shiftY,
       anchorX:CROP_ATLAS.anchorX, anchorY:CROP_ATLAS.anchorY
     };
   }
@@ -1199,7 +1200,7 @@
   function cropVisualMarkup(shown, progress) {
     const sprite = cropSpritePosition(shown?.id, progress);
     if (sprite) {
-      return `<span class="farm-crop-visual is-sprite" aria-hidden="true" data-crop-sprite="${escapeHtml(shown.id)}" style="--crop-x:${sprite.x}%;--crop-y:${sprite.y}%;--crop-scale:${sprite.scale};--crop-lift:${sprite.lift}px;--crop-anchor-x:${sprite.anchorX}%;--crop-anchor-y:${sprite.anchorY}%"></span>`;
+      return `<span class="farm-crop-visual is-sprite" aria-hidden="true" data-crop-sprite="${escapeHtml(shown.id)}" style="--crop-x:${sprite.x}%;--crop-y:${sprite.y}%;--crop-scale:${sprite.scale};--crop-lift:${sprite.lift}px;--crop-shift-x:${sprite.shiftX}px;--crop-shift-y:${sprite.shiftY}px;--crop-anchor-x:${sprite.anchorX}%;--crop-anchor-y:${sprite.anchorY}%"></span>`;
     }
     return `<span class="farm-crop-visual" aria-hidden="true">${escapeHtml(shown?.icon || '🌱')}</span>`;
   }
@@ -1215,6 +1216,8 @@
       el.style.setProperty('--crop-y', `${sprite.y}%`);
       el.style.setProperty('--crop-scale', String(sprite.scale));
       el.style.setProperty('--crop-lift', `${sprite.lift}px`);
+      el.style.setProperty('--crop-shift-x', `${sprite.shiftX}px`);
+      el.style.setProperty('--crop-shift-y', `${sprite.shiftY}px`);
       el.style.setProperty('--crop-anchor-x', `${sprite.anchorX}%`);
       el.style.setProperty('--crop-anchor-y', `${sprite.anchorY}%`);
       return;
@@ -1225,6 +1228,8 @@
     el.style.removeProperty('--crop-y');
     el.style.removeProperty('--crop-scale');
     el.style.removeProperty('--crop-lift');
+    el.style.removeProperty('--crop-shift-x');
+    el.style.removeProperty('--crop-shift-y');
     el.style.removeProperty('--crop-anchor-x');
     el.style.removeProperty('--crop-anchor-y');
     el.textContent = shown?.icon || '🌱';
