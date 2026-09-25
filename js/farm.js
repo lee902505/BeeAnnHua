@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const FARM_BUILD = '0.13.23';
+  const FARM_BUILD = '0.13.24';
   const STORAGE_KEY = 'xingchen-farm-v1';
   const VERSION = 1;
   const PLOT_COUNT = 20;
@@ -31,7 +31,7 @@
   };
   const PLANTABLES = [...CROPS, MYSTERY_CROP];
 
-  // V0.13.23 — ROWEB-style crop atlas metadata. The source stays as one
+  // V0.13.24 — ROWEB-style crop atlas metadata. The source stays as one
   // transparent 4×4 sprite sheet; the browser only exposes the required cell.
   // Rows select the crop, columns select the visible growth phase. Anchor/tune
   // values keep each crop rooted to the same point on the farm plot.
@@ -187,6 +187,11 @@
   let friendsLoadedAt = 0;
   let activeTaskTab = 'newbie';
   let activeAchievementGroup = 'wealth';
+  // Persist the horizontal achievement-category position across rerenders.
+  // On iOS, tapping a category rebuilds the task panel; without this value the
+  // newly-created scroller starts at scrollLeft=0 and looks like it snaps back
+  // to the first category even though the selected category changed correctly.
+  let achievementGroupScrollLeft = 0;
 
   const $ = (id) => document.getElementById(id);
   const cropById = (id) => id === MYSTERY_CROP.id ? MYSTERY_CROP : CROPS.find(c => c.id === id);
@@ -1878,6 +1883,16 @@
             <div class="farm-task-bar"><i style="width:${pct}%"></i></div>
           </article>`;
         }).join('')}</div>`;
+        // The category row itself is recreated when a category is tapped. Restore
+        // its previous horizontal position on the next frame so the selected
+        // category stays where the user left it instead of jumping back to the
+        // first chip.
+        requestAnimationFrame(() => {
+          const scroller = body.querySelector('.farm-achievement-groups');
+          if (!scroller) return;
+          const maxLeft = Math.max(0, scroller.scrollWidth - scroller.clientWidth);
+          scroller.scrollLeft = Math.min(Math.max(0, achievementGroupScrollLeft), maxLeft);
+        });
         return;
       }
 
@@ -2072,6 +2087,8 @@
 
     const achievementGroup = event.target.closest('[data-achievement-group]');
     if (achievementGroup) {
+      const scroller = achievementGroup.closest('.farm-achievement-groups');
+      if (scroller) achievementGroupScrollLeft = scroller.scrollLeft;
       activeAchievementGroup = ACHIEVEMENT_GROUPS.some(group => group.id === achievementGroup.dataset.achievementGroup) ? achievementGroup.dataset.achievementGroup : 'wealth';
       renderActivePanel();
       return;
@@ -2209,6 +2226,14 @@
   function init() {
     try { console.info(`[Stellar Farm] build ${FARM_BUILD}`); } catch (_) {}
     document.addEventListener('click', handleClick);
+    // `scroll` does not bubble, so listen in capture phase. This continuously
+    // remembers the achievement chip row position while the user swipes it.
+    document.addEventListener('scroll', event => {
+      const target = event.target;
+      if (target instanceof Element && target.classList.contains('farm-achievement-groups')) {
+        achievementGroupScrollLeft = target.scrollLeft;
+      }
+    }, true);
     document.addEventListener('input', event => {
       if (event.target.matches('#farmPlantQtyRange')) updatePlantQuantity(event.target.value);
     });

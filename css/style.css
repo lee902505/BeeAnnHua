@@ -9912,7 +9912,7 @@ body.farm-modal-open { overflow: hidden; }
   width:64px;
   height:64px;
   margin:-10px 0 -8px;
-  background-image:url("../images/farm/crops-sheet-01.webp?v=0.13.23");
+  background-image:url("../images/farm/crops-sheet-01.webp?v=0.13.24");
   background-repeat:no-repeat;
   background-size:400% 400%;
   background-position:var(--crop-x,0%) var(--crop-y,0%);
@@ -11023,16 +11023,16 @@ body.farm-modal-open { overflow: hidden; }
 }
 
 
-/* V0.13.23 — 4x4 crop growth sprite sheet (carrot / wheat / corn / tomato) */
+/* V0.13.24 — 4x4 crop growth sprite sheet (carrot / wheat / corn / tomato) */
 
-/* V0.13.23 — atlas-anchor crop animation: keep the root fixed while the plant breathes. */
+/* V0.13.24 — atlas-anchor crop animation: keep the root fixed while the plant breathes. */
 @keyframes farm-crop-ready-sprite {
   0%,100% { transform:translate(var(--crop-shift-x,0px), calc(var(--crop-shift-y,0px) - var(--crop-lift,0px))) scale(var(--crop-scale,1)); }
   45% { transform:translate(var(--crop-shift-x,0px), calc(var(--crop-shift-y,0px) - 4px - var(--crop-lift,0px))) scale(calc(var(--crop-scale,1) * 1.035)); }
   70% { transform:translate(var(--crop-shift-x,0px), calc(var(--crop-shift-y,0px) - 1px - var(--crop-lift,0px))) scale(calc(var(--crop-scale,1) * .995)); }
 }
 
-/* V0.13.23 — crop position + readable labels.
+/* V0.13.24 — crop position + readable labels.
    Move atlas crops slightly upward while keeping text/countdown above foliage. */
 .farm-crop-visual.is-sprite {
   z-index:3;
@@ -11070,7 +11070,7 @@ body.farm-modal-open { overflow: hidden; }
 }
 
 
-/* V0.13.23 — crop alignment and label stacking.
+/* V0.13.24 — crop alignment and label stacking.
    Plants are nudged toward the visual centre of the sloped soil (upper-right),
    while planted plots sit above bare soil so crop labels/countdowns cannot be
    swallowed by neighbouring farm tiles. */
@@ -11102,7 +11102,7 @@ body.farm-modal-open { overflow: hidden; }
   }
 }
 
-/* V0.13.23 — mobile crop alignment fine tune.
+/* V0.13.24 — mobile crop alignment fine tune.
    Desktop keeps the current upper-right placement. On phones, move the crop
    sprite and its labels about 5px back toward the lower-left for better fit. */
 @media (max-width:760px) {
@@ -11116,7 +11116,7 @@ body.farm-modal-open { overflow: hidden; }
   }
 }
 
-/* ===== V0.13.23 MOBILE ACHIEVEMENT HORIZONTAL SCROLL FIX =====
+/* ===== V0.13.24 MOBILE ACHIEVEMENT HORIZONTAL SCROLL FIX =====
    The achievement category chips are a nested horizontal scroller inside the
    vertically scrolling farm modal. Explicit axis ownership prevents iOS Safari
    from handing the gesture to the modal and rubber-banding back. */
@@ -11156,3 +11156,6 @@ body.farm-modal-open { overflow: hidden; }
     width:12px;
   }
 }
+
+/* ===== V0.13.24 ACHIEVEMENT CATEGORY TAP POSITION =====
+   JS now preserves the horizontal category scroll position when a chip is tapped. */
