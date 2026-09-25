@@ -9912,7 +9912,7 @@ body.farm-modal-open { overflow: hidden; }
   width:64px;
   height:64px;
   margin:-10px 0 -8px;
-  background-image:url("../images/farm/crops-sheet-01.webp?v=0.13.16");
+  background-image:url("../images/farm/crops-sheet-01.webp?v=0.13.17");
   background-repeat:no-repeat;
   background-size:400% 400%;
   background-position:var(--crop-x,0%) var(--crop-y,0%);
@@ -11023,9 +11023,9 @@ body.farm-modal-open { overflow: hidden; }
 }
 
 
-/* V0.13.16 — 4x4 crop growth sprite sheet (carrot / wheat / corn / tomato) */
+/* V0.13.17 — 4x4 crop growth sprite sheet (carrot / wheat / corn / tomato) */
 
-/* V0.13.16 — atlas-anchor crop animation: keep the root fixed while the plant breathes. */
+/* V0.13.17 — atlas-anchor crop animation: keep the root fixed while the plant breathes. */
 @keyframes farm-crop-ready-sprite {
   0%,100% { transform:translateY(calc(-1 * var(--crop-lift,0px))) scale(var(--crop-scale,1)); }
   45% { transform:translateY(calc(-4px - var(--crop-lift,0px))) scale(calc(var(--crop-scale,1) * 1.035)); }
