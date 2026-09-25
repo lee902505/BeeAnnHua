@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const FARM_BUILD = '0.13.21';
+  const FARM_BUILD = '0.13.22';
   const STORAGE_KEY = 'xingchen-farm-v1';
   const VERSION = 1;
   const PLOT_COUNT = 20;
@@ -31,7 +31,7 @@
   };
   const PLANTABLES = [...CROPS, MYSTERY_CROP];
 
-  // V0.13.21 — ROWEB-style crop atlas metadata. The source stays as one
+  // V0.13.22 — ROWEB-style crop atlas metadata. The source stays as one
   // transparent 4×4 sprite sheet; the browser only exposes the required cell.
   // Rows select the crop, columns select the visible growth phase. Anchor/tune
   // values keep each crop rooted to the same point on the farm plot.

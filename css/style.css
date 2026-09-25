@@ -9912,7 +9912,7 @@ body.farm-modal-open { overflow: hidden; }
   width:64px;
   height:64px;
   margin:-10px 0 -8px;
-  background-image:url("../images/farm/crops-sheet-01.webp?v=0.13.21");
+  background-image:url("../images/farm/crops-sheet-01.webp?v=0.13.22");
   background-repeat:no-repeat;
   background-size:400% 400%;
   background-position:var(--crop-x,0%) var(--crop-y,0%);
@@ -11023,16 +11023,16 @@ body.farm-modal-open { overflow: hidden; }
 }
 
 
-/* V0.13.21 — 4x4 crop growth sprite sheet (carrot / wheat / corn / tomato) */
+/* V0.13.22 — 4x4 crop growth sprite sheet (carrot / wheat / corn / tomato) */
 
-/* V0.13.21 — atlas-anchor crop animation: keep the root fixed while the plant breathes. */
+/* V0.13.22 — atlas-anchor crop animation: keep the root fixed while the plant breathes. */
 @keyframes farm-crop-ready-sprite {
   0%,100% { transform:translate(var(--crop-shift-x,0px), calc(var(--crop-shift-y,0px) - var(--crop-lift,0px))) scale(var(--crop-scale,1)); }
   45% { transform:translate(var(--crop-shift-x,0px), calc(var(--crop-shift-y,0px) - 4px - var(--crop-lift,0px))) scale(calc(var(--crop-scale,1) * 1.035)); }
   70% { transform:translate(var(--crop-shift-x,0px), calc(var(--crop-shift-y,0px) - 1px - var(--crop-lift,0px))) scale(calc(var(--crop-scale,1) * .995)); }
 }
 
-/* V0.13.21 — crop position + readable labels.
+/* V0.13.22 — crop position + readable labels.
    Move atlas crops slightly upward while keeping text/countdown above foliage. */
 .farm-crop-visual.is-sprite {
   z-index:3;
@@ -11070,7 +11070,7 @@ body.farm-modal-open { overflow: hidden; }
 }
 
 
-/* V0.13.21 — crop alignment and label stacking.
+/* V0.13.22 — crop alignment and label stacking.
    Plants are nudged toward the visual centre of the sloped soil (upper-right),
    while planted plots sit above bare soil so crop labels/countdowns cannot be
    swallowed by neighbouring farm tiles. */
@@ -11099,5 +11099,19 @@ body.farm-modal-open { overflow: hidden; }
   .farm-plot.has-crop .farm-crop-time,
   .farm-plot.has-crop .farm-crop-name {
     transform:translate(5px,-5px);
+  }
+}
+
+/* V0.13.22 — mobile crop alignment fine tune.
+   Desktop keeps the current upper-right placement. On phones, move the crop
+   sprite and its labels about 5px back toward the lower-left for better fit. */
+@media (max-width:760px) {
+  .farm-plot.has-crop .farm-crop-visual.is-sprite {
+    --crop-shift-x:3px !important;
+    --crop-shift-y:-2px !important;
+  }
+  .farm-plot.has-crop .farm-crop-time,
+  .farm-plot.has-crop .farm-crop-name {
+    transform:translate(0,0);
   }
 }
