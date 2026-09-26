@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const FARM_BUILD = '0.13.24';
+  const FARM_BUILD = '0.13.25';
   const STORAGE_KEY = 'xingchen-farm-v1';
   const VERSION = 1;
   const PLOT_COUNT = 20;
@@ -31,17 +31,20 @@
   };
   const PLANTABLES = [...CROPS, MYSTERY_CROP];
 
-  // V0.13.24 — ROWEB-style crop atlas metadata. The source stays as one
-  // transparent 4×4 sprite sheet; the browser only exposes the required cell.
-  // Rows select the crop, columns select the visible growth phase. Anchor/tune
-  // values keep each crop rooted to the same point on the farm plot.
+  // V0.13.25 — two ROWEB-style 4×4 crop atlases. Each crop points to a
+  // sheet + row, while the growth percentage selects the column. The artwork
+  // stays as two large transparent images; nothing is split into 32 files.
   const CROP_ATLAS = Object.freeze({
     cols:4, rows:4, anchorX:50, anchorY:82, shiftX:8, shiftY:-7,
     crops:Object.freeze({
-      carrot:Object.freeze({row:0, scale:1.00, lift:18}),
-      wheat:Object.freeze({row:1, scale:.96, lift:17}),
-      corn:Object.freeze({row:2, scale:.90, lift:18}),
-      tomato:Object.freeze({row:3, scale:.94, lift:18})
+      carrot:Object.freeze({sheet:1, row:0, scale:1.00, lift:18}),
+      wheat:Object.freeze({sheet:1, row:1, scale:.96, lift:17}),
+      corn:Object.freeze({sheet:1, row:2, scale:.90, lift:18}),
+      tomato:Object.freeze({sheet:1, row:3, scale:.94, lift:18}),
+      strawberry:Object.freeze({sheet:2, row:0, scale:.96, lift:17}),
+      pumpkin:Object.freeze({sheet:2, row:1, scale:.88, lift:16}),
+      grape:Object.freeze({sheet:2, row:2, scale:.90, lift:16}),
+      starfruit:Object.freeze({sheet:2, row:3, scale:.88, lift:16})
     })
   });
 
@@ -185,6 +188,10 @@
   let friendsLoading = false;
   let friendsError = '';
   let friendsLoadedAt = 0;
+  let stealActivityRows = [];
+  let stealActivityLoading = false;
+  let stealActivityError = '';
+  let stealActivityLoadedAt = 0;
   let activeTaskTab = 'newbie';
   let activeAchievementGroup = 'wealth';
   // Persist the horizontal achievement-category position across rerenders.
@@ -518,7 +525,7 @@
   function multiplayerMissing(error) {
     const text = String(error?.message || error || '');
     return error?.code === '42P01' || error?.code === 'PGRST202' ||
-      /get_farm_rankings_v2|get_farm_friends_v2|get_friend_farm_v2|steal_friend_crop_v2|get_farm_rankings|get_farm_friends|get_friend_farm|steal_friend_crop|request_farm_friend|farm_friendships|farm_steals|schema cache|does not exist|could not find/i.test(text);
+      /get_farm_rankings_v2|get_farm_friends_v2|get_friend_farm_v2|steal_friend_crop_v3|steal_friend_crop_v2|get_farm_steal_activity_v1|get_farm_rankings|get_farm_friends|get_friend_farm|steal_friend_crop|request_farm_friend|farm_friendships|farm_steals|schema cache|does not exist|could not find/i.test(text);
   }
 
   function escapeHtml(value) {
@@ -866,9 +873,40 @@
     }
   }
 
+  async function loadStealActivity(force = false, markSeen = true) {
+    if (stealActivityLoading) return;
+    if (!force && stealActivityLoadedAt && Date.now() - stealActivityLoadedAt < 10000) return;
+    const sb = cloudClient();
+    const user = cloudAuthUser();
+    if (!sb || !user?.id) {
+      stealActivityError = '请先建立云端身份后再查看偷菜记录。';
+      renderActivePanel();
+      return;
+    }
+    stealActivityLoading = true;
+    stealActivityError = '';
+    renderActivePanel();
+    try {
+      await prepareMultiplayerIdentity();
+      const {data, error} = await sb.rpc('get_farm_steal_activity_v1', {p_limit:30, p_mark_seen:Boolean(markSeen)});
+      if (error) throw error;
+      stealActivityRows = Array.isArray(data) ? data : [];
+      stealActivityLoadedAt = Date.now();
+    } catch (error) {
+      stealActivityRows = [];
+      stealActivityError = multiplayerMissing(error)
+        ? '偷菜记录尚未启用：请先执行 20260926_011_farm_crop_sheet2_steal_activity.sql。'
+        : '偷菜记录暂时读取失败，请稍后再试。';
+    } finally {
+      stealActivityLoading = false;
+      renderActivePanel();
+    }
+  }
+
   function invalidateMultiplayer() {
     rankingLoadedAt = 0;
     friendsLoadedAt = 0;
+    stealActivityLoadedAt = 0;
   }
 
   async function requestFriend(targetId) {
@@ -988,7 +1026,7 @@
               cls += ' can-steal';
               stealableCount += 1;
               attrs = ` data-steal-friend="${escapeHtml(friendId)}" data-steal-plot="${index}" aria-label="偷取 ${escapeHtml(shown.name)}"`;
-              stealTag = '<span class="farm-steal-tag">偷菜 1–3</span>';
+              stealTag = '<span class="farm-steal-tag">偷菜 ×1</span>'; 
             }
           }
 
@@ -1008,7 +1046,7 @@
         <span>${coinInline(payload?.coins || 0, {label:true})}</span>
         <em>成熟 ${matureCount} 格 · 可偷 ${stealableCount} 格</em>
       </section>
-      <div class="farm-steal-rule">🥷 成熟作物可以偷取 1～3 个；同一位好友对同一轮作物只能偷一次，地主永远至少保留 1 个。</div>
+      <div class="farm-steal-rule">🥷 每位好友对每一株成熟作物固定偷 1 个；同一成熟周期只能偷一次，地主永远至少保留 1 个。</div>
       <div class="farm-visit-scene">
         <div class="farm-visit-field">${tiles.join('')}</div>
       </div>
@@ -1064,7 +1102,7 @@
     }
 
     try {
-      const {data, error} = await sb.rpc('steal_friend_crop_v2', {p_friend:friendId, p_plot:Number(plotId)});
+      const {data, error} = await sb.rpc('steal_friend_crop_v3', {p_friend:friendId, p_plot:Number(plotId)});
       if (error) throw error;
       const payload = data && typeof data === 'object' ? data : {};
       if (!payload.ok) {
@@ -1093,11 +1131,11 @@
         // before its next local mutation.
         await pullCloudState({preferRemote:true});
       }
-      toast(`🥷 偷到 ${crop.icon}${crop.name} ×${Number(payload.amount) || 1}`, `好友这格至少还保留 ${Number(payload.owner_remaining) || 1} 个。`, 'harvest');
+      toast(`🥷 偷到 ${crop.icon}${crop.name} ×1`, `好友这格至少还保留 ${Number(payload.owner_remaining) || 1} 个。`, 'harvest');
       await new Promise(resolve => setTimeout(resolve, 260));
       await visitFriend(friendId);
     } catch (error) {
-      toast('🥷 偷菜失败', multiplayerMissing(error) ? '请先执行 20260924_010_farm_achievements_titles.sql。' : '网络暂时不稳定，请稍后再试。');
+      toast('🥷 偷菜失败', multiplayerMissing(error) ? '请先执行 20260926_011_farm_crop_sheet2_steal_activity.sql。' : '网络暂时不稳定，请稍后再试。');
       if (tile) {
         tile.disabled = false;
         tile.classList.remove('is-stealing');
@@ -1194,7 +1232,7 @@
     const xStep = 100 / (CROP_ATLAS.cols - 1);
     const yStep = 100 / (CROP_ATLAS.rows - 1);
     return {
-      row:meta.row, col,
+      sheet:meta.sheet || 1, row:meta.row, col,
       x:col * xStep, y:meta.row * yStep,
       scale:meta.scale, lift:meta.lift,
       shiftX:CROP_ATLAS.shiftX, shiftY:CROP_ATLAS.shiftY,
@@ -1205,7 +1243,7 @@
   function cropVisualMarkup(shown, progress) {
     const sprite = cropSpritePosition(shown?.id, progress);
     if (sprite) {
-      return `<span class="farm-crop-visual is-sprite" aria-hidden="true" data-crop-sprite="${escapeHtml(shown.id)}" style="--crop-x:${sprite.x}%;--crop-y:${sprite.y}%;--crop-scale:${sprite.scale};--crop-lift:${sprite.lift}px;--crop-shift-x:${sprite.shiftX}px;--crop-shift-y:${sprite.shiftY}px;--crop-anchor-x:${sprite.anchorX}%;--crop-anchor-y:${sprite.anchorY}%"></span>`;
+      return `<span class="farm-crop-visual is-sprite" aria-hidden="true" data-crop-sprite="${escapeHtml(shown.id)}" data-crop-sheet="${sprite.sheet}" style="--crop-x:${sprite.x}%;--crop-y:${sprite.y}%;--crop-scale:${sprite.scale};--crop-lift:${sprite.lift}px;--crop-shift-x:${sprite.shiftX}px;--crop-shift-y:${sprite.shiftY}px;--crop-anchor-x:${sprite.anchorX}%;--crop-anchor-y:${sprite.anchorY}%"></span>`;
     }
     return `<span class="farm-crop-visual" aria-hidden="true">${escapeHtml(shown?.icon || '🌱')}</span>`;
   }
@@ -1216,6 +1254,7 @@
     if (sprite) {
       el.classList.add('is-sprite');
       el.dataset.cropSprite = shown.id;
+      el.dataset.cropSheet = String(sprite.sheet);
       el.textContent = '';
       el.style.setProperty('--crop-x', `${sprite.x}%`);
       el.style.setProperty('--crop-y', `${sprite.y}%`);
@@ -1229,6 +1268,7 @@
     }
     el.classList.remove('is-sprite');
     delete el.dataset.cropSprite;
+    delete el.dataset.cropSheet;
     el.style.removeProperty('--crop-x');
     el.style.removeProperty('--crop-y');
     el.style.removeProperty('--crop-scale');
@@ -1788,11 +1828,24 @@
       bag:{icon:'🎒', eyebrow:'INVENTORY', title:'我的背包', subtitle:'种子用于播种；成熟作物可以在这里出售换取金币。'},
       tasks:{icon:'📜', eyebrow:'FARM QUEST', title:'任务与成就', subtitle:'新手任务教你经营农场；长期成就会解锁奖励与可以展示的专属称号。'},
       ranking:{icon:'🏆', eyebrow:'RANKING', title:'农场排行榜', subtitle:'查看真实云端玩家的等级榜与金币榜，也可以直接发送好友申请。'},
-      friends:{icon:'👥', eyebrow:'FRIENDS', title:'农场好友', subtitle:'管理好友申请与好友列表，也可以直接拜访好友农场。'}
+      friends:{icon:'👥', eyebrow:'FRIENDS', title:'农场好友', subtitle:'查看好友申请、偷菜记录与好友列表，也可以直接回访好友农场。'}
     }[panel];
     if (!meta) return;
     openModal({...meta, body:''});
     renderActivePanel();
+  }
+
+  function formatFarmActivityTime(value) {
+    const date = new Date(value);
+    if (!Number.isFinite(date.getTime())) return '';
+    const now = new Date();
+    const hhmm = date.toLocaleTimeString('zh-CN', {hour:'2-digit', minute:'2-digit', hour12:false});
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+    const day = new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime();
+    const diffDays = Math.round((today - day) / 86400000);
+    if (diffDays === 0) return `今天 ${hhmm}`;
+    if (diffDays === 1) return `昨天 ${hhmm}`;
+    return `${date.getMonth() + 1}/${date.getDate()} ${hhmm}`;
   }
 
   function renderActivePanel() {
@@ -1953,9 +2006,24 @@
 
     if (activePanel === 'friends') {
       if (!friendsLoading && !friendsLoadedAt && !friendsError) setTimeout(() => loadFriends(false), 0);
+      if (!stealActivityLoading && !stealActivityLoadedAt && !stealActivityError) setTimeout(() => loadStealActivity(false, true), 0);
       const incoming = friendRows.filter(row => row.relation_state === 'pending_in');
       const accepted = friendRows.filter(row => row.relation_state === 'friend');
       const outgoing = friendRows.filter(row => row.relation_state === 'pending_out');
+      const unreadSteals = stealActivityRows.filter(row => row.is_unread).length;
+      const activityHtml = stealActivityRows.map(row => {
+        const crop = CROPS.find(c => c.id === row.crop_id) || {name:'作物', icon:'🌿'};
+        const safeId = escapeHtml(row.thief_id || '');
+        const who = escapeHtml(row.display_name || '农场好友');
+        const sex = row.sex === 'male' ? '♂' : row.sex === 'female' ? '♀' : '';
+        const when = escapeHtml(formatFarmActivityTime(row.stolen_at));
+        return `<article class="farm-steal-activity ${row.is_unread ? 'is-unread' : ''}">
+          <div class="farm-steal-activity-icon">${crop.icon}</div>
+          <div class="farm-steal-activity-copy"><b>${who}${sex ? ` ${sex}` : ''} 偷走了 ${escapeHtml(crop.name)} ×${Math.max(1, Number(row.amount) || 1)}</b><small>${when}${Number.isInteger(Number(row.plot_id)) ? ` · 第 ${Number(row.plot_id) + 1} 格` : ''}</small></div>
+          ${row.is_unread ? '<span class="farm-steal-new">NEW</span>' : ''}
+          <button type="button" class="farm-friend-action is-visit" data-friend-visit="${safeId}">回访</button>
+        </article>`;
+      }).join('');
 
       const friendCard = (row, mode) => {
         const safeId = escapeHtml(row.user_id);
@@ -1970,11 +2038,13 @@
       };
 
       body.innerHTML = `
-        <div class="farm-friends-summary"><span>👥 好友 <b>${accepted.length}</b></span><span>📩 待确认 <b>${incoming.length}</b></span><button type="button" class="farm-refresh-button" data-refresh-friends ${friendsLoading ? 'disabled' : ''}>↻ 刷新</button></div>
-        ${friendsLoading ? '<div class="farm-network-state"><span class="farm-spinner"></span><b>正在读取好友资料…</b></div>' : ''}
+        <div class="farm-friends-summary"><span>👥 好友 <b>${accepted.length}</b></span><span>📩 待确认 <b>${incoming.length}</b></span><span>🥷 新动态 <b>${unreadSteals}</b></span><button type="button" class="farm-refresh-button" data-refresh-friends ${(friendsLoading || stealActivityLoading) ? 'disabled' : ''}>↻ 刷新</button></div>
+        ${(friendsLoading || stealActivityLoading) ? '<div class="farm-network-state"><span class="farm-spinner"></span><b>正在读取好友与农场动态…</b></div>' : ''}
         ${friendsError ? `<div class="farm-network-state is-error"><b>⚠ ${escapeHtml(friendsError)}</b></div>` : ''}
+        ${stealActivityError ? `<div class="farm-network-state is-error"><b>⚠ ${escapeHtml(stealActivityError)}</b></div>` : ''}
         ${!friendsLoading && !friendsError ? `
           ${incoming.length ? `<section class="farm-friend-section"><header><b>📩 收到的申请</b><span>${incoming.length}</span></header>${incoming.map(row => friendCard(row,'incoming')).join('')}</section>` : ''}
+          <section class="farm-friend-section farm-steal-activity-section"><header><b>🥷 偷菜记录</b><span>${stealActivityRows.length}</span></header>${stealActivityLoading ? '<div class="farm-network-state"><span class="farm-spinner"></span><b>正在读取偷菜记录…</b></div>' : activityHtml || '<p class="farm-empty-state">暂时没有好友偷菜记录。</p>'}</section>
           <section class="farm-friend-section"><header><b>👥 我的好友</b><span>${accepted.length}</span></header>${accepted.length ? accepted.map(row => friendCard(row,'friend')).join('') : '<p class="farm-empty-state">还没有好友。可以到排行榜找到农友并点击「＋ 好友」。</p>'}</section>
           ${outgoing.length ? `<section class="farm-friend-section"><header><b>⏳ 已送出的申请</b><span>${outgoing.length}</span></header>${outgoing.map(row => friendCard(row,'outgoing')).join('')}</section>` : ''}
           ` : ''}`;
@@ -2123,7 +2193,7 @@
     }
 
     if (event.target.closest('[data-refresh-ranking]')) { rankingLoadedAt = 0; loadRankings(true); return; }
-    if (event.target.closest('[data-refresh-friends]')) { friendsLoadedAt = 0; loadFriends(true); return; }
+    if (event.target.closest('[data-refresh-friends]')) { friendsLoadedAt = 0; stealActivityLoadedAt = 0; Promise.all([loadFriends(true), loadStealActivity(true, true)]); return; }
 
     const friendAdd = event.target.closest('[data-friend-add]');
     if (friendAdd) { requestFriend(friendAdd.dataset.friendAdd); return; }

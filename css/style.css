@@ -9912,7 +9912,6 @@ body.farm-modal-open { overflow: hidden; }
   width:64px;
   height:64px;
   margin:-10px 0 -8px;
-  background-image:url("../images/farm/crops-sheet-01.webp?v=0.13.24");
   background-repeat:no-repeat;
   background-size:400% 400%;
   background-position:var(--crop-x,0%) var(--crop-y,0%);
@@ -9920,6 +9919,14 @@ body.farm-modal-open { overflow: hidden; }
   transform-origin:var(--crop-anchor-x,50%) var(--crop-anchor-y,82%);
   transform:translate(var(--crop-shift-x,0px), calc(var(--crop-shift-y,0px) - var(--crop-lift,0px))) scale(var(--crop-scale,1));
 }
+
+.farm-crop-visual.is-sprite[data-crop-sheet="1"] {
+  background-image:url("../images/farm/crops-sheet-01.webp?v=0.13.25");
+}
+.farm-crop-visual.is-sprite[data-crop-sheet="2"] {
+  background-image:url("../images/farm/crops-sheet-02.webp?v=0.13.25");
+}
+
 /* Growth size is already painted into the atlas frames; do not scale sprite
    stages again or the root anchor will visibly jump between phases. */
 .stage-seed .farm-crop-visual.is-sprite,
@@ -11023,16 +11030,16 @@ body.farm-modal-open { overflow: hidden; }
 }
 
 
-/* V0.13.24 — 4x4 crop growth sprite sheet (carrot / wheat / corn / tomato) */
+/* V0.13.25 — 4x4 crop growth sprite sheet (carrot / wheat / corn / tomato) */
 
-/* V0.13.24 — atlas-anchor crop animation: keep the root fixed while the plant breathes. */
+/* V0.13.25 — atlas-anchor crop animation: keep the root fixed while the plant breathes. */
 @keyframes farm-crop-ready-sprite {
   0%,100% { transform:translate(var(--crop-shift-x,0px), calc(var(--crop-shift-y,0px) - var(--crop-lift,0px))) scale(var(--crop-scale,1)); }
   45% { transform:translate(var(--crop-shift-x,0px), calc(var(--crop-shift-y,0px) - 4px - var(--crop-lift,0px))) scale(calc(var(--crop-scale,1) * 1.035)); }
   70% { transform:translate(var(--crop-shift-x,0px), calc(var(--crop-shift-y,0px) - 1px - var(--crop-lift,0px))) scale(calc(var(--crop-scale,1) * .995)); }
 }
 
-/* V0.13.24 — crop position + readable labels.
+/* V0.13.25 — crop position + readable labels.
    Move atlas crops slightly upward while keeping text/countdown above foliage. */
 .farm-crop-visual.is-sprite {
   z-index:3;
@@ -11070,7 +11077,7 @@ body.farm-modal-open { overflow: hidden; }
 }
 
 
-/* V0.13.24 — crop alignment and label stacking.
+/* V0.13.25 — crop alignment and label stacking.
    Plants are nudged toward the visual centre of the sloped soil (upper-right),
    while planted plots sit above bare soil so crop labels/countdowns cannot be
    swallowed by neighbouring farm tiles. */
@@ -11102,7 +11109,7 @@ body.farm-modal-open { overflow: hidden; }
   }
 }
 
-/* V0.13.24 — mobile crop alignment fine tune.
+/* V0.13.25 — mobile crop alignment fine tune.
    Desktop keeps the current upper-right placement. On phones, move the crop
    sprite and its labels about 5px back toward the lower-left for better fit. */
 @media (max-width:760px) {
@@ -11116,7 +11123,7 @@ body.farm-modal-open { overflow: hidden; }
   }
 }
 
-/* ===== V0.13.24 MOBILE ACHIEVEMENT HORIZONTAL SCROLL FIX =====
+/* ===== V0.13.25 MOBILE ACHIEVEMENT HORIZONTAL SCROLL FIX =====
    The achievement category chips are a nested horizontal scroller inside the
    vertically scrolling farm modal. Explicit axis ownership prevents iOS Safari
    from handing the gesture to the modal and rubber-banding back. */
@@ -11157,5 +11164,42 @@ body.farm-modal-open { overflow: hidden; }
   }
 }
 
-/* ===== V0.13.24 ACHIEVEMENT CATEGORY TAP POSITION =====
+/* ===== V0.13.25 ACHIEVEMENT CATEGORY TAP POSITION =====
    JS now preserves the horizontal category scroll position when a chip is tapped. */
+
+
+/* ===== V0.13.25 SECOND CROP ATLAS + STEAL ACTIVITY ===== */
+.farm-steal-activity-section { margin-top:16px; }
+.farm-steal-activity {
+  position:relative;
+  display:grid;
+  grid-template-columns:42px minmax(0,1fr) auto auto;
+  gap:10px;
+  align-items:center;
+  padding:11px 12px;
+  margin:8px 0;
+  border:1px solid rgba(117,131,83,.14);
+  border-radius:15px;
+  background:rgba(255,255,255,.58);
+}
+.farm-steal-activity.is-unread {
+  border-color:rgba(176,126,39,.28);
+  background:linear-gradient(135deg,rgba(255,249,225,.9),rgba(245,250,232,.72));
+}
+.farm-steal-activity-icon {
+  width:42px; height:42px; display:grid; place-items:center;
+  border-radius:13px; background:rgba(115,134,77,.1); font-size:1.25rem;
+}
+.farm-steal-activity-copy { min-width:0; display:flex; flex-direction:column; gap:3px; }
+.farm-steal-activity-copy b { color:#566143; font-size:.86rem; line-height:1.35; }
+.farm-steal-activity-copy small { color:#9a8f79; font-size:.72rem; }
+.farm-steal-new {
+  align-self:start; padding:3px 6px; border-radius:999px;
+  background:#d84f49; color:#fff; font-size:.58rem; font-weight:800; letter-spacing:.05em;
+}
+@media (max-width:760px) {
+  .farm-steal-activity { grid-template-columns:38px minmax(0,1fr) auto; gap:8px; padding:10px; }
+  .farm-steal-activity-icon { width:38px; height:38px; }
+  .farm-steal-activity .farm-friend-action { grid-column:2 / -1; justify-self:end; }
+  .farm-steal-new { position:absolute; top:8px; right:8px; }
+}
