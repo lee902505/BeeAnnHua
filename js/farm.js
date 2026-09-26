@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const FARM_BUILD = '0.13.31';
+  const FARM_BUILD = '0.13.32';
   const STORAGE_KEY = 'xingchen-farm-v1';
   const VERSION = 1;
   const PLOT_COUNT = 20;
@@ -39,11 +39,11 @@
   const EVENT_ATLAS = Object.freeze({cols:4, rows:4});
   const BASE_PEST_CHANCE = 0.10;
   const DAILY_EVENTS = Object.freeze([
-    Object.freeze({id:'sunny', icon:'☀️', name:'晴朗日', note:'今天阳光充足，所有普通作物成长时间缩短 5%。', growFactor:0.95, pestChance:0.10}),
-    Object.freeze({id:'harvest', icon:'🌾', name:'丰收日', note:'今天收成普通作物时获得的 EXP 提升 10%。', expFactor:1.10, pestChance:0.10}),
-    Object.freeze({id:'rainy', icon:'🌧️', name:'多雨日', note:'湿润天气让虫害更活跃，播种时长虫机率由 10% 提升到 20%。', pestChance:0.20}),
-    Object.freeze({id:'storm', icon:'⛈️', name:'雷雨日', note:'雷雨会影响果实品质，今天收成每格普通作物少 1 个，最低仍保留 1 个。', yieldPenalty:1, pestChance:0.10}),
-    Object.freeze({id:'merchant', icon:'🛒', name:'种子商人来访', note:'旅行商人今天停在农舍旁，随机两种已解锁种子 9 折。', merchant:true, pestChance:0.10})
+    Object.freeze({id:'sunny', icon:'☀️', name:'晴朗', note:'本时段播种的普通作物成长时间缩短 5%。', growFactor:0.95, pestChance:0.10}),
+    Object.freeze({id:'harvest', icon:'🌾', name:'丰收祝福', note:'本时段收成普通作物时获得的 EXP 提升 10%。', expFactor:1.10, pestChance:0.10}),
+    Object.freeze({id:'rainy', icon:'🌧️', name:'多雨', note:'本时段播种时虫害机率由 10% 提升到 20%。', pestChance:0.20}),
+    Object.freeze({id:'storm', icon:'⛈️', name:'雷雨', note:'本时段收成每格普通作物少 1 个，最低仍保留 1 个。', yieldPenalty:1, pestChance:0.10}),
+    Object.freeze({id:'merchant', icon:'🛒', name:'种子商人来访', note:'旅行商人在本时段停在农舍旁，随机两种已解锁种子 9 折。', merchant:true, pestChance:0.10})
   ]);
   const WATER_FACTOR = 0.92;
   const FERTILIZERS = Object.freeze([
@@ -225,6 +225,7 @@
   let farmActivityUnreadCount = 0;
   let farmActivityUnreadCheckedAt = 0;
   let farmDay = localFarmDay();
+  let farmEventSlotKey = localFarmEventSlot().key;
   let farmDaySyncAt = 0;
   let activeTaskTab = 'daily';
   let activeAchievementGroup = 'wealth';
@@ -275,15 +276,15 @@
     return h >>> 0;
   }
 
-  function currentFarmEvent(day = farmDay || localFarmDay()) {
-    return DAILY_EVENTS[stableHash(`stellar-event:${day}`) % DAILY_EVENTS.length];
+  function currentFarmEvent(slotKey = farmEventSlotKey || localFarmEventSlot().key) {
+    return DAILY_EVENTS[stableHash(`stellar-event:${slotKey}`) % DAILY_EVENTS.length];
   }
 
   function merchantDiscountCrops() {
     const unlocked = CROPS.filter(crop => state.level >= crop.unlockLevel);
     if (!unlocked.length) return [];
-    const first = stableHash(`merchant-a:${farmDay}`) % unlocked.length;
-    const second = unlocked.length > 1 ? (first + 1 + (stableHash(`merchant-b:${farmDay}`) % (unlocked.length - 1))) % unlocked.length : first;
+    const first = stableHash(`merchant-a:${farmEventSlotKey}`) % unlocked.length;
+    const second = unlocked.length > 1 ? (first + 1 + (stableHash(`merchant-b:${farmEventSlotKey}`) % (unlocked.length - 1))) % unlocked.length : first;
     return [...new Set([unlocked[first]?.id, unlocked[second]?.id])].filter(Boolean);
   }
 
@@ -307,6 +308,33 @@
     } catch (_) {}
     const utc8 = new Date(date.getTime() + 8 * 60 * 60 * 1000);
     return `${utc8.getUTCFullYear()}-${String(utc8.getUTCMonth()+1).padStart(2,'0')}-${String(utc8.getUTCDate()).padStart(2,'0')}`;
+  }
+
+
+  function localFarmEventSlot(date = new Date()) {
+    try {
+      const parts = new Intl.DateTimeFormat('en', {
+        timeZone:'Asia/Taipei', year:'numeric', month:'2-digit', day:'2-digit', hour:'2-digit', hourCycle:'h23'
+      }).formatToParts(date);
+      const map = Object.fromEntries(parts.map(part => [part.type, part.value]));
+      const hour = Math.max(0, Math.min(23, Number(map.hour) || 0));
+      const slotIndex = Math.floor(hour / 4);
+      const day = `${map.year}-${map.month}-${map.day}`;
+      return {day, slotIndex, key:`${day}-${slotIndex}`, startHour:slotIndex*4, endHour:(slotIndex+1)*4};
+    } catch (_) {}
+    const utc8 = new Date(date.getTime() + 8 * 60 * 60 * 1000);
+    const hour = utc8.getUTCHours();
+    const slotIndex = Math.floor(hour / 4);
+    const day = `${utc8.getUTCFullYear()}-${String(utc8.getUTCMonth()+1).padStart(2,'0')}-${String(utc8.getUTCDate()).padStart(2,'0')}`;
+    return {day, slotIndex, key:`${day}-${slotIndex}`, startHour:slotIndex*4, endHour:(slotIndex+1)*4};
+  }
+
+  function farmEventSlotWindow(slotKey = farmEventSlotKey) {
+    const match = String(slotKey || '').match(/^(\d{4}-\d{2}-\d{2})-([0-5])$/);
+    const slotIndex = match ? Number(match[2]) : localFarmEventSlot().slotIndex;
+    const start = slotIndex * 4;
+    const end = (slotIndex + 1) * 4;
+    return `${String(start).padStart(2,'0')}:00–${end === 24 ? '24:00' : `${String(end).padStart(2,'0')}:00`}`;
   }
 
   function createDailyState(day = localFarmDay()) {
@@ -353,7 +381,7 @@
   function isDailyBonusReady() { return DAILY_TASKS.every(isDailyComplete); }
 
   function defaultPlots() {
-    return Array.from({length:PLOT_COUNT}, (_, i) => ({ id:i, cropId:null, plantedAt:null, watered:false, fertilizerId:null, hasPest:false }));
+    return Array.from({length:PLOT_COUNT}, (_, i) => ({ id:i, cropId:null, plantedAt:null, watered:false, fertilizerId:null, hasPest:false, eventGrowFactor:1 }));
   }
 
   function createDefaultState() {
@@ -396,7 +424,8 @@
         stolenCount:Number.isFinite(stolenCount) && stolenCount > 0 ? Math.floor(stolenCount) : 0,
         watered:Boolean(old?.watered),
         fertilizerId:FERTILIZERS.some(item => item.id === old?.fertilizerId) ? old.fertilizerId : null,
-        hasPest:Boolean(old?.hasPest)
+        hasPest:Boolean(old?.hasPest),
+        eventGrowFactor:Math.max(0.90, Math.min(1, Number(old?.eventGrowFactor) || 1))
       };
     });
     merged.seeds = {...base.seeds, ...(raw?.seeds || {})};
@@ -707,6 +736,7 @@
           plot.watered = false;
           plot.fertilizerId = null;
           plot.hasPest = Boolean(item.hasPest);
+          plot.eventGrowFactor = Math.max(0.90, Math.min(1, Number(item.eventGrowFactor) || 1));
           state.stats.plant += 1;
           bumpDaily('plant', 1);
           if (op.cropId === 'mystery') state.stats.blindBoxPlant += 1;
@@ -782,7 +812,7 @@
   function multiplayerMissing(error) {
     const text = String(error?.message || error || '');
     return error?.code === '42P01' || error?.code === 'PGRST202' ||
-      /get_farm_day_v1|get_farm_rankings_v2|get_farm_friends_v2|get_friend_farm_v4|get_friend_farm_v3|get_friend_farm_v2|help_friend_bug_v1|get_farm_activity_v1|get_farm_activity_unread_v1|farm_activity|steal_friend_crop_v4|steal_friend_crop_v3|steal_friend_crop_v2|get_farm_steal_activity_v1|get_farm_rankings|get_farm_friends|get_friend_farm|steal_friend_crop|request_farm_friend|farm_friendships|farm_steals|schema cache|does not exist|could not find/i.test(text);
+      /get_farm_clock_v1|get_farm_day_v1|get_farm_rankings_v2|get_farm_friends_v2|get_friend_farm_v4|get_friend_farm_v3|get_friend_farm_v2|help_friend_bug_v1|get_farm_activity_v1|get_farm_activity_unread_v1|farm_activity|steal_friend_crop_v4|steal_friend_crop_v3|steal_friend_crop_v2|get_farm_steal_activity_v1|get_farm_rankings|get_farm_friends|get_friend_farm|steal_friend_crop|request_farm_friend|farm_friendships|farm_steals|schema cache|does not exist|could not find/i.test(text);
   }
 
   function escapeHtml(value) {
@@ -1041,32 +1071,47 @@
     const sb = cloudClient();
     const user = cloudAuthUser();
     const now = Date.now();
-    if (!sb || !user?.id || (!force && farmDaySyncAt && now - farmDaySyncAt < FARM_DAY_SYNC_MS)) {
-      const fallback = localFarmDay();
-      if (fallback !== farmDay) {
-        ensureDailyState(fallback, {persist:true});
-        renderAll();
+    const fallbackClock = localFarmEventSlot();
+
+    const applyClock = (day, slotKey) => {
+      let changed = false;
+      const safeDay = typeof day === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(day) ? day : fallbackClock.day;
+      const safeSlot = typeof slotKey === 'string' && /^\d{4}-\d{2}-\d{2}-[0-5]$/.test(slotKey) ? slotKey : fallbackClock.key;
+      if (safeDay !== farmDay || state.daily?.date !== safeDay) {
+        ensureDailyState(safeDay, {persist:true});
+        changed = true;
+      } else {
+        farmDay = safeDay;
       }
+      if (safeSlot !== farmEventSlotKey) {
+        farmEventSlotKey = safeSlot;
+        renderDailyEventScene();
+        changed = true;
+      }
+      return changed;
+    };
+
+    if (!sb || !user?.id || (!force && farmDaySyncAt && now - farmDaySyncAt < FARM_DAY_SYNC_MS)) {
+      if (applyClock(fallbackClock.day, fallbackClock.key)) renderAll();
       return farmDay;
     }
+
     try {
-      const {data, error} = await sb.rpc('get_farm_day_v1');
-      if (error) throw error;
-      const day = typeof data === 'string' ? data : localFarmDay();
-      farmDaySyncAt = Date.now();
-      if (day !== farmDay || state.daily?.date !== day) {
-        ensureDailyState(day, {persist:true});
-        renderAll();
+      let day = fallbackClock.day;
+      let slotKey = fallbackClock.key;
+      const clockResult = await sb.rpc('get_farm_clock_v1');
+      if (!clockResult.error && clockResult.data && typeof clockResult.data === 'object') {
+        day = String(clockResult.data.day || day);
+        slotKey = String(clockResult.data.slot_key || slotKey);
       } else {
-        farmDay = day;
+        const legacyResult = await sb.rpc('get_farm_day_v1');
+        if (!legacyResult.error && typeof legacyResult.data === 'string') day = legacyResult.data;
       }
+      farmDaySyncAt = Date.now();
+      if (applyClock(day, slotKey)) renderAll();
       return farmDay;
     } catch (error) {
-      const fallback = localFarmDay();
-      if (fallback !== farmDay) {
-        ensureDailyState(fallback, {persist:true});
-        renderAll();
-      }
+      if (applyClock(fallbackClock.day, fallbackClock.key)) renderAll();
       return farmDay;
     }
   }
@@ -1305,7 +1350,8 @@
         stolenByMe:Boolean(raw?.stolenByMe),
         watered:Boolean(raw?.watered),
         fertilizerId:FERTILIZERS.some(item => item.id === raw?.fertilizerId) ? raw.fertilizerId : null,
-        hasPest:Boolean(raw?.hasPest)
+        hasPest:Boolean(raw?.hasPest),
+        eventGrowFactor:Math.max(0.90, Math.min(1, Number(raw?.eventGrowFactor) || 1))
       };
     });
     let matureCount = 0;
@@ -1607,8 +1653,7 @@
     let factor = plot?.watered ? WATER_FACTOR : 1;
     const fertilizer = fertilizerById(plot?.fertilizerId);
     if (fertilizer) factor *= fertilizer.factor;
-    const event = currentFarmEvent();
-    if (event?.growFactor) factor *= event.growFactor;
+    factor *= Math.max(0.90, Math.min(1, Number(plot?.eventGrowFactor) || 1));
     return Math.max(0.45, Math.min(1, factor));
   }
 
@@ -1723,12 +1768,12 @@
     const badge = $('farmDailyEvent');
     if (badge) {
       badge.className = `farm-daily-event is-${event.id}`;
-      badge.innerHTML = `<b>${event.icon} ${escapeHtml(event.name)}</b><small>${escapeHtml(event.note)}</small>`;
+      badge.innerHTML = `<b>${event.icon} ${escapeHtml(event.name)}</b><small>${escapeHtml(event.note)}<span class="farm-event-window">本时段 ${escapeHtml(farmEventSlotWindow())} · 每 4 小时更新</span></small>`;
     }
     const merchant = $('farmMerchantNpc');
     if (merchant) {
       merchant.hidden = !event.merchant;
-      merchant.setAttribute('aria-label', event.merchant ? '种子商人来访，点击查看今日折扣' : '');
+      merchant.setAttribute('aria-label', event.merchant ? '种子商人来访，点击查看本时段折扣' : '');
     }
     const scene = document.querySelector('.farm-scene');
     if (scene) {
@@ -1738,18 +1783,22 @@
       scene.classList.toggle('is-storm', event.id === 'storm');
       scene.dataset.weather = ['sunny','harvest','rainy','storm'].includes(event.id) ? event.id : 'none';
     }
+    const weatherLayer = $('farmWeatherLayer');
+    if (weatherLayer) {
+      weatherLayer.className = `farm-weather-layer ${['sunny','harvest','rainy','storm'].includes(event.id) ? `is-${event.id}` : 'is-none'}`;
+    }
   }
 
   function openMerchantShop() {
     const event = currentFarmEvent();
-    if (!event.merchant) { toast('🛒 商人今天不在', '种子商人只会在来访日停在农舍旁。'); return; }
+    if (!event.merchant) { toast('🛒 商人今天不在', '种子商人只会在来访时段停在农舍旁。'); return; }
     const discountIds = merchantDiscountCrops();
     const cards = discountIds.map(id => {
       const crop = cropById(id);
       const price = Math.max(1, Math.floor(crop.seedPrice * .9));
       return `<article class="farm-merchant-card"><span class="farm-seed-emoji">${escapeHtml(crop.icon)}</span><div><b>${escapeHtml(crop.name)}种子</b><small>原价 ${crop.seedPrice} · 今日 9 折</small></div><strong>${price} 金币/包</strong><button type="button" data-merchant-buy="${escapeHtml(crop.id)}" data-qty="1">买 1</button><button type="button" data-merchant-buy="${escapeHtml(crop.id)}" data-qty="5">买 5</button></article>`;
     }).join('');
-    openModal({icon:'🛒', eyebrow:'TRAVELING MERCHANT', title:'种子商人来访', subtitle:'今天随机两种已解锁种子 9 折，午夜后商人会继续旅行。', body:`<div class="farm-merchant-intro">${eventSpriteMarkup(3,'is-merchant-face')}<p>“今天路过星辰农场，带了两种便宜种子。要不要补一点库存？”</p></div><div class="farm-merchant-grid">${cards || '<p class="farm-empty-state">目前还没有可购买的折扣种子。</p>'}</div>`});
+    openModal({icon:'🛒', eyebrow:'TRAVELING MERCHANT', title:'种子商人来访', subtitle:'本时段随机两种已解锁种子 9 折；下一个 4 小时时段商人可能继续旅行。', body:`<div class="farm-merchant-intro">${eventSpriteMarkup(3,'is-merchant-face')}<p>“今天路过星辰农场，带了两种便宜种子。要不要补一点库存？”</p></div><div class="farm-merchant-grid">${cards || '<p class="farm-empty-state">目前还没有可购买的折扣种子。</p>'}</div>`});
   }
 
   function buyMerchantSeed(cropId, qty=1) {
@@ -2033,7 +2082,8 @@
         plantedAt:basePlantedAt + offset,
         resultCropId:crop.isMystery ? randomMysteryCropId() : null,
         harvestYield:crop.isMystery ? 1 : randomInt(crop.yieldMin, crop.yieldMax),
-        hasPest:!crop.isMystery && Math.random() < currentPestChance()
+        hasPest:!crop.isMystery && Math.random() < currentPestChance(),
+        eventGrowFactor:crop.isMystery ? 1 : (Number(currentFarmEvent()?.growFactor) || 1)
       }))
     });
     closeModal();
@@ -2053,6 +2103,7 @@
       plot.watered = false;
       plot.fertilizerId = null;
       plot.hasPest = Boolean(item.hasPest);
+      plot.eventGrowFactor = Math.max(0.90, Math.min(1, Number(item.eventGrowFactor) || 1));
       state.stats.plant += 1;
       bumpDaily('plant', 1);
       if (crop.isMystery) state.stats.blindBoxPlant += 1;
@@ -2372,6 +2423,7 @@
     plot.watered = false;
     plot.fertilizerId = null;
     plot.hasPest = false;
+    plot.eventGrowFactor = 1;
   }
 
   function buySeed(cropId, qty = 1) {
@@ -2923,13 +2975,20 @@
   }
 
   function tick() {
-    const today = localFarmDay();
-    if (today !== farmDay) {
-      ensureDailyState(today, {persist:true});
+    const localClock = localFarmEventSlot();
+    if (localClock.day !== farmDay) {
+      ensureDailyState(localClock.day, {persist:true});
+      farmEventSlotKey = localClock.key;
       renderAll();
       if (cloudReady) syncFarmDay(true).catch(() => {});
-    } else if (cloudReady && Date.now() - farmDaySyncAt >= FARM_DAY_SYNC_MS) {
-      syncFarmDay(false).catch(() => {});
+    } else {
+      if (localClock.key !== farmEventSlotKey) {
+        farmEventSlotKey = localClock.key;
+        renderDailyEventScene();
+      }
+      if (cloudReady && Date.now() - farmDaySyncAt >= FARM_DAY_SYNC_MS) {
+        syncFarmDay(false).catch(() => {});
+      }
     }
     renderStats();
     // Do not rebuild all 20 buttons every second. Replacing the DOM while the
