@@ -19,3 +19,7 @@ It adds an authoritative UTC+8 farm-day RPC and `steal_friend_crop_v4`, which up
 ## V0.13.27 farm care tools
 
 Run `migrations/20260926_013_farm_care_tools.sql` after migration 012. It keeps server-side steal maturity checks aligned with watering (×0.92) and low / mid / high fertilizer (×0.90 / ×0.80 / ×0.70). Existing JSON farm saves remain compatible.
+
+## V0.13.29 farm activity center
+
+Run `migrations/20260926_014_farm_activity_center.sql` after migration 013. It creates a bounded unified activity feed for friend visits and crop steals, backfills existing steal history, logs real friend-farm visits with a 10-minute dedupe window, and adds `get_farm_activity_v1` / `get_friend_farm_v3`. Existing farm saves, friends, crops, titles and steal ledgers are preserved.

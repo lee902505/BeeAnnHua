@@ -9921,10 +9921,10 @@ body.farm-modal-open { overflow: hidden; }
 }
 
 .farm-crop-visual.is-sprite[data-crop-sheet="1"] {
-  background-image:url("../images/farm/crops-sheet-01.webp?v=0.13.28");
+  background-image:url("../images/farm/crops-sheet-01.webp?v=0.13.29");
 }
 .farm-crop-visual.is-sprite[data-crop-sheet="2"] {
-  background-image:url("../images/farm/crops-sheet-02.webp?v=0.13.28");
+  background-image:url("../images/farm/crops-sheet-02.webp?v=0.13.29");
 }
 
 /* Growth size is already painted into the atlas frames; do not scale sprite
@@ -11030,16 +11030,16 @@ body.farm-modal-open { overflow: hidden; }
 }
 
 
-/* V0.13.28 — 4x4 crop growth sprite sheet (carrot / wheat / corn / tomato) */
+/* V0.13.29 — 4x4 crop growth sprite sheet (carrot / wheat / corn / tomato) */
 
-/* V0.13.28 — atlas-anchor crop animation: keep the root fixed while the plant breathes. */
+/* V0.13.29 — atlas-anchor crop animation: keep the root fixed while the plant breathes. */
 @keyframes farm-crop-ready-sprite {
   0%,100% { transform:translate(var(--crop-shift-x,0px), calc(var(--crop-shift-y,0px) - var(--crop-lift,0px))) scale(var(--crop-scale,1)); }
   45% { transform:translate(var(--crop-shift-x,0px), calc(var(--crop-shift-y,0px) - 4px - var(--crop-lift,0px))) scale(calc(var(--crop-scale,1) * 1.035)); }
   70% { transform:translate(var(--crop-shift-x,0px), calc(var(--crop-shift-y,0px) - 1px - var(--crop-lift,0px))) scale(calc(var(--crop-scale,1) * .995)); }
 }
 
-/* V0.13.28 — crop position + readable labels.
+/* V0.13.29 — crop position + readable labels.
    Move atlas crops slightly upward while keeping text/countdown above foliage. */
 .farm-crop-visual.is-sprite {
   z-index:3;
@@ -11077,7 +11077,7 @@ body.farm-modal-open { overflow: hidden; }
 }
 
 
-/* V0.13.28 — crop alignment and label stacking.
+/* V0.13.29 — crop alignment and label stacking.
    Plants are nudged toward the visual centre of the sloped soil (upper-right),
    while planted plots sit above bare soil so crop labels/countdowns cannot be
    swallowed by neighbouring farm tiles. */
@@ -11109,7 +11109,7 @@ body.farm-modal-open { overflow: hidden; }
   }
 }
 
-/* V0.13.28 — mobile crop alignment fine tune.
+/* V0.13.29 — mobile crop alignment fine tune.
    Desktop keeps the current upper-right placement. On phones, move the crop
    sprite and its labels about 5px back toward the lower-left for better fit. */
 @media (max-width:760px) {
@@ -11123,7 +11123,7 @@ body.farm-modal-open { overflow: hidden; }
   }
 }
 
-/* ===== V0.13.28 MOBILE ACHIEVEMENT HORIZONTAL SCROLL FIX =====
+/* ===== V0.13.29 MOBILE ACHIEVEMENT HORIZONTAL SCROLL FIX =====
    The achievement category chips are a nested horizontal scroller inside the
    vertically scrolling farm modal. Explicit axis ownership prevents iOS Safari
    from handing the gesture to the modal and rubber-banding back. */
@@ -11164,11 +11164,11 @@ body.farm-modal-open { overflow: hidden; }
   }
 }
 
-/* ===== V0.13.28 ACHIEVEMENT CATEGORY TAP POSITION =====
+/* ===== V0.13.29 ACHIEVEMENT CATEGORY TAP POSITION =====
    JS now preserves the horizontal category scroll position when a chip is tapped. */
 
 
-/* ===== V0.13.28 SECOND CROP ATLAS + STEAL ACTIVITY ===== */
+/* ===== V0.13.29 SECOND CROP ATLAS + STEAL ACTIVITY ===== */
 .farm-steal-activity-section { margin-top:16px; }
 .farm-steal-activity {
   position:relative;
@@ -11204,7 +11204,7 @@ body.farm-modal-open { overflow: hidden; }
   .farm-steal-new { position:absolute; top:8px; right:8px; }
 }
 
-/* ===== V0.13.28 LEVEL-UP / DAILY QUEST / NOTICE BADGES ===== */
+/* ===== V0.13.29 LEVEL-UP / DAILY QUEST / NOTICE BADGES ===== */
 .farm-side-actions .farm-nav-notice {
   position:absolute;
   right:7px;
@@ -11376,13 +11376,13 @@ body.farm-modal-open { overflow: hidden; }
 }
 .farm-plot.is-land-unlocking { z-index:120 !important; }
 
-/* V0.13.28 — farm care tools, item atlas, watering and fertilizer UI */
+/* V0.13.29 — farm care tools, item atlas, watering and fertilizer UI */
 .farm-item-sprite {
   display:inline-block;
   width:42px;
   height:42px;
   flex:0 0 auto;
-  background-image:url("../images/farm/farm-item-sheet-01.webp?v=0.13.28");
+  background-image:url("../images/farm/farm-item-sheet-01.webp?v=0.13.29");
   background-size:400% 400%;
   background-position:var(--item-x,0%) var(--item-y,0%);
   background-repeat:no-repeat;
@@ -11487,7 +11487,7 @@ body.farm-modal-open { overflow: hidden; }
   height:74px;
   margin:-37px 0 0 -37px;
   pointer-events:none;
-  background-image:url("../images/farm/farm-item-sheet-01.webp?v=0.13.28");
+  background-image:url("../images/farm/farm-item-sheet-01.webp?v=0.13.29");
   background-size:400% 400%;
   background-position:var(--item-x,0%) var(--item-y,0%);
   background-repeat:no-repeat;
@@ -11592,9 +11592,132 @@ body.farm-modal-open { overflow: hidden; }
   opacity:1;
 }
 
-/* V0.13.28 — cleaner care UI and seed-style fertilizer purchase layout */
+/* V0.13.29 — cleaner care UI and seed-style fertilizer purchase layout */
 .farm-care-status { display:none !important; }
 .farm-fertilizer-copy { min-width:0; }
 .farm-fertilizer-meta { grid-column:1 / -1; margin:0; }
 .farm-fertilizer-card .farm-shop-buy { grid-column:1 / -1; justify-content:flex-start; }
 .farm-fertilizer-card .farm-shop-buy button { min-width:58px; }
+
+/* ===== V0.13.29 FARM ACTIVITY CENTER ===== */
+.farm-friend-tabs {
+  display:flex;
+  gap:8px;
+  margin:12px 0 4px;
+  padding:4px;
+  border-radius:16px;
+  background:rgba(113,130,78,.08);
+  overflow-x:auto;
+  scrollbar-width:none;
+  -webkit-overflow-scrolling:touch;
+}
+.farm-friend-tabs::-webkit-scrollbar { display:none; }
+.farm-friend-tabs button {
+  position:relative;
+  flex:1 0 auto;
+  min-height:42px;
+  padding:9px 14px;
+  border:1px solid rgba(115,128,84,.14);
+  border-radius:13px;
+  background:rgba(255,255,255,.68);
+  color:#6d735c;
+  font:inherit;
+  font-size:.83rem;
+  font-weight:700;
+  cursor:pointer;
+}
+.farm-friend-tabs button.is-active {
+  color:#53613d;
+  border-color:rgba(108,127,69,.28);
+  background:linear-gradient(135deg,rgba(239,247,218,.95),rgba(255,251,233,.92));
+  box-shadow:0 4px 12px rgba(92,104,58,.09);
+}
+.farm-friend-tabs button small {
+  margin-left:4px;
+  color:#948b75;
+  font-size:.7rem;
+}
+.farm-friend-tab-badge {
+  position:absolute;
+  right:5px;
+  top:4px;
+  min-width:16px;
+  height:16px;
+  padding:0 4px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:999px;
+  background:#d95748;
+  color:#fff;
+  font-style:normal;
+  font-size:.55rem;
+  font-weight:800;
+  box-shadow:0 0 0 2px rgba(255,250,236,.95);
+}
+.farm-activity-section { margin-top:14px; }
+.farm-activity-row {
+  position:relative;
+  display:grid;
+  grid-template-columns:44px minmax(0,1fr) auto auto;
+  gap:10px;
+  align-items:center;
+  padding:11px 12px;
+  margin:8px 0;
+  border:1px solid rgba(117,131,83,.14);
+  border-radius:15px;
+  background:rgba(255,255,255,.58);
+  transition:transform .16s ease, border-color .16s ease, background .16s ease;
+}
+.farm-activity-row:hover { transform:translateY(-1px); }
+.farm-activity-row.is-unread {
+  border-color:rgba(176,126,39,.28);
+  background:linear-gradient(135deg,rgba(255,249,225,.94),rgba(245,250,232,.76));
+}
+.farm-activity-row.is-visit .farm-activity-icon { background:rgba(103,139,91,.12); }
+.farm-activity-row.is-steal .farm-activity-icon { background:rgba(184,138,54,.12); }
+.farm-activity-row.is-help_bug .farm-activity-icon { background:rgba(96,151,75,.13); }
+.farm-activity-icon {
+  width:44px;
+  height:44px;
+  display:grid;
+  place-items:center;
+  border-radius:13px;
+  background:rgba(115,134,77,.1);
+  font-size:1.24rem;
+}
+.farm-activity-copy {
+  min-width:0;
+  display:flex;
+  flex-direction:column;
+  gap:3px;
+}
+.farm-activity-copy b {
+  color:#566143;
+  font-size:.86rem;
+  line-height:1.35;
+  overflow-wrap:anywhere;
+}
+.farm-activity-copy small { color:#9a8f79; font-size:.72rem; }
+.farm-activity-new {
+  align-self:start;
+  padding:3px 6px;
+  border-radius:999px;
+  background:#d84f49;
+  color:#fff;
+  font-size:.58rem;
+  font-weight:800;
+  letter-spacing:.05em;
+}
+@media (max-width:760px) {
+  .farm-friend-tabs { margin-inline:-2px; padding:4px 2px; }
+  .farm-friend-tabs button { flex:0 0 auto; min-width:92px; }
+  .farm-activity-row {
+    grid-template-columns:38px minmax(0,1fr) auto;
+    gap:8px;
+    padding:10px;
+  }
+  .farm-activity-icon { width:38px; height:38px; }
+  .farm-activity-row .farm-friend-action { grid-column:2 / -1; justify-self:end; }
+  .farm-activity-new { position:absolute; top:8px; right:8px; }
+}
