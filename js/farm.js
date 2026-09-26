@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const FARM_BUILD = '0.13.33';
+  const FARM_BUILD = '0.14.0';
   const STORAGE_KEY = 'xingchen-farm-v1';
   const VERSION = 1;
   const PLOT_COUNT = 20;
@@ -50,6 +50,23 @@
     Object.freeze({id:'fertilizerLow', name:'低级肥料', price:12, factor:0.90, reduction:10, itemCell:5, statusCell:11, note:'缩短本轮作物约 10% 成长时间。'}),
     Object.freeze({id:'fertilizerMid', name:'中级肥料', price:28, factor:0.80, reduction:20, itemCell:6, statusCell:12, note:'缩短本轮作物约 20% 成长时间。'}),
     Object.freeze({id:'fertilizerHigh', name:'高级肥料', price:55, factor:0.70, reduction:30, itemCell:7, statusCell:13, note:'缩短本轮作物约 30% 成长时间。'})
+  ]);
+
+
+  // V0.14.0 — fixed-slot farm decoration system. Artwork reuses cells 7–16
+  // of the existing 4×4 farm-event atlas, so no extra image requests are needed.
+  const DECORATION_SLOT_COUNT = 8;
+  const DECORATIONS = Object.freeze([
+    Object.freeze({id:'hay', name:'稻草堆', eventCell:13, price:100, unlockLevel:3, scale:.86, note:'朴实温暖的小型稻草装饰。'}),
+    Object.freeze({id:'barrels', name:'木桶与木箱', eventCell:12, price:150, unlockLevel:5, scale:.88, note:'适合摆在农舍旁的经典农场杂物。'}),
+    Object.freeze({id:'flowerbed', name:'小花圃', eventCell:8, price:200, unlockLevel:5, scale:.90, note:'白花、黄花与粉色小花组成的温柔花圃。'}),
+    Object.freeze({id:'wheel', name:'木制车轮', eventCell:14, price:250, unlockLevel:5, scale:.82, note:'带藤叶与小花的复古木车轮。'}),
+    Object.freeze({id:'birdhouse', name:'木制鸟屋', eventCell:9, price:300, unlockLevel:8, scale:.86, note:'给农场增添一点生活气息的小鸟屋。'}),
+    Object.freeze({id:'bench', name:'木制长椅', eventCell:10, price:400, unlockLevel:8, scale:.92, note:'适合放在草地边休息的农场长椅。'}),
+    Object.freeze({id:'scarecrow', name:'稻草人', eventCell:7, price:500, unlockLevel:10, scale:.96, note:'经典农场守护者，远远就能看到。'}),
+    Object.freeze({id:'lamp', name:'农场路灯', eventCell:11, price:700, unlockLevel:12, scale:.88, note:'带暖黄色灯光的复古农场路灯。'}),
+    Object.freeze({id:'windmill', name:'小型风车', eventCell:15, price:1000, unlockLevel:15, scale:.96, note:'庭院里的小型景观风车。'}),
+    Object.freeze({id:'sign', name:'星辰农场木牌', eventCell:16, price:1500, unlockLevel:10, scale:1.02, note:'会自动显示农场主人名称与当前称号。'})
   ]);
 
   // V0.13.30 — two ROWEB-style 4×4 crop atlases. Each crop points to a
@@ -230,6 +247,8 @@
   let activeTaskTab = 'daily';
   let activeAchievementGroup = 'wealth';
   let activeFriendTab = 'activity';
+  let activeShopTab = 'seeds';
+  let decorationMode = false;
   let levelUpQueue = [];
   let levelUpPlaying = false;
   // Persist the horizontal achievement-category position across rerenders.
@@ -268,6 +287,24 @@
   function eventSpriteMarkup(cell, extraClass = '', label = '') {
     const pos = eventSpritePosition(cell);
     return `<span class="farm-event-sprite ${extraClass}" aria-hidden="true"${label ? ` title="${escapeHtml(label)}"` : ''} style="--event-x:${pos.x}%;--event-y:${pos.y}%"></span>`;
+  }
+
+
+  const decorationById = (id) => DECORATIONS.find(item => item.id === id) || null;
+  function placedDecorationCount(id, decorations = state?.decorations) {
+    return Array.isArray(decorations?.slots) ? decorations.slots.filter(slotId => slotId === id).length : 0;
+  }
+  function availableDecorationCount(id) {
+    const owned = Math.max(0, Number(state?.decorations?.owned?.[id]) || 0);
+    return Math.max(0, owned - placedDecorationCount(id));
+  }
+  function decorationSceneMarkup(item, {friendName='', titleId='newbie'} = {}) {
+    if (!item) return '';
+    const pos = eventSpritePosition(item.eventCell);
+    const signCopy = item.id === 'sign'
+      ? `<span class="farm-decor-sign-copy"><b>${escapeHtml(friendName || (window.XingchenPlayer?.getProfile?.()?.name || '我的'))}的农场</b><small>${titleById(titleId || state?.titles?.equipped || 'newbie').icon}【${escapeHtml(titleById(titleId || state?.titles?.equipped || 'newbie').name)}】</small></span>`
+      : '';
+    return `<span class="farm-decoration-art farm-event-sprite" aria-hidden="true" style="--event-x:${pos.x}%;--event-y:${pos.y}%;--decor-scale:${Number(item.scale) || 1}"></span>${signCopy}`;
   }
 
   function stableHash(value='') {
@@ -430,6 +467,7 @@
       seeds: { carrot:3, wheat:2 },
       produce: {},
       supplies: { fertilizerLow:0, fertilizerMid:0, fertilizerHigh:0 },
+      decorations: { owned:{}, slots:Array(DECORATION_SLOT_COUNT).fill(null) },
       stats: { visit:1, plant:0, harvest:0, sell:0, friend:0, blindBoxPlant:0, steals:0, maxCoins:INITIAL_COINS },
       claimedTasks: [],
       claimedAchievements: [],
@@ -467,6 +505,15 @@
     merged.produce = {...(raw?.produce || {})};
     merged.supplies = {...base.supplies, ...(raw?.supplies || {})};
     for (const fertilizer of FERTILIZERS) merged.supplies[fertilizer.id] = Math.max(0, Number(merged.supplies[fertilizer.id]) || 0);
+    const decorRaw = raw?.decorations && typeof raw.decorations === 'object' ? raw.decorations : {};
+    const decorOwned = {};
+    for (const item of DECORATIONS) decorOwned[item.id] = Math.max(0, Math.floor(Number(decorRaw?.owned?.[item.id]) || 0));
+    const validDecorIds = new Set(DECORATIONS.map(item => item.id));
+    const decorSlots = Array.from({length:DECORATION_SLOT_COUNT}, (_, index) => {
+      const id = Array.isArray(decorRaw?.slots) ? decorRaw.slots[index] : null;
+      return validDecorIds.has(id) ? id : null;
+    });
+    merged.decorations = {owned:decorOwned, slots:decorSlots};
     merged.stats = {...base.stats, ...(raw?.stats || {})};
     merged.claimedTasks = Array.isArray(raw?.claimedTasks) ? raw.claimedTasks : [];
     merged.claimedAchievements = Array.isArray(raw?.claimedAchievements) ? raw.claimedAchievements : [];
@@ -847,7 +894,7 @@
   function multiplayerMissing(error) {
     const text = String(error?.message || error || '');
     return error?.code === '42P01' || error?.code === 'PGRST202' ||
-      /get_farm_clock_v1|get_farm_day_v1|get_farm_rankings_v2|get_farm_friends_v2|get_friend_farm_v4|get_friend_farm_v3|get_friend_farm_v2|help_friend_bug_v1|get_farm_activity_v1|get_farm_activity_unread_v1|farm_activity|steal_friend_crop_v4|steal_friend_crop_v3|steal_friend_crop_v2|get_farm_steal_activity_v1|get_farm_rankings|get_farm_friends|get_friend_farm|steal_friend_crop|request_farm_friend|farm_friendships|farm_steals|schema cache|does not exist|could not find/i.test(text);
+      /get_farm_clock_v1|get_farm_day_v1|get_farm_rankings_v2|get_farm_friends_v2|get_friend_farm_v5|get_friend_farm_v4|get_friend_farm_v3|get_friend_farm_v2|help_friend_bug_v1|get_farm_activity_v1|get_farm_activity_unread_v1|farm_activity|steal_friend_crop_v4|steal_friend_crop_v3|steal_friend_crop_v2|get_farm_steal_activity_v1|get_farm_rankings|get_farm_friends|get_friend_farm|steal_friend_crop|request_farm_friend|farm_friendships|farm_steals|schema cache|does not exist|could not find/i.test(text);
   }
 
   function escapeHtml(value) {
@@ -1457,6 +1504,7 @@
       </section>
       <div class="farm-steal-rule">🥷 成熟作物每位好友每轮可偷 1 个；发现 🐛 虫害时，也可以帮好友免费除虫并有机会获得小奖励。</div>
       <div class="farm-visit-scene">
+        ${renderFriendDecorations(payload)}
         <div class="farm-visit-field">${tiles.join('')}</div>
       </div>
       <div class="farm-visit-actions"><button type="button" class="farm-friend-action" data-open-panel="friends">← 返回好友列表</button></div>`;
@@ -1474,7 +1522,10 @@
     });
 
     try {
-      const {data, error} = await sb.rpc('get_friend_farm_v4', {p_friend:friendId, p_log_visit:Boolean(logVisit)});
+      let {data, error} = await sb.rpc('get_friend_farm_v5', {p_friend:friendId, p_log_visit:Boolean(logVisit)});
+      if (error && /get_friend_farm_v5|PGRST202|function .* does not exist/i.test(String(error?.message || error))) {
+        ({data, error} = await sb.rpc('get_friend_farm_v4', {p_friend:friendId, p_log_visit:Boolean(logVisit)}));
+      }
       if (error) throw error;
       const payload = data && typeof data === 'object' ? data : {};
       if (!payload.ok) {
@@ -1858,6 +1909,7 @@
     renderOwner();
     renderStats();
     renderField();
+    renderDecorations();
     updateHarvestAllButton();
     updateWaterAllButton();
     updateDebugAllButton();
@@ -1952,6 +2004,119 @@
     }
 
     host.replaceChildren(fragment);
+  }
+
+
+  function renderDecorations() {
+    const host = $('farmDecorationLayer');
+    if (!host) return;
+    const slots = Array.isArray(state.decorations?.slots) ? state.decorations.slots : [];
+    const titleId = state.titles?.equipped || 'newbie';
+    const profile = window.XingchenPlayer?.getProfile?.();
+    const ownerName = profile?.name || '我的';
+    const parts = [];
+    for (let index = 0; index < DECORATION_SLOT_COUNT; index += 1) {
+      const decorId = slots[index] || null;
+      const item = decorationById(decorId);
+      if (!item && !decorationMode) continue;
+      parts.push(`<button type="button" class="farm-decoration-slot slot-${index + 1} ${item ? 'has-decoration' : 'is-empty'} ${decorationMode ? 'is-editing' : ''}" data-decor-slot="${index}" ${decorationMode ? '' : 'tabindex="-1" aria-hidden="true"'} aria-label="${item ? `装饰位置 ${index + 1}：${escapeHtml(item.name)}` : `空装饰位置 ${index + 1}`}">
+        ${item ? decorationSceneMarkup(item, {friendName:ownerName, titleId}) : '<span class="farm-decoration-plus">＋</span>'}
+      </button>`);
+    }
+    if (decorationMode) {
+      parts.push(`<div class="farm-decor-toolbar"><b>🏡 布置模式</b><span>点选发光位置来放置、替换或收回装饰</span><button type="button" data-decor-exit>完成</button></div>`);
+    }
+    host.innerHTML = parts.join('');
+    host.classList.toggle('is-editing', decorationMode);
+  }
+
+  function renderFriendDecorations(payload) {
+    const slots = Array.isArray(payload?.decorations?.slots) ? payload.decorations.slots : [];
+    const ownerName = String(payload?.display_name || '农友');
+    const titleId = payload?.title_id || 'newbie';
+    return `<div class="farm-decoration-layer farm-visit-decoration-layer">${slots.slice(0, DECORATION_SLOT_COUNT).map((decorId, index) => {
+      const item = decorationById(decorId);
+      if (!item) return '';
+      return `<span class="farm-decoration-slot slot-${index + 1} has-decoration">${decorationSceneMarkup(item, {friendName:ownerName, titleId})}</span>`;
+    }).join('')}</div>`;
+  }
+
+  function enterDecorationMode() {
+    if (!DECORATIONS.some(item => availableDecorationCount(item.id) > 0) && !state.decorations.slots.some(Boolean)) {
+      toast('🏡 还没有装饰品', '先到商店的「装饰」分页购买一件喜欢的装饰。');
+      activeShopTab = 'decor';
+      openPanel('shop');
+      return;
+    }
+    closeModal();
+    decorationMode = true;
+    renderDecorations();
+    toast('🏡 已进入布置模式', '点选农场周围发光的位置即可放置或调整装饰。');
+  }
+
+  function exitDecorationMode() {
+    decorationMode = false;
+    renderDecorations();
+  }
+
+  function openDecorationSlot(slotIndex) {
+    const index = Math.max(0, Math.min(DECORATION_SLOT_COUNT - 1, Number(slotIndex) || 0));
+    const currentId = state.decorations?.slots?.[index] || null;
+    const current = decorationById(currentId);
+    const choices = DECORATIONS.filter(item => state.level >= item.unlockLevel && (availableDecorationCount(item.id) > 0 || item.id === currentId));
+    const choiceMarkup = choices.length ? choices.map(item => {
+      const available = availableDecorationCount(item.id) + (item.id === currentId ? 1 : 0);
+      return `<button type="button" class="farm-decor-choice ${item.id === currentId ? 'is-current' : ''}" data-place-decor="${item.id}" data-decor-target-slot="${index}">
+        ${eventSpriteMarkup(item.eventCell, 'is-decor-choice-art', item.name)}
+        <span><b>${escapeHtml(item.name)}</b><small>${item.id === currentId ? '目前放在这个位置' : `可放置 ×${available}`}</small></span>
+        <em>${item.id === currentId ? '✓' : '放置'}</em>
+      </button>`;
+    }).join('') : '<p class="farm-empty-state">目前没有可放置的装饰。可以先到商店购买。</p>';
+    openModal({
+      icon:'🏡', eyebrow:`DECOR SLOT ${index + 1}`, title:current ? `调整「${current.name}」` : '选择装饰',
+      subtitle:'固定装饰位置能让电脑与手机版都维持稳定构图。',
+      body:`<div class="farm-decor-choice-list">${choiceMarkup}</div><div class="farm-decor-slot-actions">${current ? `<button type="button" data-remove-decor="${index}">收回背包</button>` : ''}<button type="button" data-open-panel="shop" data-open-decor-shop>前往装饰商店</button></div>`
+    });
+  }
+
+  async function buyDecoration(id) {
+    const item = decorationById(id);
+    if (!item || state.level < item.unlockLevel) return;
+    if (state.coins < item.price) {
+      toast('🪙 金币不够', `购买 ${item.name} 需要 ${item.price} 金币。`);
+      return;
+    }
+    state.coins -= item.price;
+    state.decorations.owned[item.id] = (state.decorations.owned[item.id] || 0) + 1;
+    state.history.push({type:'buy-decor', decorId:item.id, coins:item.price, at:Date.now()});
+    saveState(); renderAll();
+    toast('🏡 装饰已购买', `${item.name} 已放进装饰背包。`);
+  }
+
+  async function placeDecoration(slotIndex, decorId) {
+    const index = Math.max(0, Math.min(DECORATION_SLOT_COUNT - 1, Number(slotIndex) || 0));
+    const item = decorationById(decorId);
+    if (!item || state.level < item.unlockLevel) return;
+    const currentId = state.decorations.slots[index] || null;
+    if (currentId !== item.id && availableDecorationCount(item.id) <= 0) {
+      toast('🏡 没有可用的这件装饰', '先从其他位置收回，或到商店再购买一件。');
+      return;
+    }
+    state.decorations.slots[index] = item.id;
+    state.history.push({type:'place-decor', decorId:item.id, slot:index, at:Date.now()});
+    saveState(); renderAll(); closeModal();
+    toast('🏡 布置完成', `${item.name} 已放到装饰位置 ${index + 1}。`);
+  }
+
+  async function removeDecoration(slotIndex) {
+    const index = Math.max(0, Math.min(DECORATION_SLOT_COUNT - 1, Number(slotIndex) || 0));
+    const currentId = state.decorations.slots[index] || null;
+    const item = decorationById(currentId);
+    if (!item) return;
+    state.decorations.slots[index] = null;
+    state.history.push({type:'remove-decor', decorId:item.id, slot:index, at:Date.now()});
+    saveState(); renderAll(); closeModal();
+    toast('🎒 已收回装饰', `${item.name} 回到装饰背包，可以放到其他位置。`);
   }
 
   function onPlotClick(index) {
@@ -2634,14 +2799,15 @@
   function openPanel(panel) {
     activePanel = panel;
     const meta = {
-      shop:{icon:'🛒', eyebrow:'FARM SHOP', title:'农场商店', subtitle:'购买种子、蔬果盲盒与三级肥料，让农场经营更顺手。'},
-      bag:{icon:'🎒', eyebrow:'INVENTORY', title:'我的背包', subtitle:'管理种子、肥料与收成蔬果；成熟作物可以在这里出售换取金币。'},
+      shop:{icon:'🛒', eyebrow:'FARM SHOP', title:'农场商店', subtitle:'购买种子、农资与装饰品，让农场越来越有自己的样子。'},
+      bag:{icon:'🎒', eyebrow:'INVENTORY', title:'我的背包', subtitle:'管理种子、肥料、装饰与收成蔬果；也可以从这里进入农场布置模式。'},
       tasks:{icon:'📜', eyebrow:'FARM QUEST', title:'任务与成就', subtitle:'完成每日农务、新手任务与长期成就，领取奖励并解锁专属称号。'},
       ranking:{icon:'🏆', eyebrow:'RANKING', title:'农场排行榜', subtitle:'查看真实云端玩家的等级榜与金币榜，也可以直接发送好友申请。'},
       friends:{icon:'👥', eyebrow:'FRIENDS', title:'农场好友', subtitle:'查看农场动态、好友申请与好友列表；有人拜访或偷菜时都会留下记录。'}
     }[panel];
     if (!meta) return;
     if (panel === 'friends') activeFriendTab = 'activity';
+    if (panel === 'shop' && !['seeds','care','decor'].includes(activeShopTab)) activeShopTab = 'seeds';
     openModal({...meta, body:''});
     renderActivePanel();
     if (panel === 'tasks') syncFarmDay(true).then(() => renderActivePanel()).catch(() => {});
@@ -2673,25 +2839,53 @@
     if (!body || !activePanel || $('farmModal').hidden) return;
 
     if (activePanel === 'shop') {
-      const seedShop = `<div class="farm-shop-grid">${seedItems().map(crop => {
-        const locked = state.level < crop.unlockLevel;
-        return `<article class="farm-shop-item ${locked ? 'is-locked' : ''}">
-          <div class="farm-shop-crop"><span class="farm-shop-crop-icon">${seedIconMarkup(crop)}</span><div><b>${crop.isMystery ? crop.name : `${crop.name}种子`}</b><small>${crop.isMystery ? '固定 4 小时 · 随机蔬果 ×1' : `${crop.growMinutes} 分钟成熟 · 产量 ${crop.yieldMin}～${crop.yieldMax}`}</small></div></div>
-          <p>${crop.note}</p>
-          <div class="farm-shop-meta"><span>🪙 ${crop.seedPrice} / ${crop.isMystery ? '个' : '包'}</span>${crop.isMystery ? '<span>随机 8 种蔬果</span>' : `<span>出售 ${crop.sellPrice} / 个</span>`}<span>EXP +${crop.exp}</span></div>
-          ${locked
-            ? `<button disabled>🔒 Lv.${crop.unlockLevel} 解锁</button>`
-            : `<div class="farm-shop-buy"><button type="button" data-buy-seed="${crop.id}" data-qty="1">买 1</button><button type="button" data-buy-seed="${crop.id}" data-qty="5">买 5</button><em>背包 ×${state.seeds[crop.id] || 0}</em></div>`}
+      const shopTabs = `<div class="farm-shop-tabs">
+        <button type="button" data-shop-tab="seeds" class="${activeShopTab === 'seeds' ? 'is-active' : ''}">🌱 种子</button>
+        <button type="button" data-shop-tab="care" class="${activeShopTab === 'care' ? 'is-active' : ''}">🌿 农资</button>
+        <button type="button" data-shop-tab="decor" class="${activeShopTab === 'decor' ? 'is-active' : ''}">🏡 装饰</button>
+      </div>`;
+      if (activeShopTab === 'seeds') {
+        const seedShop = `<div class="farm-shop-grid">${seedItems().map(crop => {
+          const locked = state.level < crop.unlockLevel;
+          return `<article class="farm-shop-item ${locked ? 'is-locked' : ''}">
+            <div class="farm-shop-crop"><span class="farm-shop-crop-icon">${seedIconMarkup(crop)}</span><div><b>${crop.isMystery ? crop.name : `${crop.name}种子`}</b><small>${crop.isMystery ? '固定 4 小时 · 随机蔬果 ×1' : `${crop.growMinutes} 分钟成熟 · 产量 ${crop.yieldMin}～${crop.yieldMax}`}</small></div></div>
+            <p>${crop.note}</p>
+            <div class="farm-shop-meta"><span>🪙 ${crop.seedPrice} / ${crop.isMystery ? '个' : '包'}</span>${crop.isMystery ? '<span>随机 8 种蔬果</span>' : `<span>出售 ${crop.sellPrice} / 个</span>`}<span>EXP +${crop.exp}</span></div>
+            ${locked ? `<button disabled>🔒 Lv.${crop.unlockLevel} 解锁</button>` : `<div class="farm-shop-buy"><button type="button" data-buy-seed="${crop.id}" data-qty="1">买 1</button><button type="button" data-buy-seed="${crop.id}" data-qty="5">买 5</button><em>背包 ×${state.seeds[crop.id] || 0}</em></div>`}
+          </article>`;
+        }).join('')}</div>`;
+        body.innerHTML = shopTabs + seedShop;
+        return;
+      }
+      if (activeShopTab === 'care') {
+        body.innerHTML = shopTabs + `<section class="farm-shop-care is-tab-body"><header><div><b>🌿 农田照料</b><small>每株每轮最多使用一包肥料；浇水免费。</small></div>${itemSpriteMarkup(2, 'is-shop-header-item')}</header><div class="farm-fertilizer-grid">${FERTILIZERS.map(item => `<article class="farm-fertilizer-card">${itemSpriteMarkup(item.itemCell, 'is-fertilizer-art')}<div class="farm-fertilizer-copy"><b>${item.name}</b><p>${item.note}</p></div><div class="farm-shop-meta farm-fertilizer-meta"><span>🪙 ${item.price} / 包</span><span>背包 ×${state.supplies[item.id] || 0}</span></div><div class="farm-shop-buy"><button type="button" data-buy-supply="${item.id}" data-qty="1">买 1</button><button type="button" data-buy-supply="${item.id}" data-qty="5">买 5</button></div></article>`).join('')}</div></section>`;
+        return;
+      }
+      const decorCards = DECORATIONS.map(item => {
+        const locked = state.level < item.unlockLevel;
+        const owned = Number(state.decorations?.owned?.[item.id]) || 0;
+        const placed = placedDecorationCount(item.id);
+        return `<article class="farm-decor-shop-card ${locked ? 'is-locked' : ''}">
+          ${eventSpriteMarkup(item.eventCell, 'is-decor-shop-art', item.name)}
+          <div class="farm-decor-shop-copy"><b>${escapeHtml(item.name)}</b><p>${escapeHtml(item.note)}</p></div>
+          <div class="farm-shop-meta"><span>🪙 ${formatNumber(item.price)} / 个</span><span>拥有 ${owned}</span><span>已摆 ${placed}</span></div>
+          ${locked ? `<button type="button" disabled>🔒 Lv.${item.unlockLevel} 解锁</button>` : `<button type="button" data-buy-decor="${item.id}">购买</button>`}
         </article>`;
-      }).join('')}</div>`;
-      const careShop = `<section class="farm-shop-care"><header><div><b>🌿 农田照料</b><small>每株每轮最多使用一包肥料；浇水免费。</small></div>${itemSpriteMarkup(2, 'is-shop-header-item')}</header><div class="farm-fertilizer-grid">${FERTILIZERS.map(item => `<article class="farm-fertilizer-card">${itemSpriteMarkup(item.itemCell, 'is-fertilizer-art')}<div class="farm-fertilizer-copy"><b>${item.name}</b><p>${item.note}</p></div><div class="farm-shop-meta farm-fertilizer-meta"><span>🪙 ${item.price} / 包</span><span>背包 ×${state.supplies[item.id] || 0}</span></div><div class="farm-shop-buy"><button type="button" data-buy-supply="${item.id}" data-qty="1">买 1</button><button type="button" data-buy-supply="${item.id}" data-qty="5">买 5</button></div></article>`).join('')}</div></section>`;
-      body.innerHTML = seedShop + careShop;
+      }).join('');
+      body.innerHTML = `${shopTabs}<section class="farm-decor-shop-head"><div><b>🏡 农场装饰</b><small>买下后永久拥有；可在 8 个固定位置自由更换与收回。</small></div><button type="button" data-decor-enter>布置农场</button></section><div class="farm-decor-shop-grid">${decorCards}</div>`;
       return;
     }
 
     if (activePanel === 'bag') {
       const seedItemsInBag = seedItems().filter(c => (state.seeds[c.id] || 0) > 0);
       const produceItems = CROPS.filter(c => (state.produce[c.id] || 0) > 0);
+      const decorOwnedTotal = DECORATIONS.reduce((sum,item)=>sum+(state.decorations?.owned?.[item.id]||0),0);
+      const decorRows = DECORATIONS.filter(item => (state.decorations?.owned?.[item.id] || 0) > 0).map(item => {
+        const owned = Number(state.decorations.owned[item.id]) || 0;
+        const placed = placedDecorationCount(item.id);
+        const available = Math.max(0, owned - placed);
+        return `<div class="farm-bag-row farm-decor-bag-row">${eventSpriteMarkup(item.eventCell, 'is-bag-decor', item.name)}<div><b>${escapeHtml(item.name)}</b><small>${escapeHtml(item.note)} · 可用 ${available} / ${owned}</small></div><em>×${owned}</em></div>`;
+      }).join('');
       body.innerHTML = `
         <section class="farm-bag-section">
           <header><b>🌱 种子</b><span>${seedItemsInBag.reduce((s,c)=>s+(state.seeds[c.id]||0),0)} 包</span></header>
@@ -2712,6 +2906,11 @@
         <section class="farm-bag-section">
           <header><b>🌿 肥料</b><span>${FERTILIZERS.reduce((sum,item)=>sum+(state.supplies[item.id]||0),0)} 包</span></header>
           <div class="farm-bag-list">${FERTILIZERS.map(item => `<div class="farm-bag-row farm-supply-row">${itemSpriteMarkup(item.itemCell, 'is-bag-item')}<div><b>${item.name}</b><small>${item.note} · 点正在成长的农田即可使用</small></div><em>×${state.supplies[item.id] || 0}</em></div>`).join('')}</div>
+        </section>
+        <section class="farm-bag-section farm-decor-bag-section">
+          <header><b>🏡 装饰</b><span>${decorOwnedTotal} 件</span></header>
+          <div class="farm-decor-bag-toolbar"><span>已购买的装饰不会消耗，摆放或收回都不收费。</span><button type="button" data-decor-enter>布置农场</button></div>
+          <div class="farm-bag-list">${decorRows || '<p class="farm-empty-state">还没有装饰品。到商店的「装饰」分页挑一件喜欢的吧。</p>'}</div>
         </section>`;
       return;
     }
@@ -3121,6 +3320,28 @@
       return;
     }
 
+    const shopTab = event.target.closest('[data-shop-tab]');
+    if (shopTab) {
+      activeShopTab = ['seeds','care','decor'].includes(shopTab.dataset.shopTab) ? shopTab.dataset.shopTab : 'seeds';
+      renderActivePanel();
+      return;
+    }
+
+    if (event.target.closest('[data-decor-enter]')) { enterDecorationMode(); return; }
+    if (event.target.closest('[data-decor-exit]')) { exitDecorationMode(); return; }
+
+    const decorSlot = event.target.closest('[data-decor-slot]');
+    if (decorSlot && decorationMode) { openDecorationSlot(Number(decorSlot.dataset.decorSlot)); return; }
+
+    const buyDecor = event.target.closest('[data-buy-decor]');
+    if (buyDecor) { buyDecoration(buyDecor.dataset.buyDecor); return; }
+
+    const placeDecor = event.target.closest('[data-place-decor][data-decor-target-slot]');
+    if (placeDecor) { placeDecoration(Number(placeDecor.dataset.decorTargetSlot), placeDecor.dataset.placeDecor); return; }
+
+    const removeDecor = event.target.closest('[data-remove-decor]');
+    if (removeDecor) { removeDecoration(Number(removeDecor.dataset.removeDecor)); return; }
+
     const rankingTab = event.target.closest('[data-ranking-tab]');
     if (rankingTab) {
       const next = rankingTab.dataset.rankingTab === 'coins' ? 'coins' : 'level';
@@ -3259,6 +3480,7 @@
 
     const open = event.target.closest('[data-open-panel]');
     if (open) {
+      if (open.hasAttribute('data-open-decor-shop')) activeShopTab = 'decor';
       openPanel(open.dataset.openPanel);
     }
   }
