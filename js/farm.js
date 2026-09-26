@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const FARM_BUILD = '0.13.30';
+  const FARM_BUILD = '0.13.31';
   const STORAGE_KEY = 'xingchen-farm-v1';
   const VERSION = 1;
   const PLOT_COUNT = 20;
@@ -1730,8 +1730,14 @@
       merchant.hidden = !event.merchant;
       merchant.setAttribute('aria-label', event.merchant ? '种子商人来访，点击查看今日折扣' : '');
     }
-    document.querySelector('.farm-scene')?.classList.toggle('is-rainy', event.id === 'rainy');
-    document.querySelector('.farm-scene')?.classList.toggle('is-storm', event.id === 'storm');
+    const scene = document.querySelector('.farm-scene');
+    if (scene) {
+      scene.classList.toggle('is-sunny', event.id === 'sunny');
+      scene.classList.toggle('is-harvest', event.id === 'harvest');
+      scene.classList.toggle('is-rainy', event.id === 'rainy');
+      scene.classList.toggle('is-storm', event.id === 'storm');
+      scene.dataset.weather = ['sunny','harvest','rainy','storm'].includes(event.id) ? event.id : 'none';
+    }
   }
 
   function openMerchantShop() {
