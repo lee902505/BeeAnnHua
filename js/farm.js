@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const FARM_BUILD = '0.14.1';
+  const FARM_BUILD = '0.14.2';
   const STORAGE_KEY = 'xingchen-farm-v1';
   const VERSION = 1;
   const PLOT_COUNT = 20;
@@ -70,11 +70,16 @@
   ]);
 
 
-  // V0.14.1 — lightweight NPC farmers. NPC farms are lazily simulated from
+  // V0.14.2 — lightweight NPC farmers. NPC farms are lazily simulated from
   // the current clock, so they do not need background browser sessions, cron
   // jobs, or per-NPC Supabase polling. NPCs never enter the real leaderboard.
   const NPC_HELP_CHECK_MS = 45 * 60 * 1000;
   const NPC_ACTIVITY_LIMIT = 30;
+  // NPC thefts stay inside the player's existing farm save. No extra polling or
+  // server-side NPC jobs are needed. A deterministic crop cycle id + a short
+  // capped history prevents F5 / revisit from creating unlimited produce.
+  const NPC_STEAL_RECORD_LIMIT = 160;
+  const NPC_STEAL_CAP_PER_WINDOW = 2;
   const NPC_FARMERS = Object.freeze([
     Object.freeze({id:'npc_xiaohe', name:'小禾', sex:'female', icon:'🌾', level:8,  coins:680,  titleId:'farmer',          trait:'麦田守望者', note:'喜欢小麦和玉米，看到虫害时常会顺手帮忙。', favorites:['wheat','corn'], helpRate:.62}),
     Object.freeze({id:'npc_meimei', name:'莓莓', sex:'female', icon:'🍓', level:10, coins:1280, titleId:'skilled_farmer', trait:'甜果农友',   note:'偏爱草莓和番茄，农田总是整理得很可爱。', favorites:['strawberry','tomato'], helpRate:.48}),
@@ -335,6 +340,37 @@
   const npcFriendIds = () => Array.isArray(state?.npcSocial?.friends) ? state.npcSocial.friends : [];
   const isNpcFriend = (id) => npcFriendIds().includes(id);
   const npcUnreadCount = () => (state?.npcSocial?.activities || []).filter(item => !item.seen).length;
+  const npcStealRecords = () => Array.isArray(state?.npcSocial?.steals) ? state.npcSocial.steals : [];
+
+  function npcCropCycleId(npcId, plotId, cropId, plantedAt) {
+    const minuteStamp = Math.floor((Number(plantedAt) || 0) / 60000);
+    return `${npcId}:${Number(plotId)}:${cropId}:${minuteStamp}`;
+  }
+
+  function npcStealRecordKey(npcId, plotId, cycleId) {
+    return `${npcId}:${Number(plotId)}:${cycleId}`;
+  }
+
+  function npcStealWindowKey(date = new Date()) {
+    return localFarmEventSlot(date).key;
+  }
+
+  function hasNpcStolenCycle(npcId, plotId, cycleId) {
+    const key = npcStealRecordKey(npcId, plotId, cycleId);
+    return npcStealRecords().some(item => item.key === key);
+  }
+
+  function npcStealsInWindow(npcId, windowKey = npcStealWindowKey()) {
+    return npcStealRecords().filter(item => item.npcId === npcId && item.windowKey === windowKey).length;
+  }
+
+  function pruneNpcStealRecords(records = npcStealRecords()) {
+    const cutoff = Date.now() - (8 * 24 * 60 * 60 * 1000);
+    return records
+      .filter(item => Number(item.at) >= cutoff)
+      .sort((a,b) => Number(b.at) - Number(a.at))
+      .slice(0, NPC_STEAL_RECORD_LIMIT);
+  }
 
   function npcActivityRows() {
     return (state?.npcSocial?.activities || []).map(item => {
@@ -385,7 +421,7 @@
     saveState();
     toast(
       shouldFriend ? `🌿 已和 ${npc.name} 成为农友` : `👋 已将 ${npc.name} 移出农友`,
-      shouldFriend ? 'NPC 农友不会参加排行榜，也不会偷你的菜。' : '之后仍可在 NPC 农友推荐里重新加入。'
+      shouldFriend ? 'NPC 农友不会参加排行榜，也不会偷你的菜；成熟作物可以限量偷取。' : '之后仍可在 NPC 农友推荐里重新加入。'
     );
     renderFriendDot();
     if (activePanel === 'friends') renderActivePanel();
@@ -430,15 +466,18 @@
       }
 
       const plantedAt = now - (phase - idleMs);
+      const cycleId = npcCropCycleId(npc.id, index, crop.id, plantedAt);
+      const stolenByMe = hasNpcStolenCycle(npc.id, index, cycleId);
       const yieldRange = Math.max(1, crop.yieldMax - crop.yieldMin + 1);
       const harvestYield = crop.yieldMin + (stableHash(`${npc.id}:yield:${index}:${cycleIndex}`) % yieldRange);
       plots.push({
         id:index,
         cropId:crop.id,
         plantedAt,
+        cycleId,
         harvestYield,
-        stolenCount:0,
-        stolenByMe:false,
+        stolenCount:stolenByMe ? 1 : 0,
+        stolenByMe,
         watered:(stableHash(`${npc.id}:water:${index}:${cycleIndex}`) % 100) < 55,
         fertilizerId:null,
         hasPest:false,
@@ -526,9 +565,107 @@
       icon:npc.icon || '🌿',
       eyebrow:'NPC FARM VISIT',
       title:`${npc.name}的农场`,
-      subtitle:`${npc.trait} · NPC 农友会自己种菜、收菜，也可能来帮你除虫。`,
+      subtitle:`${npc.trait} · NPC 会自己经营农场；成熟作物每个周期可限量偷取，也可能来帮你除虫。`,
       body:renderFriendFarmVisit(payload, {npc:true})
     });
+  }
+
+  function applyNpcStealMutation(op, {silent=false} = {}) {
+    const npc = npcById(op?.npcId);
+    const crop = cropById(op?.cropId);
+    const plotId = Number(op?.plotId);
+    const cycleId = String(op?.cycleId || '');
+    if (!npc || !crop || !Number.isInteger(plotId) || plotId < 0 || plotId >= PLOT_COUNT || !cycleId) return false;
+
+    if (!state.npcSocial || typeof state.npcSocial !== 'object') state.npcSocial = {friends:[], activities:[], steals:[], lastHelpCheckAt:0};
+    if (!Array.isArray(state.npcSocial.steals)) state.npcSocial.steals = [];
+
+    const recordKey = String(op.recordKey || npcStealRecordKey(npc.id, plotId, cycleId));
+    if (state.npcSocial.steals.some(item => item.key === recordKey)) return false;
+
+    const record = {
+      key:recordKey,
+      npcId:npc.id,
+      plotId,
+      cycleId,
+      cropId:crop.id,
+      windowKey:String(op.windowKey || npcStealWindowKey()),
+      at:Math.max(0, Number(op.at) || Date.now())
+    };
+    state.npcSocial.steals = pruneNpcStealRecords([record, ...state.npcSocial.steals]);
+    state.produce[crop.id] = Math.max(0, Number(state.produce[crop.id]) || 0) + 1;
+    state.stats.steals = Math.max(0, Number(state.stats.steals) || 0) + 1;
+    if (!op.day || op.day === farmDay) bumpDaily('steal', 1);
+    state.history.push({type:'npc-steal', npcId:npc.id, plotId, cropId:crop.id, cycleId, at:record.at});
+    state.history = state.history.slice(-30);
+    if (!silent) renderTaskDot();
+    return true;
+  }
+
+  async function stealNpcCrop(npcId, plotId, cycleId) {
+    const npc = npcById(npcId);
+    const safePlotId = Number(plotId);
+    if (!npc || !isNpcFriend(npc.id) || !Number.isInteger(safePlotId)) {
+      toast('🥷 无法偷菜', '只有已经加入的 NPC 农友才能拜访并偷取成熟作物。');
+      return;
+    }
+
+    const payload = buildNpcFarmPayload(npc.id);
+    const plot = payload?.plots?.[safePlotId];
+    const crop = cropById(plot?.cropId);
+    const currentCycleId = String(plot?.cycleId || '');
+    if (!plot || !crop || !currentCycleId || currentCycleId !== String(cycleId || '')) {
+      toast('🌱 这轮作物已经变化', 'NPC 可能刚刚收成并重新播种，已帮你刷新农场。');
+      visitNpcFarm(npc.id);
+      return;
+    }
+
+    const progress = progressFor(plot, crop);
+    const total = crop.isMystery ? 1 : Math.max(crop.yieldMin, Math.min(crop.yieldMax, Number(plot.harvestYield) || crop.yieldMin));
+    if (progress < 1) {
+      toast('⏳ 还没成熟', '等这格作物成熟后再来看看。');
+      visitNpcFarm(npc.id);
+      return;
+    }
+    if (crop.isMystery || total <= 1) {
+      toast('🌱 这格不能再偷了', 'NPC 农友也会至少保留 1 个作物。');
+      return;
+    }
+    if (hasNpcStolenCycle(npc.id, safePlotId, currentCycleId)) {
+      toast('🥷 这一轮已经偷过了', '等 NPC 收成并种下下一轮作物后再来看看。');
+      visitNpcFarm(npc.id);
+      return;
+    }
+
+    const windowKey = npcStealWindowKey();
+    const used = npcStealsInWindow(npc.id, windowKey);
+    if (used >= NPC_STEAL_CAP_PER_WINDOW) {
+      toast('🥷 本时段已经偷满了', `每位 NPC 每 4 小时最多偷 ${NPC_STEAL_CAP_PER_WINDOW} 格，下一时段再来看看。`);
+      return;
+    }
+
+    const recordKey = npcStealRecordKey(npc.id, safePlotId, currentCycleId);
+    const op = {
+      type:'npc-steal',
+      npcId:npc.id,
+      plotId:safePlotId,
+      cycleId:currentCycleId,
+      cropId:crop.id,
+      windowKey,
+      recordKey,
+      day:farmDay,
+      at:Date.now()
+    };
+    if (!applyNpcStealMutation(op)) {
+      toast('🥷 这一轮已经偷过了', '等 NPC 重新种下一轮作物后再来看看。');
+      return;
+    }
+    if (mutationUserId()) queuePendingOp(op);
+    saveState();
+    renderAll();
+    toast(`🥷 偷到 ${crop.icon}${crop.name} ×1`, `${npc.name} NPC 这格仍至少保留 1 个；本时段已偷 ${Math.min(NPC_STEAL_CAP_PER_WINDOW, used + 1)}/${NPC_STEAL_CAP_PER_WINDOW} 格。`, 'harvest');
+    await new Promise(resolve => setTimeout(resolve, 220));
+    visitNpcFarm(npc.id);
   }
 
   function currentFarmEvent(slotKey = farmEventSlotKey || localFarmEventSlot().key) {
@@ -686,7 +823,7 @@
       produce: {},
       supplies: { fertilizerLow:0, fertilizerMid:0, fertilizerHigh:0 },
       decorations: { owned:{}, slots:Array(DECORATION_SLOT_COUNT).fill(null) },
-      npcSocial: { friends:[], activities:[], lastHelpCheckAt:0 },
+      npcSocial: { friends:[], activities:[], steals:[], lastHelpCheckAt:0 },
       stats: { visit:1, plant:0, harvest:0, sell:0, friend:0, blindBoxPlant:0, steals:0, maxCoins:INITIAL_COINS },
       claimedTasks: [],
       claimedAchievements: [],
@@ -751,9 +888,21 @@
       }))
       .sort((a,b) => b.at - a.at)
       .slice(0, NPC_ACTIVITY_LIMIT) : [];
+    const npcSteals = Array.isArray(npcRaw.steals) ? npcRaw.steals
+      .filter(item => item && validNpcIds.has(item.npcId) && Number.isInteger(Number(item.plotId)) && item.cycleId)
+      .map(item => ({
+        key:String(item.key || npcStealRecordKey(item.npcId, Number(item.plotId), String(item.cycleId))),
+        npcId:String(item.npcId),
+        plotId:Number(item.plotId),
+        cycleId:String(item.cycleId),
+        cropId:cropById(item.cropId) ? item.cropId : '',
+        windowKey:typeof item.windowKey === 'string' ? item.windowKey : '',
+        at:Math.max(0, Number(item.at) || 0)
+      })) : [];
     merged.npcSocial = {
       friends:npcFriends,
       activities:npcActivities,
+      steals:pruneNpcStealRecords(npcSteals),
       lastHelpCheckAt:Math.max(0, Number(npcRaw.lastHelpCheckAt) || 0)
     };
 
@@ -962,6 +1111,10 @@
       if (targetState?.daily?.date && targetState.daily.date !== op.day) return true;
       return targetState?.daily?.date === op.day && Boolean(targetState.daily.bonusClaimed);
     }
+    if (op.type === 'npc-steal') {
+      const records = Array.isArray(targetState?.npcSocial?.steals) ? targetState.npcSocial.steals : [];
+      return records.some(item => item?.key === op.recordKey);
+    }
     if (op.type === 'equip-title') return targetState?.titles?.equipped === op.titleId;
     if (op.type === 'plant') return plantMutationApplied(targetState, op);
     if (op.type === 'water') {
@@ -1013,6 +1166,11 @@
 
       if (op.type === 'claim-daily-bonus') {
         if (op.day === farmDay && applyDailyBonusReward(op.day, {silent:true})) changed = true;
+        continue;
+      }
+
+      if (op.type === 'npc-steal') {
+        if (applyNpcStealMutation(op, {silent:true})) changed = true;
         continue;
       }
 
@@ -1669,6 +1827,7 @@
         id:index,
         cropId:cropById(raw?.cropId) ? raw.cropId : null,
         plantedAt:Number(raw?.plantedAt) || null,
+        cycleId:typeof raw?.cycleId === 'string' ? raw.cycleId : '',
         resultCropId:CROPS.some(c => c.id === raw?.resultCropId) ? raw.resultCropId : null,
         harvestYield:Number(raw?.harvestYield) || null,
         stolenCount:Math.max(0, Number(raw?.stolenCount) || 0),
@@ -1717,7 +1876,20 @@
             const total = crop.isMystery ? 1 : Math.max(crop.yieldMin, Math.min(crop.yieldMax, Number(plot.harvestYield) || crop.yieldMin));
             const remain = Math.max(1, total - plot.stolenCount);
             if (npc) {
-              stealTag = '<span class="farm-steal-tag is-protected">NPC 农田</span>';
+              const cycleId = plot.cycleId || npcCropCycleId(friendId, index, crop.id, plot.plantedAt);
+              const used = npcStealsInWindow(friendId);
+              if (crop.isMystery || remain <= 1) {
+                stealTag = '<span class="farm-steal-tag is-protected">保底 1</span>';
+              } else if (plot.stolenByMe || hasNpcStolenCycle(friendId, index, cycleId)) {
+                stealTag = '<span class="farm-steal-tag is-done">已偷过</span>';
+              } else if (used >= NPC_STEAL_CAP_PER_WINDOW) {
+                stealTag = '<span class="farm-steal-tag is-protected">本时段已达上限</span>';
+              } else {
+                cls += ' can-steal';
+                stealableCount += 1;
+                attrs = ` data-steal-npc="${escapeHtml(friendId)}" data-steal-plot="${index}" data-steal-cycle="${escapeHtml(cycleId)}" aria-label="偷取 ${escapeHtml(shown.name)}"`;
+                stealTag = '<span class="farm-steal-tag">偷菜 ×1</span>';
+              }
             } else if (crop.isMystery || remain <= 1) {
               stealTag = '<span class="farm-steal-tag is-protected">保底 1</span>';
             } else if (plot.stolenByMe) {
@@ -1745,9 +1917,9 @@
       <section class="farm-visit-summary ${npc ? 'is-npc-farm' : ''}">
         <div><b>${name}${sex ? ` <i>${sex}</i>` : ''}${npc ? ' <span class="farm-npc-badge">NPC</span>' : ''}</b><small>Lv.${formatNumber(friendLevel)} · <span class="farm-public-title">${friendTitle.icon}【${escapeHtml(friendTitle.name)}】</span></small></div>
         <span>${coinInline(payload?.coins || 0, {label:true})}</span>
-        <em>成熟 ${matureCount} 格 · ${npc ? '自动经营中' : `可偷 ${stealableCount} 格 · 虫害 ${pestCount} 格`}</em>
+        <em>成熟 ${matureCount} 格 · ${npc ? `可偷 ${stealableCount} 格 · 本时段已偷 ${npcStealsInWindow(friendId)}/${NPC_STEAL_CAP_PER_WINDOW}` : `可偷 ${stealableCount} 格 · 虫害 ${pestCount} 格`}</em>
       </section>
-      <div class="farm-steal-rule">${npc ? '🌿 NPC 农友使用轻量模拟经营，不参加排行榜，也不会偷你的菜；NPC 农田不提供可重复偷取的资源。' : '🥷 成熟作物每位好友每轮可偷 1 个；发现 🐛 虫害时，也可以帮好友免费除虫并有机会获得小奖励。'}</div>
+      <div class="farm-steal-rule">${npc ? '🥷 NPC 农友不参加排行榜、也不会偷你的菜；成熟作物每个生长周期只能偷 1 次，每位 NPC 每 4 小时最多偷 2 格，地主仍保底 1 个。' : '🥷 成熟作物每位好友每轮可偷 1 个；发现 🐛 虫害时，也可以帮好友免费除虫并有机会获得小奖励。'}</div>
       <div class="farm-visit-scene">
         ${renderFriendDecorations(payload)}
         <div class="farm-visit-field">${tiles.join('')}</div>
@@ -3048,7 +3220,7 @@
       bag:{icon:'🎒', eyebrow:'INVENTORY', title:'我的背包', subtitle:'管理种子、肥料、装饰与收成蔬果；也可以从这里进入农场布置模式。'},
       tasks:{icon:'📜', eyebrow:'FARM QUEST', title:'任务与成就', subtitle:'完成每日农务、新手任务与长期成就，领取奖励并解锁专属称号。'},
       ranking:{icon:'🏆', eyebrow:'RANKING', title:'农场排行榜', subtitle:'查看真实云端玩家的等级榜与金币榜，也可以直接发送好友申请。'},
-      friends:{icon:'👥', eyebrow:'FRIENDS', title:'农场好友', subtitle:'真人好友与 NPC 农友都在这里；NPC 不参加排行榜，也不会偷菜。'}
+      friends:{icon:'👥', eyebrow:'FRIENDS', title:'农场好友', subtitle:'真人好友与 NPC 农友都在这里；NPC 不参加排行榜、不会偷你的菜，但你可以限量偷 NPC 的成熟作物。'}
     }[panel];
     if (!meta) return;
     if (panel === 'friends') activeFriendTab = 'activity';
@@ -3399,7 +3571,7 @@
         tabContent = `
           <section class="farm-friend-section"><header><b>👥 真人好友</b><span>${accepted.length}</span></header>${accepted.length ? accepted.map(row => friendCard(row,'friend')).join('') : '<p class="farm-empty-state">还没有真人好友。可以到排行榜找到农友并点击「＋ 好友」。</p>'}</section>
           <section class="farm-friend-section farm-npc-section"><header><b>🌿 NPC 农友</b><span>${npcFriends.length}</span></header>${npcFriends.length ? npcFriends.map(npc => npcCard(npc,true)).join('') : '<p class="farm-empty-state">还没有 NPC 农友。下面可以挑几位加入，让农场世界更热闹。</p>'}</section>
-          ${npcSuggestions.length ? `<section class="farm-friend-section farm-npc-section is-suggestions"><header><b>✨ NPC 农友推荐</b><span>${npcSuggestions.length}</span></header><div class="farm-npc-note">NPC 会自己种菜、收菜，也可能帮你除虫；不会偷菜，也不会参加真人排行榜。</div>${npcSuggestions.map(npc => npcCard(npc,false)).join('')}</section>` : ''}
+          ${npcSuggestions.length ? `<section class="farm-friend-section farm-npc-section is-suggestions"><header><b>✨ NPC 农友推荐</b><span>${npcSuggestions.length}</span></header><div class="farm-npc-note">NPC 会自己种菜、收菜，也可能帮你除虫；不会偷你的菜、不参加真人排行榜，但成熟作物可以限量偷取。</div>${npcSuggestions.map(npc => npcCard(npc,false)).join('')}</section>` : ''}
         `;
       } else {
         tabContent = `${incoming.length ? `<section class="farm-friend-section"><header><b>📩 收到的申请</b><span>${incoming.length}</span></header>${incoming.map(row => friendCard(row,'incoming')).join('')}</section>` : '<section class="farm-friend-section"><header><b>📩 收到的申请</b><span>0</span></header><p class="farm-empty-state">目前没有待确认的好友申请。</p></section>'}
@@ -3678,6 +3850,8 @@
     const npcVisit = event.target.closest('[data-npc-visit]');
     if (npcVisit) { visitNpcFarm(npcVisit.dataset.npcVisit); return; }
 
+    const npcStealPlot = event.target.closest('[data-steal-npc][data-steal-plot][data-steal-cycle]');
+    if (npcStealPlot) { stealNpcCrop(npcStealPlot.dataset.stealNpc, Number(npcStealPlot.dataset.stealPlot), npcStealPlot.dataset.stealCycle); return; }
     const stealPlot = event.target.closest('[data-steal-friend][data-steal-plot]');
     if (stealPlot) { stealFriendCrop(stealPlot.dataset.stealFriend, Number(stealPlot.dataset.stealPlot)); return; }
 
