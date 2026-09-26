@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const FARM_BUILD = '0.14.2';
+  const FARM_BUILD = '0.14.3';
   const STORAGE_KEY = 'xingchen-farm-v1';
   const VERSION = 1;
   const PLOT_COUNT = 20;
@@ -74,6 +74,9 @@
   // the current clock, so they do not need background browser sessions, cron
   // jobs, or per-NPC Supabase polling. NPCs never enter the real leaderboard.
   const NPC_HELP_CHECK_MS = 45 * 60 * 1000;
+  const NPC_VISIT_CHECK_MS = 90 * 60 * 1000;
+  const NPC_CYCLE_SEQUENCE_LENGTH = 32;
+  const NPC_CYCLE_EPOCH_MS = Date.UTC(2026, 0, 1);
   const NPC_ACTIVITY_LIMIT = 30;
   // NPC thefts stay inside the player's existing farm save. No extra polling or
   // server-side NPC jobs are needed. A deterministic crop cycle id + a short
@@ -81,14 +84,14 @@
   const NPC_STEAL_RECORD_LIMIT = 160;
   const NPC_STEAL_CAP_PER_WINDOW = 2;
   const NPC_FARMERS = Object.freeze([
-    Object.freeze({id:'npc_xiaohe', name:'小禾', sex:'female', icon:'🌾', level:8,  coins:680,  titleId:'farmer',          trait:'麦田守望者', note:'喜欢小麦和玉米，看到虫害时常会顺手帮忙。', favorites:['wheat','corn'], helpRate:.62}),
-    Object.freeze({id:'npc_meimei', name:'莓莓', sex:'female', icon:'🍓', level:10, coins:1280, titleId:'skilled_farmer', trait:'甜果农友',   note:'偏爱草莓和番茄，农田总是整理得很可爱。', favorites:['strawberry','tomato'], helpRate:.48}),
-    Object.freeze({id:'npc_amu', name:'阿牧', sex:'male', icon:'🌽', level:12, coins:1750, titleId:'senior_farmer', trait:'慢活农夫', note:'收菜不赶时间，但很喜欢到朋友的农场串门。', favorites:['corn','pumpkin','wheat'], helpRate:.44}),
-    Object.freeze({id:'npc_xiaonuan', name:'小暖', sex:'female', icon:'🌻', level:6, coins:520, titleId:'novice_farmer', trait:'热心邻居', note:'等级不高，却是最爱帮忙处理虫害的邻居。', favorites:['carrot','tomato'], helpRate:.72}),
-    Object.freeze({id:'npc_xingzai', name:'星仔', sex:'male', icon:'✨', level:18, coins:4660, titleId:'farm_master', trait:'夜班农友', note:'常在晚一点的时候上线，偶尔会种比较稀有的作物。', favorites:['grape','strawberry','pumpkin'], helpRate:.40}),
-    Object.freeze({id:'npc_nanfeng', name:'南风', sex:'male', icon:'🍇', level:15, coins:3380, titleId:'harvest_master', trait:'果园派', note:'喜欢葡萄、南瓜与长时间作物，农场变化比较慢。', favorites:['grape','pumpkin','strawberry'], helpRate:.46}),
-    Object.freeze({id:'npc_mili', name:'米粒', sex:'female', icon:'🥕', level:5, coins:360, titleId:'novice_farmer', trait:'新手伙伴', note:'和新玩家差不多的成长节奏，最常种红萝卜。', favorites:['carrot','wheat','tomato'], helpRate:.55}),
-    Object.freeze({id:'npc_qinghe', name:'青禾', sex:'male', icon:'🌿', level:20, coins:7250, titleId:'farm_master', trait:'资深农友', note:'经营很久的老农友，农田里经常同时种着不同作物。', favorites:['grape','pumpkin','corn','strawberry'], helpRate:.50})
+    Object.freeze({id:'npc_xiaohe', name:'小禾', sex:'female', icon:'🌾', level:8,  coins:680,  titleId:'farmer',          trait:'麦田守望者', note:'喜欢小麦和玉米，看到虫害时常会顺手帮忙。', favorites:['wheat','corn'], helpRate:.62, visitRate:.34}),
+    Object.freeze({id:'npc_meimei', name:'莓莓', sex:'female', icon:'🍓', level:10, coins:1280, titleId:'skilled_farmer', trait:'甜果农友',   note:'偏爱草莓和番茄，农田总是整理得很可爱。', favorites:['strawberry','tomato'], helpRate:.48, visitRate:.38}),
+    Object.freeze({id:'npc_amu', name:'阿牧', sex:'male', icon:'🌽', level:12, coins:1750, titleId:'senior_farmer', trait:'慢活农夫', note:'收菜不赶时间，但很喜欢到朋友的农场串门。', favorites:['corn','pumpkin','wheat'], helpRate:.44, visitRate:.62}),
+    Object.freeze({id:'npc_xiaonuan', name:'小暖', sex:'female', icon:'🌻', level:6, coins:520, titleId:'novice_farmer', trait:'热心邻居', note:'等级不高，却是最爱帮忙处理虫害的邻居。', favorites:['carrot','tomato'], helpRate:.72, visitRate:.42}),
+    Object.freeze({id:'npc_xingzai', name:'星仔', sex:'male', icon:'✨', level:18, coins:4660, titleId:'farm_master', trait:'夜班农友', note:'常在晚一点的时候上线，偶尔会种比较稀有的作物。', favorites:['grape','strawberry','pumpkin'], helpRate:.40, visitRate:.30}),
+    Object.freeze({id:'npc_nanfeng', name:'南风', sex:'male', icon:'🍇', level:15, coins:3380, titleId:'harvest_master', trait:'果园派', note:'喜欢葡萄、南瓜与长时间作物，农场变化比较慢。', favorites:['grape','pumpkin','strawberry'], helpRate:.46, visitRate:.28}),
+    Object.freeze({id:'npc_mili', name:'米粒', sex:'female', icon:'🥕', level:5, coins:360, titleId:'novice_farmer', trait:'新手伙伴', note:'和新玩家差不多的成长节奏，最常种红萝卜。', favorites:['carrot','wheat','tomato'], helpRate:.55, visitRate:.46}),
+    Object.freeze({id:'npc_qinghe', name:'青禾', sex:'male', icon:'🌿', level:20, coins:7250, titleId:'farm_master', trait:'资深农友', note:'经营很久的老农友，农田里经常同时种着不同作物。', favorites:['grape','pumpkin','corn','strawberry'], helpRate:.50, visitRate:.36})
   ]);
 
   // V0.13.30 — two ROWEB-style 4×4 crop atlases. Each crop points to a
@@ -397,11 +400,13 @@
     return true;
   }
 
-  function pushNpcActivity(npcId, type, {plotId=null, at=Date.now()} = {}) {
+  function pushNpcActivity(npcId, type, {plotId=null, at=Date.now(), id=''} = {}) {
     const npc = npcById(npcId);
-    if (!npc) return;
+    if (!npc) return false;
+    const activityId = String(id || `${npcId}:${type}:${at}:${plotId ?? ''}`);
+    if ((state.npcSocial.activities || []).some(item => item.id === activityId)) return false;
     const entry = {
-      id:`${npcId}:${type}:${at}:${plotId ?? ''}`,
+      id:activityId,
       npcId, type, at,
       plotId:Number.isInteger(Number(plotId)) ? Number(plotId) : null,
       seen:false
@@ -409,15 +414,33 @@
     state.npcSocial.activities = [entry, ...(state.npcSocial.activities || [])]
       .sort((a,b) => b.at - a.at)
       .slice(0, NPC_ACTIVITY_LIMIT);
+    return true;
+  }
+
+  function replacePendingNpcFriendOp(npcId, shouldFriend) {
+    if (!mutationUserId()) return null;
+    const ops = readPendingOps().filter(op => !(op?.type === 'npc-friend-set' && op.npcId === npcId));
+    writePendingOps(ops);
+    return queuePendingOp({type:'npc-friend-set', npcId, shouldFriend:Boolean(shouldFriend)});
+  }
+
+  function applyNpcFriendSetMutation(op) {
+    const npc = npcById(op?.npcId);
+    if (!npc) return false;
+    if (!state.npcSocial || typeof state.npcSocial !== 'object') state.npcSocial = {friends:[], activities:[], steals:[], lastHelpCheckAt:0, lastVisitCheckAt:0};
+    const ids = new Set(npcFriendIds());
+    const before = ids.has(npc.id);
+    if (op.shouldFriend) ids.add(npc.id);
+    else ids.delete(npc.id);
+    state.npcSocial.friends = [...ids].filter(id => npcById(id));
+    return before !== Boolean(op.shouldFriend);
   }
 
   function setNpcFriend(npcId, shouldFriend) {
     const npc = npcById(npcId);
     if (!npc) return;
-    const ids = new Set(npcFriendIds());
-    if (shouldFriend) ids.add(npc.id);
-    else ids.delete(npc.id);
-    state.npcSocial.friends = [...ids].filter(id => npcById(id));
+    applyNpcFriendSetMutation({npcId:npc.id, shouldFriend:Boolean(shouldFriend)});
+    replacePendingNpcFriendOp(npc.id, shouldFriend);
     saveState();
     toast(
       shouldFriend ? `🌿 已和 ${npc.name} 成为农友` : `👋 已将 ${npc.name} 移出农友`,
@@ -435,6 +458,21 @@
     return pool[stableHash(`${npc.id}:crop:${plotIndex}:${cycleIndex}`) % Math.max(1, pool.length)] || CROPS[0];
   }
 
+  function npcCycleSchedule(npc, plotIndex) {
+    const cycles = [];
+    let totalMs = 0;
+    for (let cycleIndex=0; cycleIndex<NPC_CYCLE_SEQUENCE_LENGTH; cycleIndex+=1) {
+      const crop = npcCropForPlot(npc, plotIndex, cycleIndex);
+      const idleMs = (12 + (stableHash(`${npc.id}:idle:${plotIndex}:${cycleIndex}`) % 42)) * 60 * 1000;
+      const matureHoldMs = (10 + (stableHash(`${npc.id}:mature:${plotIndex}:${cycleIndex}`) % 31)) * 60 * 1000;
+      const growMs = crop.growMinutes * 60 * 1000;
+      const durationMs = idleMs + growMs + matureHoldMs;
+      cycles.push({cycleIndex, crop, idleMs, matureHoldMs, growMs, durationMs, startMs:totalMs});
+      totalMs += durationMs;
+    }
+    return {cycles, totalMs};
+  }
+
   function buildNpcFarmPayload(npcId) {
     const npc = npcById(npcId);
     if (!npc) return null;
@@ -448,28 +486,33 @@
         continue;
       }
 
-      const seedCrop = npcCropForPlot(npc, index, 0);
-      const idleMs = (12 + (stableHash(`${npc.id}:idle:${index}`) % 42)) * 60 * 1000;
-      const matureHoldMs = (10 + (stableHash(`${npc.id}:mature:${index}`) % 31)) * 60 * 1000;
-      const seedCycleMs = seedCrop.growMinutes * 60 * 1000 + matureHoldMs + idleMs;
-      const seedOffset = stableHash(`${npc.id}:offset:${index}`) % seedCycleMs;
-      const cycleIndex = Math.floor((now + seedOffset) / seedCycleMs);
-      const crop = npcCropForPlot(npc, index, cycleIndex);
-      const growMs = crop.growMinutes * 60 * 1000;
-      const cycleMs = growMs + matureHoldMs + idleMs;
-      const offset = stableHash(`${npc.id}:offset2:${index}`) % cycleMs;
-      const phase = (now + offset) % cycleMs;
+      // V0.14.3: each plot follows one deterministic repeating sequence whose
+      // cycle lengths are calculated from the crop that actually grows in that
+      // cycle. This avoids the old seed-crop/real-crop mismatch that could make
+      // a long crop disappear or change species before its own cycle finished.
+      const schedule = npcCycleSchedule(npc, index);
+      const sequenceOffset = stableHash(`${npc.id}:sequence-offset:${index}`) % Math.max(1, schedule.totalMs);
+      const elapsed = Math.max(0, now - NPC_CYCLE_EPOCH_MS + sequenceOffset);
+      const sequenceRound = Math.floor(elapsed / schedule.totalMs);
+      const sequencePhase = elapsed % schedule.totalMs;
+      let active = schedule.cycles[schedule.cycles.length - 1];
+      for (const item of schedule.cycles) {
+        if (sequencePhase < item.startMs + item.durationMs) { active = item; break; }
+      }
 
-      if (phase < idleMs) {
+      const phase = sequencePhase - active.startMs;
+      if (phase < active.idleMs) {
         plots.push({id:index, cropId:null, plantedAt:null});
         continue;
       }
 
-      const plantedAt = now - (phase - idleMs);
+      const crop = active.crop;
+      const plantedAt = now - (phase - active.idleMs);
+      const absoluteCycleIndex = sequenceRound * NPC_CYCLE_SEQUENCE_LENGTH + active.cycleIndex;
       const cycleId = npcCropCycleId(npc.id, index, crop.id, plantedAt);
       const stolenByMe = hasNpcStolenCycle(npc.id, index, cycleId);
       const yieldRange = Math.max(1, crop.yieldMax - crop.yieldMin + 1);
-      const harvestYield = crop.yieldMin + (stableHash(`${npc.id}:yield:${index}:${cycleIndex}`) % yieldRange);
+      const harvestYield = crop.yieldMin + (stableHash(`${npc.id}:yield:${index}:${absoluteCycleIndex}`) % yieldRange);
       plots.push({
         id:index,
         cropId:crop.id,
@@ -478,7 +521,7 @@
         harvestYield,
         stolenCount:stolenByMe ? 1 : 0,
         stolenByMe,
-        watered:(stableHash(`${npc.id}:water:${index}:${cycleIndex}`) % 100) < 55,
+        watered:(stableHash(`${npc.id}:water:${index}:${absoluteCycleIndex}`) % 100) < 55,
         fertilizerId:null,
         hasPest:false,
         eventGrowFactor:1
@@ -507,6 +550,30 @@
       plots,
       decorations:{slots}
     };
+  }
+
+  function applyNpcHelpMutation(op, {silent=false} = {}) {
+    const npc = npcById(op?.npcId);
+    const plotId = Number(op?.plotId);
+    if (!npc || !Number.isInteger(plotId) || plotId < 0 || plotId >= PLOT_COUNT) return false;
+    const plot = state.plots?.[plotId];
+    if (!plot || !plot.cropId) return false;
+    if (Number(op.plantedAt) && Number(plot.plantedAt) !== Number(op.plantedAt)) return false;
+
+    let changed = false;
+    if (plot.hasPest) {
+      plot.hasPest = false;
+      changed = true;
+    }
+    if (pushNpcActivity(npc.id, 'help_bug', {plotId, at:Number(op.at) || Date.now(), id:op.activityId || ''})) changed = true;
+    const historyKey = String(op.historyKey || `npc-help:${npc.id}:${plotId}:${Number(op.plantedAt) || 0}`);
+    if (!state.history.some(item => item?.historyKey === historyKey)) {
+      state.history.push({type:'npc-help-bug', npcId:npc.id, plotId, at:Number(op.at) || Date.now(), historyKey});
+      state.history = state.history.slice(-30);
+      changed = true;
+    }
+    if (changed && !silent) renderFriendDot();
+    return changed;
   }
 
   function maybeNpcHelpPest() {
@@ -538,13 +605,64 @@
     }
 
     const target = pestPlots[stableHash(`${npc.id}:plot:${bucket}`) % pestPlots.length];
-    target.plot.hasPest = false;
-    pushNpcActivity(npc.id, 'help_bug', {plotId:target.index, at:now});
-    state.history.push({type:'npc-help-bug', npcId:npc.id, plotId:target.index, at:now});
-    state.history = state.history.slice(-30);
+    const op = {
+      type:'npc-help-bug',
+      npcId:npc.id,
+      plotId:target.index,
+      plantedAt:Number(target.plot.plantedAt) || 0,
+      activityId:`${npc.id}:help_bug:${bucket}:${target.index}:${Number(target.plot.plantedAt) || 0}`,
+      historyKey:`npc-help:${npc.id}:${target.index}:${Number(target.plot.plantedAt) || 0}`,
+      at:now
+    };
+    if (!applyNpcHelpMutation(op)) {
+      writeLocalState();
+      return false;
+    }
+    if (mutationUserId()) queuePendingOp(op);
     saveState();
     toast(`🌿 ${npc.name} NPC 来帮忙了`, `帮你清除了第 ${target.index + 1} 格作物的虫害。`, 'care');
     renderAll();
+    return true;
+  }
+
+  function applyNpcVisitMutation(op) {
+    const npc = npcById(op?.npcId);
+    if (!npc || !isNpcFriend(npc.id)) return false;
+    return pushNpcActivity(npc.id, 'visit', {at:Number(op.at) || Date.now(), id:op.activityId || ''});
+  }
+
+  function maybeNpcVisitPlayer() {
+    const now = Date.now();
+    const npcFriends = npcFriendIds().map(npcById).filter(Boolean);
+    if (!npcFriends.length) return false;
+    const last = Number(state?.npcSocial?.lastVisitCheckAt) || 0;
+    if (now - last < NPC_VISIT_CHECK_MS) return false;
+    state.npcSocial.lastVisitCheckAt = now;
+
+    const bucket = Math.floor(now / NPC_VISIT_CHECK_MS);
+    const seedBase = `${cloudUserId || state.ownerUserId || 'local'}:visit:${bucket}:${npcFriends.length}`;
+    const npc = npcFriends[stableHash(seedBase) % npcFriends.length];
+    const roll = (stableHash(`${npc.id}:visit:${bucket}`) % 1000) / 1000;
+    if (roll > Number(npc.visitRate || .35)) {
+      writeLocalState();
+      return false;
+    }
+
+    const op = {
+      type:'npc-visit',
+      npcId:npc.id,
+      activityId:`${npc.id}:visit:${bucket}`,
+      at:now
+    };
+    if (!applyNpcVisitMutation(op)) {
+      writeLocalState();
+      return false;
+    }
+    if (mutationUserId()) queuePendingOp(op);
+    saveState();
+    toast(`👣 ${npc.name} NPC 来串门了`, `${npc.trait} 刚刚来你的农场逛了一圈。`);
+    renderFriendDot();
+    if (activePanel === 'friends' && activeFriendTab === 'activity') renderActivePanel();
     return true;
   }
 
@@ -577,7 +695,7 @@
     const cycleId = String(op?.cycleId || '');
     if (!npc || !crop || !Number.isInteger(plotId) || plotId < 0 || plotId >= PLOT_COUNT || !cycleId) return false;
 
-    if (!state.npcSocial || typeof state.npcSocial !== 'object') state.npcSocial = {friends:[], activities:[], steals:[], lastHelpCheckAt:0};
+    if (!state.npcSocial || typeof state.npcSocial !== 'object') state.npcSocial = {friends:[], activities:[], steals:[], lastHelpCheckAt:0, lastVisitCheckAt:0};
     if (!Array.isArray(state.npcSocial.steals)) state.npcSocial.steals = [];
 
     const recordKey = String(op.recordKey || npcStealRecordKey(npc.id, plotId, cycleId));
@@ -823,7 +941,7 @@
       produce: {},
       supplies: { fertilizerLow:0, fertilizerMid:0, fertilizerHigh:0 },
       decorations: { owned:{}, slots:Array(DECORATION_SLOT_COUNT).fill(null) },
-      npcSocial: { friends:[], activities:[], steals:[], lastHelpCheckAt:0 },
+      npcSocial: { friends:[], activities:[], steals:[], lastHelpCheckAt:0, lastVisitCheckAt:0 },
       stats: { visit:1, plant:0, harvest:0, sell:0, friend:0, blindBoxPlant:0, steals:0, maxCoins:INITIAL_COINS },
       claimedTasks: [],
       claimedAchievements: [],
@@ -903,7 +1021,8 @@
       friends:npcFriends,
       activities:npcActivities,
       steals:pruneNpcStealRecords(npcSteals),
-      lastHelpCheckAt:Math.max(0, Number(npcRaw.lastHelpCheckAt) || 0)
+      lastHelpCheckAt:Math.max(0, Number(npcRaw.lastHelpCheckAt) || 0),
+      lastVisitCheckAt:Math.max(0, Number(npcRaw.lastVisitCheckAt) || 0)
     };
 
     merged.stats = {...base.stats, ...(raw?.stats || {})};
@@ -1115,6 +1234,21 @@
       const records = Array.isArray(targetState?.npcSocial?.steals) ? targetState.npcSocial.steals : [];
       return records.some(item => item?.key === op.recordKey);
     }
+    if (op.type === 'npc-friend-set') {
+      const friends = Array.isArray(targetState?.npcSocial?.friends) ? targetState.npcSocial.friends : [];
+      return friends.includes(op.npcId) === Boolean(op.shouldFriend);
+    }
+    if (op.type === 'npc-help-bug') {
+      const activities = Array.isArray(targetState?.npcSocial?.activities) ? targetState.npcSocial.activities : [];
+      if (activities.some(item => item?.id === op.activityId)) return true;
+      const plot = targetState?.plots?.[Number(op.plotId)];
+      if (!plot || !plot.cropId || Number(plot.plantedAt) !== Number(op.plantedAt)) return true;
+      return !plot.hasPest;
+    }
+    if (op.type === 'npc-visit') {
+      const activities = Array.isArray(targetState?.npcSocial?.activities) ? targetState.npcSocial.activities : [];
+      return activities.some(item => item?.id === op.activityId);
+    }
     if (op.type === 'equip-title') return targetState?.titles?.equipped === op.titleId;
     if (op.type === 'plant') return plantMutationApplied(targetState, op);
     if (op.type === 'water') {
@@ -1171,6 +1305,21 @@
 
       if (op.type === 'npc-steal') {
         if (applyNpcStealMutation(op, {silent:true})) changed = true;
+        continue;
+      }
+
+      if (op.type === 'npc-friend-set') {
+        if (applyNpcFriendSetMutation(op)) changed = true;
+        continue;
+      }
+
+      if (op.type === 'npc-help-bug') {
+        if (applyNpcHelpMutation(op, {silent:true})) changed = true;
+        continue;
+      }
+
+      if (op.type === 'npc-visit') {
+        if (applyNpcVisitMutation(op)) changed = true;
         continue;
       }
 
@@ -3709,6 +3858,7 @@
     if (!document.hidden && Date.now() - npcRuntimeCheckedAt >= 60 * 1000) {
       npcRuntimeCheckedAt = Date.now();
       maybeNpcHelpPest();
+      maybeNpcVisitPlayer();
     }
   }
 
@@ -4010,7 +4160,7 @@
     ensureDailyState(localFarmDay(), {persist:false});
     saveState({touch:false, sync:false});
     renderAll();
-    setTimeout(() => { npcRuntimeCheckedAt = Date.now(); maybeNpcHelpPest(); }, 1200);
+    setTimeout(() => { npcRuntimeCheckedAt = Date.now(); maybeNpcHelpPest(); maybeNpcVisitPlayer(); }, 1200);
     bootstrapCloud(false).then(() => Promise.all([loadFriends(true), refreshFarmActivityUnread(true)])).catch(() => {});
 
     if (tickTimer) clearInterval(tickTimer);
