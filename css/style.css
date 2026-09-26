@@ -9921,10 +9921,10 @@ body.farm-modal-open { overflow: hidden; }
 }
 
 .farm-crop-visual.is-sprite[data-crop-sheet="1"] {
-  background-image:url("../images/farm/crops-sheet-01.webp?v=0.13.27");
+  background-image:url("../images/farm/crops-sheet-01.webp?v=0.13.28");
 }
 .farm-crop-visual.is-sprite[data-crop-sheet="2"] {
-  background-image:url("../images/farm/crops-sheet-02.webp?v=0.13.27");
+  background-image:url("../images/farm/crops-sheet-02.webp?v=0.13.28");
 }
 
 /* Growth size is already painted into the atlas frames; do not scale sprite
@@ -11030,16 +11030,16 @@ body.farm-modal-open { overflow: hidden; }
 }
 
 
-/* V0.13.27 — 4x4 crop growth sprite sheet (carrot / wheat / corn / tomato) */
+/* V0.13.28 — 4x4 crop growth sprite sheet (carrot / wheat / corn / tomato) */
 
-/* V0.13.27 — atlas-anchor crop animation: keep the root fixed while the plant breathes. */
+/* V0.13.28 — atlas-anchor crop animation: keep the root fixed while the plant breathes. */
 @keyframes farm-crop-ready-sprite {
   0%,100% { transform:translate(var(--crop-shift-x,0px), calc(var(--crop-shift-y,0px) - var(--crop-lift,0px))) scale(var(--crop-scale,1)); }
   45% { transform:translate(var(--crop-shift-x,0px), calc(var(--crop-shift-y,0px) - 4px - var(--crop-lift,0px))) scale(calc(var(--crop-scale,1) * 1.035)); }
   70% { transform:translate(var(--crop-shift-x,0px), calc(var(--crop-shift-y,0px) - 1px - var(--crop-lift,0px))) scale(calc(var(--crop-scale,1) * .995)); }
 }
 
-/* V0.13.27 — crop position + readable labels.
+/* V0.13.28 — crop position + readable labels.
    Move atlas crops slightly upward while keeping text/countdown above foliage. */
 .farm-crop-visual.is-sprite {
   z-index:3;
@@ -11077,7 +11077,7 @@ body.farm-modal-open { overflow: hidden; }
 }
 
 
-/* V0.13.27 — crop alignment and label stacking.
+/* V0.13.28 — crop alignment and label stacking.
    Plants are nudged toward the visual centre of the sloped soil (upper-right),
    while planted plots sit above bare soil so crop labels/countdowns cannot be
    swallowed by neighbouring farm tiles. */
@@ -11109,7 +11109,7 @@ body.farm-modal-open { overflow: hidden; }
   }
 }
 
-/* V0.13.27 — mobile crop alignment fine tune.
+/* V0.13.28 — mobile crop alignment fine tune.
    Desktop keeps the current upper-right placement. On phones, move the crop
    sprite and its labels about 5px back toward the lower-left for better fit. */
 @media (max-width:760px) {
@@ -11123,7 +11123,7 @@ body.farm-modal-open { overflow: hidden; }
   }
 }
 
-/* ===== V0.13.27 MOBILE ACHIEVEMENT HORIZONTAL SCROLL FIX =====
+/* ===== V0.13.28 MOBILE ACHIEVEMENT HORIZONTAL SCROLL FIX =====
    The achievement category chips are a nested horizontal scroller inside the
    vertically scrolling farm modal. Explicit axis ownership prevents iOS Safari
    from handing the gesture to the modal and rubber-banding back. */
@@ -11164,11 +11164,11 @@ body.farm-modal-open { overflow: hidden; }
   }
 }
 
-/* ===== V0.13.27 ACHIEVEMENT CATEGORY TAP POSITION =====
+/* ===== V0.13.28 ACHIEVEMENT CATEGORY TAP POSITION =====
    JS now preserves the horizontal category scroll position when a chip is tapped. */
 
 
-/* ===== V0.13.27 SECOND CROP ATLAS + STEAL ACTIVITY ===== */
+/* ===== V0.13.28 SECOND CROP ATLAS + STEAL ACTIVITY ===== */
 .farm-steal-activity-section { margin-top:16px; }
 .farm-steal-activity {
   position:relative;
@@ -11204,7 +11204,7 @@ body.farm-modal-open { overflow: hidden; }
   .farm-steal-new { position:absolute; top:8px; right:8px; }
 }
 
-/* ===== V0.13.27 LEVEL-UP / DAILY QUEST / NOTICE BADGES ===== */
+/* ===== V0.13.28 LEVEL-UP / DAILY QUEST / NOTICE BADGES ===== */
 .farm-side-actions .farm-nav-notice {
   position:absolute;
   right:7px;
@@ -11376,13 +11376,13 @@ body.farm-modal-open { overflow: hidden; }
 }
 .farm-plot.is-land-unlocking { z-index:120 !important; }
 
-/* V0.13.27 — farm care tools, item atlas, watering and fertilizer UI */
+/* V0.13.28 — farm care tools, item atlas, watering and fertilizer UI */
 .farm-item-sprite {
   display:inline-block;
   width:42px;
   height:42px;
   flex:0 0 auto;
-  background-image:url("../images/farm/farm-item-sheet-01.webp?v=0.13.27");
+  background-image:url("../images/farm/farm-item-sheet-01.webp?v=0.13.28");
   background-size:400% 400%;
   background-position:var(--item-x,0%) var(--item-y,0%);
   background-repeat:no-repeat;
@@ -11487,7 +11487,7 @@ body.farm-modal-open { overflow: hidden; }
   height:74px;
   margin:-37px 0 0 -37px;
   pointer-events:none;
-  background-image:url("../images/farm/farm-item-sheet-01.webp?v=0.13.27");
+  background-image:url("../images/farm/farm-item-sheet-01.webp?v=0.13.28");
   background-size:400% 400%;
   background-position:var(--item-x,0%) var(--item-y,0%);
   background-repeat:no-repeat;
@@ -11591,3 +11591,10 @@ body.farm-modal-open { overflow: hidden; }
   transform:none;
   opacity:1;
 }
+
+/* V0.13.28 — cleaner care UI and seed-style fertilizer purchase layout */
+.farm-care-status { display:none !important; }
+.farm-fertilizer-copy { min-width:0; }
+.farm-fertilizer-meta { grid-column:1 / -1; margin:0; }
+.farm-fertilizer-card .farm-shop-buy { grid-column:1 / -1; justify-content:flex-start; }
+.farm-fertilizer-card .farm-shop-buy button { min-width:58px; }

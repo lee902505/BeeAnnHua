@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const FARM_BUILD = '0.13.27';
+  const FARM_BUILD = '0.13.28';
   const STORAGE_KEY = 'xingchen-farm-v1';
   const VERSION = 1;
   const PLOT_COUNT = 20;
@@ -32,7 +32,7 @@
   };
   const PLANTABLES = [...CROPS, MYSTERY_CROP];
 
-  // V0.13.27 — care items use the same 4×4 atlas approach as crops.
+  // V0.13.28 — care items use the same 4×4 atlas approach as crops.
   // Cell numbers are 1-based so they match the artwork brief.
   const ITEM_ATLAS = Object.freeze({cols:4, rows:4});
   const WATER_FACTOR = 0.92;
@@ -42,7 +42,7 @@
     Object.freeze({id:'fertilizerHigh', name:'高级肥料', price:55, factor:0.70, reduction:30, itemCell:7, statusCell:13, note:'缩短本轮作物约 30% 成长时间。'})
   ]);
 
-  // V0.13.27 — two ROWEB-style 4×4 crop atlases. Each crop points to a
+  // V0.13.28 — two ROWEB-style 4×4 crop atlases. Each crop points to a
   // sheet + row, while the growth percentage selects the column. The artwork
   // stays as two large transparent images; nothing is split into 32 files.
   const CROP_ATLAS = Object.freeze({
@@ -1525,12 +1525,9 @@
   }
 
   function careStatusMarkup(plot) {
-    if (!plot?.cropId) return '';
-    const badges = [];
-    if (plot.watered) badges.push(itemSpriteMarkup(10, 'is-care-status is-watered', '已浇水'));
-    const fertilizer = fertilizerById(plot.fertilizerId);
-    if (fertilizer) badges.push(itemSpriteMarkup(fertilizer.statusCell, 'is-care-status is-fertilized', fertilizer.name));
-    return badges.length ? `<span class="farm-care-status">${badges.join('')}</span>` : '';
+    // V0.13.28 — field stays visually clean after watering/fertilizing.
+    // Status is still shown in the crop detail panel, so gameplay data remains intact.
+    return '';
   }
 
   function stageFor(progress) {
@@ -2381,7 +2378,7 @@
             : `<div class="farm-shop-buy"><button type="button" data-buy-seed="${crop.id}" data-qty="1">买 1</button><button type="button" data-buy-seed="${crop.id}" data-qty="5">买 5</button><em>背包 ×${state.seeds[crop.id] || 0}</em></div>`}
         </article>`;
       }).join('')}</div>`;
-      const careShop = `<section class="farm-shop-care"><header><div><b>🌿 农田照料</b><small>每株每轮最多使用一包肥料；浇水免费。</small></div>${itemSpriteMarkup(2, 'is-shop-header-item')}</header><div class="farm-fertilizer-grid">${FERTILIZERS.map(item => `<article class="farm-fertilizer-card">${itemSpriteMarkup(item.itemCell, 'is-fertilizer-art')}<div><b>${item.name}</b><p>${item.note}</p><small>背包 ×${state.supplies[item.id] || 0}</small></div><div class="farm-shop-buy"><button type="button" data-buy-supply="${item.id}" data-qty="1">买 1 · ${item.price} 金币</button><button type="button" data-buy-supply="${item.id}" data-qty="5">买 5</button></div></article>`).join('')}</div></section>`;
+      const careShop = `<section class="farm-shop-care"><header><div><b>🌿 农田照料</b><small>每株每轮最多使用一包肥料；浇水免费。</small></div>${itemSpriteMarkup(2, 'is-shop-header-item')}</header><div class="farm-fertilizer-grid">${FERTILIZERS.map(item => `<article class="farm-fertilizer-card">${itemSpriteMarkup(item.itemCell, 'is-fertilizer-art')}<div class="farm-fertilizer-copy"><b>${item.name}</b><p>${item.note}</p></div><div class="farm-shop-meta farm-fertilizer-meta"><span>🪙 ${item.price} / 包</span><span>背包 ×${state.supplies[item.id] || 0}</span></div><div class="farm-shop-buy"><button type="button" data-buy-supply="${item.id}" data-qty="1">买 1</button><button type="button" data-buy-supply="${item.id}" data-qty="5">买 5</button></div></article>`).join('')}</div></section>`;
       body.innerHTML = seedShop + careShop;
       return;
     }
