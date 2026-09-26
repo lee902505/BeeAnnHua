@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const FARM_BUILD = '0.14.0';
+  const FARM_BUILD = '0.14.1';
   const STORAGE_KEY = 'xingchen-farm-v1';
   const VERSION = 1;
   const PLOT_COUNT = 20;
@@ -67,6 +67,23 @@
     Object.freeze({id:'lamp', name:'农场路灯', eventCell:11, price:700, unlockLevel:12, scale:.88, note:'带暖黄色灯光的复古农场路灯。'}),
     Object.freeze({id:'windmill', name:'小型风车', eventCell:15, price:1000, unlockLevel:15, scale:.96, note:'庭院里的小型景观风车。'}),
     Object.freeze({id:'sign', name:'星辰农场木牌', eventCell:16, price:1500, unlockLevel:10, scale:1.02, note:'会自动显示农场主人名称与当前称号。'})
+  ]);
+
+
+  // V0.14.1 — lightweight NPC farmers. NPC farms are lazily simulated from
+  // the current clock, so they do not need background browser sessions, cron
+  // jobs, or per-NPC Supabase polling. NPCs never enter the real leaderboard.
+  const NPC_HELP_CHECK_MS = 45 * 60 * 1000;
+  const NPC_ACTIVITY_LIMIT = 30;
+  const NPC_FARMERS = Object.freeze([
+    Object.freeze({id:'npc_xiaohe', name:'小禾', sex:'female', icon:'🌾', level:8,  coins:680,  titleId:'farmer',          trait:'麦田守望者', note:'喜欢小麦和玉米，看到虫害时常会顺手帮忙。', favorites:['wheat','corn'], helpRate:.62}),
+    Object.freeze({id:'npc_meimei', name:'莓莓', sex:'female', icon:'🍓', level:10, coins:1280, titleId:'skilled_farmer', trait:'甜果农友',   note:'偏爱草莓和番茄，农田总是整理得很可爱。', favorites:['strawberry','tomato'], helpRate:.48}),
+    Object.freeze({id:'npc_amu', name:'阿牧', sex:'male', icon:'🌽', level:12, coins:1750, titleId:'senior_farmer', trait:'慢活农夫', note:'收菜不赶时间，但很喜欢到朋友的农场串门。', favorites:['corn','pumpkin','wheat'], helpRate:.44}),
+    Object.freeze({id:'npc_xiaonuan', name:'小暖', sex:'female', icon:'🌻', level:6, coins:520, titleId:'novice_farmer', trait:'热心邻居', note:'等级不高，却是最爱帮忙处理虫害的邻居。', favorites:['carrot','tomato'], helpRate:.72}),
+    Object.freeze({id:'npc_xingzai', name:'星仔', sex:'male', icon:'✨', level:18, coins:4660, titleId:'farm_master', trait:'夜班农友', note:'常在晚一点的时候上线，偶尔会种比较稀有的作物。', favorites:['grape','strawberry','pumpkin'], helpRate:.40}),
+    Object.freeze({id:'npc_nanfeng', name:'南风', sex:'male', icon:'🍇', level:15, coins:3380, titleId:'harvest_master', trait:'果园派', note:'喜欢葡萄、南瓜与长时间作物，农场变化比较慢。', favorites:['grape','pumpkin','strawberry'], helpRate:.46}),
+    Object.freeze({id:'npc_mili', name:'米粒', sex:'female', icon:'🥕', level:5, coins:360, titleId:'novice_farmer', trait:'新手伙伴', note:'和新玩家差不多的成长节奏，最常种红萝卜。', favorites:['carrot','wheat','tomato'], helpRate:.55}),
+    Object.freeze({id:'npc_qinghe', name:'青禾', sex:'male', icon:'🌿', level:20, coins:7250, titleId:'farm_master', trait:'资深农友', note:'经营很久的老农友，农田里经常同时种着不同作物。', favorites:['grape','pumpkin','corn','strawberry'], helpRate:.50})
   ]);
 
   // V0.13.30 — two ROWEB-style 4×4 crop atlases. Each crop points to a
@@ -241,6 +258,7 @@
   let farmActivityLoadedAt = 0;
   let farmActivityUnreadCount = 0;
   let farmActivityUnreadCheckedAt = 0;
+  let npcRuntimeCheckedAt = 0;
   let farmDay = localFarmDay();
   let farmEventSlotKey = localFarmEventSlot().key;
   let farmDaySyncAt = 0;
@@ -311,6 +329,206 @@
     let h=2166136261;
     for (const ch of String(value)) { h ^= ch.charCodeAt(0); h = Math.imul(h, 16777619); }
     return h >>> 0;
+  }
+
+  const npcById = (id) => NPC_FARMERS.find(item => item.id === id) || null;
+  const npcFriendIds = () => Array.isArray(state?.npcSocial?.friends) ? state.npcSocial.friends : [];
+  const isNpcFriend = (id) => npcFriendIds().includes(id);
+  const npcUnreadCount = () => (state?.npcSocial?.activities || []).filter(item => !item.seen).length;
+
+  function npcActivityRows() {
+    return (state?.npcSocial?.activities || []).map(item => {
+      const npc = npcById(item.npcId);
+      if (!npc) return null;
+      return {
+        is_npc:true,
+        activity_type:item.type === 'help_bug' ? 'npc_help_bug' : 'npc_visit',
+        actor_id:npc.id,
+        display_name:npc.name,
+        sex:npc.sex,
+        activity_at:new Date(item.at || Date.now()).toISOString(),
+        plot_id:item.plotId,
+        is_unread:!item.seen
+      };
+    }).filter(Boolean);
+  }
+
+  function markNpcActivitiesSeen() {
+    if (!state?.npcSocial?.activities?.some(item => !item.seen)) return false;
+    state.npcSocial.activities = state.npcSocial.activities.map(item => ({...item, seen:true}));
+    saveState();
+    renderFriendDot();
+    return true;
+  }
+
+  function pushNpcActivity(npcId, type, {plotId=null, at=Date.now()} = {}) {
+    const npc = npcById(npcId);
+    if (!npc) return;
+    const entry = {
+      id:`${npcId}:${type}:${at}:${plotId ?? ''}`,
+      npcId, type, at,
+      plotId:Number.isInteger(Number(plotId)) ? Number(plotId) : null,
+      seen:false
+    };
+    state.npcSocial.activities = [entry, ...(state.npcSocial.activities || [])]
+      .sort((a,b) => b.at - a.at)
+      .slice(0, NPC_ACTIVITY_LIMIT);
+  }
+
+  function setNpcFriend(npcId, shouldFriend) {
+    const npc = npcById(npcId);
+    if (!npc) return;
+    const ids = new Set(npcFriendIds());
+    if (shouldFriend) ids.add(npc.id);
+    else ids.delete(npc.id);
+    state.npcSocial.friends = [...ids].filter(id => npcById(id));
+    saveState();
+    toast(
+      shouldFriend ? `🌿 已和 ${npc.name} 成为农友` : `👋 已将 ${npc.name} 移出农友`,
+      shouldFriend ? 'NPC 农友不会参加排行榜，也不会偷你的菜。' : '之后仍可在 NPC 农友推荐里重新加入。'
+    );
+    renderFriendDot();
+    if (activePanel === 'friends') renderActivePanel();
+  }
+
+  function npcCropForPlot(npc, plotIndex, cycleIndex=0) {
+    const unlockedCrops = CROPS.filter(crop => crop.unlockLevel <= npc.level);
+    const favorites = (npc.favorites || []).map(cropById).filter(crop => crop && crop.unlockLevel <= npc.level);
+    const preferFavorites = favorites.length && (stableHash(`${npc.id}:fav:${plotIndex}:${cycleIndex}`) % 100) < 72;
+    const pool = preferFavorites ? favorites : unlockedCrops;
+    return pool[stableHash(`${npc.id}:crop:${plotIndex}:${cycleIndex}`) % Math.max(1, pool.length)] || CROPS[0];
+  }
+
+  function buildNpcFarmPayload(npcId) {
+    const npc = npcById(npcId);
+    if (!npc) return null;
+    const now = Date.now();
+    const unlocked = unlockedLandCount(npc.level);
+    const plots = [];
+
+    for (let index=0; index<PLOT_COUNT; index+=1) {
+      if (index >= unlocked) {
+        plots.push({id:index, cropId:null, plantedAt:null});
+        continue;
+      }
+
+      const seedCrop = npcCropForPlot(npc, index, 0);
+      const idleMs = (12 + (stableHash(`${npc.id}:idle:${index}`) % 42)) * 60 * 1000;
+      const matureHoldMs = (10 + (stableHash(`${npc.id}:mature:${index}`) % 31)) * 60 * 1000;
+      const seedCycleMs = seedCrop.growMinutes * 60 * 1000 + matureHoldMs + idleMs;
+      const seedOffset = stableHash(`${npc.id}:offset:${index}`) % seedCycleMs;
+      const cycleIndex = Math.floor((now + seedOffset) / seedCycleMs);
+      const crop = npcCropForPlot(npc, index, cycleIndex);
+      const growMs = crop.growMinutes * 60 * 1000;
+      const cycleMs = growMs + matureHoldMs + idleMs;
+      const offset = stableHash(`${npc.id}:offset2:${index}`) % cycleMs;
+      const phase = (now + offset) % cycleMs;
+
+      if (phase < idleMs) {
+        plots.push({id:index, cropId:null, plantedAt:null});
+        continue;
+      }
+
+      const plantedAt = now - (phase - idleMs);
+      const yieldRange = Math.max(1, crop.yieldMax - crop.yieldMin + 1);
+      const harvestYield = crop.yieldMin + (stableHash(`${npc.id}:yield:${index}:${cycleIndex}`) % yieldRange);
+      plots.push({
+        id:index,
+        cropId:crop.id,
+        plantedAt,
+        harvestYield,
+        stolenCount:0,
+        stolenByMe:false,
+        watered:(stableHash(`${npc.id}:water:${index}:${cycleIndex}`) % 100) < 55,
+        fertilizerId:null,
+        hasPest:false,
+        eventGrowFactor:1
+      });
+    }
+
+    const decorPool = DECORATIONS.filter(item => item.unlockLevel <= npc.level);
+    const slots = Array(DECORATION_SLOT_COUNT).fill(null);
+    const decorCount = Math.min(4, 2 + (stableHash(`${npc.id}:decor-count`) % 3));
+    for (let i=0; i<decorCount && decorPool.length; i+=1) {
+      const item = decorPool[stableHash(`${npc.id}:decor:${i}`) % decorPool.length];
+      let slot = stableHash(`${npc.id}:slot:${i}`) % DECORATION_SLOT_COUNT;
+      for (let tries=0; tries<DECORATION_SLOT_COUNT && slots[slot]; tries+=1) slot = (slot + 1) % DECORATION_SLOT_COUNT;
+      if (!slots[slot]) slots[slot] = item.id;
+    }
+
+    return {
+      ok:true,
+      is_npc:true,
+      user_id:npc.id,
+      display_name:npc.name,
+      sex:npc.sex,
+      level:npc.level,
+      coins:npc.coins,
+      title_id:npc.titleId,
+      plots,
+      decorations:{slots}
+    };
+  }
+
+  function maybeNpcHelpPest() {
+    const now = Date.now();
+    const npcFriends = npcFriendIds().map(npcById).filter(Boolean);
+    if (!npcFriends.length) return false;
+
+    const last = Number(state?.npcSocial?.lastHelpCheckAt) || 0;
+    if (now - last < NPC_HELP_CHECK_MS) return false;
+    state.npcSocial.lastHelpCheckAt = now;
+
+    const pestPlots = state.plots
+      .map((plot,index) => ({plot,index}))
+      .filter(({plot,index}) => index < unlockedLandCount() && plot?.cropId && plot.hasPest);
+
+    if (!pestPlots.length) {
+      writeLocalState();
+      return false;
+    }
+
+    const bucket = Math.floor(now / NPC_HELP_CHECK_MS);
+    const seed = stableHash(`${cloudUserId || state.ownerUserId || 'local'}:${bucket}:${pestPlots.length}:${npcFriends.length}`);
+    const npc = npcFriends[seed % npcFriends.length];
+    const roll = (stableHash(`${npc.id}:help:${bucket}`) % 1000) / 1000;
+
+    if (roll > Number(npc.helpRate || .5)) {
+      writeLocalState();
+      return false;
+    }
+
+    const target = pestPlots[stableHash(`${npc.id}:plot:${bucket}`) % pestPlots.length];
+    target.plot.hasPest = false;
+    pushNpcActivity(npc.id, 'help_bug', {plotId:target.index, at:now});
+    state.history.push({type:'npc-help-bug', npcId:npc.id, plotId:target.index, at:now});
+    state.history = state.history.slice(-30);
+    saveState();
+    toast(`🌿 ${npc.name} NPC 来帮忙了`, `帮你清除了第 ${target.index + 1} 格作物的虫害。`, 'care');
+    renderAll();
+    return true;
+  }
+
+  function visitNpcFarm(npcId) {
+    const npc = npcById(npcId);
+    if (!npc) return;
+    if (!isNpcFriend(npc.id)) {
+      toast('🌿 还不是农友', '先在 NPC 农友推荐中加入对方，再去拜访吧。');
+      return;
+    }
+    const payload = buildNpcFarmPayload(npc.id);
+    if (!payload) return;
+    if (bumpDaily('visit', 1, npc.id)) {
+      saveState();
+      renderTaskDot();
+    }
+    openModal({
+      icon:npc.icon || '🌿',
+      eyebrow:'NPC FARM VISIT',
+      title:`${npc.name}的农场`,
+      subtitle:`${npc.trait} · NPC 农友会自己种菜、收菜，也可能来帮你除虫。`,
+      body:renderFriendFarmVisit(payload, {npc:true})
+    });
   }
 
   function currentFarmEvent(slotKey = farmEventSlotKey || localFarmEventSlot().key) {
@@ -468,6 +686,7 @@
       produce: {},
       supplies: { fertilizerLow:0, fertilizerMid:0, fertilizerHigh:0 },
       decorations: { owned:{}, slots:Array(DECORATION_SLOT_COUNT).fill(null) },
+      npcSocial: { friends:[], activities:[], lastHelpCheckAt:0 },
       stats: { visit:1, plant:0, harvest:0, sell:0, friend:0, blindBoxPlant:0, steals:0, maxCoins:INITIAL_COINS },
       claimedTasks: [],
       claimedAchievements: [],
@@ -514,6 +733,30 @@
       return validDecorIds.has(id) ? id : null;
     });
     merged.decorations = {owned:decorOwned, slots:decorSlots};
+
+    const validNpcIds = new Set(NPC_FARMERS.map(item => item.id));
+    const npcRaw = raw?.npcSocial && typeof raw.npcSocial === 'object' ? raw.npcSocial : {};
+    const npcFriends = Array.isArray(npcRaw.friends)
+      ? [...new Set(npcRaw.friends.filter(id => validNpcIds.has(id)))].slice(0, NPC_FARMERS.length)
+      : [];
+    const npcActivities = Array.isArray(npcRaw.activities) ? npcRaw.activities
+      .filter(item => item && validNpcIds.has(item.npcId) && ['help_bug','visit'].includes(item.type))
+      .map(item => ({
+        id:String(item.id || `${item.npcId}-${Number(item.at) || 0}`),
+        npcId:item.npcId,
+        type:item.type,
+        at:Math.max(0, Number(item.at) || 0),
+        plotId:Number.isInteger(Number(item.plotId)) ? Number(item.plotId) : null,
+        seen:Boolean(item.seen)
+      }))
+      .sort((a,b) => b.at - a.at)
+      .slice(0, NPC_ACTIVITY_LIMIT) : [];
+    merged.npcSocial = {
+      friends:npcFriends,
+      activities:npcActivities,
+      lastHelpCheckAt:Math.max(0, Number(npcRaw.lastHelpCheckAt) || 0)
+    };
+
     merged.stats = {...base.stats, ...(raw?.stats || {})};
     merged.claimedTasks = Array.isArray(raw?.claimedTasks) ? raw.claimedTasks : [];
     merged.claimedAchievements = Array.isArray(raw?.claimedAchievements) ? raw.claimedAchievements : [];
@@ -1415,7 +1658,7 @@
   }
 
 
-  function renderFriendFarmVisit(payload) {
+  function renderFriendFarmVisit(payload, {npc=false} = {}) {
     const friendLevel = Math.max(1, Number(payload?.level) || 1);
     const unlocked = unlockedLandCount(friendLevel);
     const friendId = String(payload?.user_id || '');
@@ -1473,7 +1716,9 @@
           if (progress >= 1) {
             const total = crop.isMystery ? 1 : Math.max(crop.yieldMin, Math.min(crop.yieldMax, Number(plot.harvestYield) || crop.yieldMin));
             const remain = Math.max(1, total - plot.stolenCount);
-            if (crop.isMystery || remain <= 1) {
+            if (npc) {
+              stealTag = '<span class="farm-steal-tag is-protected">NPC 农田</span>';
+            } else if (crop.isMystery || remain <= 1) {
               stealTag = '<span class="farm-steal-tag is-protected">保底 1</span>';
             } else if (plot.stolenByMe) {
               stealTag = '<span class="farm-steal-tag is-done">已偷过</span>';
@@ -1485,7 +1730,7 @@
             }
           }
 
-          const helpBug = plot.hasPest ? `<span role="button" tabindex="0" class="farm-help-bug" data-help-bug-friend="${escapeHtml(friendId)}" data-help-bug-plot="${index}" aria-label="帮好友除虫">${eventSpriteMarkup(6,'is-help-net')}<span>帮忙除虫</span></span>` : '';
+          const helpBug = !npc && plot.hasPest ? `<span role="button" tabindex="0" class="farm-help-bug" data-help-bug-friend="${escapeHtml(friendId)}" data-help-bug-plot="${index}" aria-label="帮好友除虫">${eventSpriteMarkup(6,'is-help-net')}<span>帮忙除虫</span></span>` : '';
           content = `<span class="farm-soil"><small class="farm-crop-time">${progress >= 1 ? '已成熟' : formatDuration(remainingMs)}</small>${cropVisualMarkup(shown, progress)}<span class="farm-crop-name">${shown.name}</span>${plot.hasPest ? eventSpriteMarkup(5,'farm-pest-mark','虫害') : ''}${careStatusMarkup(plot)}${stealTag}${helpBug}</span>`;
         }
 
@@ -1497,12 +1742,12 @@
     const sex = genderSymbol(payload?.sex);
     const friendTitle = titleById(payload?.title_id || 'newbie');
     return `
-      <section class="farm-visit-summary">
-        <div><b>${name}${sex ? ` <i>${sex}</i>` : ''}</b><small>Lv.${formatNumber(friendLevel)} · <span class="farm-public-title">${friendTitle.icon}【${escapeHtml(friendTitle.name)}】</span></small></div>
+      <section class="farm-visit-summary ${npc ? 'is-npc-farm' : ''}">
+        <div><b>${name}${sex ? ` <i>${sex}</i>` : ''}${npc ? ' <span class="farm-npc-badge">NPC</span>' : ''}</b><small>Lv.${formatNumber(friendLevel)} · <span class="farm-public-title">${friendTitle.icon}【${escapeHtml(friendTitle.name)}】</span></small></div>
         <span>${coinInline(payload?.coins || 0, {label:true})}</span>
-        <em>成熟 ${matureCount} 格 · 可偷 ${stealableCount} 格 · 虫害 ${pestCount} 格</em>
+        <em>成熟 ${matureCount} 格 · ${npc ? '自动经营中' : `可偷 ${stealableCount} 格 · 虫害 ${pestCount} 格`}</em>
       </section>
-      <div class="farm-steal-rule">🥷 成熟作物每位好友每轮可偷 1 个；发现 🐛 虫害时，也可以帮好友免费除虫并有机会获得小奖励。</div>
+      <div class="farm-steal-rule">${npc ? '🌿 NPC 农友使用轻量模拟经营，不参加排行榜，也不会偷你的菜；NPC 农田不提供可重复偷取的资源。' : '🥷 成熟作物每位好友每轮可偷 1 个；发现 🐛 虫害时，也可以帮好友免费除虫并有机会获得小奖励。'}</div>
       <div class="farm-visit-scene">
         ${renderFriendDecorations(payload)}
         <div class="farm-visit-field">${tiles.join('')}</div>
@@ -2793,7 +3038,7 @@
 
   function renderFriendDot() {
     const incoming = friendRows.filter(row => row.relation_state === 'pending_in').length;
-    setNoticeBadge($('farmFriendDot'), incoming + Math.max(0, farmActivityUnreadCount));
+    setNoticeBadge($('farmFriendDot'), incoming + Math.max(0, farmActivityUnreadCount) + npcUnreadCount());
   }
 
   function openPanel(panel) {
@@ -2803,7 +3048,7 @@
       bag:{icon:'🎒', eyebrow:'INVENTORY', title:'我的背包', subtitle:'管理种子、肥料、装饰与收成蔬果；也可以从这里进入农场布置模式。'},
       tasks:{icon:'📜', eyebrow:'FARM QUEST', title:'任务与成就', subtitle:'完成每日农务、新手任务与长期成就，领取奖励并解锁专属称号。'},
       ranking:{icon:'🏆', eyebrow:'RANKING', title:'农场排行榜', subtitle:'查看真实云端玩家的等级榜与金币榜，也可以直接发送好友申请。'},
-      friends:{icon:'👥', eyebrow:'FRIENDS', title:'农场好友', subtitle:'查看农场动态、好友申请与好友列表；有人拜访或偷菜时都会留下记录。'}
+      friends:{icon:'👥', eyebrow:'FRIENDS', title:'农场好友', subtitle:'真人好友与 NPC 农友都在这里；NPC 不参加排行榜，也不会偷菜。'}
     }[panel];
     if (!meta) return;
     if (panel === 'friends') activeFriendTab = 'activity';
@@ -2812,6 +3057,7 @@
     renderActivePanel();
     if (panel === 'tasks') syncFarmDay(true).then(() => renderActivePanel()).catch(() => {});
     if (panel === 'friends') {
+      markNpcActivitiesSeen();
       farmActivityLoadedAt = 0;
       loadFarmActivity(true, true).catch(() => {});
     }
@@ -3066,14 +3312,21 @@
     if (activePanel === 'friends') {
       if (!friendsLoading && !friendsLoadedAt && !friendsError) setTimeout(() => loadFriends(false), 0);
       if (!farmActivityLoading && !farmActivityLoadedAt && !farmActivityError) setTimeout(() => loadFarmActivity(false, false), 0);
+
       const incoming = friendRows.filter(row => row.relation_state === 'pending_in');
       const accepted = friendRows.filter(row => row.relation_state === 'friend');
       const outgoing = friendRows.filter(row => row.relation_state === 'pending_out');
-      const unreadActivities = Math.max(0, Number(farmActivityUnreadCount) || 0);
+      const npcFriends = npcFriendIds().map(npcById).filter(Boolean);
+      const npcSuggestions = NPC_FARMERS.filter(npc => !isNpcFriend(npc.id));
+      const unreadActivities = Math.max(0, Number(farmActivityUnreadCount) || 0) + npcUnreadCount();
+      const combinedActivityRows = [...farmActivityRows, ...npcActivityRows()]
+        .sort((a,b) => new Date(b.activity_at).getTime() - new Date(a.activity_at).getTime())
+        .slice(0, 50);
 
-      const activityHtml = farmActivityRows.map(row => {
+      const activityHtml = combinedActivityRows.map(row => {
         const type = String(row.activity_type || 'steal');
         const crop = CROPS.find(c => c.id === row.crop_id) || {name:'作物', icon:'🌿'};
+        const isNpc = Boolean(row.is_npc);
         const safeId = escapeHtml(row.actor_id || '');
         const who = escapeHtml(row.display_name || '农场好友');
         const sex = row.sex === 'male' ? '♂' : row.sex === 'female' ? '♀' : '';
@@ -3081,23 +3334,31 @@
         let icon = '🌿';
         let title = `${who}${sex ? ` ${sex}` : ''} 来过你的农场`;
         let detail = when;
-        if (type === 'visit') {
-          icon = '👣';
-          title = `${who}${sex ? ` ${sex}` : ''} 拜访了你的农场`;
+
+        if (type === 'visit' || type === 'npc_visit') {
+          icon = isNpc ? '🌿' : '👣';
+          title = `${who}${sex ? ` ${sex}` : ''}${isNpc ? ' NPC' : ''} 拜访了你的农场`;
         } else if (type === 'steal') {
           icon = crop.icon || '🥷';
           title = `${who}${sex ? ` ${sex}` : ''} 偷走了 ${escapeHtml(crop.name)} ×${Math.max(1, Number(row.amount) || 1)}`;
           if (Number.isInteger(Number(row.plot_id))) detail += ` · 第 ${Number(row.plot_id) + 1} 格`;
-        } else if (type === 'help_bug') {
+        } else if (type === 'help_bug' || type === 'npc_help_bug') {
           icon = '🪲';
-          title = `${who}${sex ? ` ${sex}` : ''} 帮你的作物除虫了`;
+          title = `${who}${sex ? ` ${sex}` : ''}${isNpc ? ' NPC' : ''} 帮你的作物除虫了`;
           if (Number.isInteger(Number(row.plot_id))) detail += ` · 第 ${Number(row.plot_id) + 1} 格`;
         }
-        return `<article class="farm-activity-row is-${escapeHtml(type)} ${row.is_unread ? 'is-unread' : ''}">
+
+        const visitAction = safeId
+          ? isNpc
+            ? `<button type="button" class="farm-friend-action is-visit" data-npc-visit="${safeId}">回访</button>`
+            : `<button type="button" class="farm-friend-action is-visit" data-friend-visit="${safeId}">回访</button>`
+          : '';
+
+        return `<article class="farm-activity-row is-${escapeHtml(type)} ${row.is_unread ? 'is-unread' : ''} ${isNpc ? 'is-npc-activity' : ''}">
           <div class="farm-activity-icon">${icon}</div>
           <div class="farm-activity-copy"><b>${title}</b><small>${detail}</small></div>
           ${row.is_unread ? '<span class="farm-activity-new">NEW</span>' : ''}
-          ${safeId ? `<button type="button" class="farm-friend-action is-visit" data-friend-visit="${safeId}">回访</button>` : ''}
+          ${visitAction}
         </article>`;
       }).join('');
 
@@ -3113,31 +3374,49 @@
         return `<article class="farm-friend-row">${base}${actions}</article>`;
       };
 
+      const npcCard = (npc, isFriend) => {
+        const publicTitle = titleById(npc.titleId || 'newbie');
+        const safeId = escapeHtml(npc.id);
+        const actions = isFriend
+          ? `<div class="farm-friend-buttons"><button type="button" class="is-primary" data-npc-visit="${safeId}">拜访农场</button><button type="button" data-npc-remove="${safeId}">移出农友</button></div>`
+          : `<div class="farm-friend-buttons"><button type="button" class="is-primary" data-npc-add="${safeId}">＋ 加为农友</button></div>`;
+        return `<article class="farm-friend-row farm-npc-row">
+          <div class="farm-friend-avatar farm-npc-avatar">${npc.icon}</div>
+          <div class="farm-friend-copy"><b>${escapeHtml(npc.name)} <span class="farm-npc-badge">NPC</span></b><small>Lv.${formatNumber(npc.level)} · ${escapeHtml(npc.trait)} · <span class="farm-public-title">${publicTitle.icon}【${escapeHtml(publicTitle.name)}】</span></small><p>${escapeHtml(npc.note)}</p></div>
+          ${actions}
+        </article>`;
+      };
+
       const tabBadge = count => count > 0 ? `<i class="farm-friend-tab-badge">${count > 9 ? '9+' : count}</i>` : '';
       let tabContent = '';
+
       if (activeFriendTab === 'activity') {
         tabContent = `<section class="farm-friend-section farm-activity-section">
-          <header><b>🌿 最近动态</b><span>${farmActivityRows.length}</span></header>
-          ${farmActivityLoading ? '<div class="farm-network-state"><span class="farm-spinner"></span><b>正在读取农场动态…</b></div>' : activityHtml || '<p class="farm-empty-state">还没有农场动态。好友拜访或偷菜后，会在这里留下记录。</p>'}
+          <header><b>🌿 最近动态</b><span>${combinedActivityRows.length}</span></header>
+          ${farmActivityLoading && !combinedActivityRows.length ? '<div class="farm-network-state"><span class="farm-spinner"></span><b>正在读取农场动态…</b></div>' : activityHtml || '<p class="farm-empty-state">还没有农场动态。好友拜访、偷菜或 NPC 帮忙除虫后，会在这里留下记录。</p>'}
         </section>`;
       } else if (activeFriendTab === 'friends') {
-        tabContent = `<section class="farm-friend-section"><header><b>👥 我的好友</b><span>${accepted.length}</span></header>${accepted.length ? accepted.map(row => friendCard(row,'friend')).join('') : '<p class="farm-empty-state">还没有好友。可以到排行榜找到农友并点击「＋ 好友」。</p>'}</section>`;
+        tabContent = `
+          <section class="farm-friend-section"><header><b>👥 真人好友</b><span>${accepted.length}</span></header>${accepted.length ? accepted.map(row => friendCard(row,'friend')).join('') : '<p class="farm-empty-state">还没有真人好友。可以到排行榜找到农友并点击「＋ 好友」。</p>'}</section>
+          <section class="farm-friend-section farm-npc-section"><header><b>🌿 NPC 农友</b><span>${npcFriends.length}</span></header>${npcFriends.length ? npcFriends.map(npc => npcCard(npc,true)).join('') : '<p class="farm-empty-state">还没有 NPC 农友。下面可以挑几位加入，让农场世界更热闹。</p>'}</section>
+          ${npcSuggestions.length ? `<section class="farm-friend-section farm-npc-section is-suggestions"><header><b>✨ NPC 农友推荐</b><span>${npcSuggestions.length}</span></header><div class="farm-npc-note">NPC 会自己种菜、收菜，也可能帮你除虫；不会偷菜，也不会参加真人排行榜。</div>${npcSuggestions.map(npc => npcCard(npc,false)).join('')}</section>` : ''}
+        `;
       } else {
         tabContent = `${incoming.length ? `<section class="farm-friend-section"><header><b>📩 收到的申请</b><span>${incoming.length}</span></header>${incoming.map(row => friendCard(row,'incoming')).join('')}</section>` : '<section class="farm-friend-section"><header><b>📩 收到的申请</b><span>0</span></header><p class="farm-empty-state">目前没有待确认的好友申请。</p></section>'}
           ${outgoing.length ? `<section class="farm-friend-section"><header><b>⏳ 已送出的申请</b><span>${outgoing.length}</span></header>${outgoing.map(row => friendCard(row,'outgoing')).join('')}</section>` : ''}`;
       }
 
       body.innerHTML = `
-        <div class="farm-friends-summary"><span>👥 好友 <b>${accepted.length}</b></span><span>📩 待确认 <b>${incoming.length}</b></span><span>🌿 未读动态 <b>${unreadActivities}</b></span><button type="button" class="farm-refresh-button" data-refresh-friends ${(friendsLoading || farmActivityLoading) ? 'disabled' : ''}>↻ 刷新</button></div>
+        <div class="farm-friends-summary"><span>👥 真人 <b>${accepted.length}</b></span><span>🌿 NPC <b>${npcFriends.length}</b></span><span>📩 待确认 <b>${incoming.length}</b></span><span>🌿 未读动态 <b>${unreadActivities}</b></span><button type="button" class="farm-refresh-button" data-refresh-friends ${(friendsLoading || farmActivityLoading) ? 'disabled' : ''}>↻ 刷新</button></div>
         <div class="farm-friend-tabs" role="tablist" aria-label="好友功能">
           <button type="button" data-friend-tab="activity" class="${activeFriendTab === 'activity' ? 'is-active' : ''}">🌿 动态 ${tabBadge(unreadActivities)}</button>
-          <button type="button" data-friend-tab="friends" class="${activeFriendTab === 'friends' ? 'is-active' : ''}">👥 好友 <small>${accepted.length}</small></button>
+          <button type="button" data-friend-tab="friends" class="${activeFriendTab === 'friends' ? 'is-active' : ''}">👥 好友 <small>${accepted.length + npcFriends.length}</small></button>
           <button type="button" data-friend-tab="requests" class="${activeFriendTab === 'requests' ? 'is-active' : ''}">📩 申请 ${tabBadge(incoming.length)}</button>
         </div>
-        ${(friendsLoading && !friendRows.length) ? '<div class="farm-network-state"><span class="farm-spinner"></span><b>正在读取好友资料…</b></div>' : ''}
-        ${friendsError ? `<div class="farm-network-state is-error"><b>⚠ ${escapeHtml(friendsError)}</b></div>` : ''}
-        ${farmActivityError && activeFriendTab === 'activity' ? `<div class="farm-network-state is-error"><b>⚠ ${escapeHtml(farmActivityError)}</b></div>` : ''}
-        ${!friendsLoading && !friendsError ? tabContent : ''}`;
+        ${(friendsLoading && !friendRows.length && activeFriendTab !== 'friends') ? '<div class="farm-network-state"><span class="farm-spinner"></span><b>正在读取真人好友资料…</b></div>' : ''}
+        ${friendsError ? `<div class="farm-network-state is-error"><b>⚠ 真人好友暂时无法读取：${escapeHtml(friendsError)}</b><small>NPC 农友仍可正常使用。</small></div>` : ''}
+        ${farmActivityError && activeFriendTab === 'activity' ? `<div class="farm-network-state is-error"><b>⚠ 真人农场动态暂时无法读取：${escapeHtml(farmActivityError)}</b></div>` : ''}
+        ${tabContent}`;
     }
   }
 
@@ -3252,6 +3531,13 @@
     if (cloudReady && !document.hidden && Date.now() - farmActivityUnreadCheckedAt >= FARM_ACTIVITY_UNREAD_POLL_MS) {
       refreshFarmActivityUnread(false).catch(() => {});
     }
+    // NPCs are lazy-simulated: only one inexpensive local check per minute.
+    // An actual help action can occur at most once per 45-minute bucket and
+    // then uses the existing farm save path, so there is no NPC polling traffic.
+    if (!document.hidden && Date.now() - npcRuntimeCheckedAt >= 60 * 1000) {
+      npcRuntimeCheckedAt = Date.now();
+      maybeNpcHelpPest();
+    }
   }
 
   function handleClick(event) {
@@ -3360,8 +3646,11 @@
     if (friendTab) {
       const nextTab = ['activity','friends','requests'].includes(friendTab.dataset.friendTab) ? friendTab.dataset.friendTab : 'activity';
       activeFriendTab = nextTab;
-      if (nextTab === 'activity') { farmActivityLoadedAt = 0; loadFarmActivity(true, true).catch(() => {}); }
-      else renderActivePanel();
+      if (nextTab === 'activity') {
+        markNpcActivitiesSeen();
+        farmActivityLoadedAt = 0;
+        loadFarmActivity(true, true).catch(() => {});
+      } else renderActivePanel();
       return;
     }
 
@@ -3377,6 +3666,17 @@
     if (friendRemove) { removeFriend(friendRemove.dataset.friendRemove, 'friend'); return; }
     const friendVisit = event.target.closest('[data-friend-visit]');
     if (friendVisit) { visitFriend(friendVisit.dataset.friendVisit); return; }
+
+    const npcAdd = event.target.closest('[data-npc-add]');
+    if (npcAdd) { setNpcFriend(npcAdd.dataset.npcAdd, true); return; }
+    const npcRemove = event.target.closest('[data-npc-remove]');
+    if (npcRemove) {
+      const npc = npcById(npcRemove.dataset.npcRemove);
+      if (!npc || window.confirm(`确定要把 ${npc.name} NPC 移出农友吗？`)) setNpcFriend(npcRemove.dataset.npcRemove, false);
+      return;
+    }
+    const npcVisit = event.target.closest('[data-npc-visit]');
+    if (npcVisit) { visitNpcFarm(npcVisit.dataset.npcVisit); return; }
 
     const stealPlot = event.target.closest('[data-steal-friend][data-steal-plot]');
     if (stealPlot) { stealFriendCrop(stealPlot.dataset.stealFriend, Number(stealPlot.dataset.stealPlot)); return; }
@@ -3536,6 +3836,7 @@
     ensureDailyState(localFarmDay(), {persist:false});
     saveState({touch:false, sync:false});
     renderAll();
+    setTimeout(() => { npcRuntimeCheckedAt = Date.now(); maybeNpcHelpPest(); }, 1200);
     bootstrapCloud(false).then(() => Promise.all([loadFriends(true), refreshFarmActivityUnread(true)])).catch(() => {});
 
     if (tickTimer) clearInterval(tickTimer);
