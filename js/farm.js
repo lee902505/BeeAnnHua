@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const FARM_BUILD = '0.13.25';
+  const FARM_BUILD = '0.13.26';
   const STORAGE_KEY = 'xingchen-farm-v1';
   const VERSION = 1;
   const PLOT_COUNT = 20;
@@ -10,6 +10,7 @@
   const CLOUD_SYNC_DELAY = 700;
   const CLOUD_REVISION_POLL_MS = 60000;
   const CLOUD_VISIBILITY_CHECK_MS = 15000;
+  const FARM_DAY_SYNC_MS = 30 * 60 * 1000;
   const SYNC_META_KEY = 'xingchen-farm-v1-sync-meta';
   const PENDING_OPS_KEY = 'xingchen-farm-v1-pending-ops';
 
@@ -31,7 +32,7 @@
   };
   const PLANTABLES = [...CROPS, MYSTERY_CROP];
 
-  // V0.13.25 — two ROWEB-style 4×4 crop atlases. Each crop points to a
+  // V0.13.26 — two ROWEB-style 4×4 crop atlases. Each crop points to a
   // sheet + row, while the growth percentage selects the column. The artwork
   // stays as two large transparent images; nothing is split into 32 files.
   const CROP_ATLAS = Object.freeze({
@@ -81,6 +82,15 @@
     { id:'friend5', title:'热闹小农场', desc:'好友达到 5 人。', type:'friend', target:5, reward:{seeds:{strawberry:3}}, rewardText:'草莓种子 ×3' },
     { id:'friend10', title:'农场交友达人', desc:'好友达到 10 人。', type:'friend', target:10, reward:{seeds:{pumpkin:3}}, rewardText:'南瓜种子 ×3' }
   ];
+
+  const DAILY_TASKS = [
+    { id:'dailyPlant5', title:'今日播种', desc:'今天播种 5 格农地。', metric:'plant', target:5, reward:{coins:15}, rewardText:'金币 ×15' },
+    { id:'dailyHarvest5', title:'今日丰收', desc:'今天收成 5 格成熟作物。', metric:'harvest', target:5, reward:{exp:20}, rewardText:'EXP +20' },
+    { id:'dailySell10', title:'今日交易', desc:'今天出售 10 个农作物。', metric:'sell', target:10, reward:{coins:20}, rewardText:'金币 ×20' },
+    { id:'dailyVisit2', title:'串门子', desc:'今天拜访 2 位不同的农场好友。', metric:'visit', target:2, reward:{exp:15}, rewardText:'EXP +15' },
+    { id:'dailySteal1', title:'今天也偷一下', desc:'今天成功偷菜 1 次。', metric:'steal', target:1, reward:{coins:10}, rewardText:'金币 ×10' }
+  ];
+  const DAILY_BONUS = { id:'dailyBonus', title:'今日农场全勤', desc:'完成今天全部 5 项每日任务。', reward:{seeds:{mystery:1}, exp:30}, rewardText:'蔬果盲盒 ×1 · EXP +30' };
 
 
   const TITLES = [
@@ -192,8 +202,13 @@
   let stealActivityLoading = false;
   let stealActivityError = '';
   let stealActivityLoadedAt = 0;
-  let activeTaskTab = 'newbie';
+  let stealUnreadCount = 0;
+  let farmDay = localFarmDay();
+  let farmDaySyncAt = 0;
+  let activeTaskTab = 'daily';
   let activeAchievementGroup = 'wealth';
+  let levelUpQueue = [];
+  let levelUpPlaying = false;
   // Persist the horizontal achievement-category position across rerenders.
   // On iOS, tapping a category rebuilds the task panel; without this value the
   // newly-created scroller starts at scrollLeft=0 and looks like it snaps back
@@ -205,6 +220,61 @@
   const seedItems = () => PLANTABLES;
   const titleById = (id) => TITLES.find(item => item.id === id) || TITLES[0];
   const achievementById = (id) => ACHIEVEMENTS.find(item => item.id === id) || null;
+  const dailyTaskById = (id) => DAILY_TASKS.find(item => item.id === id) || null;
+
+  function localFarmDay(date = new Date()) {
+    try {
+      const parts = new Intl.DateTimeFormat('en', {
+        timeZone:'Asia/Taipei', year:'numeric', month:'2-digit', day:'2-digit'
+      }).formatToParts(date);
+      const map = Object.fromEntries(parts.map(part => [part.type, part.value]));
+      if (map.year && map.month && map.day) return `${map.year}-${map.month}-${map.day}`;
+    } catch (_) {}
+    const utc8 = new Date(date.getTime() + 8 * 60 * 60 * 1000);
+    return `${utc8.getUTCFullYear()}-${String(utc8.getUTCMonth()+1).padStart(2,'0')}-${String(utc8.getUTCDate()).padStart(2,'0')}`;
+  }
+
+  function createDailyState(day = localFarmDay()) {
+    return {date:day, plant:0, harvest:0, sell:0, steal:0, visitedFriends:[], claimed:[], bonusClaimed:false};
+  }
+
+  function ensureDailyState(day = farmDay || localFarmDay(), {persist=false} = {}) {
+    const normalizedDay = typeof day === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(day) ? day : localFarmDay();
+    farmDay = normalizedDay;
+    if (!state.daily || state.daily.date !== normalizedDay) {
+      state.daily = createDailyState(normalizedDay);
+      if (persist) saveState();
+      else writeLocalState();
+      return true;
+    }
+    return false;
+  }
+
+  function bumpDaily(metric, amount = 1, uniqueFriendId = '') {
+    ensureDailyState(farmDay);
+    if (metric === 'visit') {
+      if (!uniqueFriendId) return false;
+      const id = String(uniqueFriendId);
+      if (state.daily.visitedFriends.includes(id)) return false;
+      state.daily.visitedFriends.push(id);
+      state.daily.visitedFriends = state.daily.visitedFriends.slice(-50);
+      return true;
+    }
+    if (!['plant','harvest','sell','steal'].includes(metric)) return false;
+    state.daily[metric] = Math.max(0, Number(state.daily[metric]) || 0) + Math.max(0, Number(amount) || 0);
+    return true;
+  }
+
+  function dailyProgress(task) {
+    ensureDailyState(farmDay);
+    if (!task) return 0;
+    if (task.metric === 'visit') return Math.min(task.target, state.daily.visitedFriends.length);
+    return Math.min(task.target, Math.max(0, Number(state.daily[task.metric]) || 0));
+  }
+
+  function isDailyComplete(task) { return dailyProgress(task) >= task.target; }
+  function isDailyClaimed(task) { return Boolean(state.daily?.claimed?.includes(task.id)); }
+  function isDailyBonusReady() { return DAILY_TASKS.every(isDailyComplete); }
 
   function defaultPlots() {
     return Array.from({length:PLOT_COUNT}, (_, i) => ({ id:i, cropId:null, plantedAt:null }));
@@ -224,6 +294,8 @@
       claimedTasks: [],
       claimedAchievements: [],
       titles: { unlocked:['newbie'], equipped:'newbie' },
+      daily: createDailyState(localFarmDay()),
+      notices: { titles:[] },
       history: [],
       ownerUserId: '',
       updatedAt: Date.now()
@@ -266,6 +338,23 @@
     const equipped = validTitleIds.has(raw?.titles?.equipped) && unlocked.includes(raw.titles.equipped)
       ? raw.titles.equipped : 'newbie';
     merged.titles = {unlocked, equipped};
+
+    const dailyRaw = raw?.daily && typeof raw.daily === 'object' ? raw.daily : {};
+    merged.daily = {
+      date: typeof dailyRaw.date === 'string' ? dailyRaw.date : localFarmDay(),
+      plant: Math.max(0, Number(dailyRaw.plant) || 0),
+      harvest: Math.max(0, Number(dailyRaw.harvest) || 0),
+      sell: Math.max(0, Number(dailyRaw.sell) || 0),
+      steal: Math.max(0, Number(dailyRaw.steal) || 0),
+      visitedFriends: Array.isArray(dailyRaw.visitedFriends) ? [...new Set(dailyRaw.visitedFriends.filter(Boolean).map(String))].slice(-50) : [],
+      claimed: Array.isArray(dailyRaw.claimed) ? [...new Set(dailyRaw.claimed.filter(id => DAILY_TASKS.some(task => task.id === id)))] : [],
+      bonusClaimed: Boolean(dailyRaw.bonusClaimed)
+    };
+    const noticeRaw = raw?.notices && typeof raw.notices === 'object' ? raw.notices : {};
+    merged.notices = {
+      titles: Array.isArray(noticeRaw.titles) ? [...new Set(noticeRaw.titles.filter(id => validTitleIds.has(id)))] : []
+    };
+
     merged.ownerUserId = typeof merged.ownerUserId === 'string' ? merged.ownerUserId : '';
     merged.updatedAt = Math.max(0, Number(merged.updatedAt) || Number(merged.createdAt) || Date.now());
     return merged;
@@ -352,6 +441,9 @@
     if (!Array.isArray(state.titles.unlocked)) state.titles.unlocked = ['newbie'];
     if (state.titles.unlocked.includes(titleId)) return false;
     state.titles.unlocked.push(titleId);
+    if (!state.notices || typeof state.notices !== 'object') state.notices = {titles:[]};
+    if (!Array.isArray(state.notices.titles)) state.notices.titles = [];
+    if (!state.notices.titles.includes(titleId)) state.notices.titles.push(titleId);
     return true;
   }
 
@@ -385,6 +477,35 @@
     return true;
   }
 
+  function applyGenericReward(reward = {}, {silent=false} = {}) {
+    if (reward.coins) state.coins += Number(reward.coins) || 0;
+    if (reward.exp) addExp(Number(reward.exp) || 0, {silent});
+    if (reward.seeds) {
+      Object.entries(reward.seeds).forEach(([cropId, qty]) => {
+        state.seeds[cropId] = (state.seeds[cropId] || 0) + Math.max(0, Number(qty) || 0);
+      });
+    }
+    if (reward.title) unlockTitle(reward.title);
+    updateHighWatermarks();
+  }
+
+  function applyDailyTaskReward(task, day = farmDay, {silent=false} = {}) {
+    ensureDailyState(day);
+    if (!task || state.daily.date !== day || state.daily.claimed.includes(task.id)) return false;
+    if (!isDailyComplete(task)) return false;
+    state.daily.claimed.push(task.id);
+    applyGenericReward(task.reward || {}, {silent});
+    return true;
+  }
+
+  function applyDailyBonusReward(day = farmDay, {silent=false} = {}) {
+    ensureDailyState(day);
+    if (state.daily.date !== day || state.daily.bonusClaimed || !isDailyBonusReady()) return false;
+    state.daily.bonusClaimed = true;
+    applyGenericReward(DAILY_BONUS.reward || {}, {silent});
+    return true;
+  }
+
   function plantMutationApplied(targetState, op) {
     if (!Array.isArray(op?.plots) || !op.plots.length) return true;
     return op.plots.every(item => {
@@ -397,6 +518,14 @@
     if (!op || !targetState) return false;
     if (op.type === 'claim-task') return Array.isArray(targetState.claimedTasks) && targetState.claimedTasks.includes(op.taskId);
     if (op.type === 'claim-achievement') return Array.isArray(targetState.claimedAchievements) && targetState.claimedAchievements.includes(op.achievementId);
+    if (op.type === 'claim-daily') {
+      if (targetState?.daily?.date && targetState.daily.date !== op.day) return true;
+      return targetState?.daily?.date === op.day && Array.isArray(targetState.daily.claimed) && targetState.daily.claimed.includes(op.dailyTaskId);
+    }
+    if (op.type === 'claim-daily-bonus') {
+      if (targetState?.daily?.date && targetState.daily.date !== op.day) return true;
+      return targetState?.daily?.date === op.day && Boolean(targetState.daily.bonusClaimed);
+    }
     if (op.type === 'equip-title') return targetState?.titles?.equipped === op.titleId;
     if (op.type === 'plant') return plantMutationApplied(targetState, op);
     return false;
@@ -430,6 +559,17 @@
         continue;
       }
 
+      if (op.type === 'claim-daily') {
+        const task = dailyTaskById(op.dailyTaskId);
+        if (task && op.day === farmDay && applyDailyTaskReward(task, op.day, {silent:true})) changed = true;
+        continue;
+      }
+
+      if (op.type === 'claim-daily-bonus') {
+        if (op.day === farmDay && applyDailyBonusReward(op.day, {silent:true})) changed = true;
+        continue;
+      }
+
       if (op.type === 'equip-title') {
         if (state.titles?.unlocked?.includes(op.titleId) && state.titles.equipped !== op.titleId) {
           state.titles.equipped = op.titleId;
@@ -452,6 +592,7 @@
           plot.harvestYield = Number(item.harvestYield) || 1;
           plot.stolenCount = 0;
           state.stats.plant += 1;
+          bumpDaily('plant', 1);
           if (op.cropId === 'mystery') state.stats.blindBoxPlant += 1;
           state.history.push({type:'plant', cropId:op.cropId, plotId:index, at:plot.plantedAt, recovered:true, mutationId:op.id});
           changed = true;
@@ -525,7 +666,7 @@
   function multiplayerMissing(error) {
     const text = String(error?.message || error || '');
     return error?.code === '42P01' || error?.code === 'PGRST202' ||
-      /get_farm_rankings_v2|get_farm_friends_v2|get_friend_farm_v2|steal_friend_crop_v3|steal_friend_crop_v2|get_farm_steal_activity_v1|get_farm_rankings|get_farm_friends|get_friend_farm|steal_friend_crop|request_farm_friend|farm_friendships|farm_steals|schema cache|does not exist|could not find/i.test(text);
+      /get_farm_day_v1|get_farm_rankings_v2|get_farm_friends_v2|get_friend_farm_v2|steal_friend_crop_v4|steal_friend_crop_v3|steal_friend_crop_v2|get_farm_steal_activity_v1|get_farm_rankings|get_farm_friends|get_friend_farm|steal_friend_crop|request_farm_friend|farm_friendships|farm_steals|schema cache|does not exist|could not find/i.test(text);
   }
 
   function escapeHtml(value) {
@@ -780,17 +921,55 @@
     }
   }
 
+  async function syncFarmDay(force = false) {
+    const sb = cloudClient();
+    const user = cloudAuthUser();
+    const now = Date.now();
+    if (!sb || !user?.id || (!force && farmDaySyncAt && now - farmDaySyncAt < FARM_DAY_SYNC_MS)) {
+      const fallback = localFarmDay();
+      if (fallback !== farmDay) {
+        ensureDailyState(fallback, {persist:true});
+        renderAll();
+      }
+      return farmDay;
+    }
+    try {
+      const {data, error} = await sb.rpc('get_farm_day_v1');
+      if (error) throw error;
+      const day = typeof data === 'string' ? data : localFarmDay();
+      farmDaySyncAt = Date.now();
+      if (day !== farmDay || state.daily?.date !== day) {
+        ensureDailyState(day, {persist:true});
+        renderAll();
+      } else {
+        farmDay = day;
+      }
+      return farmDay;
+    } catch (error) {
+      const fallback = localFarmDay();
+      if (fallback !== farmDay) {
+        ensureDailyState(fallback, {persist:true});
+        renderAll();
+      }
+      return farmDay;
+    }
+  }
+
   async function bootstrapCloud(preferRemote = false) {
     try {
       const authState = await window.XingchenAuth?.init?.();
       const user = window.XingchenAuth?.getUser?.() || (authState?.userId ? {id:authState.userId} : null);
       if (!user?.id) {
         setCloudStatus('local', '☁ 本机存档');
+        ensureDailyState(localFarmDay(), {persist:false});
         return;
       }
-      await pullCloudState({preferRemote});
+      const result = await pullCloudState({preferRemote});
+      await syncFarmDay(true);
+      return result;
     } catch (_) {
       setCloudStatus('local', '☁ 本机存档');
+      ensureDailyState(localFarmDay(), {persist:false});
     }
   }
 
@@ -862,8 +1041,10 @@
       friendRows = Array.isArray(data) ? data : [];
       friendsLoadedAt = Date.now();
       syncFriendStat(friendRows);
+      renderFriendDot();
     } catch (error) {
       friendRows = [];
+      renderFriendDot();
       friendsError = multiplayerMissing(error)
         ? '好友系统尚未启用：请先在 Supabase SQL Editor 执行 20260924_010_farm_achievements_titles.sql。'
         : '好友资料暂时读取失败，请稍后再试。';
@@ -891,9 +1072,14 @@
       const {data, error} = await sb.rpc('get_farm_steal_activity_v1', {p_limit:30, p_mark_seen:Boolean(markSeen)});
       if (error) throw error;
       stealActivityRows = Array.isArray(data) ? data : [];
+      const returnedUnread = stealActivityRows.filter(row => row.is_unread).length;
+      stealUnreadCount = markSeen ? 0 : returnedUnread;
       stealActivityLoadedAt = Date.now();
+      renderFriendDot();
     } catch (error) {
       stealActivityRows = [];
+      stealUnreadCount = 0;
+      renderFriendDot();
       stealActivityError = multiplayerMissing(error)
         ? '偷菜记录尚未启用：请先执行 20260926_011_farm_crop_sheet2_steal_activity.sql。'
         : '偷菜记录暂时读取失败，请稍后再试。';
@@ -1075,6 +1261,10 @@
         openModal({icon:'🏡', eyebrow:'FARM VISIT', title:'暂时无法拜访', subtitle:message, body:'<div class="farm-visit-actions"><button type="button" class="farm-friend-action" data-open-panel="friends">返回好友列表</button></div>'});
         return;
       }
+      if (bumpDaily('visit', 1, friendId)) {
+        saveState();
+        renderTaskDot();
+      }
       openModal({
         icon:'🏡', eyebrow:'FARM VISIT',
         title:`${payload.display_name || '好友'}的农场`,
@@ -1102,7 +1292,7 @@
     }
 
     try {
-      const {data, error} = await sb.rpc('steal_friend_crop_v3', {p_friend:friendId, p_plot:Number(plotId)});
+      const {data, error} = await sb.rpc('steal_friend_crop_v4', {p_friend:friendId, p_plot:Number(plotId)});
       if (error) throw error;
       const payload = data && typeof data === 'object' ? data : {};
       if (!payload.ok) {
@@ -1121,6 +1311,7 @@
       }
 
       const crop = CROPS.find(c => c.id === payload.crop_id) || CROPS[0];
+      if (typeof payload.farm_day === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(payload.farm_day)) farmDay = payload.farm_day;
       if (payload.thief_state && typeof payload.thief_state === 'object') {
         state = normalizeState(payload.thief_state);
         state.ownerUserId = user.id;
@@ -1135,7 +1326,7 @@
       await new Promise(resolve => setTimeout(resolve, 260));
       await visitFriend(friendId);
     } catch (error) {
-      toast('🥷 偷菜失败', multiplayerMissing(error) ? '请先执行 20260926_011_farm_crop_sheet2_steal_activity.sql。' : '网络暂时不稳定，请稍后再试。');
+      toast('🥷 偷菜失败', multiplayerMissing(error) ? '请先执行 20260926_012_farm_daily_tasks.sql。' : '网络暂时不稳定，请稍后再试。');
       if (tile) {
         tile.disabled = false;
         tile.classList.remove('is-stealing');
@@ -1162,29 +1353,69 @@
     return LAND_UNLOCKS.find(item => item.level > state.level) || null;
   }
 
+  function queueLevelUpCelebrations(items = []) {
+    if (!Array.isArray(items) || !items.length) return;
+    levelUpQueue.push(...items);
+  }
+
+  function animateUnlockedPlots(indices = []) {
+    if (!indices.length) return;
+    requestAnimationFrame(() => {
+      indices.forEach((index, order) => {
+        const plot = document.querySelector(`.farm-plot[data-plot="${index}"]`);
+        if (!plot) return;
+        setTimeout(() => {
+          plot.classList.remove('is-land-unlocking');
+          void plot.offsetWidth;
+          plot.classList.add('is-land-unlocking');
+          setTimeout(() => plot.classList.remove('is-land-unlocking'), 1500);
+        }, order * 160);
+      });
+    });
+  }
+
+  function playNextLevelUpCelebration() {
+    if (levelUpPlaying || !levelUpQueue.length) return;
+    levelUpPlaying = true;
+    const item = levelUpQueue.shift();
+    const old = document.getElementById('farmLevelUpOverlay');
+    if (old) old.remove();
+    const overlay = document.createElement('div');
+    overlay.id = 'farmLevelUpOverlay';
+    overlay.className = 'farm-level-up-overlay';
+    const landText = item.newPlots?.length ? `<span>🌱 新农地 ×${item.newPlots.length}</span>` : '';
+    const cropText = item.crops?.length ? `<span>🌾 解锁 ${item.crops.map(c => escapeHtml(c.name)).join('、')}</span>` : '';
+    overlay.innerHTML = `<div class="farm-level-up-card"><small>STELLAR FARM</small><b>LEVEL UP!</b><strong>Lv.${item.from} <i>→</i> Lv.${item.to}</strong><div>${landText}${cropText || '<span>✨ 农场能力提升</span>'}</div></div><i class="farm-level-star s1">✦</i><i class="farm-level-star s2">✦</i><i class="farm-level-star s3">✧</i><i class="farm-level-leaf l1">🍃</i><i class="farm-level-leaf l2">🍃</i>`;
+    document.body.appendChild(overlay);
+    requestAnimationFrame(() => overlay.classList.add('is-visible'));
+    pulseExp();
+    setTimeout(() => animateUnlockedPlots(item.newPlots || []), 620);
+    setTimeout(() => overlay.classList.add('is-leaving'), 1850);
+    setTimeout(() => {
+      overlay.remove();
+      levelUpPlaying = false;
+      playNextLevelUpCelebration();
+    }, 2300);
+  }
+
   function addExp(amount, {silent=false} = {}) {
     if (!amount) return;
     state.exp += amount;
-    const unlockedBefore = unlockedLandCount(state.level);
-    const cropsBefore = CROPS.filter(c => c.unlockLevel <= state.level).map(c => c.id);
-    let levelUps = 0;
+    const celebrations = [];
 
     while (state.exp >= currentExpNeed()) {
+      const from = state.level;
+      const beforeLand = unlockedLandCount(from);
       state.exp -= currentExpNeed();
       state.level += 1;
-      levelUps += 1;
+      const afterLand = unlockedLandCount(state.level);
+      const newPlots = Array.from({length:Math.max(0, afterLand - beforeLand)}, (_, offset) => beforeLand + offset);
+      const crops = CROPS.filter(c => c.unlockLevel === state.level);
+      celebrations.push({from, to:state.level, newPlots, crops});
     }
 
-    if (levelUps) {
-      const unlockedAfter = unlockedLandCount(state.level);
-      const newlyCrops = CROPS.filter(c => c.unlockLevel <= state.level && !cropsBefore.includes(c.id));
-      let extra = `升到 Lv.${state.level}`;
-      if (unlockedAfter > unlockedBefore) extra += ` · 新农地 +${unlockedAfter - unlockedBefore}`;
-      if (newlyCrops.length) extra += ` · 解锁 ${newlyCrops.map(c => c.name).join('、')}`;
-      if (!silent) {
-        toast('🌟 农场升级！', extra, 'level');
-        pulseExp();
-      }
+    if (celebrations.length && !silent) {
+      queueLevelUpCelebrations(celebrations);
     }
   }
 
@@ -1286,7 +1517,9 @@
     renderField();
     updateHarvestAllButton();
     renderTaskDot();
+    renderFriendDot();
     if (activePanel) renderActivePanel();
+    if (levelUpQueue.length && !levelUpPlaying) requestAnimationFrame(playNextLevelUpCelebration);
   }
 
   function renderOwner() {
@@ -1558,6 +1791,7 @@
       plot.harvestYield = Number(item.harvestYield) || 1;
       plot.stolenCount = 0;
       state.stats.plant += 1;
+      bumpDaily('plant', 1);
       if (crop.isMystery) state.stats.blindBoxPlant += 1;
       state.history.push({type:'plant', cropId, plotId:index, at:plot.plantedAt, mutationId:mutation.id});
       saveState();
@@ -1651,6 +1885,7 @@
       totals[result.crop.id] = (totals[result.crop.id] || 0) + result.amount;
       totalExp += crop.exp;
       state.stats.harvest += 1;
+      bumpDaily('harvest', 1);
       state.history.push({type:'harvest', cropId:result.crop.id, sourceCropId:crop.id, amount:result.amount, at:Date.now(), batch:true});
       clearPlot(plot);
     }
@@ -1672,6 +1907,7 @@
     if (!result) return;
     state.produce[result.crop.id] = (state.produce[result.crop.id] || 0) + result.amount;
     state.stats.harvest += 1;
+    bumpDaily('harvest', 1);
     state.history.push({type:'harvest', cropId:result.crop.id, sourceCropId:crop.id, amount:result.amount, at:Date.now()});
     clearPlot(plot);
     addExp(crop.exp);
@@ -1746,6 +1982,7 @@
     state.produce[cropId] -= qty;
     state.coins += income;
     state.stats.sell += qty;
+    bumpDaily('sell', qty);
     state.history.push({type:'sell', cropId, amount:qty, coins:income, at:Date.now()});
     saveState();
     renderAll();
@@ -1815,10 +2052,58 @@
     toast('📜 任务奖励已领取', `${task.title} · ${task.rewardText}`, 'task');
   }
 
+  async function claimDailyTask(id) {
+    await syncFarmDay(true);
+    const task = dailyTaskById(id);
+    if (!task || !isDailyComplete(task) || isDailyClaimed(task)) return;
+    queuePendingOp({type:'claim-daily', dailyTaskId:id, day:farmDay});
+    applyDailyTaskReward(task, farmDay);
+    saveState();
+    if (cloudReady) await pushCloudState(true);
+    renderAll();
+    toast('☀️ 每日任务奖励已领取', `${task.title} · ${task.rewardText}`, 'task');
+  }
+
+  async function claimDailyBonus() {
+    await syncFarmDay(true);
+    if (!isDailyBonusReady() || state.daily.bonusClaimed) return;
+    queuePendingOp({type:'claim-daily-bonus', day:farmDay});
+    applyDailyBonusReward(farmDay);
+    saveState();
+    if (cloudReady) await pushCloudState(true);
+    renderAll();
+    toast('🎁 今日农场全勤！', DAILY_BONUS.rewardText, 'task');
+  }
+
+  function taskNoticeCounts() {
+    ensureDailyState(farmDay);
+    const daily = DAILY_TASKS.filter(task => isDailyComplete(task) && !isDailyClaimed(task)).length + (isDailyBonusReady() && !state.daily.bonusClaimed ? 1 : 0);
+    const newbie = TASKS.filter(task => !task.future && isTaskComplete(task) && !isTaskClaimed(task)).length;
+    const achievementByGroup = Object.fromEntries(ACHIEVEMENT_GROUPS.map(group => [group.id, 0]));
+    ACHIEVEMENTS.forEach(item => {
+      if (isAchievementComplete(item) && !isAchievementClaimed(item)) achievementByGroup[item.group] = (achievementByGroup[item.group] || 0) + 1;
+    });
+    const achievements = Object.values(achievementByGroup).reduce((sum, value) => sum + value, 0);
+    const titles = Array.isArray(state.notices?.titles) ? state.notices.titles.length : 0;
+    return {daily, newbie, achievements, titles, achievementByGroup, total:daily + newbie + achievements + titles};
+  }
+
+  function setNoticeBadge(el, count) {
+    if (!el) return;
+    const value = Math.max(0, Number(count) || 0);
+    el.hidden = value <= 0;
+    el.textContent = value > 9 ? '9+' : String(value);
+    el.setAttribute('aria-label', value ? `${value} 个新提醒` : '');
+  }
+
   function renderTaskDot() {
-    const taskClaimable = TASKS.some(task => !task.future && isTaskComplete(task) && !isTaskClaimed(task));
-    const achievementClaimable = ACHIEVEMENTS.some(item => isAchievementComplete(item) && !isAchievementClaimed(item));
-    $('farmTaskDot').hidden = !(taskClaimable || achievementClaimable);
+    const counts = taskNoticeCounts();
+    setNoticeBadge($('farmTaskDot'), counts.total);
+  }
+
+  function renderFriendDot() {
+    const incoming = friendRows.filter(row => row.relation_state === 'pending_in').length;
+    setNoticeBadge($('farmFriendDot'), incoming + Math.max(0, stealUnreadCount));
   }
 
   function openPanel(panel) {
@@ -1826,13 +2111,18 @@
     const meta = {
       shop:{icon:'🛒', eyebrow:'FARM SHOP', title:'种子商店', subtitle:'购买普通种子，也可以试试 5 金币一个、固定 4 小时的蔬果盲盒。'},
       bag:{icon:'🎒', eyebrow:'INVENTORY', title:'我的背包', subtitle:'种子用于播种；成熟作物可以在这里出售换取金币。'},
-      tasks:{icon:'📜', eyebrow:'FARM QUEST', title:'任务与成就', subtitle:'新手任务教你经营农场；长期成就会解锁奖励与可以展示的专属称号。'},
+      tasks:{icon:'📜', eyebrow:'FARM QUEST', title:'任务与成就', subtitle:'完成每日农务、新手任务与长期成就，领取奖励并解锁专属称号。'},
       ranking:{icon:'🏆', eyebrow:'RANKING', title:'农场排行榜', subtitle:'查看真实云端玩家的等级榜与金币榜，也可以直接发送好友申请。'},
       friends:{icon:'👥', eyebrow:'FRIENDS', title:'农场好友', subtitle:'查看好友申请、偷菜记录与好友列表，也可以直接回访好友农场。'}
     }[panel];
     if (!meta) return;
     openModal({...meta, body:''});
     renderActivePanel();
+    if (panel === 'tasks') syncFarmDay(true).then(() => renderActivePanel()).catch(() => {});
+    if (panel === 'friends') {
+      stealActivityLoadedAt = 0;
+      loadStealActivity(true, true).catch(() => {});
+    }
   }
 
   function formatFarmActivityTime(value) {
@@ -1891,11 +2181,42 @@
     }
 
     if (activePanel === 'tasks') {
+      const noticeCounts = taskNoticeCounts();
+      const tabBadge = count => count > 0 ? `<i class="farm-tab-notice">${count > 9 ? '9+' : count}</i>` : '';
       const tabs = `<div class="farm-task-tabs">
-        <button type="button" data-task-tab="newbie" class="${activeTaskTab === 'newbie' ? 'is-active' : ''}">📜 新手任务</button>
-        <button type="button" data-task-tab="achievements" class="${activeTaskTab === 'achievements' ? 'is-active' : ''}">🏅 成就</button>
-        <button type="button" data-task-tab="titles" class="${activeTaskTab === 'titles' ? 'is-active' : ''}">🏷️ 称号</button>
+        <button type="button" data-task-tab="daily" class="${activeTaskTab === 'daily' ? 'is-active' : ''}">☀️ 每日${tabBadge(noticeCounts.daily)}</button>
+        <button type="button" data-task-tab="newbie" class="${activeTaskTab === 'newbie' ? 'is-active' : ''}">📜 新手${tabBadge(noticeCounts.newbie)}</button>
+        <button type="button" data-task-tab="achievements" class="${activeTaskTab === 'achievements' ? 'is-active' : ''}">🏅 成就${tabBadge(noticeCounts.achievements)}</button>
+        <button type="button" data-task-tab="titles" class="${activeTaskTab === 'titles' ? 'is-active' : ''}">🏷️ 称号${tabBadge(noticeCounts.titles)}</button>
       </div>`;
+
+      if (activeTaskTab === 'daily') {
+        const dayLabel = escapeHtml(state.daily?.date || farmDay);
+        const dailyItems = DAILY_TASKS.map(task => {
+          const progress = dailyProgress(task);
+          const complete = isDailyComplete(task);
+          const claimed = isDailyClaimed(task);
+          const pct = Math.min(100, Math.round((progress / task.target) * 100));
+          const action = claimed
+            ? '<span class="farm-task-claimed">✓ 已领取</span>'
+            : complete
+              ? `<button type="button" data-claim-daily="${task.id}">领取奖励</button>`
+              : `<span class="farm-task-progress-text">${progress} / ${task.target}</span>`;
+          return `<article class="farm-task-item farm-daily-item ${complete ? 'is-complete' : ''} ${claimed ? 'is-claimed' : ''}">
+            <div class="farm-task-copy"><b>${task.title}</b><p>${task.desc}</p><small>奖励：${task.rewardText}</small></div>
+            <div class="farm-task-side">${action}</div>
+            <div class="farm-task-bar"><i style="width:${pct}%"></i></div>
+          </article>`;
+        }).join('');
+        const bonusReady = isDailyBonusReady();
+        const bonusAction = state.daily.bonusClaimed
+          ? '<span class="farm-task-claimed">✓ 今日已领取</span>'
+          : bonusReady
+            ? '<button type="button" data-claim-daily-bonus>领取全勤</button>'
+            : `<span class="farm-task-progress-text">${DAILY_TASKS.filter(isDailyComplete).length} / ${DAILY_TASKS.length}</span>`;
+        body.innerHTML = `${tabs}<section class="farm-daily-head"><div><small>UTC+8 每日 00:00 重置</small><b>${dayLabel}</b></div><span>☀️ 今日农务</span></section><div class="farm-task-list">${dailyItems}<article class="farm-task-item farm-daily-bonus ${bonusReady ? 'is-complete' : ''} ${state.daily.bonusClaimed ? 'is-claimed' : ''}"><div class="farm-task-copy"><b>🎁 ${DAILY_BONUS.title}</b><p>${DAILY_BONUS.desc}</p><small>奖励：${DAILY_BONUS.rewardText}</small></div><div class="farm-task-side">${bonusAction}</div><div class="farm-task-bar"><i style="width:${Math.min(100, DAILY_TASKS.filter(isDailyComplete).length / DAILY_TASKS.length * 100)}%"></i></div></article></div>`;
+        return;
+      }
 
       if (activeTaskTab === 'newbie') {
         body.innerHTML = `${tabs}<div class="farm-task-list">${TASKS.map(task => {
@@ -1918,7 +2239,10 @@
       }
 
       if (activeTaskTab === 'achievements') {
-        const groups = ACHIEVEMENT_GROUPS.map(group => `<button type="button" data-achievement-group="${group.id}" class="${activeAchievementGroup === group.id ? 'is-active' : ''}">${group.icon} ${group.label}</button>`).join('');
+        const groups = ACHIEVEMENT_GROUPS.map(group => {
+          const count = noticeCounts.achievementByGroup[group.id] || 0;
+          return `<button type="button" data-achievement-group="${group.id}" class="${activeAchievementGroup === group.id ? 'is-active' : ''}">${group.icon} ${group.label}${count ? `<i class="farm-chip-notice">${count > 9 ? '9+' : count}</i>` : ''}</button>`;
+        }).join('');
         const items = ACHIEVEMENTS.filter(item => item.group === activeAchievementGroup);
         body.innerHTML = `${tabs}<div class="farm-achievement-groups">${groups}</div><div class="farm-task-list">${items.map(item => {
           const progress = achievementProgress(item);
@@ -2123,6 +2447,14 @@
   }
 
   function tick() {
+    const today = localFarmDay();
+    if (today !== farmDay) {
+      ensureDailyState(today, {persist:true});
+      renderAll();
+      if (cloudReady) syncFarmDay(true).catch(() => {});
+    } else if (cloudReady && Date.now() - farmDaySyncAt >= FARM_DAY_SYNC_MS) {
+      syncFarmDay(false).catch(() => {});
+    }
     renderStats();
     // Do not rebuild all 20 buttons every second. Replacing the DOM while the
     // pointer is resting on a plot makes hover feel jittery; only countdowns
@@ -2144,13 +2476,22 @@
     const openTitles = event.target.closest('[data-open-titles]');
     if (openTitles) {
       activeTaskTab = 'titles';
+      if (state.notices?.titles?.length) {
+        state.notices.titles = [];
+        saveState();
+      }
       openPanel('tasks');
       return;
     }
 
     const taskTab = event.target.closest('[data-task-tab]');
     if (taskTab) {
-      activeTaskTab = ['newbie','achievements','titles'].includes(taskTab.dataset.taskTab) ? taskTab.dataset.taskTab : 'newbie';
+      activeTaskTab = ['daily','newbie','achievements','titles'].includes(taskTab.dataset.taskTab) ? taskTab.dataset.taskTab : 'daily';
+      if (activeTaskTab === 'daily') syncFarmDay(true).then(() => renderActivePanel()).catch(() => {});
+      if (activeTaskTab === 'titles' && state.notices?.titles?.length) {
+        state.notices.titles = [];
+        saveState();
+      }
       renderActivePanel();
       return;
     }
@@ -2161,6 +2502,17 @@
       if (scroller) achievementGroupScrollLeft = scroller.scrollLeft;
       activeAchievementGroup = ACHIEVEMENT_GROUPS.some(group => group.id === achievementGroup.dataset.achievementGroup) ? achievementGroup.dataset.achievementGroup : 'wealth';
       renderActivePanel();
+      return;
+    }
+
+    const dailyClaim = event.target.closest('[data-claim-daily]');
+    if (dailyClaim) {
+      claimDailyTask(dailyClaim.dataset.claimDaily);
+      return;
+    }
+
+    if (event.target.closest('[data-claim-daily-bonus]')) {
+      claimDailyBonus();
       return;
     }
 
@@ -2320,6 +2672,9 @@
     document.addEventListener('visibilitychange', () => {
       if (!document.hidden && cloudReady && Date.now() - cloudLastRevisionCheckAt > CLOUD_VISIBILITY_CHECK_MS) {
         checkCloudRevision({force:true}).catch(() => {});
+        syncFarmDay(true).catch(() => {});
+        stealActivityLoadedAt = 0;
+        loadStealActivity(true, false).catch(() => {});
       }
     });
     window.addEventListener('pagehide', () => {
@@ -2333,9 +2688,10 @@
     // local revision before the initial cloud comparison, otherwise an older
     // browser copy could incorrectly look newer than the server save.
     state.stats.visit = Math.max(1, Number(state.stats.visit) || 0);
+    ensureDailyState(localFarmDay(), {persist:false});
     saveState({touch:false, sync:false});
     renderAll();
-    bootstrapCloud(false).then(() => loadFriends(true)).catch(() => {});
+    bootstrapCloud(false).then(() => Promise.all([loadFriends(true), loadStealActivity(true, false)])).catch(() => {});
 
     if (tickTimer) clearInterval(tickTimer);
     tickTimer = setInterval(tick, 1000);

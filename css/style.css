@@ -9921,10 +9921,10 @@ body.farm-modal-open { overflow: hidden; }
 }
 
 .farm-crop-visual.is-sprite[data-crop-sheet="1"] {
-  background-image:url("../images/farm/crops-sheet-01.webp?v=0.13.25");
+  background-image:url("../images/farm/crops-sheet-01.webp?v=0.13.26");
 }
 .farm-crop-visual.is-sprite[data-crop-sheet="2"] {
-  background-image:url("../images/farm/crops-sheet-02.webp?v=0.13.25");
+  background-image:url("../images/farm/crops-sheet-02.webp?v=0.13.26");
 }
 
 /* Growth size is already painted into the atlas frames; do not scale sprite
@@ -11030,16 +11030,16 @@ body.farm-modal-open { overflow: hidden; }
 }
 
 
-/* V0.13.25 — 4x4 crop growth sprite sheet (carrot / wheat / corn / tomato) */
+/* V0.13.26 — 4x4 crop growth sprite sheet (carrot / wheat / corn / tomato) */
 
-/* V0.13.25 — atlas-anchor crop animation: keep the root fixed while the plant breathes. */
+/* V0.13.26 — atlas-anchor crop animation: keep the root fixed while the plant breathes. */
 @keyframes farm-crop-ready-sprite {
   0%,100% { transform:translate(var(--crop-shift-x,0px), calc(var(--crop-shift-y,0px) - var(--crop-lift,0px))) scale(var(--crop-scale,1)); }
   45% { transform:translate(var(--crop-shift-x,0px), calc(var(--crop-shift-y,0px) - 4px - var(--crop-lift,0px))) scale(calc(var(--crop-scale,1) * 1.035)); }
   70% { transform:translate(var(--crop-shift-x,0px), calc(var(--crop-shift-y,0px) - 1px - var(--crop-lift,0px))) scale(calc(var(--crop-scale,1) * .995)); }
 }
 
-/* V0.13.25 — crop position + readable labels.
+/* V0.13.26 — crop position + readable labels.
    Move atlas crops slightly upward while keeping text/countdown above foliage. */
 .farm-crop-visual.is-sprite {
   z-index:3;
@@ -11077,7 +11077,7 @@ body.farm-modal-open { overflow: hidden; }
 }
 
 
-/* V0.13.25 — crop alignment and label stacking.
+/* V0.13.26 — crop alignment and label stacking.
    Plants are nudged toward the visual centre of the sloped soil (upper-right),
    while planted plots sit above bare soil so crop labels/countdowns cannot be
    swallowed by neighbouring farm tiles. */
@@ -11109,7 +11109,7 @@ body.farm-modal-open { overflow: hidden; }
   }
 }
 
-/* V0.13.25 — mobile crop alignment fine tune.
+/* V0.13.26 — mobile crop alignment fine tune.
    Desktop keeps the current upper-right placement. On phones, move the crop
    sprite and its labels about 5px back toward the lower-left for better fit. */
 @media (max-width:760px) {
@@ -11123,7 +11123,7 @@ body.farm-modal-open { overflow: hidden; }
   }
 }
 
-/* ===== V0.13.25 MOBILE ACHIEVEMENT HORIZONTAL SCROLL FIX =====
+/* ===== V0.13.26 MOBILE ACHIEVEMENT HORIZONTAL SCROLL FIX =====
    The achievement category chips are a nested horizontal scroller inside the
    vertically scrolling farm modal. Explicit axis ownership prevents iOS Safari
    from handing the gesture to the modal and rubber-banding back. */
@@ -11164,11 +11164,11 @@ body.farm-modal-open { overflow: hidden; }
   }
 }
 
-/* ===== V0.13.25 ACHIEVEMENT CATEGORY TAP POSITION =====
+/* ===== V0.13.26 ACHIEVEMENT CATEGORY TAP POSITION =====
    JS now preserves the horizontal category scroll position when a chip is tapped. */
 
 
-/* ===== V0.13.25 SECOND CROP ATLAS + STEAL ACTIVITY ===== */
+/* ===== V0.13.26 SECOND CROP ATLAS + STEAL ACTIVITY ===== */
 .farm-steal-activity-section { margin-top:16px; }
 .farm-steal-activity {
   position:relative;
@@ -11203,3 +11203,175 @@ body.farm-modal-open { overflow: hidden; }
   .farm-steal-activity .farm-friend-action { grid-column:2 / -1; justify-self:end; }
   .farm-steal-new { position:absolute; top:8px; right:8px; }
 }
+
+/* ===== V0.13.26 LEVEL-UP / DAILY QUEST / NOTICE BADGES ===== */
+.farm-side-actions .farm-nav-notice {
+  position:absolute;
+  right:7px;
+  top:6px;
+  min-width:18px;
+  height:18px;
+  padding:0 5px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:999px;
+  font-style:normal;
+  font-size:.62rem;
+  line-height:1;
+  font-weight:800;
+  color:#fff;
+  background:#d95748;
+  box-shadow:0 0 0 3px rgba(255,244,216,.88),0 3px 8px rgba(118,48,38,.18);
+  z-index:3;
+}
+.farm-side-actions .farm-nav-notice[hidden] { display:none !important; }
+/* override the old single-dot rule */
+.farm-task-button i.farm-nav-notice,
+.farm-friend-button i.farm-nav-notice { width:auto; }
+
+.farm-task-tabs { grid-template-columns:repeat(4,minmax(0,1fr)); }
+.farm-task-tabs button,
+.farm-achievement-groups button { position:relative; }
+.farm-tab-notice,
+.farm-chip-notice {
+  position:absolute;
+  top:-5px;
+  right:-4px;
+  min-width:16px;
+  height:16px;
+  padding:0 4px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:999px;
+  background:#dc5848;
+  color:#fff;
+  border:2px solid #fff8e9;
+  font-style:normal;
+  font-size:.56rem;
+  font-weight:800;
+  line-height:1;
+  box-shadow:0 3px 7px rgba(120,54,42,.14);
+  pointer-events:none;
+}
+.farm-chip-notice { top:-6px; right:-5px; }
+
+.farm-daily-head {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  margin:0 0 11px;
+  padding:12px 14px;
+  border-radius:15px;
+  border:1px solid rgba(180,148,67,.18);
+  background:linear-gradient(135deg,rgba(255,248,211,.8),rgba(239,246,215,.72));
+}
+.farm-daily-head div small,
+.farm-daily-head div b { display:block; }
+.farm-daily-head small { color:#99866b; font-size:.63rem; }
+.farm-daily-head b { margin-top:2px; color:#627048; font-size:.78rem; letter-spacing:.04em; }
+.farm-daily-head > span { color:#8a733e; font-weight:800; font-size:.78rem; }
+.farm-daily-item .farm-task-copy b::before { content:'☀️ '; }
+.farm-daily-bonus {
+  background:linear-gradient(135deg,rgba(255,247,207,.84),rgba(239,247,217,.82));
+  border-color:rgba(166,136,59,.24);
+}
+.farm-daily-bonus.is-complete:not(.is-claimed) {
+  box-shadow:0 0 0 2px rgba(230,190,80,.08),0 10px 24px rgba(116,92,47,.08);
+}
+
+.farm-level-up-overlay {
+  position:fixed;
+  inset:0;
+  z-index:2600;
+  display:grid;
+  place-items:center;
+  pointer-events:none;
+  opacity:0;
+  background:radial-gradient(circle at 50% 48%,rgba(255,247,185,.22),rgba(44,54,34,.02) 38%,rgba(34,40,27,.16));
+  transition:opacity .22s ease;
+}
+.farm-level-up-overlay.is-visible { opacity:1; }
+.farm-level-up-overlay.is-leaving { opacity:0; transition-duration:.36s; }
+.farm-level-up-card {
+  min-width:min(360px,calc(100vw - 44px));
+  padding:24px 30px 22px;
+  text-align:center;
+  border-radius:28px;
+  color:#5f633f;
+  background:linear-gradient(150deg,rgba(255,253,230,.98),rgba(238,242,199,.96));
+  border:2px solid rgba(186,153,65,.42);
+  box-shadow:0 22px 58px rgba(48,56,35,.3),inset 0 1px 0 rgba(255,255,255,.9);
+  transform:scale(.72) translateY(18px);
+  animation:farm-level-card-in .72s cubic-bezier(.2,1.18,.28,1) both;
+}
+.farm-level-up-card small { display:block; letter-spacing:.2em; color:#aa8b43; font-size:.62rem; }
+.farm-level-up-card > b { display:block; margin-top:3px; font-size:2rem; letter-spacing:.05em; color:#6c7d48; text-shadow:0 2px 0 rgba(255,255,255,.85); }
+.farm-level-up-card > strong { display:block; margin:7px 0 12px; font-size:1.18rem; color:#7b6539; }
+.farm-level-up-card > strong i { margin:0 8px; font-style:normal; color:#b49a5d; }
+.farm-level-up-card > div { display:flex; flex-wrap:wrap; justify-content:center; gap:7px; }
+.farm-level-up-card > div span { padding:6px 9px; border-radius:999px; background:rgba(255,255,255,.64); color:#69724d; font-size:.72rem; font-weight:700; }
+.farm-level-star,.farm-level-leaf { position:absolute; font-style:normal; animation:farm-level-float 1.7s ease-out both; }
+.farm-level-star { color:#fff0a0; text-shadow:0 0 12px rgba(255,225,105,.75); font-size:1.6rem; }
+.farm-level-leaf { font-size:1.25rem; }
+.farm-level-star.s1 { left:34%; top:32%; }
+.farm-level-star.s2 { right:34%; top:27%; animation-delay:.12s; }
+.farm-level-star.s3 { right:29%; top:50%; animation-delay:.22s; }
+.farm-level-leaf.l1 { left:30%; top:48%; transform:rotate(-24deg); animation-delay:.08s; }
+.farm-level-leaf.l2 { right:30%; top:43%; transform:rotate(28deg); animation-delay:.18s; }
+@keyframes farm-level-card-in {
+  0% { transform:scale(.72) translateY(18px); opacity:0; }
+  68% { transform:scale(1.055) translateY(-3px); opacity:1; }
+  100% { transform:scale(1) translateY(0); opacity:1; }
+}
+@keyframes farm-level-float {
+  0% { opacity:0; margin-top:20px; transform:scale(.65) rotate(0deg); }
+  35% { opacity:1; }
+  100% { opacity:0; margin-top:-55px; transform:scale(1.1) rotate(24deg); }
+}
+
+.farm-plot.is-land-unlocking .farm-soil {
+  animation:farm-land-awaken 1.35s cubic-bezier(.2,.9,.25,1) both;
+  z-index:20;
+}
+.farm-plot.is-land-unlocking .farm-soil::after {
+  content:'🔒';
+  position:absolute;
+  left:50%;
+  top:34%;
+  z-index:30;
+  font-size:1.05rem;
+  transform:translate(-50%,-50%);
+  animation:farm-lock-break 1.05s ease-out both;
+  filter:drop-shadow(0 3px 3px rgba(51,42,25,.22));
+}
+@keyframes farm-land-awaken {
+  0% { filter:grayscale(.8) brightness(.78); transform:translateY(0) scale(.96); }
+  38% { filter:grayscale(.3) brightness(1.2); transform:translateY(-7px) scale(1.04); }
+  72% { filter:grayscale(0) brightness(1.08); transform:translateY(-2px) scale(1.015); }
+  100% { filter:none; transform:none; }
+}
+@keyframes farm-lock-break {
+  0% { opacity:1; transform:translate(-50%,-50%) rotate(0) scale(1); }
+  18% { transform:translate(-50%,-50%) rotate(-12deg) scale(1.08); }
+  35% { transform:translate(-50%,-50%) rotate(13deg) scale(1.08); }
+  55% { transform:translate(-50%,-50%) rotate(-7deg) scale(1.1); }
+  72% { opacity:1; transform:translate(-50%,-70%) rotate(8deg) scale(1.16); }
+  100% { opacity:0; transform:translate(-50%,-150%) rotate(28deg) scale(.75); }
+}
+
+@media (max-width:760px) {
+  .farm-task-tabs { grid-template-columns:repeat(4,minmax(0,1fr)); gap:5px; }
+  .farm-task-tabs button { padding:8px 3px; font-size:.61rem; white-space:nowrap; }
+  .farm-level-up-card { min-width:min(310px,calc(100vw - 34px)); padding:20px 20px 18px; border-radius:24px; }
+  .farm-level-up-card > b { font-size:1.55rem; }
+  .farm-level-up-card > strong { font-size:1rem; }
+  .farm-level-star.s1 { left:18%; }
+  .farm-level-star.s2 { right:18%; }
+  .farm-level-leaf.l1 { left:15%; }
+  .farm-level-leaf.l2 { right:15%; }
+  .farm-side-actions .farm-nav-notice { right:18%; top:4px; min-width:16px; height:16px; font-size:.55rem; padding:0 4px; }
+}
+.farm-plot.is-land-unlocking { z-index:120 !important; }

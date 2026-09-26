@@ -9,3 +9,8 @@
 
 Run `migrations/20260926_011_farm_crop_sheet2_steal_activity.sql` after migration 010.
 It changes new steals to a fixed ×1 per friend / plot / growth cycle, keeps the owner's final item protected, and adds the owner-facing steal activity feed.
+
+## V0.13.26 daily farm update
+
+Run `migrations/20260926_012_farm_daily_tasks.sql` after migration 011.
+It adds an authoritative UTC+8 farm-day RPC and `steal_friend_crop_v4`, which updates the thief's daily steal counter on the server while preserving the fixed ×1 steal rule.
