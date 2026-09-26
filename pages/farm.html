@@ -9,9 +9,9 @@
   <meta http-equiv="Expires" content="0" />
   <meta name="description" content="星辰农场：种植、收成、升级、解锁农地与作物，逐步经营属于你的温暖小农场。" />
   <title>星辰农场 | 星辰日记</title>
-  <link rel="stylesheet" href="../css/style.css?v=0.13.26" />
+  <link rel="stylesheet" href="../css/style.css?v=0.13.27" />
 </head>
-<body class="farm-page-body" id="pageTop" data-farm-build="0.13.26">
+<body class="farm-page-body" id="pageTop" data-farm-build="0.13.27">
   <div class="site-shell farm-shell">
     <header class="subpage-header farm-subpage-header">
       <a class="brand" href="../index.html">
@@ -57,15 +57,14 @@
             <div class="farm-field" id="farmField" aria-label="20 格农田"></div>
           </div>
 
-          <button type="button" class="farm-harvest-all" id="farmHarvestAll" disabled aria-label="一键收获全部成熟作物">
-            <span class="farm-harvest-rake" aria-hidden="true">
-              <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
-                <path d="M6 21L16.5 7.5" />
-                <path d="M13.5 6.5H21" />
-                <path d="M14.5 4.5V8.5M17.5 4.5V8.5M20.5 4.5V8.5" />
-              </svg>
-            </span><b>一键收获</b><em id="farmHarvestReadyCount">0</em>
-          </button>
+          <div class="farm-field-tools" aria-label="农田快捷工具">
+            <button type="button" class="farm-water-all" id="farmWaterAll" disabled aria-label="一键浇水全部未浇水作物">
+              <span class="farm-item-sprite farm-tool-art is-watering-can" aria-hidden="true" style="--item-x:33.333333%;--item-y:0%"></span><b>一键浇水</b><em id="farmWaterReadyCount">0</em>
+            </button>
+            <button type="button" class="farm-harvest-all" id="farmHarvestAll" disabled aria-label="一键收获全部成熟作物">
+              <span class="farm-item-sprite farm-tool-art is-rake" aria-hidden="true" style="--item-x:0%;--item-y:0%"></span><b>一键收获</b><em id="farmHarvestReadyCount">0</em>
+            </button>
+          </div>
 
           <aside class="farm-side-actions" aria-label="农场功能">
             <button type="button" data-farm-panel="ranking"><span>🏆</span><b>排行榜</b></button>
@@ -84,7 +83,7 @@
 
       <section class="farm-guide-strip" aria-label="农场玩法">
         <article><span>01</span><b>播种</b><p>选择种子后可用 −／＋ 或拖动数量条，一次种 1 格到全部可用空地。</p></article>
-        <article><span>02</span><b>等待成长</b><p>离开网页也会继续计算时间，回来就能接着收成。</p></article>
+        <article><span>02</span><b>等待成长</b><p>每轮作物可免费浇水一次，也能使用一包肥料加速；离开网页仍会继续成长。</p></article>
         <article><span>03</span><b>收成升级</b><p>每格成熟作物产出 4～5 个；成熟多格时可使用一键收获，并获得对应 EXP。</p></article>
         <article><span>04</span><b>扩张农场</b><p>升级会解锁新作物与更多土地，最终开放完整 20 格。</p></article>
       </section>
@@ -115,13 +114,13 @@
   <div class="farm-toast-region" id="farmToastRegion" aria-live="polite" aria-atomic="true"></div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="../js/supabase-public-config.js?v=0.13.26"></script>
-  <script src="../js/supabase-config.js?v=0.13.26"></script>
-  <script src="../js/supabase-client.js?v=0.13.26"></script>
-  <script src="../js/supabase-auth.js?v=0.13.26"></script>
-  <script src="../js/cloud-sync.js?v=0.13.26"></script>
-  <script src="../js/player-profile.js?v=0.13.26"></script>
-  <script src="../js/farm.js?v=0.13.26"></script>
-  <script src="../js/shooting-stars.js?v=0.13.26"></script>
+  <script src="../js/supabase-public-config.js?v=0.13.27"></script>
+  <script src="../js/supabase-config.js?v=0.13.27"></script>
+  <script src="../js/supabase-client.js?v=0.13.27"></script>
+  <script src="../js/supabase-auth.js?v=0.13.27"></script>
+  <script src="../js/cloud-sync.js?v=0.13.27"></script>
+  <script src="../js/player-profile.js?v=0.13.27"></script>
+  <script src="../js/farm.js?v=0.13.27"></script>
+  <script src="../js/shooting-stars.js?v=0.13.27"></script>
 </body>
 </html>

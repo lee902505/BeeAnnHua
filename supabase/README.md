@@ -14,3 +14,8 @@ It changes new steals to a fixed ×1 per friend / plot / growth cycle, keeps the
 
 Run `migrations/20260926_012_farm_daily_tasks.sql` after migration 011.
 It adds an authoritative UTC+8 farm-day RPC and `steal_friend_crop_v4`, which updates the thief's daily steal counter on the server while preserving the fixed ×1 steal rule.
+
+
+## V0.13.27 farm care tools
+
+Run `migrations/20260926_013_farm_care_tools.sql` after migration 012. It keeps server-side steal maturity checks aligned with watering (×0.92) and low / mid / high fertilizer (×0.90 / ×0.80 / ×0.70). Existing JSON farm saves remain compatible.
