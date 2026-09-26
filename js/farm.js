@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const FARM_BUILD = '0.13.32';
+  const FARM_BUILD = '0.13.33';
   const STORAGE_KEY = 'xingchen-farm-v1';
   const VERSION = 1;
   const PLOT_COUNT = 20;
@@ -335,6 +335,41 @@
     const start = slotIndex * 4;
     const end = (slotIndex + 1) * 4;
     return `${String(start).padStart(2,'0')}:00–${end === 24 ? '24:00' : `${String(end).padStart(2,'0')}:00`}`;
+  }
+
+
+  function farmEventRemainingMs(date = new Date()) {
+    // The farm clock is fixed to UTC+8. Calculate the next 4-hour boundary from
+    // epoch time so the countdown is independent of the computer's local timezone.
+    const utc8 = new Date(date.getTime() + 8 * 60 * 60 * 1000);
+    const seconds = utc8.getUTCHours() * 3600 + utc8.getUTCMinutes() * 60 + utc8.getUTCSeconds();
+    const nextBoundary = (Math.floor(seconds / (4 * 3600)) + 1) * 4 * 3600;
+    return Math.max(0, (nextBoundary - seconds) * 1000 - utc8.getUTCMilliseconds());
+  }
+
+  function formatFarmEventCountdown(ms = farmEventRemainingMs()) {
+    const total = Math.max(0, Math.ceil(Number(ms || 0) / 1000));
+    const hours = Math.floor(total / 3600);
+    const minutes = Math.floor((total % 3600) / 60);
+    const seconds = total % 60;
+    return `${String(hours).padStart(2,'0')}:${String(minutes).padStart(2,'0')}:${String(seconds).padStart(2,'0')}`;
+  }
+
+  function updateFarmEventRuntimeLabels() {
+    const remaining = formatFarmEventCountdown();
+    document.querySelectorAll('[data-farm-event-countdown]').forEach(el => {
+      el.textContent = `剩 ${remaining}`;
+    });
+  }
+
+  function announceFarmEventChange(previousKey, nextKey) {
+    if (!previousKey || !nextKey || previousKey === nextKey) return;
+    const event = currentFarmEvent(nextKey);
+    toast(`${event.icon} ${event.name}来临`, `${farmEventSlotWindow(nextKey)} · ${event.note}`);
+    if (activePanel === 'merchant') {
+      closeModal();
+      toast('🛒 商人时段已更新', '折扣内容已经刷新，请重新点击商人查看。');
+    }
   }
 
   function createDailyState(day = localFarmDay()) {
@@ -1768,12 +1803,14 @@
     const badge = $('farmDailyEvent');
     if (badge) {
       badge.className = `farm-daily-event is-${event.id}`;
-      badge.innerHTML = `<b>${event.icon} ${escapeHtml(event.name)}</b><small>${escapeHtml(event.note)}<span class="farm-event-window">本时段 ${escapeHtml(farmEventSlotWindow())} · 每 4 小时更新</span></small>`;
+      badge.innerHTML = `<b>${event.icon} ${escapeHtml(event.name)}<span class="farm-event-badge-countdown" data-farm-event-countdown>剩 ${formatFarmEventCountdown()}</span></b><small>${escapeHtml(event.note)}<span class="farm-event-window">本时段 ${escapeHtml(farmEventSlotWindow())} · <span data-farm-event-countdown>剩 ${formatFarmEventCountdown()}</span></span></small>`;
     }
     const merchant = $('farmMerchantNpc');
     if (merchant) {
       merchant.hidden = !event.merchant;
-      merchant.setAttribute('aria-label', event.merchant ? '种子商人来访，点击查看本时段折扣' : '');
+      merchant.setAttribute('aria-label', event.merchant ? `种子商人来访，折扣剩余 ${formatFarmEventCountdown()}` : '');
+      const label = merchant.querySelector('em');
+      if (label) label.innerHTML = `<span>本时段 9 折</span><small data-farm-event-countdown>剩 ${formatFarmEventCountdown()}</small>`;
     }
     const scene = document.querySelector('.farm-scene');
     if (scene) {
@@ -1787,18 +1824,21 @@
     if (weatherLayer) {
       weatherLayer.className = `farm-weather-layer ${['sunny','harvest','rainy','storm'].includes(event.id) ? `is-${event.id}` : 'is-none'}`;
     }
+    updateFarmEventRuntimeLabels();
   }
 
   function openMerchantShop() {
     const event = currentFarmEvent();
-    if (!event.merchant) { toast('🛒 商人今天不在', '种子商人只会在来访时段停在农舍旁。'); return; }
+    if (!event.merchant) { toast('🛒 商人现在不在', '种子商人只会在来访时段停在农舍旁。'); return; }
+    activePanel = 'merchant';
     const discountIds = merchantDiscountCrops();
     const cards = discountIds.map(id => {
       const crop = cropById(id);
       const price = Math.max(1, Math.floor(crop.seedPrice * .9));
-      return `<article class="farm-merchant-card"><span class="farm-seed-emoji">${escapeHtml(crop.icon)}</span><div><b>${escapeHtml(crop.name)}种子</b><small>原价 ${crop.seedPrice} · 今日 9 折</small></div><strong>${price} 金币/包</strong><button type="button" data-merchant-buy="${escapeHtml(crop.id)}" data-qty="1">买 1</button><button type="button" data-merchant-buy="${escapeHtml(crop.id)}" data-qty="5">买 5</button></article>`;
+      return `<article class="farm-merchant-card"><span class="farm-seed-emoji">${escapeHtml(crop.icon)}</span><div><b>${escapeHtml(crop.name)}种子</b><small>原价 ${crop.seedPrice} · 本时段 9 折</small></div><strong>${price} 金币/包</strong><button type="button" data-merchant-buy="${escapeHtml(crop.id)}" data-qty="1">买 1</button><button type="button" data-merchant-buy="${escapeHtml(crop.id)}" data-qty="5">买 5</button></article>`;
     }).join('');
-    openModal({icon:'🛒', eyebrow:'TRAVELING MERCHANT', title:'种子商人来访', subtitle:'本时段随机两种已解锁种子 9 折；下一个 4 小时时段商人可能继续旅行。', body:`<div class="farm-merchant-intro">${eventSpriteMarkup(3,'is-merchant-face')}<p>“今天路过星辰农场，带了两种便宜种子。要不要补一点库存？”</p></div><div class="farm-merchant-grid">${cards || '<p class="farm-empty-state">目前还没有可购买的折扣种子。</p>'}</div>`});
+    openModal({icon:'🛒', eyebrow:'TRAVELING MERCHANT', title:'种子商人来访', subtitle:`本时段 ${farmEventSlotWindow()} · 随机两种已解锁种子 9 折`, body:`<div class="farm-merchant-intro">${eventSpriteMarkup(3,'is-merchant-face')}<p>“今天路过星辰农场，带了两种便宜种子。要不要补一点库存？”<span class="farm-merchant-remaining" data-farm-event-countdown>剩 ${formatFarmEventCountdown()}</span></p></div><div class="farm-merchant-grid">${cards || '<p class="farm-empty-state">目前还没有可购买的折扣种子。</p>'}</div>`});
+    updateFarmEventRuntimeLabels();
   }
 
   function buyMerchantSeed(cropId, qty=1) {
@@ -2977,20 +3017,25 @@
   function tick() {
     const localClock = localFarmEventSlot();
     if (localClock.day !== farmDay) {
+      const previousSlot = farmEventSlotKey;
       ensureDailyState(localClock.day, {persist:true});
       farmEventSlotKey = localClock.key;
       renderAll();
+      announceFarmEventChange(previousSlot, farmEventSlotKey);
       if (cloudReady) syncFarmDay(true).catch(() => {});
     } else {
       if (localClock.key !== farmEventSlotKey) {
+        const previousSlot = farmEventSlotKey;
         farmEventSlotKey = localClock.key;
         renderDailyEventScene();
+        announceFarmEventChange(previousSlot, farmEventSlotKey);
       }
       if (cloudReady && Date.now() - farmDaySyncAt >= FARM_DAY_SYNC_MS) {
         syncFarmDay(false).catch(() => {});
       }
     }
     renderStats();
+    updateFarmEventRuntimeLabels();
     // Do not rebuild all 20 buttons every second. Replacing the DOM while the
     // pointer is resting on a plot makes hover feel jittery; only countdowns
     // and growth-stage classes need a one-second refresh.
