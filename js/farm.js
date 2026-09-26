@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const FARM_BUILD = '0.13.29';
+  const FARM_BUILD = '0.13.30';
   const STORAGE_KEY = 'xingchen-farm-v1';
   const VERSION = 1;
   const PLOT_COUNT = 20;
@@ -33,9 +33,18 @@
   };
   const PLANTABLES = [...CROPS, MYSTERY_CROP];
 
-  // V0.13.29 — care items use the same 4×4 atlas approach as crops.
+  // V0.13.30 — care items use the same 4×4 atlas approach as crops.
   // Cell numbers are 1-based so they match the artwork brief.
   const ITEM_ATLAS = Object.freeze({cols:4, rows:4});
+  const EVENT_ATLAS = Object.freeze({cols:4, rows:4});
+  const BASE_PEST_CHANCE = 0.10;
+  const DAILY_EVENTS = Object.freeze([
+    Object.freeze({id:'sunny', icon:'☀️', name:'晴朗日', note:'今天阳光充足，所有普通作物成长时间缩短 5%。', growFactor:0.95, pestChance:0.10}),
+    Object.freeze({id:'harvest', icon:'🌾', name:'丰收日', note:'今天收成普通作物时获得的 EXP 提升 10%。', expFactor:1.10, pestChance:0.10}),
+    Object.freeze({id:'rainy', icon:'🌧️', name:'多雨日', note:'湿润天气让虫害更活跃，播种时长虫机率由 10% 提升到 20%。', pestChance:0.20}),
+    Object.freeze({id:'storm', icon:'⛈️', name:'雷雨日', note:'雷雨会影响果实品质，今天收成每格普通作物少 1 个，最低仍保留 1 个。', yieldPenalty:1, pestChance:0.10}),
+    Object.freeze({id:'merchant', icon:'🛒', name:'种子商人来访', note:'旅行商人今天停在农舍旁，随机两种已解锁种子 9 折。', merchant:true, pestChance:0.10})
+  ]);
   const WATER_FACTOR = 0.92;
   const FERTILIZERS = Object.freeze([
     Object.freeze({id:'fertilizerLow', name:'低级肥料', price:12, factor:0.90, reduction:10, itemCell:5, statusCell:11, note:'缩短本轮作物约 10% 成长时间。'}),
@@ -43,7 +52,7 @@
     Object.freeze({id:'fertilizerHigh', name:'高级肥料', price:55, factor:0.70, reduction:30, itemCell:7, statusCell:13, note:'缩短本轮作物约 30% 成长时间。'})
   ]);
 
-  // V0.13.29 — two ROWEB-style 4×4 crop atlases. Each crop points to a
+  // V0.13.30 — two ROWEB-style 4×4 crop atlases. Each crop points to a
   // sheet + row, while the growth percentage selects the column. The artwork
   // stays as two large transparent images; nothing is split into 32 files.
   const CROP_ATLAS = Object.freeze({
@@ -246,6 +255,40 @@
     return `<span class="farm-item-sprite ${extraClass}" aria-hidden="true"${label ? ` title="${escapeHtml(label)}"` : ''} style="--item-x:${pos.x}%;--item-y:${pos.y}%"></span>`;
   }
 
+  function eventSpritePosition(cell) {
+    const index = Math.max(0, Math.min(15, Number(cell || 1) - 1));
+    const col = index % EVENT_ATLAS.cols;
+    const row = Math.floor(index / EVENT_ATLAS.cols);
+    const xStep = 100 / (EVENT_ATLAS.cols - 1);
+    const yStep = 100 / (EVENT_ATLAS.rows - 1);
+    return {x:col*xStep, y:row*yStep};
+  }
+
+  function eventSpriteMarkup(cell, extraClass = '', label = '') {
+    const pos = eventSpritePosition(cell);
+    return `<span class="farm-event-sprite ${extraClass}" aria-hidden="true"${label ? ` title="${escapeHtml(label)}"` : ''} style="--event-x:${pos.x}%;--event-y:${pos.y}%"></span>`;
+  }
+
+  function stableHash(value='') {
+    let h=2166136261;
+    for (const ch of String(value)) { h ^= ch.charCodeAt(0); h = Math.imul(h, 16777619); }
+    return h >>> 0;
+  }
+
+  function currentFarmEvent(day = farmDay || localFarmDay()) {
+    return DAILY_EVENTS[stableHash(`stellar-event:${day}`) % DAILY_EVENTS.length];
+  }
+
+  function merchantDiscountCrops() {
+    const unlocked = CROPS.filter(crop => state.level >= crop.unlockLevel);
+    if (!unlocked.length) return [];
+    const first = stableHash(`merchant-a:${farmDay}`) % unlocked.length;
+    const second = unlocked.length > 1 ? (first + 1 + (stableHash(`merchant-b:${farmDay}`) % (unlocked.length - 1))) % unlocked.length : first;
+    return [...new Set([unlocked[first]?.id, unlocked[second]?.id])].filter(Boolean);
+  }
+
+  function currentPestChance() { return Number(currentFarmEvent()?.pestChance ?? BASE_PEST_CHANCE); }
+
   function seedIconMarkup(crop) {
     return crop?.isMystery ? itemSpriteMarkup(3, 'is-seed-icon', '蔬果盲盒') : `<span class="farm-seed-emoji">${escapeHtml(crop?.icon || '🌱')}</span>`;
   }
@@ -273,6 +316,7 @@
   function ensureDailyState(day = farmDay || localFarmDay(), {persist=false} = {}) {
     const normalizedDay = typeof day === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(day) ? day : localFarmDay();
     farmDay = normalizedDay;
+    renderDailyEventScene?.();
     if (!state.daily || state.daily.date !== normalizedDay) {
       state.daily = createDailyState(normalizedDay);
       if (persist) saveState();
@@ -309,7 +353,7 @@
   function isDailyBonusReady() { return DAILY_TASKS.every(isDailyComplete); }
 
   function defaultPlots() {
-    return Array.from({length:PLOT_COUNT}, (_, i) => ({ id:i, cropId:null, plantedAt:null, watered:false, fertilizerId:null }));
+    return Array.from({length:PLOT_COUNT}, (_, i) => ({ id:i, cropId:null, plantedAt:null, watered:false, fertilizerId:null, hasPest:false }));
   }
 
   function createDefaultState() {
@@ -351,7 +395,8 @@
         harvestYield:Number.isFinite(harvestYield) && harvestYield > 0 ? Math.floor(harvestYield) : null,
         stolenCount:Number.isFinite(stolenCount) && stolenCount > 0 ? Math.floor(stolenCount) : 0,
         watered:Boolean(old?.watered),
-        fertilizerId:FERTILIZERS.some(item => item.id === old?.fertilizerId) ? old.fertilizerId : null
+        fertilizerId:FERTILIZERS.some(item => item.id === old?.fertilizerId) ? old.fertilizerId : null,
+        hasPest:Boolean(old?.hasPest)
       };
     });
     merged.seeds = {...base.seeds, ...(raw?.seeds || {})};
@@ -661,6 +706,7 @@
           plot.stolenCount = 0;
           plot.watered = false;
           plot.fertilizerId = null;
+          plot.hasPest = Boolean(item.hasPest);
           state.stats.plant += 1;
           bumpDaily('plant', 1);
           if (op.cropId === 'mystery') state.stats.blindBoxPlant += 1;
@@ -736,7 +782,7 @@
   function multiplayerMissing(error) {
     const text = String(error?.message || error || '');
     return error?.code === '42P01' || error?.code === 'PGRST202' ||
-      /get_farm_day_v1|get_farm_rankings_v2|get_farm_friends_v2|get_friend_farm_v3|get_friend_farm_v2|get_farm_activity_v1|get_farm_activity_unread_v1|farm_activity|steal_friend_crop_v4|steal_friend_crop_v3|steal_friend_crop_v2|get_farm_steal_activity_v1|get_farm_rankings|get_farm_friends|get_friend_farm|steal_friend_crop|request_farm_friend|farm_friendships|farm_steals|schema cache|does not exist|could not find/i.test(text);
+      /get_farm_day_v1|get_farm_rankings_v2|get_farm_friends_v2|get_friend_farm_v4|get_friend_farm_v3|get_friend_farm_v2|help_friend_bug_v1|get_farm_activity_v1|get_farm_activity_unread_v1|farm_activity|steal_friend_crop_v4|steal_friend_crop_v3|steal_friend_crop_v2|get_farm_steal_activity_v1|get_farm_rankings|get_farm_friends|get_friend_farm|steal_friend_crop|request_farm_friend|farm_friendships|farm_steals|schema cache|does not exist|could not find/i.test(text);
   }
 
   function escapeHtml(value) {
@@ -1258,11 +1304,13 @@
         stolenCount:Math.max(0, Number(raw?.stolenCount) || 0),
         stolenByMe:Boolean(raw?.stolenByMe),
         watered:Boolean(raw?.watered),
-        fertilizerId:FERTILIZERS.some(item => item.id === raw?.fertilizerId) ? raw.fertilizerId : null
+        fertilizerId:FERTILIZERS.some(item => item.id === raw?.fertilizerId) ? raw.fertilizerId : null,
+        hasPest:Boolean(raw?.hasPest)
       };
     });
     let matureCount = 0;
     let stealableCount = 0;
+    let pestCount = 0;
     const tiles = [];
 
     for (let row = 0; row < 4; row += 1) {
@@ -1285,6 +1333,7 @@
           const stage = stageFor(progress);
           const remainingMs = remainingFor(plot, crop);
           const shown = displayCropForPlot(plot, crop, progress);
+          if (plot.hasPest) pestCount += 1;
           cls += ` has-crop stage-${stage.key}`;
           if (crop.isMystery) cls += ' is-mystery-crop';
           if (progress >= 1) {
@@ -1308,7 +1357,8 @@
             }
           }
 
-          content = `<span class="farm-soil"><small class="farm-crop-time">${progress >= 1 ? '已成熟' : formatDuration(remainingMs)}</small>${cropVisualMarkup(shown, progress)}<span class="farm-crop-name">${shown.name}</span>${careStatusMarkup(plot)}${stealTag}</span>`;
+          const helpBug = plot.hasPest ? `<span role="button" tabindex="0" class="farm-help-bug" data-help-bug-friend="${escapeHtml(friendId)}" data-help-bug-plot="${index}" aria-label="帮好友除虫">${eventSpriteMarkup(6,'is-help-net')}<span>帮忙除虫</span></span>` : '';
+          content = `<span class="farm-soil"><small class="farm-crop-time">${progress >= 1 ? '已成熟' : formatDuration(remainingMs)}</small>${cropVisualMarkup(shown, progress)}<span class="farm-crop-name">${shown.name}</span>${plot.hasPest ? eventSpriteMarkup(5,'farm-pest-mark','虫害') : ''}${careStatusMarkup(plot)}${stealTag}${helpBug}</span>`;
         }
 
         tiles.push(`<button type="button" class="${cls}" style="--farm-row:${row};--farm-col:${col};--farm-depth:${(row * 10) + col}"${attrs}>${content}</button>`);
@@ -1322,9 +1372,9 @@
       <section class="farm-visit-summary">
         <div><b>${name}${sex ? ` <i>${sex}</i>` : ''}</b><small>Lv.${formatNumber(friendLevel)} · <span class="farm-public-title">${friendTitle.icon}【${escapeHtml(friendTitle.name)}】</span></small></div>
         <span>${coinInline(payload?.coins || 0, {label:true})}</span>
-        <em>成熟 ${matureCount} 格 · 可偷 ${stealableCount} 格</em>
+        <em>成熟 ${matureCount} 格 · 可偷 ${stealableCount} 格 · 虫害 ${pestCount} 格</em>
       </section>
-      <div class="farm-steal-rule">🥷 每位好友对每一株成熟作物固定偷 1 个；同一成熟周期只能偷一次，地主永远至少保留 1 个。</div>
+      <div class="farm-steal-rule">🥷 成熟作物每位好友每轮可偷 1 个；发现 🐛 虫害时，也可以帮好友免费除虫并有机会获得小奖励。</div>
       <div class="farm-visit-scene">
         <div class="farm-visit-field">${tiles.join('')}</div>
       </div>
@@ -1343,7 +1393,7 @@
     });
 
     try {
-      const {data, error} = await sb.rpc('get_friend_farm_v3', {p_friend:friendId, p_log_visit:Boolean(logVisit)});
+      const {data, error} = await sb.rpc('get_friend_farm_v4', {p_friend:friendId, p_log_visit:Boolean(logVisit)});
       if (error) throw error;
       const payload = data && typeof data === 'object' ? data : {};
       if (!payload.ok) {
@@ -1360,12 +1410,12 @@
       openModal({
         icon:'🏡', eyebrow:'FARM VISIT',
         title:`${payload.display_name || '好友'}的农场`,
-        subtitle:'看看好友最近种了什么；成熟作物可以直接点击偷菜。',
+        subtitle:'看看好友最近种了什么；成熟作物可以偷菜，长虫的作物也能帮忙处理。',
         body:renderFriendFarmVisit(payload)
       });
     } catch (error) {
       const detail = multiplayerMissing(error)
-        ? '请先执行 20260926_014_farm_activity_center.sql。'
+        ? '请先执行 20260926_015_farm_weather_merchant_pests.sql。'
         : '好友农场暂时读取失败，请稍后再试。';
       openModal({icon:'🏡', eyebrow:'FARM VISIT', title:'拜访失败', subtitle:detail, body:'<div class="farm-visit-actions"><button type="button" class="farm-friend-action" data-open-panel="friends">返回好友列表</button></div>'});
     }
@@ -1423,6 +1473,34 @@
         tile.disabled = false;
         tile.classList.remove('is-stealing');
       }
+    }
+  }
+
+  async function helpFriendBug(friendId, plotId) {
+    const sb = cloudClient();
+    const user = cloudAuthUser();
+    if (!sb || !user?.id || !friendId) return;
+    const btn = document.querySelector(`[data-help-bug-friend="${CSS.escape(friendId)}"][data-help-bug-plot="${Number(plotId)}"]`);
+    if (btn) btn.disabled = true;
+    try {
+      const {data,error} = await sb.rpc('help_friend_bug_v1',{p_friend:friendId,p_plot:Number(plotId)});
+      if (error) throw error;
+      const payload = data && typeof data==='object' ? data : {};
+      if (!payload.ok) {
+        const msg = payload.reason === 'no_pest' ? ['🌿 已经很健康','这格作物现在没有虫害。'] : payload.reason === 'not_friend' ? ['👥 无法帮忙','只有好友才能帮忙除虫。'] : ['🐛 除虫没有成功','请刷新好友农场后再试。'];
+        toast(msg[0],msg[1]);
+        await visitFriend(friendId,{logVisit:false});
+        return;
+      }
+      if (payload.helper_state && typeof payload.helper_state==='object') {
+        state = normalizeState(payload.helper_state); state.ownerUserId=user.id; writeLocalState(); renderAll(); await pullCloudState({preferRemote:true});
+      }
+      const reward = payload.reward_type === 'coins' ? `金币 +${payload.reward_amount}` : payload.reward_type === 'exp' ? `EXP +${payload.reward_amount}` : payload.reward_type === 'mystery' ? '蔬果盲盒 ×1' : '这次没有额外奖励';
+      toast('🪲 帮好友除虫成功', reward, 'care');
+      await visitFriend(friendId,{logVisit:false});
+    } catch (error) {
+      toast('🐛 帮忙除虫失败', multiplayerMissing(error) ? '请先执行 V0.13.30 的 015 SQL。' : '网络暂时不稳定，请稍后再试。');
+      if (btn) btn.disabled=false;
     }
   }
 
@@ -1529,6 +1607,8 @@
     let factor = plot?.watered ? WATER_FACTOR : 1;
     const fertilizer = fertilizerById(plot?.fertilizerId);
     if (fertilizer) factor *= fertilizer.factor;
+    const event = currentFarmEvent();
+    if (event?.growFactor) factor *= event.growFactor;
     return Math.max(0.45, Math.min(1, factor));
   }
 
@@ -1548,7 +1628,7 @@
   }
 
   function careStatusMarkup(plot) {
-    // V0.13.29 — field stays visually clean after watering/fertilizing.
+    // V0.13.30 — field stays visually clean after watering/fertilizing.
     // Status is still shown in the crop detail panel, so gameplay data remains intact.
     return '';
   }
@@ -1638,12 +1718,55 @@
     el.textContent = shown?.icon || '🌱';
   }
 
+  function renderDailyEventScene() {
+    const event = currentFarmEvent();
+    const badge = $('farmDailyEvent');
+    if (badge) {
+      badge.className = `farm-daily-event is-${event.id}`;
+      badge.innerHTML = `<b>${event.icon} ${escapeHtml(event.name)}</b><small>${escapeHtml(event.note)}</small>`;
+    }
+    const merchant = $('farmMerchantNpc');
+    if (merchant) {
+      merchant.hidden = !event.merchant;
+      merchant.setAttribute('aria-label', event.merchant ? '种子商人来访，点击查看今日折扣' : '');
+    }
+    document.querySelector('.farm-scene')?.classList.toggle('is-rainy', event.id === 'rainy');
+    document.querySelector('.farm-scene')?.classList.toggle('is-storm', event.id === 'storm');
+  }
+
+  function openMerchantShop() {
+    const event = currentFarmEvent();
+    if (!event.merchant) { toast('🛒 商人今天不在', '种子商人只会在来访日停在农舍旁。'); return; }
+    const discountIds = merchantDiscountCrops();
+    const cards = discountIds.map(id => {
+      const crop = cropById(id);
+      const price = Math.max(1, Math.floor(crop.seedPrice * .9));
+      return `<article class="farm-merchant-card"><span class="farm-seed-emoji">${escapeHtml(crop.icon)}</span><div><b>${escapeHtml(crop.name)}种子</b><small>原价 ${crop.seedPrice} · 今日 9 折</small></div><strong>${price} 金币/包</strong><button type="button" data-merchant-buy="${escapeHtml(crop.id)}" data-qty="1">买 1</button><button type="button" data-merchant-buy="${escapeHtml(crop.id)}" data-qty="5">买 5</button></article>`;
+    }).join('');
+    openModal({icon:'🛒', eyebrow:'TRAVELING MERCHANT', title:'种子商人来访', subtitle:'今天随机两种已解锁种子 9 折，午夜后商人会继续旅行。', body:`<div class="farm-merchant-intro">${eventSpriteMarkup(3,'is-merchant-face')}<p>“今天路过星辰农场，带了两种便宜种子。要不要补一点库存？”</p></div><div class="farm-merchant-grid">${cards || '<p class="farm-empty-state">目前还没有可购买的折扣种子。</p>'}</div>`});
+  }
+
+  function buyMerchantSeed(cropId, qty=1) {
+    if (!currentFarmEvent().merchant || !merchantDiscountCrops().includes(cropId)) return;
+    const crop = cropById(cropId);
+    qty = Math.max(1, Number(qty)||1);
+    const unit = Math.max(1, Math.floor(crop.seedPrice*.9));
+    const cost = unit*qty;
+    if (state.coins < cost) { toast('🪙 金币不够', `购买 ${crop.name}种子 ×${qty} 需要 ${cost} 金币。`); return; }
+    state.coins -= cost;
+    state.seeds[cropId] = (state.seeds[cropId]||0)+qty;
+    saveState(); renderAll(); openMerchantShop();
+    toast('🛒 商人交易完成', `${crop.name}种子 ×${qty} · 花费 ${cost} 金币。`);
+  }
+
   function renderAll() {
     renderOwner();
     renderStats();
     renderField();
     updateHarvestAllButton();
     updateWaterAllButton();
+    updateDebugAllButton();
+    renderDailyEventScene();
     renderTaskDot();
     renderFriendDot();
     if (activePanel) renderActivePanel();
@@ -1721,6 +1844,7 @@
               <small class="farm-crop-time">${progress >= 1 ? '可以收成' : formatDuration(remaining)}</small>
               ${cropVisualMarkup(shown, progress)}
               <span class="farm-crop-name">${shown.name}</span>
+              ${plot.hasPest ? `${eventSpriteMarkup(5, 'farm-pest-mark', '虫害')}` : ''}
               ${careStatusMarkup(plot)}
             </span>`;
         }
@@ -1902,7 +2026,8 @@
         index,
         plantedAt:basePlantedAt + offset,
         resultCropId:crop.isMystery ? randomMysteryCropId() : null,
-        harvestYield:crop.isMystery ? 1 : randomInt(crop.yieldMin, crop.yieldMax)
+        harvestYield:crop.isMystery ? 1 : randomInt(crop.yieldMin, crop.yieldMax),
+        hasPest:!crop.isMystery && Math.random() < currentPestChance()
       }))
     });
     closeModal();
@@ -1921,6 +2046,7 @@
       plot.stolenCount = 0;
       plot.watered = false;
       plot.fertilizerId = null;
+      plot.hasPest = Boolean(item.hasPest);
       state.stats.plant += 1;
       bumpDaily('plant', 1);
       if (crop.isMystery) state.stats.blindBoxPlant += 1;
@@ -1970,6 +2096,7 @@
             <span>${plot.watered ? `${itemSpriteMarkup(10, 'is-inline-item')} 已浇水 · 时间 ×92%` : `${itemSpriteMarkup(9, 'is-inline-item')} 尚未浇水`}</span>
             <span>${plot.fertilizerId ? `${itemSpriteMarkup(fertilizerById(plot.fertilizerId)?.statusCell || 11, 'is-inline-item')} ${escapeHtml(fertilizerById(plot.fertilizerId)?.name || '已施肥')}` : '🌱 尚未施肥'}</span>
           </div>
+          ${plot.hasPest ? `<div class="farm-pest-alert">${eventSpriteMarkup(5, 'is-inline-event')}<span><b>发现虫害</b><small>成熟前不处理会让这格收成少 1 个。</small></span><button type="button" data-debug-plot="${index}">${eventSpriteMarkup(6, 'is-inline-event')} 除虫</button></div>` : ''}
           <div class="farm-care-actions">
             <button type="button" data-water-plot="${index}" ${plot.watered ? 'disabled' : ''}>${itemSpriteMarkup(2, 'is-action-item')}<span><b>${plot.watered ? '已浇水' : '浇水一次'}</b><small>本轮成长时间再 ×92%</small></span></button>
             ${FERTILIZERS.map(item => `<button type="button" data-fertilize-plot="${index}" data-fertilizer="${item.id}" ${(plot.fertilizerId || (state.supplies[item.id] || 0) <= 0) ? 'disabled' : ''}>${itemSpriteMarkup(item.itemCell, 'is-action-item')}<span><b>${escapeHtml(item.name)} ×${state.supplies[item.id] || 0}</b><small>成长时间 -${item.reduction}%</small></span></button>`).join('')}
@@ -2040,6 +2167,55 @@
   async function waterAll() {
     await waterPlots(waterablePlotIndices());
   }
+
+  function infestedPlotIndices() {
+    const unlocked = unlockedLandCount();
+    return state.plots.filter(plot => plot?.cropId && plot.id < unlocked && plot.hasPest).map(plot => plot.id);
+  }
+
+  function updateDebugAllButton() {
+    const button = $('farmDebugAll');
+    const count = $('farmPestReadyCount');
+    if (!button || !count) return;
+    const ready = infestedPlotIndices().length;
+    count.textContent = ready;
+    button.disabled = ready <= 0;
+    button.classList.toggle('is-ready', ready > 0);
+    button.setAttribute('aria-label', ready > 0 ? `一键除虫 ${ready} 格作物` : '目前没有虫害');
+  }
+
+  function playPestEffect(index) {
+    const soil = document.querySelector(`.farm-plot[data-plot="${index}"] .farm-soil`);
+    if (!soil) return;
+    const burst = document.createElement('span');
+    const pos = eventSpritePosition(6);
+    burst.className = 'farm-event-burst is-debug';
+    burst.style.setProperty('--event-x', `${pos.x}%`);
+    burst.style.setProperty('--event-y', `${pos.y}%`);
+    soil.appendChild(burst);
+    setTimeout(() => burst.remove(), 850);
+  }
+
+  async function debugPlots(indices, {single=false} = {}) {
+    const allowed = new Set(infestedPlotIndices());
+    const eligible = [...new Set(indices.map(Number))].filter(index => allowed.has(index));
+    if (!eligible.length) { toast('🐛 暂时没有虫害', '目前农田很健康，不需要除虫。'); return; }
+    if (single) closeModal();
+    for (const index of eligible) {
+      const plot = state.plots[index];
+      if (!plot?.hasPest) continue;
+      plot.hasPest = false;
+      playPestEffect(index);
+      saveState();
+      renderField();
+      if (!single) await new Promise(resolve => setTimeout(resolve, 80));
+    }
+    if (cloudReady) await pushCloudState(true);
+    renderAll();
+    toast('🪲 除虫完成', `${eligible.length} 格作物恢复健康。`, 'care');
+  }
+
+  async function debugAll() { await debugPlots(infestedPlotIndices()); }
 
   async function applyFertilizer(index, fertilizerId) {
     const plot = state.plots[Number(index)];
@@ -2112,7 +2288,7 @@
       if (!result) continue;
       state.produce[result.crop.id] = (state.produce[result.crop.id] || 0) + result.amount;
       totals[result.crop.id] = (totals[result.crop.id] || 0) + result.amount;
-      totalExp += crop.exp;
+      totalExp += Math.max(1, Math.round(crop.exp * (Number(currentFarmEvent()?.expFactor) || 1)));
       state.stats.harvest += 1;
       bumpDaily('harvest', 1);
       state.history.push({type:'harvest', cropId:result.crop.id, sourceCropId:crop.id, amount:result.amount, at:Date.now(), batch:true});
@@ -2139,11 +2315,12 @@
     bumpDaily('harvest', 1);
     state.history.push({type:'harvest', cropId:result.crop.id, sourceCropId:crop.id, amount:result.amount, at:Date.now()});
     clearPlot(plot);
-    addExp(crop.exp);
+    const earnedExp = Math.max(1, Math.round(crop.exp * (Number(currentFarmEvent()?.expFactor) || 1)));
+    addExp(earnedExp);
     saveState();
     renderAll();
     const reveal = crop.isMystery ? ` · 盲盒开出 ${result.crop.name}` : '';
-    toast(`${result.crop.icon} 收成 ${result.crop.name} ×${result.amount}`, `农场经验 +${crop.exp} EXP${reveal}`, 'harvest');
+    toast(`${result.crop.icon} 收成 ${result.crop.name} ×${result.amount}`, `农场经验 +${earnedExp} EXP${reveal}`, 'harvest');
   }
 
   function randomInt(min, max) {
@@ -2175,7 +2352,9 @@
     }
     const total = Math.max(crop.yieldMin, Math.min(crop.yieldMax, Number(plot.harvestYield) || randomInt(crop.yieldMin, crop.yieldMax)));
     const stolen = Math.max(0, Math.min(total - 1, Number(plot.stolenCount) || 0));
-    return {crop, amount:Math.max(1, total - stolen)};
+    const eventPenalty = Math.max(0, Number(currentFarmEvent()?.yieldPenalty) || 0);
+    const pestPenalty = plot.hasPest ? 1 : 0;
+    return {crop, amount:Math.max(1, total - stolen - eventPenalty - pestPenalty), pestPenalty, eventPenalty};
   }
 
   function clearPlot(plot) {
@@ -2186,6 +2365,7 @@
     plot.stolenCount = 0;
     plot.watered = false;
     plot.fertilizerId = null;
+    plot.hasPest = false;
   }
 
   function buySeed(cropId, qty = 1) {
@@ -2614,6 +2794,7 @@
         } else if (type === 'help_bug') {
           icon = '🪲';
           title = `${who}${sex ? ` ${sex}` : ''} 帮你的作物除虫了`;
+          if (Number.isInteger(Number(row.plot_id))) detail += ` · 第 ${Number(row.plot_id) + 1} 格`;
         }
         return `<article class="farm-activity-row is-${escapeHtml(type)} ${row.is_unread ? 'is-unread' : ''}">
           <div class="farm-activity-icon">${icon}</div>
@@ -2869,6 +3050,15 @@
     const stealPlot = event.target.closest('[data-steal-friend][data-steal-plot]');
     if (stealPlot) { stealFriendCrop(stealPlot.dataset.stealFriend, Number(stealPlot.dataset.stealPlot)); return; }
 
+    const helpBug = event.target.closest('[data-help-bug-friend][data-help-bug-plot]');
+    if (helpBug) { helpFriendBug(helpBug.dataset.helpBugFriend, Number(helpBug.dataset.helpBugPlot)); return; }
+
+    const debugPlot = event.target.closest('[data-debug-plot]');
+    if (debugPlot) { debugPlots([Number(debugPlot.dataset.debugPlot)], {single:true}); return; }
+
+    const merchantBuy = event.target.closest('[data-merchant-buy]');
+    if (merchantBuy) { buyMerchantSeed(merchantBuy.dataset.merchantBuy, merchantBuy.dataset.qty); return; }
+
     const waterPlot = event.target.closest('[data-water-plot]');
     if (waterPlot) { waterPlots([Number(waterPlot.dataset.waterPlot)], {single:true}); return; }
 
@@ -2981,6 +3171,8 @@
       if (event.key === 'Escape' && !$('farmModal').hidden) closeModal();
     });
     $('farmScrollTop')?.addEventListener('click', () => window.scrollTo({top:0, behavior:'smooth'}));
+    $('farmDebugAll')?.addEventListener('click', debugAll);
+    $('farmMerchantNpc')?.addEventListener('click', openMerchantShop);
     window.addEventListener('stellar:player-profile-saved', () => { renderOwner(); invalidateMultiplayer(); });
     window.addEventListener('stellar:profile-updated', () => { renderOwner(); invalidateMultiplayer(); });
     window.addEventListener('stellar:auth-state', event => {

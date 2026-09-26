@@ -9921,10 +9921,10 @@ body.farm-modal-open { overflow: hidden; }
 }
 
 .farm-crop-visual.is-sprite[data-crop-sheet="1"] {
-  background-image:url("../images/farm/crops-sheet-01.webp?v=0.13.29");
+  background-image:url("../images/farm/crops-sheet-01.webp?v=0.13.30");
 }
 .farm-crop-visual.is-sprite[data-crop-sheet="2"] {
-  background-image:url("../images/farm/crops-sheet-02.webp?v=0.13.29");
+  background-image:url("../images/farm/crops-sheet-02.webp?v=0.13.30");
 }
 
 /* Growth size is already painted into the atlas frames; do not scale sprite
@@ -11030,16 +11030,16 @@ body.farm-modal-open { overflow: hidden; }
 }
 
 
-/* V0.13.29 — 4x4 crop growth sprite sheet (carrot / wheat / corn / tomato) */
+/* V0.13.30 — 4x4 crop growth sprite sheet (carrot / wheat / corn / tomato) */
 
-/* V0.13.29 — atlas-anchor crop animation: keep the root fixed while the plant breathes. */
+/* V0.13.30 — atlas-anchor crop animation: keep the root fixed while the plant breathes. */
 @keyframes farm-crop-ready-sprite {
   0%,100% { transform:translate(var(--crop-shift-x,0px), calc(var(--crop-shift-y,0px) - var(--crop-lift,0px))) scale(var(--crop-scale,1)); }
   45% { transform:translate(var(--crop-shift-x,0px), calc(var(--crop-shift-y,0px) - 4px - var(--crop-lift,0px))) scale(calc(var(--crop-scale,1) * 1.035)); }
   70% { transform:translate(var(--crop-shift-x,0px), calc(var(--crop-shift-y,0px) - 1px - var(--crop-lift,0px))) scale(calc(var(--crop-scale,1) * .995)); }
 }
 
-/* V0.13.29 — crop position + readable labels.
+/* V0.13.30 — crop position + readable labels.
    Move atlas crops slightly upward while keeping text/countdown above foliage. */
 .farm-crop-visual.is-sprite {
   z-index:3;
@@ -11077,7 +11077,7 @@ body.farm-modal-open { overflow: hidden; }
 }
 
 
-/* V0.13.29 — crop alignment and label stacking.
+/* V0.13.30 — crop alignment and label stacking.
    Plants are nudged toward the visual centre of the sloped soil (upper-right),
    while planted plots sit above bare soil so crop labels/countdowns cannot be
    swallowed by neighbouring farm tiles. */
@@ -11109,7 +11109,7 @@ body.farm-modal-open { overflow: hidden; }
   }
 }
 
-/* V0.13.29 — mobile crop alignment fine tune.
+/* V0.13.30 — mobile crop alignment fine tune.
    Desktop keeps the current upper-right placement. On phones, move the crop
    sprite and its labels about 5px back toward the lower-left for better fit. */
 @media (max-width:760px) {
@@ -11123,7 +11123,7 @@ body.farm-modal-open { overflow: hidden; }
   }
 }
 
-/* ===== V0.13.29 MOBILE ACHIEVEMENT HORIZONTAL SCROLL FIX =====
+/* ===== V0.13.30 MOBILE ACHIEVEMENT HORIZONTAL SCROLL FIX =====
    The achievement category chips are a nested horizontal scroller inside the
    vertically scrolling farm modal. Explicit axis ownership prevents iOS Safari
    from handing the gesture to the modal and rubber-banding back. */
@@ -11164,11 +11164,11 @@ body.farm-modal-open { overflow: hidden; }
   }
 }
 
-/* ===== V0.13.29 ACHIEVEMENT CATEGORY TAP POSITION =====
+/* ===== V0.13.30 ACHIEVEMENT CATEGORY TAP POSITION =====
    JS now preserves the horizontal category scroll position when a chip is tapped. */
 
 
-/* ===== V0.13.29 SECOND CROP ATLAS + STEAL ACTIVITY ===== */
+/* ===== V0.13.30 SECOND CROP ATLAS + STEAL ACTIVITY ===== */
 .farm-steal-activity-section { margin-top:16px; }
 .farm-steal-activity {
   position:relative;
@@ -11204,7 +11204,7 @@ body.farm-modal-open { overflow: hidden; }
   .farm-steal-new { position:absolute; top:8px; right:8px; }
 }
 
-/* ===== V0.13.29 LEVEL-UP / DAILY QUEST / NOTICE BADGES ===== */
+/* ===== V0.13.30 LEVEL-UP / DAILY QUEST / NOTICE BADGES ===== */
 .farm-side-actions .farm-nav-notice {
   position:absolute;
   right:7px;
@@ -11376,13 +11376,13 @@ body.farm-modal-open { overflow: hidden; }
 }
 .farm-plot.is-land-unlocking { z-index:120 !important; }
 
-/* V0.13.29 — farm care tools, item atlas, watering and fertilizer UI */
+/* V0.13.30 — farm care tools, item atlas, watering and fertilizer UI */
 .farm-item-sprite {
   display:inline-block;
   width:42px;
   height:42px;
   flex:0 0 auto;
-  background-image:url("../images/farm/farm-item-sheet-01.webp?v=0.13.29");
+  background-image:url("../images/farm/farm-item-sheet-01.webp?v=0.13.30");
   background-size:400% 400%;
   background-position:var(--item-x,0%) var(--item-y,0%);
   background-repeat:no-repeat;
@@ -11487,7 +11487,7 @@ body.farm-modal-open { overflow: hidden; }
   height:74px;
   margin:-37px 0 0 -37px;
   pointer-events:none;
-  background-image:url("../images/farm/farm-item-sheet-01.webp?v=0.13.29");
+  background-image:url("../images/farm/farm-item-sheet-01.webp?v=0.13.30");
   background-size:400% 400%;
   background-position:var(--item-x,0%) var(--item-y,0%);
   background-repeat:no-repeat;
@@ -11592,14 +11592,14 @@ body.farm-modal-open { overflow: hidden; }
   opacity:1;
 }
 
-/* V0.13.29 — cleaner care UI and seed-style fertilizer purchase layout */
+/* V0.13.30 — cleaner care UI and seed-style fertilizer purchase layout */
 .farm-care-status { display:none !important; }
 .farm-fertilizer-copy { min-width:0; }
 .farm-fertilizer-meta { grid-column:1 / -1; margin:0; }
 .farm-fertilizer-card .farm-shop-buy { grid-column:1 / -1; justify-content:flex-start; }
 .farm-fertilizer-card .farm-shop-buy button { min-width:58px; }
 
-/* ===== V0.13.29 FARM ACTIVITY CENTER ===== */
+/* ===== V0.13.30 FARM ACTIVITY CENTER ===== */
 .farm-friend-tabs {
   display:flex;
   gap:8px;
@@ -11721,3 +11721,42 @@ body.farm-modal-open { overflow: hidden; }
   .farm-activity-row .farm-friend-action { grid-column:2 / -1; justify-self:end; }
   .farm-activity-new { position:absolute; top:8px; right:8px; }
 }
+
+
+/* V0.13.30 — daily events, traveling merchant and pest-control system */
+.farm-event-sprite {
+  display:inline-block;width:42px;height:42px;flex:0 0 auto;
+  background-image:url("../images/farm/farm-event-sheet-01.webp?v=0.13.30");
+  background-size:400% 400%;background-position:var(--event-x,0%) var(--event-y,0%);background-repeat:no-repeat;
+  filter:drop-shadow(0 2px 2px rgba(55,46,29,.16));vertical-align:middle;
+}
+.farm-daily-event { position:absolute;z-index:24;left:22px;top:18px;max-width:305px;padding:8px 11px;border-radius:15px;background:rgba(255,251,226,.86);border:1px solid rgba(105,123,73,.22);box-shadow:0 5px 16px rgba(52,65,40,.1);backdrop-filter:blur(5px);pointer-events:none; }
+.farm-daily-event b { display:block;color:#5d6948;font-size:.76rem; }
+.farm-daily-event small { display:block;margin-top:2px;color:#7f7a65;font-size:.62rem;line-height:1.35; }
+.farm-daily-event.is-rainy,.farm-daily-event.is-storm { background:rgba(232,243,240,.88); }
+.farm-merchant-npc { position:absolute;z-index:20;left:12.5%;top:26%;width:120px;height:120px;border:0;background:none;padding:0;cursor:pointer;filter:drop-shadow(0 7px 7px rgba(45,52,31,.2));transition:transform .2s ease; }
+.farm-merchant-npc:hover { transform:translateY(-4px) scale(1.02); }
+.farm-merchant-npc em { position:absolute;left:50%;bottom:-7px;transform:translateX(-50%);white-space:nowrap;padding:4px 8px;border-radius:999px;background:#fff4bd;color:#786331;font-size:.62rem;font-style:normal;font-weight:800;border:1px solid rgba(156,124,48,.25); }
+.farm-merchant-sprite { position:absolute;inset:0;background-image:url("../images/farm/farm-event-sheet-01.webp?v=0.13.30");background-size:400% 400%;background-repeat:no-repeat;animation:farm-merchant-idle 6.2s steps(1,end) infinite; }
+@keyframes farm-merchant-idle { 0%,28%,100%{background-position:0% 0%} 32%,48%{background-position:33.333333% 0%} 52%,66%{background-position:66.666667% 0%} 70%,82%{background-position:100% 0%} 86%,96%{background-position:33.333333% 0%} }
+.farm-field-tools .farm-debug-all { position:relative;display:inline-flex;align-items:center;gap:7px;min-height:42px;padding:8px 12px;border-radius:999px;color:#586746;background:linear-gradient(180deg,rgba(245,252,222,.97),rgba(211,230,174,.96));border:2px solid rgba(105,137,65,.48);box-shadow:0 6px 0 rgba(81,111,52,.14),0 10px 20px rgba(47,76,42,.1);cursor:pointer;transition:.18s ease; }
+.farm-field-tools .farm-debug-all em { background:#78904d; }
+.farm-field-tools .farm-debug-all:disabled { opacity:.46;cursor:default;filter:grayscale(.24);box-shadow:none; }
+.farm-field-tools .farm-debug-all.is-ready { animation:farm-water-ready 2.5s ease-in-out infinite; }
+.farm-pest-mark { position:absolute;z-index:42;width:28px;height:28px;right:7%;top:39%;pointer-events:none;animation:farm-pest-wiggle 2.2s ease-in-out infinite; }
+@keyframes farm-pest-wiggle { 0%,100%{transform:rotate(0) translateY(0)} 45%{transform:rotate(-7deg) translateY(-2px)} 65%{transform:rotate(6deg) translateY(-1px)} }
+.farm-pest-alert { display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:8px;margin:10px 0;padding:9px 10px;border-radius:14px;background:rgba(250,244,205,.72);border:1px solid rgba(153,137,66,.2); }
+.farm-pest-alert .is-inline-event { width:31px;height:31px; }
+.farm-pest-alert b,.farm-pest-alert small { display:block; }.farm-pest-alert b{color:#6c673f}.farm-pest-alert small{color:#8a8063;font-size:.68rem;margin-top:2px}
+.farm-pest-alert button { display:inline-flex;align-items:center;gap:5px;padding:6px 9px;border:0;border-radius:10px;background:#71824c;color:#fff8df;font-weight:800;cursor:pointer; }.farm-pest-alert button .farm-event-sprite{width:24px;height:24px;}
+.farm-event-burst { position:absolute;z-index:60;left:50%;top:43%;width:72px;height:72px;margin:-36px 0 0 -36px;pointer-events:none;background-image:url("../images/farm/farm-event-sheet-01.webp?v=0.13.30");background-size:400% 400%;background-position:var(--event-x,0%) var(--event-y,0%);background-repeat:no-repeat;animation:farm-event-pop .82s ease-out both; }
+@keyframes farm-event-pop { 0%{opacity:0;transform:translateY(8px) scale(.45) rotate(-8deg)} 30%{opacity:1} 70%{transform:translateY(-10px) scale(1.05) rotate(5deg)} 100%{opacity:0;transform:translateY(-22px) scale(1.12) rotate(7deg)} }
+.farm-help-bug { position:absolute;z-index:72;left:50%;bottom:-8px;transform:translateX(-50%);display:inline-flex;align-items:center;gap:3px;padding:3px 6px;border:0;border-radius:999px;background:rgba(241,249,216,.95);color:#5c7044;font-size:.48rem;font-weight:800;white-space:nowrap;box-shadow:0 2px 5px rgba(47,67,35,.16);cursor:pointer;pointer-events:auto; }
+.farm-help-bug .is-help-net { width:18px;height:18px; }
+.farm-merchant-intro { display:flex;align-items:center;gap:12px;padding:11px 12px;border-radius:17px;background:rgba(238,244,210,.55);margin-bottom:12px; }.farm-merchant-intro .is-merchant-face{width:58px;height:58px;--event-x:66.666667%;--event-y:0%;}.farm-merchant-intro p{margin:0;color:#716b57;font-size:.78rem;line-height:1.5}
+.farm-merchant-grid { display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px; }.farm-merchant-card{display:grid;grid-template-columns:auto 1fr auto;gap:7px;align-items:center;padding:12px;border-radius:17px;background:rgba(255,252,233,.83);border:1px solid rgba(125,132,83,.17)}.farm-merchant-card .farm-seed-emoji{font-size:1.8rem}.farm-merchant-card div b,.farm-merchant-card div small{display:block}.farm-merchant-card div small{color:#948873;font-size:.67rem;margin-top:2px}.farm-merchant-card strong{grid-column:1/-1;color:#77804d;font-size:.75rem}.farm-merchant-card button{padding:7px 9px;border:0;border-radius:10px;background:#72834e;color:#fff7de;font-weight:800;cursor:pointer}
+.farm-scene.is-rainy::after,.farm-scene.is-storm::after { content:'';position:absolute;inset:0;z-index:4;pointer-events:none;background-image:repeating-linear-gradient(112deg,transparent 0 16px,rgba(207,235,244,.28) 17px 18px,transparent 19px 34px);background-size:150% 150%;animation:farm-rain-fall 1.1s linear infinite;border-radius:inherit; }
+.farm-scene.is-storm::after { background-color:rgba(53,74,86,.10);animation-duration:.75s; }
+@keyframes farm-rain-fall { from{background-position:0 -80px} to{background-position:-70px 120px} }
+@media (max-width:760px){ .farm-daily-event{left:10px;top:9px;max-width:58%;padding:6px 8px}.farm-daily-event small{display:none}.farm-merchant-npc{left:5%;top:29%;width:76px;height:76px}.farm-field-tools .farm-debug-all{min-height:38px;padding:6px 8px;gap:4px}.farm-field-tools .farm-debug-all b{font-size:.64rem}.farm-field-tools{flex-wrap:wrap;max-width:300px}.farm-merchant-grid{grid-template-columns:1fr}.farm-pest-mark{width:20px;height:20px}.farm-help-bug{font-size:.42rem;padding:2px 5px}.farm-help-bug .is-help-net{width:15px;height:15px} }
+@media (prefers-reduced-motion:reduce){ .farm-merchant-sprite,.farm-pest-mark,.farm-event-burst,.farm-scene.is-rainy::after,.farm-scene.is-storm::after{animation:none!important} }
