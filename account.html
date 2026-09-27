@@ -101,13 +101,13 @@
     @media(max-width:480px){.page{width:min(100% - 18px,860px)}.topbar{margin-bottom:23px}.brand{font-size:18px}h1{font-size:36px}.lead{font-size:14px}.member-card{border-radius:24px}.panel{padding:18px;border-radius:20px}.action-row{padding:14px}.sync-overview{align-items:flex-start;flex-direction:column}.sync-btn{width:100%}.otp-row{grid-template-columns:1fr}.otp-row .primary-btn{width:100%}.verify-methods{grid-template-columns:1fr}.verify-or{padding:4px 0}.verify-or:before,.verify-or:after{display:none}.otp-box{width:calc((100% - 35px)/8);max-width:40px;min-width:0}.restore-counts{grid-template-columns:repeat(2,1fr)}.tech-row{grid-template-columns:1fr;gap:5px}.data-tile{min-height:94px}.member-card:after{opacity:.7}}
 
     /* V0.15.1 — official site UI icon atlas */
-    .account-ui-icon{display:inline-block;flex:0 0 auto;width:28px;height:28px;background-image:url("images/ui/stellar-ui-icon-sheet-02.png?v=0.16.4");background-size:600% 400%;background-position:var(--account-icon-x,0%) var(--account-icon-y,0%);background-repeat:no-repeat;filter:drop-shadow(0 1px 2px rgba(0,0,0,.16))}
+    .account-ui-icon{display:inline-block;flex:0 0 auto;width:28px;height:28px;background-image:url("images/ui/stellar-ui-icon-sheet-02.png?v=0.16.5");background-size:600% 400%;background-position:var(--account-icon-x,0%) var(--account-icon-y,0%);background-repeat:no-repeat;filter:drop-shadow(0 1px 2px rgba(0,0,0,.16))}
     .account-ui-icon[data-account-icon="mail"]{--account-icon-x:80%;--account-icon-y:0%}.account-ui-icon[data-account-icon="home"]{--account-icon-x:100%;--account-icon-y:0%}.account-ui-icon[data-account-icon="right"]{--account-icon-x:60%;--account-icon-y:33.333333%}.account-ui-icon[data-account-icon="close"]{--account-icon-x:80%;--account-icon-y:33.333333%}.account-ui-icon[data-account-icon="account"]{--account-icon-x:0%;--account-icon-y:100%}.account-ui-icon[data-account-icon="logout"]{--account-icon-x:20%;--account-icon-y:100%}.account-ui-icon[data-account-icon="link"]{--account-icon-x:40%;--account-icon-y:100%}.account-ui-icon[data-account-icon="security"]{--account-icon-x:100%;--account-icon-y:100%}
     .account-icon-before-home{display:inline-flex;align-items:center;justify-content:center;gap:0}.account-icon-before-home:before{content:none!important;display:none!important}
-    .back-btn{display:inline-flex;align-items:center;justify-content:center;gap:6px}.back-btn:before{content:"";display:inline-block;width:19px;height:19px;background-image:url("images/ui/stellar-ui-icon-sheet-02.png?v=0.16.4");background-size:600% 400%;background-position:40% 33.333333%;background-repeat:no-repeat}
-    .action-row .account-leading-icon{width:34px;height:34px;margin-right:2px}.action-row>span.action-copy{flex:1;min-width:0}.action-row .action-arrow.account-ui-icon{width:24px;height:24px;font-size:0;color:transparent}.close-bind{display:grid;place-items:center;width:36px;height:36px;padding:0}.close-bind .account-ui-icon{width:26px;height:26px}.verify-icon.account-ui-icon{display:inline-block;width:34px;height:34px;margin-bottom:10px;border-radius:0;background-color:transparent}.sync-btn{display:inline-flex;align-items:center;gap:6px}.sync-btn:before{content:"";width:19px;height:19px;display:inline-block;background-image:url("images/farm/farm-ui-icon-sheet-01.png?v=0.16.4");background-size:800% 600%;background-position:28.571429% 0%;background-repeat:no-repeat}
+    .back-btn{display:inline-flex;align-items:center;justify-content:center;gap:6px}.back-btn:before{content:"";display:inline-block;width:19px;height:19px;background-image:url("images/ui/stellar-ui-icon-sheet-02.png?v=0.16.5");background-size:600% 400%;background-position:40% 33.333333%;background-repeat:no-repeat}
+    .action-row .account-leading-icon{width:34px;height:34px;margin-right:2px}.action-row>span.action-copy{flex:1;min-width:0}.action-row .action-arrow.account-ui-icon{width:24px;height:24px;font-size:0;color:transparent}.close-bind{display:grid;place-items:center;width:36px;height:36px;padding:0}.close-bind .account-ui-icon{width:26px;height:26px}.verify-icon.account-ui-icon{display:inline-block;width:34px;height:34px;margin-bottom:10px;border-radius:0;background-color:transparent}.sync-btn{display:inline-flex;align-items:center;gap:6px}.sync-btn:before{content:"";width:19px;height:19px;display:inline-block;background-image:url("images/farm/farm-ui-icon-sheet-01.png?v=0.16.5");background-size:800% 600%;background-position:28.571429% 0%;background-repeat:no-repeat}
   </style>
-  <link rel="stylesheet" href="css/mailbox.css?v=0.16.4" />
+  <link rel="stylesheet" href="css/mailbox.css?v=0.16.5" />
 </head>
 <body>
   <main class="page">
@@ -283,14 +283,14 @@
   </main>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="js/supabase-public-config.js?v=0.16.4"></script>
-  <script src="js/supabase-config.js?v=0.16.4"></script>
-  <script src="js/supabase-client.js?v=0.16.4"></script>
-  <script src="js/supabase-auth.js?v=0.16.4"></script>
-  <script src="js/account-binding.js?v=0.16.4"></script>
-  <script src="js/account-login.js?v=0.16.4"></script>
-  <script src="js/cloud-sync.js?v=0.16.4"></script>
-  <script src="js/account-page.js?v=0.16.4"></script>
-  <script src="js/mailbox.js?v=0.16.4"></script>
+  <script src="js/supabase-public-config.js?v=0.16.5"></script>
+  <script src="js/supabase-config.js?v=0.16.5"></script>
+  <script src="js/supabase-client.js?v=0.16.5"></script>
+  <script src="js/supabase-auth.js?v=0.16.5"></script>
+  <script src="js/account-binding.js?v=0.16.5"></script>
+  <script src="js/account-login.js?v=0.16.5"></script>
+  <script src="js/cloud-sync.js?v=0.16.5"></script>
+  <script src="js/account-page.js?v=0.16.5"></script>
+  <script src="js/mailbox.js?v=0.16.5"></script>
 </body>
 </html>

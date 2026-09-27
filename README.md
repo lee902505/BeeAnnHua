@@ -464,3 +464,13 @@ GM 邮件附件改为数据库物品目录选择器，以固定 Item ID / item_c
 
 ## V0.16.4 Guest mailbox
 Anonymous Supabase guest users can now open Stellar Mail, read active mail and view attachment contents. Reward claiming remains restricted to email-bound formal accounts; the bind action links to the account page and preserves the anonymous UUID when upgraded. No new SQL migration is required after V0.16.3.
+
+## V0.16.5 System Mail V1 final
+
+- GM recipient scopes: all players including future users / current players only / specific UID.
+- Recipient scope and expiry are independent (Permanent / D+7 / D+14 / D+30).
+- Current-player-only mail uses `recipient_cutoff_at` and Auth account creation time.
+- GM can withdraw mail without deleting audit history.
+- GM history shows scope, status, expiry, attachments, and supports copying an old mail into the editor.
+- Mailbox native browser alerts/confirms were replaced by Stellar Diary toast and confirmation UI.
+- Player reward claiming uses hardened `claim_system_mail_v2` so withdrawn/cutoff mail cannot be claimed through an older client call.

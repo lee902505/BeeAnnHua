@@ -97,3 +97,19 @@ GM 管理台不再把所有物品写死成输入框。附件改成：
 - 单封删除后会自动选中下一封可见邮件。
 - GM 发布前可点击「预览邮件」，用玩家实际信件版面检查标题、内容、附件、收件对象与期限。
 - GM 最近发布列表会同步显示附件文字摘要。
+
+## V0.16.5 — System Mail V1 final
+
+Migration: `20260928_022_mailbox_v1_final.sql`
+
+GM recipient scope is now independent from mail expiry:
+
+- `all_future`: all current players and future players while the mail remains active.
+- `current_all`: only Auth users that already existed when the GM published the mail. New users created later cannot see or claim it.
+- `user`: one verified Auth UUID.
+
+Expiry remains independent: permanent, D+7, D+14, or D+30. Therefore `current_all + D+7` is a valid update-compensation pattern.
+
+GM can withdraw a published mail. Withdrawal sets `withdrawn_at`; it does not delete the `system_mail` row or the `gm_audit_log`. Players immediately stop seeing/claiming the mail. The GM history keeps withdrawn/expired records and supports copying a previous mail back into the editor.
+
+V0.16.5 removes the temporary new-user Auth trigger used during the V0.16.4 cutoff hotfix. Recipient eligibility is checked directly against `auth.users.created_at`, avoiding per-new-user mailbox writes.
