@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const BUILD = '0.16.0';
+  const BUILD = '0.16.1';
   const MAX_MAIL = 60;
   const POLL_MS = 90 * 1000;
   let mailRows = [];
@@ -11,6 +11,10 @@
   let selectedMailId = null;
   let busy = false;
   let pollTimer = null;
+  let itemCatalog = [];
+  let itemCatalogLoaded = false;
+  let gmAttachments = [];
+  let gmTargetVerified = null;
 
   const TEXT = {
     'zh-CN': {
@@ -19,7 +23,7 @@
       memberOnly:'请先绑定正式邮箱账号后再领取附件。', claimOk:'附件已领取', claimFail:'领取失败', close:'关闭', published:'已发布', gmTitle:'GM 管理台',
       sendMail:'发布系统信件', mailTitle:'标题', mailBody:'内容', mailType:'信件类型', audience:'发送对象', allPlayers:'全体玩家', onePlayer:'指定 UID', targetUid:'目标玩家 UID', expiry:'有效期限', forever:'永久', days7:'7 天', days14:'14 天', days30:'30 天',
       rewards:'附件奖励', coins:'金币', exp:'EXP', blind:'蔬果盲盒', carrot:'红萝卜种子', wheat:'小麦种子', corn:'玉米种子', tomato:'番茄种子', strawberry:'草莓种子', pumpkin:'南瓜种子', grape:'葡萄种子', starfruit:'星辰果种子', fertLow:'低级肥料', fertMid:'中级肥料', fertHigh:'高级肥料',
-      publish:'确认发布', preview:'发送后玩家会立即在信箱看到这封信。奖励附件每个正式账号只能领取一次。', recent:'最近发布', noHistory:'尚无发布记录。', confirmSend:'确定发布这封系统信件吗？', sent:'系统信件已发布', invalidTarget:'请输入正确的玩家 UID。', bind:'绑定账号', setup:'系统信箱尚未启用，请先执行 018_system_mail_gm.sql。'
+      publish:'确认发布', preview:'发送后玩家会立即在信箱看到这封信。奖励附件每个正式账号只能领取一次。', recent:'最近发布', noHistory:'尚无发布记录。', confirmSend:'确定发布这封系统信件吗？', sent:'系统信件已发布', invalidTarget:'请输入正确的玩家 UID。', bind:'绑定账号', setup:'系统信箱尚未启用，请先执行 018_system_mail_gm.sql。', itemCategory:'物品分类', itemSelect:'选择物品', itemQty:'数量', addAttachment:'加入附件', noAttachments:'尚未加入附件。', remove:'移除', itemId:'物品 ID', categoryAll:'全部分类', categoryCurrency:'货币', categorySeed:'种子', categoryBox:'盲盒', categorySupply:'农资', verifyUid:'验证 UID', playerVerified:'玩家已确认', playerNotFound:'找不到这个玩家 UID。', run019:'请先执行 019_mail_item_catalog.sql。'
     },
     'zh-TW': {
       mailbox:'星辰信箱', gm:'GM 管理', all:'全部', unread:'未讀', attachments:'有附件', empty:'目前沒有信件。', loading:'正在讀取信件…',
@@ -27,7 +31,7 @@
       memberOnly:'請先綁定正式信箱帳號後再領取附件。', claimOk:'附件已領取', claimFail:'領取失敗', close:'關閉', published:'已發布', gmTitle:'GM 管理台',
       sendMail:'發布系統信件', mailTitle:'標題', mailBody:'內容', mailType:'信件類型', audience:'發送對象', allPlayers:'全體玩家', onePlayer:'指定 UID', targetUid:'目標玩家 UID', expiry:'有效期限', forever:'永久', days7:'7 天', days14:'14 天', days30:'30 天',
       rewards:'附件獎勵', coins:'金幣', exp:'EXP', blind:'蔬果盲盒', carrot:'紅蘿蔔種子', wheat:'小麥種子', corn:'玉米種子', tomato:'番茄種子', strawberry:'草莓種子', pumpkin:'南瓜種子', grape:'葡萄種子', starfruit:'星辰果種子', fertLow:'低級肥料', fertMid:'中級肥料', fertHigh:'高級肥料',
-      publish:'確認發布', preview:'發送後玩家會立即在信箱看到這封信。獎勵附件每個正式帳號只能領取一次。', recent:'最近發布', noHistory:'尚無發布紀錄。', confirmSend:'確定發布這封系統信件嗎？', sent:'系統信件已發布', invalidTarget:'請輸入正確的玩家 UID。', bind:'綁定帳號', setup:'系統信箱尚未啟用，請先執行 018_system_mail_gm.sql。'
+      publish:'確認發布', preview:'發送後玩家會立即在信箱看到這封信。獎勵附件每個正式帳號只能領取一次。', recent:'最近發布', noHistory:'尚無發布紀錄。', confirmSend:'確定發布這封系統信件嗎？', sent:'系統信件已發布', invalidTarget:'請輸入正確的玩家 UID。', bind:'綁定帳號', setup:'系統信箱尚未啟用，請先執行 018_system_mail_gm.sql。', itemCategory:'物品分類', itemSelect:'選擇物品', itemQty:'數量', addAttachment:'加入附件', noAttachments:'尚未加入附件。', remove:'移除', itemId:'物品 ID', categoryAll:'全部分類', categoryCurrency:'貨幣', categorySeed:'種子', categoryBox:'盲盒', categorySupply:'農資', verifyUid:'驗證 UID', playerVerified:'玩家已確認', playerNotFound:'找不到這個玩家 UID。', run019:'請先執行 019_mail_item_catalog.sql。'
     },
     en: {
       mailbox:'Stellar Mail', gm:'GM Console', all:'All', unread:'Unread', attachments:'Attachments', empty:'No mail yet.', loading:'Loading mail…',
@@ -35,7 +39,7 @@
       memberOnly:'Bind a permanent email account before claiming rewards.', claimOk:'Attachments claimed', claimFail:'Claim failed', close:'Close', published:'Published', gmTitle:'GM Console',
       sendMail:'Publish system mail', mailTitle:'Title', mailBody:'Content', mailType:'Mail type', audience:'Audience', allPlayers:'All players', onePlayer:'Specific UID', targetUid:'Target player UID', expiry:'Expiry', forever:'Permanent', days7:'7 days', days14:'14 days', days30:'30 days',
       rewards:'Attachments', coins:'Coins', exp:'EXP', blind:'Produce mystery box', carrot:'Carrot seeds', wheat:'Wheat seeds', corn:'Corn seeds', tomato:'Tomato seeds', strawberry:'Strawberry seeds', pumpkin:'Pumpkin seeds', grape:'Grape seeds', starfruit:'Starfruit seeds', fertLow:'Basic fertilizer', fertMid:'Medium fertilizer', fertHigh:'Advanced fertilizer',
-      publish:'Publish', preview:'Players will see this mail immediately. Each permanent account can claim each attachment only once.', recent:'Recent mail', noHistory:'No published mail yet.', confirmSend:'Publish this system mail?', sent:'System mail published', invalidTarget:'Enter a valid player UID.', bind:'Bind account', setup:'Mailbox is not enabled yet. Run 018_system_mail_gm.sql first.'
+      publish:'Publish', preview:'Players will see this mail immediately. Each permanent account can claim each attachment only once.', recent:'Recent mail', noHistory:'No published mail yet.', confirmSend:'Publish this system mail?', sent:'System mail published', invalidTarget:'Enter a valid player UID.', bind:'Bind account', setup:'Mailbox is not enabled yet. Run 018_system_mail_gm.sql first.', itemCategory:'Item category', itemSelect:'Choose item', itemQty:'Quantity', addAttachment:'Add attachment', noAttachments:'No attachments added.', remove:'Remove', itemId:'Item ID', categoryAll:'All categories', categoryCurrency:'Currency', categorySeed:'Seeds', categoryBox:'Boxes', categorySupply:'Supplies', verifyUid:'Verify UID', playerVerified:'Player verified', playerNotFound:'Player UID not found.', run019:'Run 019_mail_item_catalog.sql first.'
     }
   };
 
@@ -64,30 +68,67 @@
     return `<span class="mail-site-icon ${className}" style="--mail-site-x:${(col/5)*100}%;--mail-site-y:${(row/3)*100}%" aria-hidden="true"></span>`;
   }
 
+  function catalogName(item) {
+    if (!item) return '';
+    return locale()==='en' ? (item.name_en || item.item_code) : locale()==='zh-TW' ? (item.name_zh_tw || item.name_zh_cn || item.item_code) : (item.name_zh_cn || item.item_code);
+  }
+  function categoryName(category) {
+    return t(category==='currency'?'categoryCurrency':category==='seed'?'categorySeed':category==='box'?'categoryBox':'categorySupply');
+  }
+  function farmItemIcon(cell,className='') {
+    const index=Math.max(1,Number(cell)||1), col=(index-1)%4,row=Math.floor((index-1)/4);
+    return `<span class="mail-farm-item-icon ${className}" style="--mail-item-x:${(col/3)*100}%;--mail-item-y:${(row/3)*100}%" aria-hidden="true"></span>`;
+  }
+  function catalogIcon(item,className='') {
+    if (!item) return farmIcon('reward-box',className);
+    if (item.icon_source==='farm_item' && Number(item.icon_cell)>0) return farmItemIcon(item.icon_cell,className);
+    if (item.icon_source==='site' && Number(item.icon_cell)>0) return siteIcon(item.icon_cell,className);
+    return farmIcon(item.icon_key || 'reward-box',className);
+  }
+  async function loadItemCatalog(force=false) {
+    if (itemCatalogLoaded && !force) return itemCatalog;
+    const sb=client(); if(!sb)return itemCatalog;
+    try {
+      const {data,error}=await sb.rpc('get_mail_item_catalog_v1'); if(error)throw error;
+      itemCatalog=Array.isArray(data)?data:[]; itemCatalogLoaded=true;
+    } catch(error) {
+      if (!rpcMissing(error)) console.warn('[Stellar Mail] item catalog:',error);
+    }
+    return itemCatalog;
+  }
+  function catalogById(id) { return itemCatalog.find(item=>Number(item.item_id)===Number(id)) || null; }
+
   function hasRewards(row) {
-    const r = row?.rewards;
-    if (!r || typeof r !== 'object') return false;
-    if ((Number(r.coins)||0) > 0 || (Number(r.exp)||0) > 0) return true;
-    return Object.values(r.seeds || {}).some(v => Number(v)>0) || Object.values(r.supplies || {}).some(v => Number(v)>0);
+    const r=row?.rewards;
+    if(!r||typeof r!=='object')return false;
+    if(Array.isArray(r.items)&&r.items.some(x=>(Number(x?.quantity)||0)>0))return true;
+    if((Number(r.coins)||0)>0||(Number(r.exp)||0)>0)return true;
+    return Object.values(r.seeds||{}).some(v=>Number(v)>0)||Object.values(r.supplies||{}).some(v=>Number(v)>0);
   }
 
   function rewardItems(rewards={}) {
     const items=[];
+    if(Array.isArray(rewards.items)){
+      rewards.items.forEach(entry=>{
+        const qty=Math.max(0,Number(entry?.quantity)||0); if(!qty)return;
+        const item=catalogById(entry.item_id);
+        items.push({catalog:item,label:item?catalogName(item):`#${entry.item_id}`,qty});
+      });
+    }
     const add=(icon,labelKey,qty)=>{qty=Number(qty)||0;if(qty>0)items.push({icon,label:t(labelKey),qty});};
     add('coin','coins',rewards.coins); add('exp','exp',rewards.exp);
     const seeds=rewards.seeds||{};
     add('seed-carrot','carrot',seeds.carrot); add('seed-wheat','wheat',seeds.wheat); add('seed-corn','corn',seeds.corn); add('seed-tomato','tomato',seeds.tomato);
     add('seed-strawberry','strawberry',seeds.strawberry); add('seed-pumpkin','pumpkin',seeds.pumpkin); add('seed-grape','grape',seeds.grape); add('seed-starfruit','starfruit',seeds.starfruit); add('reward-box','blind',seeds.mystery);
     const supplies=rewards.supplies||{};
-    if (Number(supplies.fertilizerLow)>0) items.push({siteCell:22,label:t('fertLow'),qty:Number(supplies.fertilizerLow)});
-    if (Number(supplies.fertilizerMid)>0) items.push({siteCell:22,label:t('fertMid'),qty:Number(supplies.fertilizerMid)});
-    if (Number(supplies.fertilizerHigh)>0) items.push({siteCell:22,label:t('fertHigh'),qty:Number(supplies.fertilizerHigh)});
+    if(Number(supplies.fertilizerLow)>0)items.push({farmItemCell:5,label:t('fertLow'),qty:Number(supplies.fertilizerLow)});
+    if(Number(supplies.fertilizerMid)>0)items.push({farmItemCell:6,label:t('fertMid'),qty:Number(supplies.fertilizerMid)});
+    if(Number(supplies.fertilizerHigh)>0)items.push({farmItemCell:7,label:t('fertHigh'),qty:Number(supplies.fertilizerHigh)});
     return items;
   }
-  function rewardMarkup(rewards, compact=false) {
-    const items=rewardItems(rewards);
-    if (!items.length) return '';
-    return `<div class="mail-reward-list ${compact?'is-compact':''}">${items.map(item=>`<span>${item.siteCell?siteIcon(item.siteCell,'is-reward-icon'):farmIcon(item.icon,'is-reward-icon')}<b>${esc(item.label)}</b><em>×${item.qty}</em></span>`).join('')}</div>`;
+  function rewardMarkup(rewards,compact=false) {
+    const items=rewardItems(rewards); if(!items.length)return '';
+    return `<div class="mail-reward-list ${compact?'is-compact':''}">${items.map(item=>`<span>${item.catalog?catalogIcon(item.catalog,'is-reward-icon'):item.farmItemCell?farmItemIcon(item.farmItemCell,'is-reward-icon'):farmIcon(item.icon,'is-reward-icon')}<b>${esc(item.label)}</b><em>×${item.qty}</em></span>`).join('')}</div>`;
   }
 
   function formatDate(value) {
@@ -217,30 +258,72 @@
     alert(t('claimOk')); await loadMailbox(true);
   }
 
-  function openMailbox() { ensureShell(); const modal=document.getElementById('stellarMailboxModal'); modal.hidden=false; document.body.classList.add('stellar-mail-open'); selectedMailId=null; loadMailbox(true); }
+  async function openMailbox() { ensureShell(); await loadItemCatalog(); const modal=document.getElementById('stellarMailboxModal'); modal.hidden=false; document.body.classList.add('stellar-mail-open'); selectedMailId=null; loadMailbox(true); }
   function closeMailbox() { const modal=document.getElementById('stellarMailboxModal'); if(modal)modal.hidden=true; document.body.classList.remove('stellar-mail-open'); }
 
-  function gmRewardInputs() {
-    const fields=[['coins','coins'],['exp','exp'],['mystery','blind'],['carrot','carrot'],['wheat','wheat'],['corn','corn'],['tomato','tomato'],['strawberry','strawberry'],['pumpkin','pumpkin'],['grape','grape'],['starfruit','starfruit'],['fertilizerLow','fertLow'],['fertilizerMid','fertMid'],['fertilizerHigh','fertHigh']];
-    return fields.map(([key,label])=>`<label><span>${esc(t(label))}</span><input type="number" min="0" step="1" value="0" data-gm-reward="${key}"></label>`).join('');
+  function gmCategoryOptions() {
+    return [['all','categoryAll'],['currency','categoryCurrency'],['seed','categorySeed'],['box','categoryBox'],['supply','categorySupply']]
+      .map(([value,key])=>`<option value="${value}">${esc(t(key))}</option>`).join('');
+  }
+  function gmItemOptions(category='all') {
+    const list=itemCatalog.filter(item=>category==='all'||item.category===category);
+    return list.map(item=>`<option value="${item.item_id}">#${item.item_id} · ${esc(catalogName(item))} · ${esc(item.item_code)}</option>`).join('');
+  }
+  function renderGmItemSelect() {
+    const select=document.getElementById('gmItemSelect'); if(!select)return;
+    const category=document.getElementById('gmItemCategory')?.value||'all';
+    const current=select.value;
+    select.innerHTML=gmItemOptions(category)||`<option value="">${esc(t('run019'))}</option>`;
+    if([...select.options].some(o=>o.value===current))select.value=current;
+    renderGmItemMeta();
+  }
+  function renderGmItemMeta() {
+    const host=document.getElementById('gmItemMeta'); if(!host)return;
+    const item=catalogById(document.getElementById('gmItemSelect')?.value);
+    host.innerHTML=item?`${catalogIcon(item,'is-gm-item-icon')}<span><b>${esc(catalogName(item))}</b><small>#${item.item_id} · ${esc(item.item_code)} · ${esc(categoryName(item.category))}</small></span>`:'';
+  }
+  function renderGmAttachments() {
+    const host=document.getElementById('gmAttachmentList'); if(!host)return;
+    if(!gmAttachments.length){host.innerHTML=`<div class="stellar-gm-no-attachments">${esc(t('noAttachments'))}</div>`;return;}
+    host.innerHTML=gmAttachments.map(entry=>{
+      const item=catalogById(entry.item_id);
+      return `<article class="stellar-gm-attachment-row">${catalogIcon(item,'is-gm-attachment-icon')}<span><b>${esc(item?catalogName(item):`#${entry.item_id}`)}</b><small>#${entry.item_id}${item?` · ${esc(item.item_code)}`:''}</small></span><strong>×${entry.quantity}</strong><button type="button" data-gm-remove-item="${entry.item_id}" aria-label="${esc(t('remove'))}">${siteIcon(11,'is-remove-item')}</button></article>`;
+    }).join('');
+  }
+  function addGmAttachment() {
+    const itemId=Number(document.getElementById('gmItemSelect')?.value)||0;
+    const item=catalogById(itemId); if(!item)return;
+    const input=document.getElementById('gmItemQty');
+    const qty=Math.max(1,Math.min(Number(item.max_quantity)||100000,Math.floor(Number(input?.value)||1)));
+    const existing=gmAttachments.find(x=>Number(x.item_id)===itemId);
+    if(existing)existing.quantity=Math.min(Number(item.max_quantity)||100000,existing.quantity+qty); else gmAttachments.push({item_id:itemId,quantity:qty});
+    if(input)input.value='1'; renderGmAttachments();
+  }
+  function removeGmAttachment(itemId) { gmAttachments=gmAttachments.filter(x=>Number(x.item_id)!==Number(itemId)); renderGmAttachments(); }
+  function readGmRewards() { return gmAttachments.length?{items:gmAttachments.map(x=>({item_id:Number(x.item_id),quantity:Number(x.quantity)}))}:{}; }
+
+  async function verifyGmTarget() {
+    const input=document.getElementById('gmTargetUid'); const host=document.getElementById('gmTargetStatus');
+    const uid=(input?.value||'').trim().toLowerCase(); if(input)input.value=uid; gmTargetVerified=null;
+    if(!host)return;
+    if(!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(uid)){host.textContent=t('invalidTarget');host.className='stellar-gm-target-status is-error';return;}
+    host.textContent=t('loading');host.className='stellar-gm-target-status';
+    try{
+      const {data,error}=await client().rpc('gm_lookup_player_v1',{p_user_id:uid}); if(error)throw error;
+      const row=Array.isArray(data)?data[0]:data;
+      if(!row){host.textContent=t('playerNotFound');host.className='stellar-gm-target-status is-error';return;}
+      gmTargetVerified=String(row.user_id);
+      host.innerHTML=`<b>${esc(t('playerVerified'))}</b><span>${esc(row.display_name||'')} · Lv.${Number(row.farm_level)||1}${row.email?` · ${esc(row.email)}`:''}</span>`;
+      host.className='stellar-gm-target-status is-ok';
+    }catch(error){host.textContent=rpcMissing(error)?t('run019'):String(error?.message||error);host.className='stellar-gm-target-status is-error';}
   }
 
   function ensureGmModal() {
     if(document.getElementById('stellarGmModal'))return;
     const modal=document.createElement('div'); modal.id='stellarGmModal'; modal.className='stellar-mail-modal stellar-gm-modal'; modal.hidden=true;
-    modal.innerHTML=`<div class="stellar-mail-backdrop" data-gm-close></div><section class="stellar-mail-dialog stellar-gm-dialog" role="dialog" aria-modal="true"><header><div>${farmIcon('announcement','is-mail-title-icon')}<span><small>STELLAR DIARY</small><b>${esc(t('gmTitle'))}</b></span></div><button type="button" data-gm-close>${siteIcon(11,'is-close-icon')}</button></header><div class="stellar-gm-body"><section class="stellar-gm-form"><h3>${esc(t('sendMail'))}</h3><label class="is-wide"><span>${esc(t('mailTitle'))}</span><input type="text" maxlength="120" id="gmMailTitle"></label><label class="is-wide"><span>${esc(t('mailBody'))}</span><textarea maxlength="6000" rows="7" id="gmMailBody"></textarea></label><div class="stellar-gm-grid"><label><span>${esc(t('mailType'))}</span><select id="gmMailType"><option value="announcement">${esc(t('announcement'))}</option><option value="reward">${esc(t('reward'))}</option></select></label><label><span>${esc(t('audience'))}</span><select id="gmMailAudience"><option value="all">${esc(t('allPlayers'))}</option><option value="user">${esc(t('onePlayer'))}</option></select></label><label id="gmTargetWrap" hidden><span>${esc(t('targetUid'))}</span><input type="text" id="gmTargetUid" placeholder="00000000-0000-0000-0000-000000000000"></label><label><span>${esc(t('expiry'))}</span><select id="gmExpiry"><option value="0">${esc(t('forever'))}</option><option value="7">${esc(t('days7'))}</option><option value="14">${esc(t('days14'))}</option><option value="30">${esc(t('days30'))}</option></select></label></div><h4>${esc(t('rewards'))}</h4><div class="stellar-gm-rewards">${gmRewardInputs()}</div><p class="stellar-gm-note">${esc(t('preview'))}</p><button type="button" class="stellar-gm-publish" data-gm-publish>${farmIcon('announcement')}${esc(t('publish'))}</button></section><section class="stellar-gm-history"><h3>${esc(t('recent'))}</h3><div id="gmMailHistory"></div></section></div></section>`;
+    modal.innerHTML=`<div class="stellar-mail-backdrop" data-gm-close></div><section class="stellar-mail-dialog stellar-gm-dialog" role="dialog" aria-modal="true"><header><div>${farmIcon('announcement','is-mail-title-icon')}<span><small>STELLAR DIARY</small><b>${esc(t('gmTitle'))}</b></span></div><button type="button" data-gm-close>${siteIcon(11,'is-close-icon')}</button></header><div class="stellar-gm-body"><section class="stellar-gm-form"><h3>${esc(t('sendMail'))}</h3><label class="is-wide"><span>${esc(t('mailTitle'))}</span><input type="text" maxlength="120" id="gmMailTitle"></label><label class="is-wide"><span>${esc(t('mailBody'))}</span><textarea maxlength="6000" rows="7" id="gmMailBody"></textarea></label><div class="stellar-gm-grid"><label><span>${esc(t('mailType'))}</span><select id="gmMailType"><option value="announcement">${esc(t('announcement'))}</option><option value="reward">${esc(t('reward'))}</option></select></label><label><span>${esc(t('audience'))}</span><select id="gmMailAudience"><option value="all">${esc(t('allPlayers'))}</option><option value="user">${esc(t('onePlayer'))}</option></select></label><label id="gmTargetWrap" class="stellar-gm-target-wrap" hidden><span>${esc(t('targetUid'))}</span><span class="stellar-gm-uid-line"><input type="text" id="gmTargetUid" placeholder="00000000-0000-0000-0000-000000000000"><button type="button" data-gm-verify-uid>${esc(t('verifyUid'))}</button></span><small id="gmTargetStatus" class="stellar-gm-target-status"></small></label><label><span>${esc(t('expiry'))}</span><select id="gmExpiry"><option value="0">${esc(t('forever'))}</option><option value="7">${esc(t('days7'))}</option><option value="14">${esc(t('days14'))}</option><option value="30">${esc(t('days30'))}</option></select></label></div><h4>${esc(t('rewards'))}</h4><section class="stellar-gm-item-builder"><div class="stellar-gm-item-controls"><label><span>${esc(t('itemCategory'))}</span><select id="gmItemCategory">${gmCategoryOptions()}</select></label><label class="is-item-select"><span>${esc(t('itemSelect'))}</span><select id="gmItemSelect"></select></label><label class="is-qty"><span>${esc(t('itemQty'))}</span><input id="gmItemQty" type="number" min="1" step="1" value="1"></label><button type="button" class="stellar-gm-add-item" data-gm-add-item>${siteIcon(22,'is-add-item-icon')}${esc(t('addAttachment'))}</button></div><div id="gmItemMeta" class="stellar-gm-item-meta"></div><div id="gmAttachmentList" class="stellar-gm-attachment-list"></div></section><p class="stellar-gm-note">${esc(t('preview'))}</p><button type="button" class="stellar-gm-publish" data-gm-publish>${farmIcon('announcement')}${esc(t('publish'))}</button></section><section class="stellar-gm-history"><h3>${esc(t('recent'))}</h3><div id="gmMailHistory"></div></section></div></section>`;
     document.body.appendChild(modal);
-  }
-
-  function readGmRewards() {
-    const out={}; const seeds={},supplies={};
-    document.querySelectorAll('[data-gm-reward]').forEach(input=>{
-      const n=Math.max(0,Math.floor(Number(input.value)||0)); if(!n)return; const key=input.dataset.gmReward;
-      if(key==='coins'||key==='exp')out[key]=n;
-      else if(key.startsWith('fertilizer')) supplies[key]=n;
-      else seeds[key]=n;
-    });
-    if(Object.keys(seeds).length)out.seeds=seeds; if(Object.keys(supplies).length)out.supplies=supplies; return out;
+    renderGmItemSelect(); renderGmAttachments();
   }
 
   async function loadGmHistory() {
@@ -254,16 +337,16 @@
   async function publishGmMail() {
     if(!isGm||busy)return; const title=document.getElementById('gmMailTitle')?.value.trim()||''; if(!title)return;
     const body=document.getElementById('gmMailBody')?.value||''; const mailType=document.getElementById('gmMailType')?.value||'announcement'; const audience=document.getElementById('gmMailAudience')?.value||'all';
-    const target=(document.getElementById('gmTargetUid')?.value||'').trim(); if(audience==='user'&&!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(target)){alert(t('invalidTarget'));return;}
+    const target=(document.getElementById('gmTargetUid')?.value||'').trim().toLowerCase(); if(audience==='user'&&!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(target)){alert(t('invalidTarget'));return;} if(audience==='user'&&gmTargetVerified!==target){await verifyGmTarget();if(gmTargetVerified!==target)return;}
     const days=Number(document.getElementById('gmExpiry')?.value)||0; const start=new Date(); const expires=days?new Date(start.getTime()+days*86400000).toISOString():null; const rewards=readGmRewards();
     if(!confirm(t('confirmSend')))return; busy=true;
     try{
       const {data,error}=await client().rpc('gm_send_system_mail_v1',{p_title:title,p_body:body,p_mail_type:mailType,p_audience_type:audience,p_target_user_id:audience==='user'?target:null,p_rewards:rewards,p_starts_at:start.toISOString(),p_expires_at:expires}); if(error)throw error;
-      alert(`${t('sent')} #${data}`); document.getElementById('gmMailTitle').value=''; document.getElementById('gmMailBody').value=''; document.querySelectorAll('[data-gm-reward]').forEach(i=>i.value='0'); await loadGmHistory(); await refreshUnread();
+      alert(`${t('sent')} #${data}`); document.getElementById('gmMailTitle').value=''; document.getElementById('gmMailBody').value=''; gmAttachments=[]; renderGmAttachments(); await loadGmHistory(); await refreshUnread();
     }catch(error){alert(String(error?.message||error));}finally{busy=false;}
   }
 
-  function openGm() { if(!isGm)return; ensureGmModal(); document.getElementById('stellarGmModal').hidden=false; document.body.classList.add('stellar-mail-open'); loadGmHistory(); }
+  async function openGm() { if(!isGm)return; await loadItemCatalog(); ensureGmModal(); renderGmItemSelect(); renderGmAttachments(); document.getElementById('stellarGmModal').hidden=false; document.body.classList.add('stellar-mail-open'); loadGmHistory(); }
   function closeGm() { const m=document.getElementById('stellarGmModal'); if(m)m.hidden=true; document.body.classList.remove('stellar-mail-open'); }
 
   function handleClick(event) {
@@ -275,22 +358,28 @@
     const row=event.target.closest('[data-mail-id]'); if(row){selectedMailId=Number(row.dataset.mailId);renderMailbox();return;}
     const claim=event.target.closest('[data-mail-claim]'); if(claim){claimMail(Number(claim.dataset.mailClaim));return;}
     if(event.target.closest('[data-mail-claim-all]')){claimAll();return;}
+    if(event.target.closest('[data-gm-verify-uid]')){verifyGmTarget();return;}
+    if(event.target.closest('[data-gm-add-item]')){addGmAttachment();return;}
+    const removeItem=event.target.closest('[data-gm-remove-item]'); if(removeItem){removeGmAttachment(Number(removeItem.dataset.gmRemoveItem));return;}
     if(event.target.closest('[data-gm-publish]')){publishGmMail();return;}
   }
 
   function handleChange(event) {
-    if(event.target.matches('#gmMailAudience')){const wrap=document.getElementById('gmTargetWrap');if(wrap)wrap.hidden=event.target.value!=='user';}
+    if(event.target.matches('#gmMailAudience')){const wrap=document.getElementById('gmTargetWrap');if(wrap)wrap.hidden=event.target.value!=='user';gmTargetVerified=null;}
+    if(event.target.matches('#gmTargetUid')){gmTargetVerified=null;const host=document.getElementById('gmTargetStatus');if(host){host.textContent='';host.className='stellar-gm-target-status';}}
+    if(event.target.matches('#gmItemCategory')){renderGmItemSelect();}
+    if(event.target.matches('#gmItemSelect')){renderGmItemMeta();}
   }
 
   async function refreshIdentity() {
-    ensureShell(); await checkGm(); ensureHeaderButtons(); await refreshUnread();
+    ensureShell(); await checkGm(); ensureHeaderButtons(); await loadItemCatalog(); await refreshUnread();
   }
 
   function init() {
     console.info(`[Stellar Mail] build ${BUILD}`);
     ensureShell(); document.addEventListener('click',handleClick); document.addEventListener('change',handleChange);
     window.addEventListener('stellar:auth-state',()=>setTimeout(refreshIdentity,60));
-    window.addEventListener('stellar:language-changed',()=>{ensureHeaderButtons();});
+    window.addEventListener('stellar:language-changed',()=>{ensureHeaderButtons(); if(document.getElementById('stellarGmModal')){renderGmItemSelect();renderGmAttachments();}});
     refreshIdentity();
     pollTimer=setInterval(()=>{if(!document.hidden)refreshUnread();},POLL_MS);
   }

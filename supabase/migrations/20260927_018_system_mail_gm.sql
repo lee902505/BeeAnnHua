@@ -1,4 +1,4 @@
--- Stellar Diary V0.16.0 — GM roles + system mailbox + atomic reward claiming
+-- Stellar Diary V0.16.1 — GM roles + system mailbox + atomic reward claiming
 -- Run ONCE in Supabase SQL Editor after the existing farm migrations.
 -- First GM is bootstrapped by immutable Auth UUID, not by email.
 
