@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const FARM_BUILD = '0.14.5';
+  const FARM_BUILD = '0.14.5.1';
   const STORAGE_KEY = 'xingchen-farm-v1';
   const VERSION = 1;
   const PLOT_COUNT = 20;
@@ -94,7 +94,7 @@
     Object.freeze({id:'npc_qinghe', name:'青禾', sex:'male', icon:'🌿', level:20, coins:7250, titleId:'farm_master', trait:'资深农友', note:'经营很久的老农友，农田里经常同时种着不同作物。', favorites:['grape','pumpkin','corn','strawberry'], helpRate:.50, visitRate:.36})
   ]);
 
-  // V0.14.5 — Stellar Station now has two independent platforms. Both trains are
+  // V0.14.5.1 — Stellar Station now has two independent platforms. Both trains are
   // available after the 00:00 daily reset, so players may freely choose the better
   // multiplier first. A dispatched train pays immediately; its platform returns
   // after a deterministic 4–6 hour cooldown. Up to three extra trains may arrive
@@ -3889,14 +3889,14 @@
         if (slot.status === 'cooldown') {
           return `<section class="farm-train-slot is-cooldown" data-train-slot="${slot.index}">
             <header class="farm-train-slot-head"><div><small>第 ${slot.index + 1} 月台</small><b>🚂 列车返程中</b></div><span>约 <strong data-train-cooldown-until="${slot.availableAt}">${formatTrainWait(slot.availableAt - Date.now())}</strong> 后抵达</span></header>
-            <div class="farm-train-empty-station"><img src="../images/farm/train-station.png?v=0.14.5" alt="星辰车站"></div>
+            <div class="farm-train-empty-station"><img src="../images/farm/train-station.png?v=0.14.5.1" alt="星辰车站"></div>
             <p class="farm-train-slot-note">奖励已在上一班发车时立即入账。返程后这里会自动出现一班全新的订单。</p>
           </section>`;
         }
         if (slot.status === 'done') {
           return `<section class="farm-train-slot is-done" data-train-slot="${slot.index}">
             <header class="farm-train-slot-head"><div><small>第 ${slot.index + 1} 月台</small><b>✅ 今日加班班次已满</b></div><span>00:00 统一刷新</span></header>
-            <div class="farm-train-empty-station"><img src="../images/farm/train-station.png?v=0.14.5" alt="星辰车站"></div>
+            <div class="farm-train-empty-station"><img src="../images/farm/train-station.png?v=0.14.5.1" alt="星辰车站"></div>
           </section>`;
         }
         const train = slot.train;
@@ -3912,7 +3912,7 @@
           const remaining = Math.max(0, car.required - car.loaded);
           const canLoad = !done && owned > 0;
           return `<button type="button" class="farm-train-car is-${car.style} ${done ? 'is-complete' : ''}" data-train-slot-index="${slot.index}" data-train-load-index="${index}" ${canLoad ? '' : 'disabled'} aria-label="${done ? `${crop.name}车厢已装满` : `装载${crop.name}，还差${remaining}个`}">
-            <img src="../images/farm/train-car-${car.style}.png?v=0.14.5" alt="" aria-hidden="true">
+            <img src="../images/farm/train-car-${car.style}.png?v=0.14.5.1" alt="" aria-hidden="true">
             <span class="farm-train-car-ui"><i>${done ? '✓' : crop.icon}</i><b>${escapeHtml(crop.name)}</b><strong>${car.loaded} / ${car.required}</strong><small>${done ? '装载完成' : `背包 ${owned}`}</small></span>
           </button>`;
         }).join('');
@@ -3923,10 +3923,10 @@
             <div class="farm-train-reward"><small>本班发车预计获得</small><b>🪙 ${formatNumber(reward.coins)} <i>+ EXP ${formatNumber(reward.exp)}</i></b><em>发车后立即入账；基础货价为直接出售的 120% 再乘倍率。</em></div>
           </div>
           <div class="farm-train-yard">
-            <img class="farm-train-yard-station" src="../images/farm/train-station.png?v=0.14.5" alt="" aria-hidden="true">
+            <img class="farm-train-yard-station" src="../images/farm/train-station.png?v=0.14.5.1" alt="" aria-hidden="true">
             <div class="farm-train-consist ${complete ? 'is-ready' : ''}" data-train-slot-index="${slot.index}">
               ${cars}
-              <div class="farm-train-engine is-${train.tier}"><img src="../images/farm/train-engine.png?v=0.14.5" alt="" aria-hidden="true"><span class="farm-train-engine-rate">×${train.multiplier.toFixed(1)}</span><span class="farm-train-smoke" aria-hidden="true"></span></div>
+              <div class="farm-train-engine is-${train.tier}"><img src="../images/farm/train-engine.png?v=0.14.5.1" alt="" aria-hidden="true"><span class="farm-train-engine-rate">×${train.multiplier.toFixed(1)}</span><span class="farm-train-smoke" aria-hidden="true"></span></div>
             </div>
           </div>
           <div class="farm-train-progress"><span><b>${loadedCars}</b> / ${train.cars.length} 节车厢已完成</span><div><i style="width:${Math.round((loadedCars/train.cars.length)*100)}%"></i></div></div>
