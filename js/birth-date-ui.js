@@ -291,7 +291,7 @@
     summary.hidden = true;
     summary.innerHTML = `
       <span class="birth-lunar-day-summary-text" data-lunar-day-summary-text></span>
-      <span class="birth-lunar-day-summary-edit">${t('editDay')} →</span>
+      <span class="birth-lunar-day-summary-edit">${t('editDay')} <span class="stellar-ui-icon is-inline-site-icon" data-site-icon="edit" aria-hidden="true"></span></span>
     `;
     widget.dayGrid.insertAdjacentElement('afterend', summary);
     widget.daySummary = summary;

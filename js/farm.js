@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const FARM_BUILD = '0.15.0';
+  const FARM_BUILD = '0.15.1';
   const STORAGE_KEY = 'xingchen-farm-v1';
   const VERSION = 1;
   const PLOT_COUNT = 20;
@@ -1083,7 +1083,8 @@
     'harvest-expert':29, wealth:30, 'farm-rich':31, 'mystery-master':32,
     rank1:33, rank2:34, rank3:35,
     'seed-carrot':36, 'seed-wheat':37, 'seed-corn':38, 'seed-tomato':39,
-    'seed-strawberry':40, 'seed-pumpkin':41, 'seed-grape':42, 'seed-starfruit':43
+    'seed-strawberry':40, 'seed-pumpkin':41, 'seed-grape':42, 'seed-starfruit':43,
+    mailbox:44, announcement:45, attachment:46, 'claim-all':47, mail:48
   });
   const SEED_UI_ICON = Object.freeze({
     carrot:'seed-carrot', wheat:'seed-wheat', corn:'seed-corn', tomato:'seed-tomato',
@@ -1117,7 +1118,7 @@
     return `<span class="farm-ui-icon ${escapeHtml(className)}" data-ui-icon="${safeKey}"${aria}></span>`;
   }
   function trainIconMarkup(className='') {
-    return `<img class="farm-inline-train-icon ${escapeHtml(className)}" src="../images/farm/train-engine.png?v=0.15.0" alt="" aria-hidden="true">`;
+    return `<img class="farm-inline-train-icon ${escapeHtml(className)}" src="../images/farm/train-engine.png?v=0.15.1" alt="" aria-hidden="true">`;
   }
   function uiTextMarkup(value) {
     let text = escapeHtml(value ?? '');
@@ -2454,7 +2455,7 @@
         ${renderFriendDecorations(payload)}
         <div class="farm-visit-field">${tiles.join('')}</div>
       </div>
-      <div class="farm-visit-actions"><button type="button" class="farm-friend-action" data-open-panel="friends">← 返回好友列表</button></div>`;
+      <div class="farm-visit-actions"><button type="button" class="farm-friend-action" data-open-panel="friends"><span class="stellar-ui-icon is-button-site-icon" data-site-icon="left" aria-hidden="true"></span> 返回好友列表</button></div>`;
   }
 
   async function visitFriend(friendId, {logVisit=true} = {}) {
@@ -2951,7 +2952,7 @@
         } else if (!plot.cropId) {
           btn.classList.add('is-empty');
           btn.setAttribute('aria-label', `第 ${index + 1} 格空地，点击播种`);
-          btn.innerHTML = `<span class="farm-soil"><i>＋</i><small>播种</small></span>`;
+          btn.innerHTML = `<span class="farm-soil"><i><span class="stellar-ui-icon is-empty-plot-plus" data-site-icon="plus" aria-hidden="true"></span></i><small>播种</small></span>`;
         } else {
           const crop = cropById(plot.cropId);
           const progress = progressFor(plot, crop);
@@ -2996,7 +2997,7 @@
       const item = decorationById(decorId);
       if (!item && !decorationMode) continue;
       parts.push(`<button type="button" class="farm-decoration-slot slot-${index + 1} ${item ? 'has-decoration' : 'is-empty'} ${decorationMode ? 'is-editing' : ''}" data-decor-slot="${index}" ${decorationMode ? '' : 'tabindex="-1" aria-hidden="true"'} aria-label="${item ? `装饰位置 ${index + 1}：${escapeHtml(item.name)}` : `空装饰位置 ${index + 1}`}">
-        ${item ? decorationSceneMarkup(item, {friendName:ownerName, titleId}) : '<span class="farm-decoration-plus">＋</span>'}
+        ${item ? decorationSceneMarkup(item, {friendName:ownerName, titleId}) : '<span class="farm-decoration-plus"><span class="stellar-ui-icon is-decoration-plus-icon" data-site-icon="plus" aria-hidden="true"></span></span>'}
       </button>`);
     }
     if (decorationMode) {
@@ -3129,7 +3130,7 @@
     openModal({
       icon:'🌱', eyebrow:`FIELD ${String(index + 1).padStart(2,'0')}`, title:'选择要种下的种子',
       subtitle:'选好作物后可以决定种 1 格、数格，或一次种满目前可用空地。',
-      body:`<div class="farm-seed-list">${options}</div><button class="farm-inline-link" type="button" data-open-panel="shop">种子不够？前往商店 →</button>`
+      body:`<div class="farm-seed-list">${options}</div><button class="farm-inline-link" type="button" data-open-panel="shop">种子不够？前往商店 <span class="stellar-ui-icon is-inline-site-icon" data-site-icon="right" aria-hidden="true"></span></button>`
     });
   }
 
@@ -3208,9 +3209,9 @@
 
           <div class="farm-qty-title">本次种植数量</div>
           <div class="farm-qty-stepper">
-            <button type="button" data-plant-qty-step="-1" aria-label="减少一格">−</button>
+            <button type="button" data-plant-qty-step="-1" aria-label="减少一格"><span class="stellar-ui-icon is-qty-site-icon" data-site-icon="minus" aria-hidden="true"></span></button>
             <strong><span id="farmPlantQtyValue">${qty}</span><small> / ${maxQty} 格</small></strong>
-            <button type="button" data-plant-qty-step="1" aria-label="增加一格">＋</button>
+            <button type="button" data-plant-qty-step="1" aria-label="增加一格"><span class="stellar-ui-icon is-qty-site-icon" data-site-icon="plus" aria-hidden="true"></span></button>
           </div>
 
           <div class="farm-qty-range-wrap">
@@ -3976,14 +3977,14 @@
         if (slot.status === 'cooldown') {
           return `<section class="farm-train-slot is-cooldown" data-train-slot="${slot.index}">
             <header class="farm-train-slot-head"><div><small>第 ${slot.index + 1} 月台</small><b>${uiIconMarkup('cooldown','is-heading-ui')} 列车返程中</b></div><span>约 <strong data-train-cooldown-until="${slot.availableAt}">${formatTrainWait(slot.availableAt - Date.now())}</strong> 后抵达</span></header>
-            <div class="farm-train-empty-station"><img src="../images/farm/train-station.png?v=0.15.0" alt="星辰车站"></div>
+            <div class="farm-train-empty-station"><img src="../images/farm/train-station.png?v=0.15.1" alt="星辰车站"></div>
             <p class="farm-train-slot-note">奖励已在上一班发车时立即入账。返程后这里会自动出现一班全新的订单。</p>
           </section>`;
         }
         if (slot.status === 'done') {
           return `<section class="farm-train-slot is-done" data-train-slot="${slot.index}">
             <header class="farm-train-slot-head"><div><small>第 ${slot.index + 1} 月台</small><b>${uiIconMarkup('success','is-heading-ui')} 今日加班班次已满</b></div><span>00:00 统一刷新</span></header>
-            <div class="farm-train-empty-station"><img src="../images/farm/train-station.png?v=0.15.0" alt="星辰车站"></div>
+            <div class="farm-train-empty-station"><img src="../images/farm/train-station.png?v=0.15.1" alt="星辰车站"></div>
           </section>`;
         }
         const train = slot.train;
@@ -3998,7 +3999,7 @@
           const owned = Math.max(0, Number(state.produce[car.cropId]) || 0);
           const remaining = Math.max(0, car.required - car.loaded);
           return `<button type="button" class="farm-train-car is-${car.style} ${done ? 'is-complete' : ''} ${!done && owned <= 0 ? 'is-empty-bag' : ''}" data-train-slot-index="${slot.index}" data-train-load-index="${index}" ${done ? 'disabled' : ''} aria-label="${done ? `${crop.name}车厢已装满` : `查看${crop.name}装箱需求，还差${remaining}个，背包${owned}个`}">
-            <img src="../images/farm/train-car-${car.style}.png?v=0.15.0" alt="" aria-hidden="true">
+            <img src="../images/farm/train-car-${car.style}.png?v=0.15.1" alt="" aria-hidden="true">
             <span class="farm-train-car-ui"><i>${done ? uiIconMarkup('success','is-train-check-ui') : produceIconMarkup(crop,'is-train-produce-ui')}</i><b>${escapeHtml(crop.name)}</b><strong>${car.loaded} / ${car.required}</strong><small>${done ? '装载完成' : `背包 ${owned}`}</small></span>
           </button>`;
         }).join('');
@@ -4009,10 +4010,10 @@
             <div class="farm-train-reward"><small>本班发车预计获得</small><b>${uiIconMarkup('coin','is-reward-ui')} ${formatNumber(reward.coins)} <i>${uiIconMarkup('exp','is-reward-ui')} +${formatNumber(reward.exp)}</i></b><em>发车后立即入账；基础货价为直接出售的 120% 再乘倍率。</em></div>
           </div>
           <div class="farm-train-yard">
-            <img class="farm-train-yard-station" src="../images/farm/train-station.png?v=0.15.0" alt="" aria-hidden="true">
+            <img class="farm-train-yard-station" src="../images/farm/train-station.png?v=0.15.1" alt="" aria-hidden="true">
             <div class="farm-train-consist ${complete ? 'is-ready' : ''}" data-train-slot-index="${slot.index}">
               ${cars}
-              <div class="farm-train-engine is-${train.tier}"><img src="../images/farm/train-engine.png?v=0.15.0" alt="" aria-hidden="true"><span class="farm-train-engine-rate">×${train.multiplier.toFixed(1)}</span><span class="farm-train-smoke" aria-hidden="true"></span></div>
+              <div class="farm-train-engine is-${train.tier}"><img src="../images/farm/train-engine.png?v=0.15.1" alt="" aria-hidden="true"><span class="farm-train-engine-rate">×${train.multiplier.toFixed(1)}</span><span class="farm-train-smoke" aria-hidden="true"></span></div>
             </div>
           </div>
           <div class="farm-train-progress"><span><b>${loadedCars}</b> / ${train.cars.length} 节车厢已完成</span><div><i style="width:${Math.round((loadedCars/train.cars.length)*100)}%"></i></div></div>
@@ -4363,7 +4364,7 @@
     const modalIcon = $('farmModalIcon');
     if (modalIcon) {
       if (iconHtml) modalIcon.innerHTML = iconHtml;
-      else if (icon === 'train') modalIcon.innerHTML = '<img class="farm-modal-asset-icon" src="../images/farm/train-engine.png?v=0.15.0" alt="">';
+      else if (icon === 'train') modalIcon.innerHTML = '<img class="farm-modal-asset-icon" src="../images/farm/train-engine.png?v=0.15.1" alt="">';
       else {
         const mapped = UI_ICON_INDEX[icon] ? icon : (UI_EMOJI_ICON[icon] || (icon === '🌱' ? 'newbie-farmer' : ''));
         modalIcon.innerHTML = mapped ? uiIconMarkup(mapped,'is-modal-ui') : escapeHtml(icon || '');

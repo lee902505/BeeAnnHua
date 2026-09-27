@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#241830" />
   <title>两人合盘 | 星辰日记</title>
-  <link rel="stylesheet" href="../css/style.css?v=0.12.1" />
+  <link rel="stylesheet" href="../css/style.css?v=0.15.1" />
 </head>
 <body class="synastry-page-body" id="pageTop">
   <div class="site-shell synastry-shell">
@@ -32,13 +32,13 @@
         <div class="synastry-person-grid">
           <article class="synastry-person-form" data-person="A">
             <header><span>A</span><div><strong id="personATitle">A 的资料</strong><small id="personAHint">第一个人的出生资料</small></div></header>
-            <label class="astro-field"><span id="nameALabel">称呼</span><input id="nameA" type="text" maxlength="24" placeholder="A" /></label>
+            <label class="astro-field"><span class="stellar-field-label"><span class="stellar-ui-icon is-field-site-icon" data-site-icon="account" aria-hidden="true"></span><span id="nameALabel">称呼</span></span><input id="nameA" type="text" maxlength="24" placeholder="A" /></label>
             <div class="synastry-form-pair">
               <div class="astro-field astro-native-field astro-birth-date-widget" data-birth-date-widget="birth-A" data-solar-input="dateA">
-                <span id="dateALabel">出生日期</span>
+                <span class="stellar-field-label"><span class="stellar-ui-icon is-field-site-icon" data-site-icon="calendar" aria-hidden="true"></span><span id="dateALabel">出生日期</span></span>
                 <div class="birth-calendar-toggle compact" role="group" aria-label="出生日期历法">
-                  <button type="button" class="birth-calendar-btn is-active" data-birth-mode="solar" aria-pressed="true">阳历</button>
-                  <button type="button" class="birth-calendar-btn" data-birth-mode="lunar" aria-pressed="false">阴历</button>
+                  <button type="button" class="birth-calendar-btn is-active" data-birth-mode="solar" aria-pressed="true"><span class="stellar-ui-icon is-calendar-toggle-icon" data-site-icon="calendar" aria-hidden="true"></span><span>阳历</span></button>
+                  <button type="button" class="birth-calendar-btn" data-birth-mode="lunar" aria-pressed="false"><span class="stellar-ui-icon is-calendar-toggle-icon" data-site-icon="lunar" aria-hidden="true"></span><span>阴历</span></button>
                 </div>
                 <div data-birth-solar-panel><span class="astro-native-input-shell"><input id="dateA" type="date" min="1900-01-01" /></span></div>
                 <div class="birth-lunar-panel" data-birth-lunar-panel hidden>
@@ -46,10 +46,10 @@
                   <small class="birth-lunar-preview" data-lunar-preview hidden></small>
                 </div>
               </div>
-              <label class="astro-field astro-native-field"><span id="timeALabel">出生时间</span><span class="astro-native-input-shell"><input id="timeA" type="time" step="60" /></span></label>
+              <label class="astro-field astro-native-field"><span class="stellar-field-label"><span class="stellar-ui-icon is-field-site-icon" data-site-icon="time" aria-hidden="true"></span><span id="timeALabel">出生时间</span></span><span class="astro-native-input-shell"><input id="timeA" type="time" step="60" /></span></label>
             </div>
             <label class="astro-field astro-city-field">
-              <span id="cityALabel">出生城市</span>
+              <span class="stellar-field-label"><span class="stellar-ui-icon is-field-site-icon" data-site-icon="location" aria-hidden="true"></span><span id="cityALabel">出生城市</span></span>
               <div class="astro-city-search"><input id="cityA" type="text" autocomplete="off" placeholder="城市" /><div class="astro-city-results" id="cityResultsA" hidden></div></div>
               <small class="astro-city-selected" id="cityMetaA" hidden></small>
             </label>
@@ -58,13 +58,13 @@
 
           <article class="synastry-person-form" data-person="B">
             <header><span>B</span><div><strong id="personBTitle">B 的资料</strong><small id="personBHint">第二个人的出生资料</small></div></header>
-            <label class="astro-field"><span id="nameBLabel">称呼</span><input id="nameB" type="text" maxlength="24" placeholder="B" /></label>
+            <label class="astro-field"><span class="stellar-field-label"><span class="stellar-ui-icon is-field-site-icon" data-site-icon="account" aria-hidden="true"></span><span id="nameBLabel">称呼</span></span><input id="nameB" type="text" maxlength="24" placeholder="B" /></label>
             <div class="synastry-form-pair">
               <div class="astro-field astro-native-field astro-birth-date-widget" data-birth-date-widget="birth-B" data-solar-input="dateB">
-                <span id="dateBLabel">出生日期</span>
+                <span class="stellar-field-label"><span class="stellar-ui-icon is-field-site-icon" data-site-icon="calendar" aria-hidden="true"></span><span id="dateBLabel">出生日期</span></span>
                 <div class="birth-calendar-toggle compact" role="group" aria-label="出生日期历法">
-                  <button type="button" class="birth-calendar-btn is-active" data-birth-mode="solar" aria-pressed="true">阳历</button>
-                  <button type="button" class="birth-calendar-btn" data-birth-mode="lunar" aria-pressed="false">阴历</button>
+                  <button type="button" class="birth-calendar-btn is-active" data-birth-mode="solar" aria-pressed="true"><span class="stellar-ui-icon is-calendar-toggle-icon" data-site-icon="calendar" aria-hidden="true"></span><span>阳历</span></button>
+                  <button type="button" class="birth-calendar-btn" data-birth-mode="lunar" aria-pressed="false"><span class="stellar-ui-icon is-calendar-toggle-icon" data-site-icon="lunar" aria-hidden="true"></span><span>阴历</span></button>
                 </div>
                 <div data-birth-solar-panel><span class="astro-native-input-shell"><input id="dateB" type="date" min="1900-01-01" /></span></div>
                 <div class="birth-lunar-panel" data-birth-lunar-panel hidden>
@@ -72,10 +72,10 @@
                   <small class="birth-lunar-preview" data-lunar-preview hidden></small>
                 </div>
               </div>
-              <label class="astro-field astro-native-field"><span id="timeBLabel">出生时间</span><span class="astro-native-input-shell"><input id="timeB" type="time" step="60" /></span></label>
+              <label class="astro-field astro-native-field"><span class="stellar-field-label"><span class="stellar-ui-icon is-field-site-icon" data-site-icon="time" aria-hidden="true"></span><span id="timeBLabel">出生时间</span></span><span class="astro-native-input-shell"><input id="timeB" type="time" step="60" /></span></label>
             </div>
             <label class="astro-field astro-city-field">
-              <span id="cityBLabel">出生城市</span>
+              <span class="stellar-field-label"><span class="stellar-ui-icon is-field-site-icon" data-site-icon="location" aria-hidden="true"></span><span id="cityBLabel">出生城市</span></span>
               <div class="astro-city-search"><input id="cityB" type="text" autocomplete="off" placeholder="城市" /><div class="astro-city-results" id="cityResultsB" hidden></div></div>
               <small class="astro-city-selected" id="cityMetaB" hidden></small>
             </label>
@@ -85,7 +85,7 @@
 
         <div class="synastry-relation-box">
           <label class="astro-field">
-            <span id="relationLabel">关系类型</span>
+            <span class="stellar-field-label"><span class="stellar-ui-icon is-field-site-icon" data-site-icon="link" aria-hidden="true"></span><span id="relationLabel">关系类型</span></span>
             <select id="relationshipType">
               <option value="dating">恋爱／暧昧</option>
               <option value="couple">情侣</option>
@@ -99,7 +99,7 @@
 
         <p class="astrology-error" id="synError" hidden></p>
         <button class="astrology-calculate-btn" id="calculateSynBtn" type="button">
-          <span aria-hidden="true">✦</span><span id="calculateSynText">开始合盘</span><span aria-hidden="true">→</span>
+          <span aria-hidden="true">✦</span><span id="calculateSynText">开始合盘</span><span class="stellar-ui-icon is-button-site-icon" data-site-icon="right" aria-hidden="true"></span>
         </button>
       </section>
 
@@ -131,7 +131,7 @@
           <details class="synastry-score-method">
             <summary>
               <span id="scoreMethodTitle">计分依据</span>
-              <span aria-hidden="true">＋</span>
+              <span class="stellar-ui-icon is-accordion-site-icon" data-site-icon="plus" aria-hidden="true"></span>
             </summary>
             <div class="synastry-score-method-body">
               <p id="scoreMethodIntro"></p>
@@ -163,29 +163,29 @@
         <article class="astrology-method-card synastry-method"><h3 id="synMethodTitle">解读说明</h3><p id="synMethodText"></p><p class="astrology-symbolic-note" id="synNote"></p></article>
       </section>
 
-      <nav class="tarot-bottom-nav astrology-bottom-nav" aria-label="Page navigation"><button class="tarot-bottom-action" type="button" onclick="window.scrollTo({top:0,behavior:'smooth'})"><span>↑</span><span>TOP</span></button><a class="tarot-bottom-action" href="../index.html"><span>⌂</span><span>HOME</span></a></nav>
+      <nav class="tarot-bottom-nav astrology-bottom-nav" aria-label="Page navigation"><button class="tarot-bottom-action" type="button" onclick="window.scrollTo({top:0,behavior:'smooth'})"><span class="stellar-ui-icon is-bottom-site-icon" data-site-icon="up" aria-hidden="true"></span><span>TOP</span></button><a class="tarot-bottom-action" href="../index.html"><span class="stellar-ui-icon is-bottom-site-icon" data-site-icon="home" aria-hidden="true"></span><span>HOME</span></a></nav>
     </main>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="../js/supabase-public-config.js?v=0.12.1"></script>
-  <script src="../js/supabase-config.js?v=0.12.1"></script>
-  <script src="../js/supabase-client.js?v=0.12.1"></script>
-  <script src="../js/supabase-auth.js?v=0.12.1"></script>
-  <script src="../js/cloud-sync.js?v=0.12.1"></script>
-  <script src="../js/player-profile.js?v=0.12.1"></script>
+  <script src="../js/supabase-public-config.js?v=0.15.1"></script>
+  <script src="../js/supabase-config.js?v=0.15.1"></script>
+  <script src="../js/supabase-client.js?v=0.15.1"></script>
+  <script src="../js/supabase-auth.js?v=0.15.1"></script>
+  <script src="../js/cloud-sync.js?v=0.15.1"></script>
+  <script src="../js/player-profile.js?v=0.15.1"></script>
   <script src="https://cdn.jsdelivr.net/npm/astronomy-engine@2.1.19/astronomy.browser.min.js"></script>
-  <script src="../js/astrology-engine.js?v=0.12.1"></script>
-  <script src="../js/astrology-synthesis.js?v=0.12.1"></script>
-  <script src="../js/china-location.js?v=0.12.1"></script>
-  <script src="../js/lunar-calendar.js?v=0.12.1"></script>
-  <script src="../js/birth-date-ui.js?v=0.12.1"></script>
-  <script src="../js/local-records.js?v=0.12.1"></script>
-  <script src="../js/backend-config.js?v=0.12.1"></script>
-  <script src="../js/api-client.js?v=0.12.1"></script>
-  <script src="../js/report-store.js?v=0.12.1"></script>
-  <script src="../js/report-payload.js?v=0.12.1"></script>
-  <script src="../js/synastry.js?v=0.12.1"></script>
-  <script src="../js/shooting-stars.js?v=0.12.1"></script>
+  <script src="../js/astrology-engine.js?v=0.15.1"></script>
+  <script src="../js/astrology-synthesis.js?v=0.15.1"></script>
+  <script src="../js/china-location.js?v=0.15.1"></script>
+  <script src="../js/lunar-calendar.js?v=0.15.1"></script>
+  <script src="../js/birth-date-ui.js?v=0.15.1"></script>
+  <script src="../js/local-records.js?v=0.15.1"></script>
+  <script src="../js/backend-config.js?v=0.15.1"></script>
+  <script src="../js/api-client.js?v=0.15.1"></script>
+  <script src="../js/report-store.js?v=0.15.1"></script>
+  <script src="../js/report-payload.js?v=0.15.1"></script>
+  <script src="../js/synastry.js?v=0.15.1"></script>
+  <script src="../js/shooting-stars.js?v=0.15.1"></script>
 </body>
 </html>

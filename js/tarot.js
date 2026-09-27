@@ -32,7 +32,7 @@
       spreadHint: '单张看核心；本周、本月、关系与二选一会读取更多牌面结构。',
       draw: '开始抽盘',
       drawHint: '在心里确认问题，默念三次，然后点击牌堆',
-      redraw: '重新抽盘 ↻',
+      redraw: '重新抽盘',
       resultTitle: '你的牌阵',
       questionPrefix: '你问的是',
       revealGuideTitle: '依序翻开牌面',
@@ -87,7 +87,7 @@
       spreadHint: '單張看核心；本週、本月、關係與二選一會讀取更多牌面結構。',
       draw: '開始抽盤',
       drawHint: '在心裡確認問題，默念三次，然後點擊牌堆',
-      redraw: '重新抽盤 ↻',
+      redraw: '重新抽盤',
       resultTitle: '你的牌陣',
       questionPrefix: '你問的是',
       revealGuideTitle: '依序翻開牌面',
@@ -130,7 +130,7 @@
     },
     'en': {
       brand: 'Stellar Diary',
-      back: '← Home',
+      back: 'Home',
       title: 'Tarot Reading',
       intro: 'Write down what you want to ask, then choose a question area and reading type. Multi-card readings combine position, orientation, suits, elements, numbers and the way the spread develops.',
       questionHeading: 'Enter your question',
@@ -142,7 +142,7 @@
       spreadHint: 'One card for the core; weekly, monthly, relationship and two-path readings use more structural signals.',
       draw: 'Start reading',
       drawHint: 'Confirm your question in your mind, repeat it three times, then click the deck',
-      redraw: 'Draw again ↻',
+      redraw: 'Draw again',
       resultTitle: 'Your spread',
       questionPrefix: 'Your question',
       revealGuideTitle: 'Reveal the cards in order',
@@ -326,7 +326,7 @@
     byId('spreadHint').textContent = ui('spreadHint');
     byId('drawButtonText').textContent = ui('draw');
     byId('drawButtonHint').textContent = ui('drawHint');
-    byId('drawTarotAgainBtn').textContent = ui('redraw');
+    byId('drawTarotAgainBtn').innerHTML = `<span class="stellar-core-icon is-button-site-icon" data-core-icon="refresh" aria-hidden="true"></span><span>${ui('redraw')}</span>`;
     byId('resultTitle').textContent = ui('resultTitle');
     byId('revealGuideTitle').textContent = ui('revealGuideTitle');
     byId('revealGuideText').textContent = ui('revealGuideText');
@@ -345,7 +345,7 @@
     byId('tarotHistoryButtonText').textContent = ui('historyButton');
     byId('tarotHistoryTitle').textContent = ui('historyTitle');
     byId('tarotHistoryHint').textContent = ui('historyHint');
-    byId('tarotHistoryClear').textContent = ui('historyClear');
+    byId('tarotHistoryClear').innerHTML = `<span class="stellar-ui-icon is-button-site-icon" data-site-icon="delete" aria-hidden="true"></span><span>${ui('historyClear')}</span>`;
   }
 
   function positionName(position) {

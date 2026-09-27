@@ -99,13 +99,20 @@
 
     @media(max-width:720px){.content-grid{grid-template-columns:1fr}.data-grid{grid-template-columns:repeat(2,1fr)}.member-card{padding:23px}.member-card:after{font-size:58px;right:31px}.member-name{font-size:27px}}
     @media(max-width:480px){.page{width:min(100% - 18px,860px)}.topbar{margin-bottom:23px}.brand{font-size:18px}h1{font-size:36px}.lead{font-size:14px}.member-card{border-radius:24px}.panel{padding:18px;border-radius:20px}.action-row{padding:14px}.sync-overview{align-items:flex-start;flex-direction:column}.sync-btn{width:100%}.otp-row{grid-template-columns:1fr}.otp-row .primary-btn{width:100%}.verify-methods{grid-template-columns:1fr}.verify-or{padding:4px 0}.verify-or:before,.verify-or:after{display:none}.otp-box{width:calc((100% - 35px)/8);max-width:40px;min-width:0}.restore-counts{grid-template-columns:repeat(2,1fr)}.tech-row{grid-template-columns:1fr;gap:5px}.data-tile{min-height:94px}.member-card:after{opacity:.7}}
+
+    /* V0.15.1 — official site UI icon atlas */
+    .account-ui-icon{display:inline-block;flex:0 0 auto;width:28px;height:28px;background-image:url("images/ui/stellar-ui-icon-sheet-02.png?v=0.15.1");background-size:600% 400%;background-position:var(--account-icon-x,0%) var(--account-icon-y,0%);background-repeat:no-repeat;filter:drop-shadow(0 1px 2px rgba(0,0,0,.16))}
+    .account-ui-icon[data-account-icon="mail"]{--account-icon-x:80%;--account-icon-y:0%}.account-ui-icon[data-account-icon="home"]{--account-icon-x:100%;--account-icon-y:0%}.account-ui-icon[data-account-icon="right"]{--account-icon-x:60%;--account-icon-y:33.333333%}.account-ui-icon[data-account-icon="close"]{--account-icon-x:80%;--account-icon-y:33.333333%}.account-ui-icon[data-account-icon="account"]{--account-icon-x:0%;--account-icon-y:100%}.account-ui-icon[data-account-icon="logout"]{--account-icon-x:20%;--account-icon-y:100%}.account-ui-icon[data-account-icon="link"]{--account-icon-x:40%;--account-icon-y:100%}.account-ui-icon[data-account-icon="security"]{--account-icon-x:100%;--account-icon-y:100%}
+    .account-icon-before-home{display:inline-flex;align-items:center;gap:6px}.account-icon-before-home:before{content:"";display:inline-block;width:20px;height:20px;background-image:url("images/ui/stellar-ui-icon-sheet-02.png?v=0.15.1");background-size:600% 400%;background-position:100% 0%;background-repeat:no-repeat;filter:drop-shadow(0 1px 2px rgba(0,0,0,.16))}
+    .back-btn{display:inline-flex;align-items:center;justify-content:center;gap:6px}.back-btn:before{content:"";display:inline-block;width:19px;height:19px;background-image:url("images/ui/stellar-ui-icon-sheet-02.png?v=0.15.1");background-size:600% 400%;background-position:40% 33.333333%;background-repeat:no-repeat}
+    .action-row .account-leading-icon{width:34px;height:34px;margin-right:2px}.action-row>span.action-copy{flex:1;min-width:0}.action-row .action-arrow.account-ui-icon{width:24px;height:24px;font-size:0;color:transparent}.close-bind{display:grid;place-items:center;width:36px;height:36px;padding:0}.close-bind .account-ui-icon{width:26px;height:26px}.verify-icon.account-ui-icon{display:inline-block;width:34px;height:34px;margin-bottom:10px;border-radius:0;background-color:transparent}.sync-btn{display:inline-flex;align-items:center;gap:6px}.sync-btn:before{content:"";width:19px;height:19px;display:inline-block;background-image:url("images/farm/farm-ui-icon-sheet-01.png?v=0.15.1");background-size:800% 600%;background-position:28.571429% 0%;background-repeat:no-repeat}
   </style>
 </head>
 <body>
   <main class="page">
     <div class="topbar">
       <a class="brand" href="index.html"><span class="brand-star">✦</span><span id="brandText">星辰日记</span></a>
-      <a class="home-link" href="index.html" id="topHome">返回首页</a>
+      <a class="home-link account-icon-before-home" href="index.html" id="topHome">返回首页</a>
     </div>
 
     <div class="eyebrow" id="eyebrow">V0.12.1 · CLOUD ACCOUNT CENTER</div>
@@ -125,16 +132,16 @@
         <p class="panel-desc" id="securityDesc"></p>
         <div class="action-list">
           <button class="action-row" id="emailAction" type="button">
-            <span><strong id="emailActionTitle"></strong><small id="emailActionDesc"></small></span>
-            <span class="action-arrow">›</span>
+            <span class="account-ui-icon account-leading-icon" data-account-icon="mail" aria-hidden="true"></span><span class="action-copy"><strong id="emailActionTitle"></strong><small id="emailActionDesc"></small></span>
+            <span class="action-arrow account-ui-icon" data-account-icon="right" aria-hidden="true"></span>
           </button>
           <button class="action-row" id="loginAction" type="button">
-            <span><strong id="restoreTitle"></strong><small id="restoreDesc"></small></span>
-            <span class="action-arrow">›</span>
+            <span class="account-ui-icon account-leading-icon" data-account-icon="account" aria-hidden="true"></span><span class="action-copy"><strong id="restoreTitle"></strong><small id="restoreDesc"></small></span>
+            <span class="action-arrow account-ui-icon" data-account-icon="right" aria-hidden="true"></span>
           </button>
           <button class="action-row danger" id="logoutAction" type="button" hidden>
-            <span><strong id="logoutTitle"></strong><small id="logoutDesc"></small></span>
-            <span class="action-arrow">↪</span>
+            <span class="account-ui-icon account-leading-icon" data-account-icon="logout" aria-hidden="true"></span><span class="action-copy"><strong id="logoutTitle"></strong><small id="logoutDesc"></small></span>
+            <span class="action-arrow account-ui-icon" data-account-icon="right" aria-hidden="true"></span>
           </button>
           <div class="logout-confirm" id="logoutConfirmBox" hidden>
             <h3 id="logoutConfirmTitle"></h3>
@@ -172,7 +179,7 @@
     <section class="bind-panel" id="bindPanel" hidden>
       <div class="bind-head">
         <div><h2 id="bindTitle"></h2><p id="supportText"></p></div>
-        <button class="close-bind" id="closeBind" type="button" aria-label="Close">×</button>
+        <button class="close-bind" id="closeBind" type="button" aria-label="Close"><span class="account-ui-icon" data-account-icon="close" aria-hidden="true"></span></button>
       </div>
       <label class="field"><span id="emailLabel"></span><input id="emailInput" type="email" inputmode="email" autocomplete="email" /></label>
       <div class="bind-actions">
@@ -184,13 +191,13 @@
         <h3 class="verify-title" id="bindVerifyTitle"></h3>
         <div class="verify-methods">
           <div class="verify-method">
-            <span class="verify-icon">✉</span>
+            <span class="verify-icon account-ui-icon" data-account-icon="mail" aria-hidden="true"></span>
             <h3 id="bindMailTitle"></h3><p id="bindMailDesc"></p>
             <button id="bindCheckLinkBtn" type="button" class="secondary-btn mail-check-btn"></button>
           </div>
           <div class="verify-or" id="bindOr"></div>
           <div class="verify-method">
-            <span class="verify-icon">#</span>
+            <span class="verify-icon account-ui-icon" data-account-icon="security" aria-hidden="true"></span>
             <h3 id="bindOtpTitle"></h3><p id="bindOtpDesc"></p>
             <div class="otp-boxes" id="bindOtpBoxes" aria-label="OTP"></div>
             <button id="verifyBtn" type="button" class="primary-btn mail-check-btn"></button>
@@ -202,7 +209,7 @@
     <section class="login-panel" id="loginPanel" hidden>
       <div class="bind-head">
         <div><h2 id="loginTitle"></h2><p id="loginSupport"></p></div>
-        <button class="close-bind" id="closeLogin" type="button" aria-label="Close">×</button>
+        <button class="close-bind" id="closeLogin" type="button" aria-label="Close"><span class="account-ui-icon" data-account-icon="close" aria-hidden="true"></span></button>
       </div>
       <label class="field"><span id="loginEmailLabel"></span><input id="loginEmailInput" type="email" inputmode="email" autocomplete="email" /></label>
       <div class="bind-actions">
@@ -214,13 +221,13 @@
         <h3 class="verify-title" id="loginVerifyTitle"></h3>
         <div class="verify-methods">
           <div class="verify-method">
-            <span class="verify-icon">✉</span>
+            <span class="verify-icon account-ui-icon" data-account-icon="mail" aria-hidden="true"></span>
             <h3 id="loginMailTitle"></h3><p id="loginMailDesc"></p>
             <button id="loginCheckLinkBtn" type="button" class="secondary-btn mail-check-btn"></button>
           </div>
           <div class="verify-or" id="loginOr"></div>
           <div class="verify-method">
-            <span class="verify-icon">#</span>
+            <span class="verify-icon account-ui-icon" data-account-icon="security" aria-hidden="true"></span>
             <h3 id="loginOtpTitle"></h3><p id="loginOtpDesc"></p>
             <div class="otp-boxes" id="loginOtpBoxes" aria-label="OTP"></div>
             <button id="loginVerifyBtn" type="button" class="primary-btn mail-check-btn"></button>
@@ -275,13 +282,13 @@
   </main>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="js/supabase-public-config.js?v=0.12.1"></script>
-  <script src="js/supabase-config.js?v=0.12.1"></script>
-  <script src="js/supabase-client.js?v=0.12.1"></script>
-  <script src="js/supabase-auth.js?v=0.12.1"></script>
-  <script src="js/account-binding.js?v=0.12.1"></script>
-  <script src="js/account-login.js?v=0.12.1"></script>
-  <script src="js/cloud-sync.js?v=0.12.1"></script>
-  <script src="js/account-page.js?v=0.12.1"></script>
+  <script src="js/supabase-public-config.js?v=0.15.1"></script>
+  <script src="js/supabase-config.js?v=0.15.1"></script>
+  <script src="js/supabase-client.js?v=0.15.1"></script>
+  <script src="js/supabase-auth.js?v=0.15.1"></script>
+  <script src="js/account-binding.js?v=0.15.1"></script>
+  <script src="js/account-login.js?v=0.15.1"></script>
+  <script src="js/cloud-sync.js?v=0.15.1"></script>
+  <script src="js/account-page.js?v=0.15.1"></script>
 </body>
 </html>

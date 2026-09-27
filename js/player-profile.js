@@ -107,7 +107,7 @@
         const cue = document.createElement('span');
         cue.className = 'player-profile-cue';
         cue.setAttribute('aria-hidden', 'true');
-        cue.innerHTML = '<span class="player-profile-cue-text">' + t('profileCue') + '</span><span class="player-profile-chevron">›</span>';
+        cue.innerHTML = '<span class="player-profile-cue-text">' + t('profileCue') + '</span><span class="player-profile-chevron stellar-ui-icon" data-site-icon="right" aria-hidden="true"></span>';
 
         el.hidden = false;
         el.replaceChildren(membership, name, cue);
@@ -134,7 +134,7 @@
       const cue = document.createElement('span');
       cue.className = 'player-profile-cue';
       cue.setAttribute('aria-hidden', 'true');
-      cue.innerHTML = '<span class="player-profile-cue-text">' + t('profileCue') + '</span><span class="player-profile-chevron">›</span>';
+      cue.innerHTML = '<span class="player-profile-cue-text">' + t('profileCue') + '</span><span class="player-profile-chevron stellar-ui-icon" data-site-icon="right" aria-hidden="true"></span>';
 
       el.hidden = false;
       el.replaceChildren(membership, name, icon, cue);
@@ -156,7 +156,7 @@
       <div class="player-profile-modal" id="xingchenProfileModal" hidden>
         <div class="player-profile-backdrop"></div>
         <section class="player-profile-dialog" role="dialog" aria-modal="true" aria-labelledby="profileModalTitle">
-          <button class="profile-modal-close" id="profileModalClose" type="button" aria-label="Close">×</button>
+          <button class="profile-modal-close" id="profileModalClose" type="button" aria-label="Close"><span class="stellar-ui-icon is-close-site-icon" data-site-icon="close" aria-hidden="true"></span></button>
           <span class="profile-modal-star">✦</span>
           <h2 id="profileModalTitle"></h2>
           <p id="profileModalIntro"></p>

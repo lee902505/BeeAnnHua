@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#18203d" />
   <title>本命星盘 | 星辰日记</title>
-  <link rel="stylesheet" href="../css/style.css?v=0.12.1" />
+  <link rel="stylesheet" href="../css/style.css?v=0.15.1" />
 </head>
 <body class="astrology-page-body">
   <div class="site-shell astrology-shell">
@@ -26,17 +26,17 @@
         <p class="panel-en">NATAL CHART</p>
         <h1 id="astroTitle">本命星盘</h1>
         <p class="astrology-intro" id="astroIntro"></p>
-        <a class="astrology-synastry-entry" href="synastry.html"><span>✦</span><span id="synastryEntryText">两人合盘</span><span>→</span></a>
+        <a class="astrology-synastry-entry" href="synastry.html"><span>✦</span><span id="synastryEntryText">两人合盘</span><span class="stellar-ui-icon is-inline-site-icon" data-site-icon="right" aria-hidden="true"></span></a>
       </section>
 
       <section class="astrology-form-section">
         <div class="astrology-form-grid">
           <div class="astro-field astro-native-field astro-birth-date-widget"
                data-birth-date-widget="birth-main" data-solar-input="birthDate">
-            <span id="dateLabel">出生日期</span>
+            <span class="stellar-field-label"><span class="stellar-ui-icon is-field-site-icon" data-site-icon="calendar" aria-hidden="true"></span><span id="dateLabel">出生日期</span></span>
             <div class="birth-calendar-toggle" role="group" aria-label="出生日期历法">
-              <button type="button" class="birth-calendar-btn is-active" data-birth-mode="solar" aria-pressed="true">阳历</button>
-              <button type="button" class="birth-calendar-btn" data-birth-mode="lunar" aria-pressed="false">阴历</button>
+              <button type="button" class="birth-calendar-btn is-active" data-birth-mode="solar" aria-pressed="true"><span class="stellar-ui-icon is-calendar-toggle-icon" data-site-icon="calendar" aria-hidden="true"></span><span>阳历</span></button>
+              <button type="button" class="birth-calendar-btn" data-birth-mode="lunar" aria-pressed="false"><span class="stellar-ui-icon is-calendar-toggle-icon" data-site-icon="lunar" aria-hidden="true"></span><span>阴历</span></button>
             </div>
             <div data-birth-solar-panel>
               <span class="astro-native-input-shell">
@@ -54,14 +54,14 @@
           </div>
 
           <label class="astro-field astro-native-field">
-            <span id="timeLabel">出生时间</span>
+            <span class="stellar-field-label"><span class="stellar-ui-icon is-field-site-icon" data-site-icon="time" aria-hidden="true"></span><span id="timeLabel">出生时间</span></span>
             <span class="astro-native-input-shell">
               <input id="birthTime" type="time" step="60" />
             </span>
           </label>
 
           <label class="astro-field astro-city-field">
-            <span id="cityLabelText">出生城市</span>
+            <span class="stellar-field-label"><span class="stellar-ui-icon is-field-site-icon" data-site-icon="location" aria-hidden="true"></span><span id="cityLabelText">出生城市</span></span>
             <div class="astro-city-search">
               <input id="birthCity" type="text" autocomplete="off" placeholder="城市" />
               <div class="astro-city-results" id="cityResults" hidden></div>
@@ -104,7 +104,7 @@
         <button class="astrology-calculate-btn" id="calculateBtn" type="button">
           <span aria-hidden="true">✦</span>
           <span id="calculateBtnText">开始测算</span>
-          <span aria-hidden="true">→</span>
+          <span class="stellar-ui-icon is-button-site-icon" data-site-icon="right" aria-hidden="true"></span>
         </button>
       </section>
 
@@ -189,7 +189,7 @@
           <button class="stellar-report-generate-btn" id="generateStellarReportBtn" type="button">
             <span aria-hidden="true">✦</span>
             <span data-label>生成完整星辰报告</span>
-            <span aria-hidden="true">→</span>
+            <span class="stellar-ui-icon is-button-site-icon" data-site-icon="right" aria-hidden="true"></span>
           </button>
         </section>
 
@@ -291,37 +291,37 @@
 
       <nav class="tarot-bottom-nav astrology-bottom-nav" aria-label="页面导航">
         <button class="tarot-bottom-action" type="button" onclick="window.scrollTo({top:0,behavior:'smooth'})">
-          <span aria-hidden="true">↑</span><span>TOP</span>
+          <span class="stellar-ui-icon is-bottom-site-icon" data-site-icon="up" aria-hidden="true"></span><span>TOP</span>
         </button>
         <a class="tarot-bottom-action" href="../index.html">
-          <span aria-hidden="true">⌂</span><span>HOME</span>
+          <span class="stellar-ui-icon is-bottom-site-icon" data-site-icon="home" aria-hidden="true"></span><span>HOME</span>
         </a>
       </nav>
     </main>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="../js/supabase-public-config.js?v=0.12.1"></script>
-  <script src="../js/supabase-config.js?v=0.12.1"></script>
-  <script src="../js/supabase-client.js?v=0.12.1"></script>
-  <script src="../js/supabase-auth.js?v=0.12.1"></script>
-  <script src="../js/cloud-sync.js?v=0.12.1"></script>
+  <script src="../js/supabase-public-config.js?v=0.15.1"></script>
+  <script src="../js/supabase-config.js?v=0.15.1"></script>
+  <script src="../js/supabase-client.js?v=0.15.1"></script>
+  <script src="../js/supabase-auth.js?v=0.15.1"></script>
+  <script src="../js/cloud-sync.js?v=0.15.1"></script>
   <script src="https://cdn.jsdelivr.net/npm/astronomy-engine@2.1.19/astronomy.browser.min.js"></script>
-  <script src="../js/astrology-engine.js?v=0.12.1"></script>
-  <script src="../js/astrology-synthesis.js?v=0.12.1"></script>
-  <script src="../js/astrology-full.js?v=0.12.1"></script>
-  <script src="../js/stellar-interpretation-engine.js?v=0.12.1"></script>
-  <script src="../js/player-profile.js?v=0.12.1"></script>
-  <script src="../js/bark.js?v=0.12.1"></script>
-  <script src="../js/china-location.js?v=0.12.1"></script>
-  <script src="../js/lunar-calendar.js?v=0.12.1"></script>
-  <script src="../js/birth-date-ui.js?v=0.12.1"></script>
-  <script src="../js/local-records.js?v=0.12.1"></script>
-  <script src="../js/backend-config.js?v=0.12.1"></script>
-  <script src="../js/api-client.js?v=0.12.1"></script>
-  <script src="../js/report-store.js?v=0.12.1"></script>
-  <script src="../js/report-payload.js?v=0.12.1"></script>
-  <script src="../js/astrology.js?v=0.12.1"></script>
-  <script src="../js/shooting-stars.js?v=0.12.1"></script>
+  <script src="../js/astrology-engine.js?v=0.15.1"></script>
+  <script src="../js/astrology-synthesis.js?v=0.15.1"></script>
+  <script src="../js/astrology-full.js?v=0.15.1"></script>
+  <script src="../js/stellar-interpretation-engine.js?v=0.15.1"></script>
+  <script src="../js/player-profile.js?v=0.15.1"></script>
+  <script src="../js/bark.js?v=0.15.1"></script>
+  <script src="../js/china-location.js?v=0.15.1"></script>
+  <script src="../js/lunar-calendar.js?v=0.15.1"></script>
+  <script src="../js/birth-date-ui.js?v=0.15.1"></script>
+  <script src="../js/local-records.js?v=0.15.1"></script>
+  <script src="../js/backend-config.js?v=0.15.1"></script>
+  <script src="../js/api-client.js?v=0.15.1"></script>
+  <script src="../js/report-store.js?v=0.15.1"></script>
+  <script src="../js/report-payload.js?v=0.15.1"></script>
+  <script src="../js/astrology.js?v=0.15.1"></script>
+  <script src="../js/shooting-stars.js?v=0.15.1"></script>
 </body>
 </html>
