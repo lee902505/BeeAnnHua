@@ -1,4 +1,16 @@
-# 星辰日记 V0.15.1.4
+# 星辰日记 V0.16.0
+
+## V0.16.0 — 系统信箱 / GM 管理台（第一版）
+
+- 新增全站星辰信箱入口、未读数量、公告／奖励信件、附件领取与一键领取。
+- 新增 GM 管理台；仅数据库 `admin_users` 中的 GM UUID 会显示入口，后端 RPC 仍会再次验证权限。
+- 首位 GM 绑定为指定的 Supabase Auth UUID（`super_admin`），普通玩家不会看到 GM 入口。
+- GM 可发送全服或指定 UID 的公告／奖励信；支持永久、7/14/30 天期限。
+- 第一版附件支持金币、EXP、8 种普通作物种子、蔬果盲盒与 3 种肥料。
+- 附件领取由 Supabase 单次交易直接更新 `farm_saves`，并以 `player_mail_state.claimed_at` 防止 F5、多装置与重复点击重复领取。
+- 农场页面领取附件后会立即重新拉取云端存档，让金币／EXP／种子即时显示。
+- 新增 GM 发布记录 `gm_audit_log`。
+- 需要先执行 `supabase/migrations/20260927_018_system_mail_gm.sql`。
 
 ## V0.15.1.4 — 占卜首页 CTA 风格回调
 
