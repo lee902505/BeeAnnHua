@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const FARM_BUILD = '0.14.4';
+  const FARM_BUILD = '0.14.5';
   const STORAGE_KEY = 'xingchen-farm-v1';
   const VERSION = 1;
   const PLOT_COUNT = 20;
@@ -94,11 +94,15 @@
     Object.freeze({id:'npc_qinghe', name:'青禾', sex:'male', icon:'🌿', level:20, coins:7250, titleId:'farm_master', trait:'资深农友', note:'经营很久的老农友，农田里经常同时种着不同作物。', favorites:['grape','pumpkin','corn','strawberry'], helpRate:.50, visitRate:.36})
   ]);
 
-  // V0.14.4 — Stellar Station daily freight train. The manifest is generated
-  // deterministically from the farm day + save creation time, then stored inside
-  // the existing farm JSON. No extra table, cron job or polling is required.
+  // V0.14.5 — Stellar Station now has two independent platforms. Both trains are
+  // available after the 00:00 daily reset, so players may freely choose the better
+  // multiplier first. A dispatched train pays immediately; its platform returns
+  // after a deterministic 4–6 hour cooldown. Up to three extra trains may arrive
+  // per farm day, keeping the economy bounded while rewarding active players.
   const TRAIN_BASE_PRICE_FACTOR = 1.20;
-  const TRAIN_APPLIED_OP_LIMIT = 60;
+  const TRAIN_APPLIED_OP_LIMIT = 120;
+  const TRAIN_SLOT_COUNT = 2;
+  const TRAIN_DAILY_BONUS_CAP = 3;
   const TRAIN_CAR_ASSETS = Object.freeze(['wood','green','blue']);
   const TRAIN_MULTIPLIERS = Object.freeze([
     Object.freeze({value:1.1, weight:28, tier:'normal'}),
@@ -358,13 +362,13 @@
     return h >>> 0;
   }
 
-  function trainHash(day, salt='') {
-    return stableHash(`train:${day}:${Number(state?.createdAt) || 0}:${salt}`);
+  function trainHash(day, salt='', seedCreatedAt=0) {
+    return stableHash(`train:${day}:${Number(seedCreatedAt) || 0}:${salt}`);
   }
 
-  function trainMultiplierFor(day) {
+  function trainMultiplierFor(day, token='', seedCreatedAt=0) {
     const total = TRAIN_MULTIPLIERS.reduce((sum,item) => sum + item.weight, 0);
-    let roll = trainHash(day, 'multiplier') % total;
+    let roll = trainHash(day, `${token}:multiplier`, seedCreatedAt) % total;
     for (const item of TRAIN_MULTIPLIERS) {
       roll -= item.weight;
       if (roll < 0) return item;
@@ -372,22 +376,30 @@
     return TRAIN_MULTIPLIERS[0];
   }
 
-  function trainQuantityFor(crop, day, carIndex) {
+  function trainQuantityFor(crop, day, carIndex, token='', seedCreatedAt=0) {
     const range = TRAIN_QTY_RANGES[crop.id] || [4,8];
     const span = Math.max(1, range[1] - range[0] + 1);
-    return range[0] + (trainHash(day, `qty:${carIndex}:${crop.id}`) % span);
+    return range[0] + (trainHash(day, `${token}:qty:${carIndex}:${crop.id}`, seedCreatedAt) % span);
   }
 
-  function createTrainState(day = farmDay || localFarmDay()) {
+  function trainCooldownMs(train) {
+    const halfHours = 8 + (stableHash(`cooldown:${train?.id || ''}`) % 5); // 4h, 4.5h ... 6h
+    return halfHours * 30 * 60 * 1000;
+  }
+
+  function createTrainManifest(day = farmDay || localFarmDay(), slotIndex=0, generation=0, context={}) {
     const safeDay = /^\d{4}-\d{2}-\d{2}$/.test(String(day)) ? String(day) : localFarmDay();
-    const unlocked = CROPS.filter(crop => state.level >= crop.unlockLevel);
+    const token = `slot:${slotIndex}:gen:${generation}`;
+    const level = Math.max(1, Number(context.level) || 1);
+    const seedCreatedAt = Math.max(0, Number(context.createdAt) || 0);
+    const unlocked = CROPS.filter(crop => level >= crop.unlockLevel && !crop.isMystery);
     const pool = unlocked.length ? unlocked : [CROPS[0]];
-    const carCount = (trainHash(safeDay, 'cars') % 100) < 42 ? 5 : 4;
-    const multiplier = trainMultiplierFor(safeDay);
+    const carCount = (trainHash(safeDay, `${token}:cars`, seedCreatedAt) % 100) < 42 ? 5 : 4;
+    const multiplier = trainMultiplierFor(safeDay, token, seedCreatedAt);
     const used = new Set();
     const cars = [];
     for (let i = 0; i < carCount; i += 1) {
-      let pick = trainHash(safeDay, `crop:${i}`) % pool.length;
+      let pick = trainHash(safeDay, `${token}:crop:${i}`, seedCreatedAt) % pool.length;
       if (pool.length >= carCount) {
         for (let n = 0; n < pool.length && used.has(pool[pick].id); n += 1) pick = (pick + 1) % pool.length;
       }
@@ -395,14 +407,17 @@
       used.add(crop.id);
       cars.push({
         cropId:crop.id,
-        required:trainQuantityFor(crop, safeDay, i),
+        required:trainQuantityFor(crop, safeDay, i, token, seedCreatedAt),
         loaded:0,
         style:TRAIN_CAR_ASSETS[i % TRAIN_CAR_ASSETS.length]
       });
     }
     return {
+      id:`${safeDay}:${slotIndex}:${generation}`,
       date:safeDay,
-      levelSnapshot:Math.max(1, Number(state.level) || 1),
+      slotIndex:Number(slotIndex) || 0,
+      generation:Math.max(0, Number(generation) || 0),
+      levelSnapshot:level,
       multiplier:multiplier.value,
       tier:multiplier.tier,
       cars,
@@ -412,8 +427,25 @@
     };
   }
 
-  function normalizeTrainState(rawTrain, day = localFarmDay()) {
-    if (!rawTrain || typeof rawTrain !== 'object' || !/^\d{4}-\d{2}-\d{2}$/.test(String(rawTrain.date || ''))) return null;
+  function createTrainState(day = farmDay || localFarmDay(), context={}) {
+    const safeDay = /^\d{4}-\d{2}-\d{2}$/.test(String(day)) ? String(day) : localFarmDay();
+    return {
+      date:safeDay,
+      bonusGenerated:0,
+      appliedOps:[],
+      slots:Array.from({length:TRAIN_SLOT_COUNT}, (_, index) => ({
+        index,
+        generation:0,
+        status:'ready',
+        availableAt:0,
+        train:createTrainManifest(safeDay, index, 0, context)
+      }))
+    };
+  }
+
+  function normalizeTrainManifest(rawTrain, slotIndex=0, generation=0, day=localFarmDay()) {
+    if (!rawTrain || typeof rawTrain !== 'object') return null;
+    const safeDay = /^\d{4}-\d{2}-\d{2}$/.test(String(rawTrain.date || day)) ? String(rawTrain.date || day) : day;
     const cars = Array.isArray(rawTrain.cars) ? rawTrain.cars.map((car,index) => {
       const crop = cropById(car?.cropId);
       if (!crop || crop.isMystery) return null;
@@ -427,8 +459,12 @@
     }).filter(Boolean).slice(0,5) : [];
     if (cars.length < 4) return null;
     const multiplier = [1.1,1.2,1.3,1.4,1.5,2].includes(Number(rawTrain.multiplier)) ? Number(rawTrain.multiplier) : 1.1;
+    const gen = Math.max(0, Number(rawTrain.generation ?? generation) || 0);
     return {
-      date:String(rawTrain.date),
+      id:String(rawTrain.id || `${safeDay}:${slotIndex}:${gen}`),
+      date:safeDay,
+      slotIndex:Number(rawTrain.slotIndex ?? slotIndex) || 0,
+      generation:gen,
       levelSnapshot:Math.max(1, Number(rawTrain.levelSnapshot) || 1),
       multiplier,
       tier:multiplier >= 2 ? 'gold' : multiplier >= 1.5 ? 'red' : 'normal',
@@ -439,27 +475,101 @@
     };
   }
 
+  function normalizeTrainState(rawTrain, day = localFarmDay(), context={}) {
+    if (!rawTrain || typeof rawTrain !== 'object') return null;
+    // V0.14.4 migration: a single legacy train becomes platform 1; platform 2 is
+    // freshly generated. If the old train had already departed, preserve its
+    // return cooldown instead of granting an immediate duplicate reward train.
+    if (!Array.isArray(rawTrain.slots) && Array.isArray(rawTrain.cars)) {
+      const legacy = normalizeTrainManifest(rawTrain, 0, 0, String(rawTrain.date || day));
+      if (!legacy) return null;
+      const hub = createTrainState(legacy.date, context);
+      hub.slots[0].train = legacy;
+      if (legacy.departed) {
+        hub.slots[0].status = 'cooldown';
+        hub.slots[0].availableAt = legacy.departedAt + trainCooldownMs(legacy);
+      }
+      return hub;
+    }
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(String(rawTrain.date || ''))) return null;
+    const safeDay = String(rawTrain.date);
+    const hub = {
+      date:safeDay,
+      bonusGenerated:Math.max(0, Math.min(TRAIN_DAILY_BONUS_CAP, Math.floor(Number(rawTrain.bonusGenerated) || 0))),
+      appliedOps:Array.isArray(rawTrain.appliedOps) ? [...new Set(rawTrain.appliedOps.filter(Boolean).map(String))].slice(-TRAIN_APPLIED_OP_LIMIT) : [],
+      slots:[]
+    };
+    for (let index=0; index<TRAIN_SLOT_COUNT; index += 1) {
+      const rawSlot = rawTrain.slots[index];
+      if (!rawSlot || typeof rawSlot !== 'object') {
+        hub.slots.push({index,generation:0,status:'ready',availableAt:0,train:createTrainManifest(safeDay,index,0,context)});
+        continue;
+      }
+      const generation = Math.max(0, Math.floor(Number(rawSlot.generation) || 0));
+      const status = ['ready','cooldown','done'].includes(rawSlot.status) ? rawSlot.status : 'ready';
+      const train = normalizeTrainManifest(rawSlot.train, index, generation, safeDay) || createTrainManifest(safeDay,index,generation,context);
+      hub.slots.push({
+        index,
+        generation,
+        status,
+        availableAt:Math.max(0, Number(rawSlot.availableAt) || 0),
+        train
+      });
+    }
+    return hub;
+  }
+
+  function refundTrainCargo(hub) {
+    if (!hub?.slots) return;
+    hub.slots.forEach(slot => {
+      if (slot?.status !== 'ready' || !slot.train || slot.train.departed) return;
+      slot.train.cars.forEach(car => {
+        const crop = cropById(car?.cropId);
+        const loaded = Math.max(0, Math.floor(Number(car?.loaded) || 0));
+        if (crop && loaded) state.produce[crop.id] = (state.produce[crop.id] || 0) + loaded;
+      });
+    });
+  }
+
+  function refreshTrainSlots(hub, now=Date.now(), context={}) {
+    if (!hub?.slots) return false;
+    let changed = false;
+    for (const slot of hub.slots) {
+      if (slot.status !== 'cooldown' || !slot.availableAt || slot.availableAt > now) continue;
+      if (hub.bonusGenerated >= TRAIN_DAILY_BONUS_CAP) {
+        slot.status = 'done';
+        slot.availableAt = 0;
+        changed = true;
+        continue;
+      }
+      slot.generation = Math.max(0, Number(slot.generation) || 0) + 1;
+      slot.train = createTrainManifest(hub.date, slot.index, slot.generation, context);
+      slot.status = 'ready';
+      slot.availableAt = 0;
+      hub.bonusGenerated += 1;
+      changed = true;
+    }
+    return changed;
+  }
+
   function ensureTrainState(day = farmDay || localFarmDay(), {persist=false} = {}) {
     const safeDay = /^\d{4}-\d{2}-\d{2}$/.test(String(day)) ? String(day) : localFarmDay();
     let changed = false;
-    if (!state.train || state.train.date !== safeDay) {
-      // Friendly rollover: unfinished cargo is returned before yesterday's train
-      // is replaced, so a player never loses produce merely for crossing 00:00.
-      if (state.train && !state.train.departed && Array.isArray(state.train.cars)) {
-        state.train.cars.forEach(car => {
-          const crop = cropById(car?.cropId);
-          const loaded = Math.max(0, Math.floor(Number(car?.loaded) || 0));
-          if (crop && loaded) state.produce[crop.id] = (state.produce[crop.id] || 0) + loaded;
-        });
-      }
-      state.train = createTrainState(safeDay);
+    if (!state.train || state.train.date !== safeDay || !Array.isArray(state.train.slots)) {
+      if (state.train && state.train.date !== safeDay) refundTrainCargo(state.train);
+      state.train = createTrainState(safeDay, {level:state.level, createdAt:state.createdAt});
       changed = true;
     }
+    if (refreshTrainSlots(state.train, Date.now(), {level:state.level, createdAt:state.createdAt})) changed = true;
     if (persist && changed) saveState();
     return state.train;
   }
 
-  function trainReward(train = ensureTrainState()) {
+  function trainSlot(slotIndex, hub=ensureTrainState()) {
+    return hub?.slots?.find(slot => Number(slot.index) === Number(slotIndex)) || null;
+  }
+
+  function trainReward(train) {
     const baseValue = (train?.cars || []).reduce((sum, car) => {
       const crop = cropById(car.cropId);
       return sum + ((crop?.sellPrice || 0) * Math.max(0, Number(car.required) || 0));
@@ -474,20 +584,29 @@
     return {baseValue, baseCoins, coins, exp};
   }
 
-  function trainAllLoaded(train = ensureTrainState()) {
+  function trainAllLoaded(train) {
     return Boolean(train?.cars?.length) && train.cars.every(car => Number(car.loaded) >= Number(car.required));
   }
 
-  function trainLoadedCount(train = ensureTrainState()) {
+  function trainLoadedCount(train) {
     return (train?.cars || []).filter(car => Number(car.loaded) >= Number(car.required)).length;
+  }
+
+  function trainReadySlots(hub=ensureTrainState()) {
+    return (hub?.slots || []).filter(slot => slot.status === 'ready' && slot.train && !slot.train.departed);
   }
 
   function trainNextResetText() {
     const now = new Date();
     const next = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 0, 0);
-    const ms = Math.max(0, next.getTime() - now.getTime());
+    return formatTrainWait(next.getTime() - now.getTime());
+  }
+
+  function formatTrainWait(ms) {
+    ms = Math.max(0, Number(ms) || 0);
     const h = Math.floor(ms / 3600000);
     const m = Math.floor((ms % 3600000) / 60000);
+    if (h <= 0) return `${Math.max(1,m)}分钟`;
     return `${h}小时${String(m).padStart(2,'0')}分`;
   }
 
@@ -1177,7 +1296,7 @@
       lastHelpCheckAt:Math.max(0, Number(npcRaw.lastHelpCheckAt) || 0),
       lastVisitCheckAt:Math.max(0, Number(npcRaw.lastVisitCheckAt) || 0)
     };
-    merged.train = normalizeTrainState(raw?.train);
+    merged.train = normalizeTrainState(raw?.train, localFarmDay(), {level:Math.max(1, Number(merged.level) || 1), createdAt:Math.max(0, Number(merged.createdAt) || 0)});
 
     merged.stats = {...base.stats, ...(raw?.stats || {})};
     merged.claimedTasks = Array.isArray(raw?.claimedTasks) ? raw.claimedTasks : [];
@@ -1403,15 +1522,18 @@
       const activities = Array.isArray(targetState?.npcSocial?.activities) ? targetState.npcSocial.activities : [];
       return activities.some(item => item?.id === op.activityId);
     }
-    if (op.type === 'train-load') {
-      const train = targetState?.train;
-      if (!train || train.date !== op.day) return true;
-      return Array.isArray(train.appliedOps) && train.appliedOps.includes(op.id);
-    }
-    if (op.type === 'train-depart') {
-      const train = targetState?.train;
-      if (!train || train.date !== op.day) return true;
-      return Boolean(train.departed) || (Array.isArray(train.appliedOps) && train.appliedOps.includes(op.id));
+    if (op.type === 'train-load' || op.type === 'train-depart') {
+      const hub = targetState?.train;
+      if (!hub || hub.date !== op.day) return true;
+      if (Array.isArray(hub.appliedOps) && hub.appliedOps.includes(op.id)) return true;
+      const slot = Array.isArray(hub.slots) ? hub.slots.find(item => Number(item?.index) === Number(op.slotIndex)) : null;
+      if (!slot) return false;
+      const remoteGeneration = Math.max(0, Number(slot.generation) || 0);
+      const opGeneration = Math.max(0, Number(op.generation) || 0);
+      if (remoteGeneration > opGeneration) return true;
+      if (remoteGeneration < opGeneration || slot.train?.id !== op.trainId) return false;
+      if (op.type === 'train-depart') return Boolean(slot.train?.departed);
+      return Array.isArray(slot.train?.appliedOps) && slot.train.appliedOps.includes(op.id);
     }
     if (op.type === 'equip-title') return targetState?.titles?.equipped === op.titleId;
     if (op.type === 'plant') return plantMutationApplied(targetState, op);
@@ -2665,17 +2787,25 @@
     const station = $('farmTrainStation');
     const status = $('farmTrainStationStatus');
     if (!station || !status) return;
-    const train = ensureTrainState(farmDay, {persist:true});
-    station.classList.toggle('is-complete', Boolean(train.departed));
-    station.classList.toggle('is-gold', train.tier === 'gold' && !train.departed);
-    station.classList.toggle('is-red', train.tier === 'red' && !train.departed);
-    if (train.departed) {
-      status.textContent = '今日已发车 ✓';
-      station.setAttribute('aria-label', '打开星辰车站，今日货运已完成');
+    const hub = ensureTrainState(farmDay, {persist:true});
+    const ready = trainReadySlots(hub);
+    const readyTrains = ready.map(slot => slot.train);
+    station.classList.toggle('is-complete', ready.length === 0 && hub.slots.every(slot => slot.status === 'done'));
+    station.classList.toggle('is-gold', readyTrains.some(train => train.tier === 'gold'));
+    station.classList.toggle('is-red', !readyTrains.some(train => train.tier === 'gold') && readyTrains.some(train => train.tier === 'red'));
+    if (ready.length) {
+      status.textContent = `${ready.length}班可选`;
+      station.setAttribute('aria-label', `打开星辰车站，目前有 ${ready.length} 班列车可自由选择`);
     } else {
-      const done = trainLoadedCount(train);
-      status.textContent = `×${train.multiplier.toFixed(1)} · ${done}/${train.cars.length}`;
-      station.setAttribute('aria-label', `打开星辰车站，今日列车倍率 ${train.multiplier.toFixed(1)}，已完成 ${done}/${train.cars.length} 节`);
+      const cooldowns = hub.slots.filter(slot => slot.status === 'cooldown' && slot.availableAt > Date.now());
+      if (cooldowns.length) {
+        const nextAt = Math.min(...cooldowns.map(slot => slot.availableAt));
+        status.textContent = `返程 ${formatTrainWait(nextAt - Date.now())}`;
+        station.setAttribute('aria-label', '打开星辰车站，列车返程中');
+      } else {
+        status.textContent = '今日加班已满 ✓';
+        station.setAttribute('aria-label', '打开星辰车站，今日额外班次已完成');
+      }
     }
   }
 
@@ -3438,51 +3568,88 @@
     toast('🪙 出售完成', `${crop.name} ×${qty} · 获得 ${income} 金币。`);
   }
 
-  function applyTrainLoadMutation(op, {silent=false} = {}) {
-    const train = state.train || ensureTrainState(farmDay);
-    if (!train || train.date !== op.day || train.departed) return false;
+  function markTrainOpApplied(hub, train, opId) {
+    if (!Array.isArray(hub.appliedOps)) hub.appliedOps = [];
     if (!Array.isArray(train.appliedOps)) train.appliedOps = [];
-    if (train.appliedOps.includes(op.id)) return false;
+    if (!hub.appliedOps.includes(opId)) hub.appliedOps.push(opId);
+    if (!train.appliedOps.includes(opId)) train.appliedOps.push(opId);
+    hub.appliedOps = hub.appliedOps.slice(-TRAIN_APPLIED_OP_LIMIT);
+    train.appliedOps = train.appliedOps.slice(-TRAIN_APPLIED_OP_LIMIT);
+  }
+
+  function applyTrainLoadMutation(op, {silent=false} = {}) {
+    const hub = ensureTrainState(farmDay);
+    if (!hub || hub.date !== op.day) return false;
+    if (Array.isArray(hub.appliedOps) && hub.appliedOps.includes(op.id)) return false;
+    const slot = trainSlot(op.slotIndex, hub);
+    if (!slot) return false;
+    const slotGeneration = Math.max(0, Number(slot.generation) || 0);
+    const opGeneration = Math.max(0, Number(op.generation) || 0);
+    if (slotGeneration < opGeneration) return false;
+    if (slotGeneration > opGeneration || slot.status !== 'ready' || !slot.train || slot.train.id !== op.trainId || slot.train.departed) {
+      if (slot?.train) markTrainOpApplied(hub, slot.train, op.id);
+      else hub.appliedOps = [...new Set([...(hub.appliedOps || []), op.id])].slice(-TRAIN_APPLIED_OP_LIMIT);
+      return true;
+    }
+    const train = slot.train;
     const index = Number(op.carIndex);
     const car = train.cars[index];
-    if (!car || car.cropId !== op.cropId) return false;
+    if (!car || car.cropId !== op.cropId) { markTrainOpApplied(hub, train, op.id); return true; }
     const crop = cropById(car.cropId);
     const remaining = Math.max(0, car.required - car.loaded);
     const owned = Math.max(0, Number(state.produce[car.cropId]) || 0);
     const amount = Math.min(remaining, owned, Math.max(0, Math.floor(Number(op.amount) || 0)));
     if (!crop) return false;
-    if (amount <= 0) {
-      // A cross-device conflict may have consumed the same produce first. Mark
-      // this journal entry as resolved instead of letting it unexpectedly fire
-      // days later after the player harvests more of that crop.
-      train.appliedOps.push(op.id);
-      train.appliedOps = train.appliedOps.slice(-TRAIN_APPLIED_OP_LIMIT);
-      return true;
-    }
+    if (amount <= 0) { markTrainOpApplied(hub, train, op.id); return true; }
     state.produce[car.cropId] = owned - amount;
     car.loaded += amount;
-    train.appliedOps.push(op.id);
-    train.appliedOps = train.appliedOps.slice(-TRAIN_APPLIED_OP_LIMIT);
-    state.history.push({type:'train_load', cropId:car.cropId, amount, carIndex:index, trainDay:train.date, at:Date.now(), mutationId:op.id});
+    markTrainOpApplied(hub, train, op.id);
+    state.history.push({type:'train_load', cropId:car.cropId, amount, slotIndex:Number(slot.index), carIndex:index, trainDay:train.date, trainId:train.id, at:Date.now(), mutationId:op.id});
     if (!silent) toast(`🚃 ${crop.name}装货 +${amount}`, car.loaded >= car.required ? '这节车厢已经装满 ✓' : `还差 ${car.required - car.loaded} 个。`, 'harvest');
     return true;
   }
 
-  async function loadTrainCar(index) {
-    const train = ensureTrainState(farmDay, {persist:true});
-    if (!train || train.departed) return;
+  function closeTrainLoadConfirm() {
+    document.querySelector('.farm-train-load-confirm')?.remove();
+  }
+
+  function showTrainLoadConfirm(slotIndex, carIndex) {
+    closeTrainLoadConfirm();
+    const hub = ensureTrainState(farmDay, {persist:true});
+    const slot = trainSlot(slotIndex, hub);
+    if (!slot || slot.status !== 'ready' || !slot.train || slot.train.departed) return;
+    const car = slot.train.cars[Number(carIndex)];
+    const crop = cropById(car?.cropId);
+    if (!car || !crop) return;
+    const remaining = Math.max(0, car.required - car.loaded);
+    if (remaining <= 0) return;
+    const owned = Math.max(0, Number(state.produce[crop.id]) || 0);
+    if (owned <= 0) { toast(`🚃 缺少${crop.name}`, `背包目前没有${crop.name}，先去农田收成吧。`); return; }
+    const amount = Math.min(remaining, owned);
+    const overlay = document.createElement('div');
+    overlay.className = 'farm-train-load-confirm';
+    overlay.innerHTML = `<div class="farm-train-load-card" role="dialog" aria-modal="true" aria-label="确认装箱">
+      <span class="farm-train-load-icon">${crop.icon}</span>
+      <div class="farm-train-load-copy"><small>第 ${Number(slot.index)+1} 月台 · 确认装箱</small><b>${escapeHtml(crop.name)} ×${amount}</b><p>背包目前拥有 <strong>${owned}</strong> 个 · 本节还需要 <strong>${remaining}</strong> 个</p><em>确认后会立即从背包扣除并装入车厢。</em></div>
+      <div class="farm-train-load-buttons"><button type="button" data-train-load-cancel>取消</button><button type="button" class="is-confirm" data-confirm-train-load data-train-slot-index="${Number(slot.index)}" data-train-load-index="${Number(carIndex)}">确认装箱</button></div>
+    </div>`;
+    document.body.appendChild(overlay);
+  }
+
+  async function loadTrainCar(slotIndex, index) {
+    const hub = ensureTrainState(farmDay, {persist:true});
+    const slot = trainSlot(slotIndex, hub);
+    if (!slot || slot.status !== 'ready' || !slot.train || slot.train.departed) return;
+    const train = slot.train;
     const car = train.cars[Number(index)];
     const crop = cropById(car?.cropId);
     if (!car || !crop) return;
     const remaining = Math.max(0, car.required - car.loaded);
     if (remaining <= 0) return;
     const owned = Math.max(0, Number(state.produce[crop.id]) || 0);
-    if (owned <= 0) {
-      toast(`🚃 缺少${crop.name}`, `背包目前没有${crop.name}，先去农田收成吧。`);
-      return;
-    }
+    if (owned <= 0) { toast(`🚃 缺少${crop.name}`, `背包目前没有${crop.name}，先去农田收成吧。`); return; }
     const amount = Math.min(remaining, owned);
-    const op = queuePendingOp({type:'train-load', day:train.date, carIndex:Number(index), cropId:crop.id, amount});
+    const op = queuePendingOp({type:'train-load', day:hub.date, slotIndex:Number(slot.index), generation:Number(slot.generation)||0, trainId:train.id, carIndex:Number(index), cropId:crop.id, amount});
     if (!applyTrainLoadMutation(op)) return;
     saveState();
     if (cloudReady) await pushCloudState(true);
@@ -3490,18 +3657,23 @@
   }
 
   function applyTrainDepartMutation(op, {silent=false} = {}) {
-    const train = state.train || ensureTrainState(farmDay);
-    if (!train || train.date !== op.day || train.departed) return false;
-    if (!Array.isArray(train.appliedOps)) train.appliedOps = [];
-    if (train.appliedOps.includes(op.id)) return false;
-    if (!trainAllLoaded(train)) {
-      train.appliedOps.push(op.id);
-      train.appliedOps = train.appliedOps.slice(-TRAIN_APPLIED_OP_LIMIT);
+    const hub = ensureTrainState(farmDay);
+    if (!hub || hub.date !== op.day) return false;
+    if (Array.isArray(hub.appliedOps) && hub.appliedOps.includes(op.id)) return false;
+    const slot = trainSlot(op.slotIndex, hub);
+    if (!slot) return false;
+    const slotGeneration = Math.max(0, Number(slot.generation) || 0);
+    const opGeneration = Math.max(0, Number(op.generation) || 0);
+    if (slotGeneration < opGeneration) return false;
+    if (!slot.train || slotGeneration > opGeneration || slot.train.id !== op.trainId) {
+      hub.appliedOps = [...new Set([...(hub.appliedOps || []), op.id])].slice(-TRAIN_APPLIED_OP_LIMIT);
       return true;
     }
+    const train = slot.train;
+    if (train.departed || slot.status !== 'ready') { markTrainOpApplied(hub, train, op.id); return true; }
+    if (!trainAllLoaded(train)) { markTrainOpApplied(hub, train, op.id); return true; }
     const reward = trainReward(train);
-    train.appliedOps.push(op.id);
-    train.appliedOps = train.appliedOps.slice(-TRAIN_APPLIED_OP_LIMIT);
+    markTrainOpApplied(hub, train, op.id);
     train.departed = true;
     train.departedAt = Math.max(Date.now(), Number(op.departedAt) || 0);
     train.departureOpId = op.id;
@@ -3511,22 +3683,34 @@
     bumpDaily('sell', cargoCount);
     addExp(reward.exp, {silent});
     updateHighWatermarks();
-    state.history.push({type:'train_depart', trainDay:train.date, multiplier:train.multiplier, cargoCount, coins:reward.coins, exp:reward.exp, at:train.departedAt, mutationId:op.id});
-    if (!silent) toast('🚂 今日货运完成！', `金币 +${formatNumber(reward.coins)} · EXP +${formatNumber(reward.exp)} · ×${train.multiplier.toFixed(1)} 列车`, 'harvest');
+    const reservedReturns = hub.slots.filter(item => item !== slot && item.status === 'cooldown').length;
+    if (hub.bonusGenerated + reservedReturns < TRAIN_DAILY_BONUS_CAP) {
+      slot.status = 'cooldown';
+      slot.availableAt = Math.max(train.departedAt + trainCooldownMs(train), Number(op.availableAt) || 0);
+    } else {
+      slot.status = 'done';
+      slot.availableAt = 0;
+    }
+    state.history.push({type:'train_depart', trainDay:train.date, trainId:train.id, slotIndex:Number(slot.index), multiplier:train.multiplier, cargoCount, coins:reward.coins, exp:reward.exp, at:train.departedAt, mutationId:op.id});
+    if (!silent) toast('🚂 货运发车成功！', `金币 +${formatNumber(reward.coins)} · EXP +${formatNumber(reward.exp)} 已立即入账`, 'harvest');
     return true;
   }
 
-  async function departTrain() {
-    const train = ensureTrainState(farmDay, {persist:true});
-    if (!train || train.departed || !trainAllLoaded(train)) {
-      toast('🚂 还不能发车', '请先把所有车厢的货物装满。');
+  async function departTrain(slotIndex) {
+    const hub = ensureTrainState(farmDay, {persist:true});
+    const slot = trainSlot(slotIndex, hub);
+    const train = slot?.train;
+    if (!slot || slot.status !== 'ready' || !train || train.departed || !trainAllLoaded(train)) {
+      toast('🚂 还不能发车', '请先把这班列车的所有车厢装满。');
       return;
     }
-    const consist = document.querySelector('.farm-train-consist');
-    const departButton = document.querySelector('[data-train-depart]');
+    const consist = document.querySelector(`.farm-train-consist[data-train-slot-index="${Number(slot.index)}"]`);
+    const departButton = document.querySelector(`[data-train-depart][data-train-slot-index="${Number(slot.index)}"]`);
     if (departButton) departButton.disabled = true;
     if (consist) consist.classList.add('is-departing');
-    const op = queuePendingOp({type:'train-depart', day:train.date, departedAt:Date.now()});
+    const departedAt = Date.now();
+    const availableAt = departedAt + trainCooldownMs(train);
+    const op = queuePendingOp({type:'train-depart', day:hub.date, slotIndex:Number(slot.index), generation:Number(slot.generation)||0, trainId:train.id, departedAt, availableAt});
     if (!applyTrainDepartMutation(op)) return;
     saveState();
     if (cloudReady) pushCloudState(true).catch(() => {});
@@ -3661,7 +3845,7 @@
       tasks:{icon:'📜', eyebrow:'FARM QUEST', title:'任务与成就', subtitle:'完成每日农务、新手任务与长期成就，领取奖励并解锁专属称号。'},
       ranking:{icon:'🏆', eyebrow:'RANKING', title:'农场排行榜', subtitle:'查看真实云端玩家的等级榜与金币榜，也可以直接发送好友申请。'},
       friends:{icon:'👥', eyebrow:'FRIENDS', title:'农场好友', subtitle:'真人好友与 NPC 农友都在这里；NPC 不参加排行榜、不会偷你的菜，但你可以限量偷 NPC 的成熟作物。'},
-      train:{icon:'🚂', eyebrow:'STELLAR STATION', title:'星辰车站', subtitle:'每天一班货运列车。装满所有车厢后发车，获得高于直接出售的金币与经验。'}
+      train:{icon:'🚂', eyebrow:'STELLAR STATION', title:'星辰车站', subtitle:'每天 00:00 两个月台同时刷新，可自由挑选倍率；发车奖励立即入账，4～6 小时后还可能有加班列车返程。'}
     }[panel];
     if (!meta) return;
     if (panel === 'train') ensureTrainState(farmDay, {persist:true});
@@ -3700,46 +3884,56 @@
     if (!body || !activePanel || $('farmModal').hidden) return;
 
     if (activePanel === 'train') {
-      const train = ensureTrainState(farmDay);
-      const reward = trainReward(train);
-      const loadedCars = trainLoadedCount(train);
-      const complete = trainAllLoaded(train);
-      const tierLabel = train.tier === 'gold' ? '黄金列车' : train.tier === 'red' ? '幸运列车' : '普通货运';
-      const tierIcon = train.tier === 'gold' ? '✨' : train.tier === 'red' ? '❤️' : '🤍';
-      if (train.departed) {
-        body.innerHTML = `<section class="farm-train-complete is-${train.tier}">
-          <div class="farm-train-empty-station"><img src="../images/farm/train-station.png?v=0.14.4" alt="星辰车站"></div>
-          <div class="farm-train-complete-copy"><span>✅</span><div><b>今日货运已完成</b><p>${tierIcon} ${tierLabel} ×${train.multiplier.toFixed(1)} 已经顺利离站。</p><small>下一班列车约 ${escapeHtml(trainNextResetText())} 后抵达。</small></div></div>
-        </section>`;
-        return;
-      }
-      const cars = train.cars.map((car,index) => {
-        const crop = cropById(car.cropId);
-        const done = car.loaded >= car.required;
-        const owned = Math.max(0, Number(state.produce[car.cropId]) || 0);
-        const remaining = Math.max(0, car.required - car.loaded);
-        const canLoad = !done && owned > 0;
-        return `<button type="button" class="farm-train-car is-${car.style} ${done ? 'is-complete' : ''}" data-train-load-index="${index}" ${canLoad ? '' : 'disabled'} aria-label="${done ? `${crop.name}车厢已装满` : `装载${crop.name}，还差${remaining}个`}">
-          <img src="../images/farm/train-car-${car.style}.png?v=0.14.4" alt="" aria-hidden="true">
-          <span class="farm-train-car-ui"><i>${done ? '✓' : crop.icon}</i><b>${escapeHtml(crop.name)}</b><strong>${car.loaded} / ${car.required}</strong><small>${done ? '装载完成' : `背包 ${owned}`}</small></span>
-        </button>`;
-      }).join('');
-      body.innerHTML = `<section class="farm-train-panel is-${train.tier}">
-        <header class="farm-train-summary">
-          <div class="farm-train-rate"><span>${tierIcon}</span><div><small>今日货运加成</small><b>×${train.multiplier.toFixed(1)}</b><em>${tierLabel}</em></div></div>
-          <div class="farm-train-reward"><small>全部发车预计获得</small><b>🪙 ${formatNumber(reward.coins)} <i>+ EXP ${formatNumber(reward.exp)}</i></b><em>火车基础货价为直接出售的 120%，再乘今日倍率。</em></div>
-          <div class="farm-train-reset"><small>每日 00:00 换车</small><b>${escapeHtml(trainNextResetText())}</b></div>
-        </header>
-        <div class="farm-train-yard">
-          <img class="farm-train-yard-station" src="../images/farm/train-station.png?v=0.14.4" alt="" aria-hidden="true">
-          <div class="farm-train-consist ${complete ? 'is-ready' : ''}">
-            ${cars}
-            <div class="farm-train-engine is-${train.tier}"><img src="../images/farm/train-engine.png?v=0.14.4" alt="" aria-hidden="true"><span class="farm-train-engine-rate">×${train.multiplier.toFixed(1)}</span><span class="farm-train-smoke" aria-hidden="true"></span></div>
+      const hub = ensureTrainState(farmDay, {persist:true});
+      const slotMarkup = hub.slots.map(slot => {
+        if (slot.status === 'cooldown') {
+          return `<section class="farm-train-slot is-cooldown" data-train-slot="${slot.index}">
+            <header class="farm-train-slot-head"><div><small>第 ${slot.index + 1} 月台</small><b>🚂 列车返程中</b></div><span>约 <strong data-train-cooldown-until="${slot.availableAt}">${formatTrainWait(slot.availableAt - Date.now())}</strong> 后抵达</span></header>
+            <div class="farm-train-empty-station"><img src="../images/farm/train-station.png?v=0.14.5" alt="星辰车站"></div>
+            <p class="farm-train-slot-note">奖励已在上一班发车时立即入账。返程后这里会自动出现一班全新的订单。</p>
+          </section>`;
+        }
+        if (slot.status === 'done') {
+          return `<section class="farm-train-slot is-done" data-train-slot="${slot.index}">
+            <header class="farm-train-slot-head"><div><small>第 ${slot.index + 1} 月台</small><b>✅ 今日加班班次已满</b></div><span>00:00 统一刷新</span></header>
+            <div class="farm-train-empty-station"><img src="../images/farm/train-station.png?v=0.14.5" alt="星辰车站"></div>
+          </section>`;
+        }
+        const train = slot.train;
+        const reward = trainReward(train);
+        const loadedCars = trainLoadedCount(train);
+        const complete = trainAllLoaded(train);
+        const tierLabel = train.tier === 'gold' ? '黄金列车' : train.tier === 'red' ? '幸运列车' : '普通货运';
+        const tierIcon = train.tier === 'gold' ? '✨' : train.tier === 'red' ? '❤️' : '🤍';
+        const cars = train.cars.map((car,index) => {
+          const crop = cropById(car.cropId);
+          const done = car.loaded >= car.required;
+          const owned = Math.max(0, Number(state.produce[car.cropId]) || 0);
+          const remaining = Math.max(0, car.required - car.loaded);
+          const canLoad = !done && owned > 0;
+          return `<button type="button" class="farm-train-car is-${car.style} ${done ? 'is-complete' : ''}" data-train-slot-index="${slot.index}" data-train-load-index="${index}" ${canLoad ? '' : 'disabled'} aria-label="${done ? `${crop.name}车厢已装满` : `装载${crop.name}，还差${remaining}个`}">
+            <img src="../images/farm/train-car-${car.style}.png?v=0.14.5" alt="" aria-hidden="true">
+            <span class="farm-train-car-ui"><i>${done ? '✓' : crop.icon}</i><b>${escapeHtml(crop.name)}</b><strong>${car.loaded} / ${car.required}</strong><small>${done ? '装载完成' : `背包 ${owned}`}</small></span>
+          </button>`;
+        }).join('');
+        return `<section class="farm-train-slot farm-train-panel is-${train.tier}" data-train-slot="${slot.index}">
+          <header class="farm-train-slot-head"><div><small>第 ${slot.index + 1} 月台</small><b>${tierIcon} ${tierLabel} ×${train.multiplier.toFixed(1)}</b></div><span>可自由选择是否装货</span></header>
+          <div class="farm-train-summary">
+            <div class="farm-train-rate"><span>${tierIcon}</span><div><small>本班货运加成</small><b>×${train.multiplier.toFixed(1)}</b><em>${tierLabel}</em></div></div>
+            <div class="farm-train-reward"><small>本班发车预计获得</small><b>🪙 ${formatNumber(reward.coins)} <i>+ EXP ${formatNumber(reward.exp)}</i></b><em>发车后立即入账；基础货价为直接出售的 120% 再乘倍率。</em></div>
           </div>
-        </div>
-        <div class="farm-train-progress"><span><b>${loadedCars}</b> / ${train.cars.length} 节车厢已完成</span><div><i style="width:${Math.round((loadedCars/train.cars.length)*100)}%"></i></div></div>
-        <div class="farm-train-actions"><p>点击有货可装的车厢，会自动装入「背包现有数量」直到该节满载。未完成列车跨日时，已装货物会自动退回背包。</p><button type="button" data-train-depart ${complete ? '' : 'disabled'}>${complete ? '🚂 发车！' : `还差 ${train.cars.length - loadedCars} 节车厢`}</button></div>
-      </section>`;
+          <div class="farm-train-yard">
+            <img class="farm-train-yard-station" src="../images/farm/train-station.png?v=0.14.5" alt="" aria-hidden="true">
+            <div class="farm-train-consist ${complete ? 'is-ready' : ''}" data-train-slot-index="${slot.index}">
+              ${cars}
+              <div class="farm-train-engine is-${train.tier}"><img src="../images/farm/train-engine.png?v=0.14.5" alt="" aria-hidden="true"><span class="farm-train-engine-rate">×${train.multiplier.toFixed(1)}</span><span class="farm-train-smoke" aria-hidden="true"></span></div>
+            </div>
+          </div>
+          <div class="farm-train-progress"><span><b>${loadedCars}</b> / ${train.cars.length} 节车厢已完成</span><div><i style="width:${Math.round((loadedCars/train.cars.length)*100)}%"></i></div></div>
+          <div class="farm-train-actions"><p>点车厢后会先显示背包数量并询问是否装箱。你可以先做倍率较高的另一班列车，不必按月台顺序。</p><button type="button" data-train-depart data-train-slot-index="${slot.index}" ${complete ? '' : 'disabled'}>${complete ? '🚂 发车！' : `还差 ${train.cars.length - loadedCars} 节车厢`}</button></div>
+        </section>`;
+      }).join('');
+      body.innerHTML = `<section class="farm-train-hub-head"><div><b>🚉 今日双月台货运</b><p>每日 00:00 两班基础列车同时刷新；每班发车后 4～6 小时返程，全日最多再补 ${TRAIN_DAILY_BONUS_CAP} 班加班列车。</p></div><span><small>距离 00:00 刷新</small><b data-train-midnight>${escapeHtml(trainNextResetText())}</b><em>额外列车 ${hub.bonusGenerated}/${TRAIN_DAILY_BONUS_CAP}</em></span></section><div class="farm-train-slots">${slotMarkup}</div>`;
       return;
     }
 
@@ -4090,6 +4284,7 @@
   }
 
   function closeModal() {
+    closeTrainLoadConfirm();
     $('farmModal').hidden = true;
     document.body.classList.remove('farm-modal-open');
     activePanel = null;
@@ -4173,6 +4368,17 @@
         syncFarmDay(false).catch(() => {});
       }
     }
+    const readyBefore = trainReadySlots(state.train).length;
+    const hubNow = ensureTrainState(farmDay, {persist:true});
+    const readyAfter = trainReadySlots(hubNow).length;
+    renderTrainStation();
+    if (activePanel === 'train') {
+      const expiredCard = document.querySelector('.farm-train-slot.is-cooldown [data-train-cooldown-until]');
+      if (readyBefore !== readyAfter || (expiredCard && Number(expiredCard.dataset.trainCooldownUntil) <= Date.now())) renderActivePanel();
+      document.querySelectorAll('[data-train-cooldown-until]').forEach(el => { el.textContent = formatTrainWait(Number(el.dataset.trainCooldownUntil) - Date.now()); });
+      const midnight = document.querySelector('[data-train-midnight]');
+      if (midnight) midnight.textContent = trainNextResetText();
+    }
     renderStats();
     updateFarmEventRuntimeLabels();
     // Do not rebuild all 20 buttons every second. Replacing the DOM while the
@@ -4203,6 +4409,7 @@
   }
 
   function handleClick(event) {
+    if (event.target.classList?.contains('farm-train-load-confirm')) { closeTrainLoadConfirm(); return; }
     const openTitles = event.target.closest('[data-open-titles]');
     if (openTitles) {
       activeTaskTab = 'titles';
@@ -4360,10 +4567,20 @@
     const fertilizePlot = event.target.closest('[data-fertilize-plot][data-fertilizer]');
     if (fertilizePlot) { applyFertilizer(Number(fertilizePlot.dataset.fertilizePlot), fertilizePlot.dataset.fertilizer); return; }
 
+    if (event.target.closest('[data-train-load-cancel]')) { closeTrainLoadConfirm(); return; }
+    const trainConfirm = event.target.closest('[data-confirm-train-load]');
+    if (trainConfirm) {
+      const slotIndex = Number(trainConfirm.dataset.trainSlotIndex);
+      const carIndex = Number(trainConfirm.dataset.trainLoadIndex);
+      closeTrainLoadConfirm();
+      loadTrainCar(slotIndex, carIndex);
+      return;
+    }
     const trainLoad = event.target.closest('[data-train-load-index]');
-    if (trainLoad) { loadTrainCar(Number(trainLoad.dataset.trainLoadIndex)); return; }
+    if (trainLoad) { showTrainLoadConfirm(Number(trainLoad.dataset.trainSlotIndex), Number(trainLoad.dataset.trainLoadIndex)); return; }
 
-    if (event.target.closest('[data-train-depart]')) { departTrain(); return; }
+    const trainDepart = event.target.closest('[data-train-depart]');
+    if (trainDepart) { departTrain(Number(trainDepart.dataset.trainSlotIndex)); return; }
 
     const plot = event.target.closest('[data-plot]');
     if (plot) {
