@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const BUILD = '0.16.1';
+  const BUILD = '0.16.2';
   const MAX_MAIL = 60;
   const POLL_MS = 90 * 1000;
   let mailRows = [];
@@ -21,25 +21,25 @@
       mailbox:'星辰信箱', gm:'GM 管理', all:'全部', unread:'未读', attachments:'有附件', empty:'目前没有信件。', loading:'正在读取信件…',
       announcement:'更新公告', reward:'系统奖励', unreadMark:'未读', claimed:'已领取', expired:'已过期', permanent:'永久', claim:'领取附件', claimAll:'一键领取全部',
       memberOnly:'请先绑定正式邮箱账号后再领取附件。', claimOk:'附件已领取', claimFail:'领取失败', close:'关闭', published:'已发布', gmTitle:'GM 管理台',
-      sendMail:'发布系统信件', mailTitle:'标题', mailBody:'内容', mailType:'信件类型', audience:'发送对象', allPlayers:'全体玩家', onePlayer:'指定 UID', targetUid:'目标玩家 UID', expiry:'有效期限', forever:'永久', days7:'7 天', days14:'14 天', days30:'30 天',
+      sendMail:'发布系统信件', mailTitle:'标题', mailBody:'内容', mailType:'信件类型', audience:'发送对象', allPlayers:'全体玩家', onePlayer:'指定 UID', targetUid:'目标玩家 UID', expiry:'有效期限', forever:'永久', days7:'D+7', days14:'D+14', days30:'D+30',
       rewards:'附件奖励', coins:'金币', exp:'EXP', blind:'蔬果盲盒', carrot:'红萝卜种子', wheat:'小麦种子', corn:'玉米种子', tomato:'番茄种子', strawberry:'草莓种子', pumpkin:'南瓜种子', grape:'葡萄种子', starfruit:'星辰果种子', fertLow:'低级肥料', fertMid:'中级肥料', fertHigh:'高级肥料',
-      publish:'确认发布', preview:'发送后玩家会立即在信箱看到这封信。奖励附件每个正式账号只能领取一次。', recent:'最近发布', noHistory:'尚无发布记录。', confirmSend:'确定发布这封系统信件吗？', sent:'系统信件已发布', invalidTarget:'请输入正确的玩家 UID。', bind:'绑定账号', setup:'系统信箱尚未启用，请先执行 018_system_mail_gm.sql。', itemCategory:'物品分类', itemSelect:'选择物品', itemQty:'数量', addAttachment:'加入附件', noAttachments:'尚未加入附件。', remove:'移除', itemId:'物品 ID', categoryAll:'全部分类', categoryCurrency:'货币', categorySeed:'种子', categoryBox:'盲盒', categorySupply:'农资', verifyUid:'验证 UID', playerVerified:'玩家已确认', playerNotFound:'找不到这个玩家 UID。', run019:'请先执行 019_mail_item_catalog.sql。'
+      publish:'确认发布', preview:'发送后玩家会立即在信箱看到这封信。奖励附件每个正式账号只能领取一次。', recent:'最近发布', noHistory:'尚无发布记录。', confirmSend:'确定发布这封系统信件吗？', sent:'系统信件已发布', invalidTarget:'请输入正确的玩家 UID。', bind:'绑定账号', setup:'系统信箱尚未启用，请先执行 018_system_mail_gm.sql。', itemCategory:'物品分类', itemSelect:'选择物品', itemQty:'数量', addAttachment:'加入附件', noAttachments:'尚未加入附件。', remove:'移除', itemId:'物品 ID', categoryAll:'全部分类', categoryCurrency:'货币', categorySeed:'种子', categoryBox:'盲盒', categorySupply:'农资', verifyUid:'验证 UID', playerVerified:'玩家已确认', playerNotFound:'找不到这个玩家 UID。', run019:'请先执行 019_mail_item_catalog.sql。', claimedTab:'已领取', deleteMail:'删除邮件', deleteConfirm:'确定删除这封邮件吗？删除只会影响你的信箱。', deleteWithRewardsConfirm:'这封邮件还有未领取附件。确定删除吗？删除后将无法再领取附件。', deleteOk:'邮件已删除', deleteFail:'删除失败', expiresOn:'到期', claimSummary:'领取成功', mailsClaimed:'封邮件附件已领取', run020:'请先执行 020_mail_actions_expiry.sql。'
     },
     'zh-TW': {
       mailbox:'星辰信箱', gm:'GM 管理', all:'全部', unread:'未讀', attachments:'有附件', empty:'目前沒有信件。', loading:'正在讀取信件…',
       announcement:'更新公告', reward:'系統獎勵', unreadMark:'未讀', claimed:'已領取', expired:'已過期', permanent:'永久', claim:'領取附件', claimAll:'一鍵領取全部',
       memberOnly:'請先綁定正式信箱帳號後再領取附件。', claimOk:'附件已領取', claimFail:'領取失敗', close:'關閉', published:'已發布', gmTitle:'GM 管理台',
-      sendMail:'發布系統信件', mailTitle:'標題', mailBody:'內容', mailType:'信件類型', audience:'發送對象', allPlayers:'全體玩家', onePlayer:'指定 UID', targetUid:'目標玩家 UID', expiry:'有效期限', forever:'永久', days7:'7 天', days14:'14 天', days30:'30 天',
+      sendMail:'發布系統信件', mailTitle:'標題', mailBody:'內容', mailType:'信件類型', audience:'發送對象', allPlayers:'全體玩家', onePlayer:'指定 UID', targetUid:'目標玩家 UID', expiry:'有效期限', forever:'永久', days7:'D+7', days14:'D+14', days30:'D+30',
       rewards:'附件獎勵', coins:'金幣', exp:'EXP', blind:'蔬果盲盒', carrot:'紅蘿蔔種子', wheat:'小麥種子', corn:'玉米種子', tomato:'番茄種子', strawberry:'草莓種子', pumpkin:'南瓜種子', grape:'葡萄種子', starfruit:'星辰果種子', fertLow:'低級肥料', fertMid:'中級肥料', fertHigh:'高級肥料',
-      publish:'確認發布', preview:'發送後玩家會立即在信箱看到這封信。獎勵附件每個正式帳號只能領取一次。', recent:'最近發布', noHistory:'尚無發布紀錄。', confirmSend:'確定發布這封系統信件嗎？', sent:'系統信件已發布', invalidTarget:'請輸入正確的玩家 UID。', bind:'綁定帳號', setup:'系統信箱尚未啟用，請先執行 018_system_mail_gm.sql。', itemCategory:'物品分類', itemSelect:'選擇物品', itemQty:'數量', addAttachment:'加入附件', noAttachments:'尚未加入附件。', remove:'移除', itemId:'物品 ID', categoryAll:'全部分類', categoryCurrency:'貨幣', categorySeed:'種子', categoryBox:'盲盒', categorySupply:'農資', verifyUid:'驗證 UID', playerVerified:'玩家已確認', playerNotFound:'找不到這個玩家 UID。', run019:'請先執行 019_mail_item_catalog.sql。'
+      publish:'確認發布', preview:'發送後玩家會立即在信箱看到這封信。獎勵附件每個正式帳號只能領取一次。', recent:'最近發布', noHistory:'尚無發布紀錄。', confirmSend:'確定發布這封系統信件嗎？', sent:'系統信件已發布', invalidTarget:'請輸入正確的玩家 UID。', bind:'綁定帳號', setup:'系統信箱尚未啟用，請先執行 018_system_mail_gm.sql。', itemCategory:'物品分類', itemSelect:'選擇物品', itemQty:'數量', addAttachment:'加入附件', noAttachments:'尚未加入附件。', remove:'移除', itemId:'物品 ID', categoryAll:'全部分類', categoryCurrency:'貨幣', categorySeed:'種子', categoryBox:'盲盒', categorySupply:'農資', verifyUid:'驗證 UID', playerVerified:'玩家已確認', playerNotFound:'找不到這個玩家 UID。', run019:'請先執行 019_mail_item_catalog.sql。', claimedTab:'已領取', deleteMail:'刪除郵件', deleteConfirm:'確定刪除這封郵件嗎？刪除只會影響你的信箱。', deleteWithRewardsConfirm:'這封郵件還有未領取附件。確定刪除嗎？刪除後將無法再領取附件。', deleteOk:'郵件已刪除', deleteFail:'刪除失敗', expiresOn:'到期', claimSummary:'領取成功', mailsClaimed:'封郵件附件已領取', run020:'請先執行 020_mail_actions_expiry.sql。'
     },
     en: {
       mailbox:'Stellar Mail', gm:'GM Console', all:'All', unread:'Unread', attachments:'Attachments', empty:'No mail yet.', loading:'Loading mail…',
       announcement:'Update', reward:'Reward', unreadMark:'Unread', claimed:'Claimed', expired:'Expired', permanent:'Permanent', claim:'Claim attachments', claimAll:'Claim all',
       memberOnly:'Bind a permanent email account before claiming rewards.', claimOk:'Attachments claimed', claimFail:'Claim failed', close:'Close', published:'Published', gmTitle:'GM Console',
-      sendMail:'Publish system mail', mailTitle:'Title', mailBody:'Content', mailType:'Mail type', audience:'Audience', allPlayers:'All players', onePlayer:'Specific UID', targetUid:'Target player UID', expiry:'Expiry', forever:'Permanent', days7:'7 days', days14:'14 days', days30:'30 days',
+      sendMail:'Publish system mail', mailTitle:'Title', mailBody:'Content', mailType:'Mail type', audience:'Audience', allPlayers:'All players', onePlayer:'Specific UID', targetUid:'Target player UID', expiry:'Expiry', forever:'Permanent', days7:'D+7', days14:'D+14', days30:'D+30',
       rewards:'Attachments', coins:'Coins', exp:'EXP', blind:'Produce mystery box', carrot:'Carrot seeds', wheat:'Wheat seeds', corn:'Corn seeds', tomato:'Tomato seeds', strawberry:'Strawberry seeds', pumpkin:'Pumpkin seeds', grape:'Grape seeds', starfruit:'Starfruit seeds', fertLow:'Basic fertilizer', fertMid:'Medium fertilizer', fertHigh:'Advanced fertilizer',
-      publish:'Publish', preview:'Players will see this mail immediately. Each permanent account can claim each attachment only once.', recent:'Recent mail', noHistory:'No published mail yet.', confirmSend:'Publish this system mail?', sent:'System mail published', invalidTarget:'Enter a valid player UID.', bind:'Bind account', setup:'Mailbox is not enabled yet. Run 018_system_mail_gm.sql first.', itemCategory:'Item category', itemSelect:'Choose item', itemQty:'Quantity', addAttachment:'Add attachment', noAttachments:'No attachments added.', remove:'Remove', itemId:'Item ID', categoryAll:'All categories', categoryCurrency:'Currency', categorySeed:'Seeds', categoryBox:'Boxes', categorySupply:'Supplies', verifyUid:'Verify UID', playerVerified:'Player verified', playerNotFound:'Player UID not found.', run019:'Run 019_mail_item_catalog.sql first.'
+      publish:'Publish', preview:'Players will see this mail immediately. Each permanent account can claim each attachment only once.', recent:'Recent mail', noHistory:'No published mail yet.', confirmSend:'Publish this system mail?', sent:'System mail published', invalidTarget:'Enter a valid player UID.', bind:'Bind account', setup:'Mailbox is not enabled yet. Run 018_system_mail_gm.sql first.', itemCategory:'Item category', itemSelect:'Choose item', itemQty:'Quantity', addAttachment:'Add attachment', noAttachments:'No attachments added.', remove:'Remove', itemId:'Item ID', categoryAll:'All categories', categoryCurrency:'Currency', categorySeed:'Seeds', categoryBox:'Boxes', categorySupply:'Supplies', verifyUid:'Verify UID', playerVerified:'Player verified', playerNotFound:'Player UID not found.', run019:'Run 019_mail_item_catalog.sql first.', claimedTab:'Claimed', deleteMail:'Delete mail', deleteConfirm:'Delete this mail? This only removes it from your mailbox.', deleteWithRewardsConfirm:'This mail still has unclaimed attachments. Delete it anyway? You will not be able to claim them later.', deleteOk:'Mail deleted', deleteFail:'Delete failed', expiresOn:'Expires', claimSummary:'Claimed', mailsClaimed:'mail rewards claimed', run020:'Run 020_mail_actions_expiry.sql first.'
     }
   };
 
@@ -131,10 +131,35 @@
     return `<div class="mail-reward-list ${compact?'is-compact':''}">${items.map(item=>`<span>${item.catalog?catalogIcon(item.catalog,'is-reward-icon'):item.farmItemCell?farmItemIcon(item.farmItemCell,'is-reward-icon'):farmIcon(item.icon,'is-reward-icon')}<b>${esc(item.label)}</b><em>×${item.qty}</em></span>`).join('')}</div>`;
   }
 
+  function rewardSummaryText(rewards={}) {
+    const items=rewardItems(rewards);
+    return items.map(item=>`${item.label} ×${item.qty}`).join('、');
+  }
+
   function formatDate(value) {
     if (!value) return '';
     const d=new Date(value); if (!Number.isFinite(d.getTime())) return '';
     return d.toLocaleString(locale()==='en'?'en-US':locale()==='zh-TW'?'zh-TW':'zh-CN',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'});
+  }
+
+  function formatExpiryDate(value) {
+    if (!value) return '';
+    const d=new Date(value); if (!Number.isFinite(d.getTime())) return '';
+    return d.toLocaleDateString(locale()==='en'?'en-US':locale()==='zh-TW'?'zh-TW':'zh-CN',{month:'2-digit',day:'2-digit'});
+  }
+  function expiryMeta(row) {
+    if (!row?.expires_at) return {permanent:true,days:0,label:t('permanent'),date:''};
+    const start=new Date(row.starts_at||row.created_at||Date.now());
+    const end=new Date(row.expires_at);
+    const diff=(end.getTime()-start.getTime())/86400000;
+    const days=Math.max(1,Math.round(diff));
+    const date=formatExpiryDate(row.expires_at);
+    const suffix=locale()==='en'?`${t('expiresOn')} ${date}`:`${date} ${t('expiresOn')}`;
+    return {permanent:false,days,label:`D+${days} · ${suffix}`,date};
+  }
+  function expiryBadgeMarkup(row,className='') {
+    const meta=expiryMeta(row);
+    return `<span class="stellar-mail-expiry-badge ${meta.permanent?'is-permanent':''} ${className}">${esc(meta.label)}</span>`;
   }
 
   function ensureShell() {
@@ -205,7 +230,7 @@
   }
 
   function filteredRows() {
-    return mailRows.filter(row => activeFilter==='all' || (activeFilter==='unread' && !row.read_at) || (activeFilter==='attachments' && hasRewards(row)));
+    return mailRows.filter(row => activeFilter==='all' || (activeFilter==='unread' && !row.read_at) || (activeFilter==='attachments' && hasRewards(row)) || (activeFilter==='claimed' && Boolean(row.claimed_at)));
   }
 
   function renderMailbox() {
@@ -213,7 +238,7 @@
     const rows=filteredRows();
     const selected=mailRows.find(row=>Number(row.id)===Number(selectedMailId)) || rows[0] || null;
     if(selected && !selectedMailId) selectedMailId=selected.id;
-    body.innerHTML=`<div class="stellar-mail-toolbar"><div class="stellar-mail-tabs"><button data-mail-filter="all" class="${activeFilter==='all'?'is-active':''}">${esc(t('all'))}</button><button data-mail-filter="unread" class="${activeFilter==='unread'?'is-active':''}">${esc(t('unread'))}</button><button data-mail-filter="attachments" class="${activeFilter==='attachments'?'is-active':''}">${esc(t('attachments'))}</button></div><button type="button" class="stellar-claim-all" data-mail-claim-all ${mailRows.some(r=>hasRewards(r)&&!r.claimed_at)?'':'disabled'}>${farmIcon('claim-all')}${esc(t('claimAll'))}</button></div>
+    body.innerHTML=`<div class="stellar-mail-toolbar"><div class="stellar-mail-tabs"><button data-mail-filter="all" class="${activeFilter==='all'?'is-active':''}">${esc(t('all'))}</button><button data-mail-filter="unread" class="${activeFilter==='unread'?'is-active':''}">${esc(t('unread'))}</button><button data-mail-filter="attachments" class="${activeFilter==='attachments'?'is-active':''}">${esc(t('attachments'))}</button><button data-mail-filter="claimed" class="${activeFilter==='claimed'?'is-active':''}">${esc(t('claimedTab'))}</button></div><button type="button" class="stellar-claim-all" data-mail-claim-all ${mailRows.some(r=>hasRewards(r)&&!r.claimed_at)?'':'disabled'}>${farmIcon('claim-all')}${esc(t('claimAll'))}</button></div>
       <div class="stellar-mail-layout"><div class="stellar-mail-list">${rows.length?rows.map(mailRowMarkup).join(''):`<div class="stellar-mail-empty">${esc(t('empty'))}</div>`}</div><div class="stellar-mail-detail">${selected?mailDetailMarkup(selected):`<div class="stellar-mail-empty">${esc(t('empty'))}</div>`}</div></div>`;
     if(selected && !selected.read_at) markRead(selected.id);
   }
@@ -221,13 +246,12 @@
   function mailRowMarkup(row) {
     const icon=row.mail_type==='reward'?'attachment':'announcement';
     const active=Number(row.id)===Number(selectedMailId);
-    return `<button type="button" class="stellar-mail-row ${active?'is-active':''} ${row.read_at?'':'is-unread'}" data-mail-id="${row.id}">${farmIcon(icon,'is-list-icon')}<span><b>${esc(row.title)}</b><small>${esc(row.mail_type==='reward'?t('reward'):t('announcement'))} · ${esc(formatDate(row.created_at))}</small></span><em>${!row.read_at?`<i>${esc(t('unreadMark'))}</i>`:''}${hasRewards(row)?row.claimed_at?`<strong>✓ ${esc(t('claimed'))}</strong>`:`<strong>${esc(t('attachments'))}</strong>`:''}</em></button>`;
+    return `<button type="button" class="stellar-mail-row ${active?'is-active':''} ${row.read_at?'':'is-unread'}" data-mail-id="${row.id}">${farmIcon(icon,'is-list-icon')}<span><b>${esc(row.title)}</b><small><span>${esc(row.mail_type==='reward'?t('reward'):t('announcement'))}</span>${expiryBadgeMarkup(row)}<span>· ${esc(formatDate(row.created_at))}</span></small></span><em>${!row.read_at?`<i>${esc(t('unreadMark'))}</i>`:''}${hasRewards(row)?row.claimed_at?`<strong>✓ ${esc(t('claimed'))}</strong>`:`<strong>${esc(t('attachments'))}</strong>`:''}</em></button>`;
   }
 
   function mailDetailMarkup(row) {
-    const expiry=row.expires_at?formatDate(row.expires_at):t('permanent');
     const canClaim=hasRewards(row)&&!row.claimed_at;
-    return `<article class="stellar-mail-letter"><header><div>${farmIcon(row.mail_type==='reward'?'attachment':'announcement','is-letter-icon')}<span><small>${esc(row.mail_type==='reward'?t('reward'):t('announcement'))}</small><h3>${esc(row.title)}</h3></span></div><time>${esc(formatDate(row.created_at))}</time></header><div class="stellar-mail-copy">${esc(row.body||'').replace(/\n/g,'<br>')}</div>${hasRewards(row)?`<section class="stellar-mail-attachments"><b>${esc(t('attachments'))}</b>${rewardMarkup(row.rewards)}</section>`:''}<footer><small>${esc(t('expiry'))}: ${esc(expiry)}</small>${hasRewards(row)?row.claimed_at?`<span class="stellar-mail-claimed">✓ ${esc(t('claimed'))}</span>`:`<button type="button" data-mail-claim="${row.id}" ${formalMember()?'':'disabled'}>${farmIcon('attachment')}${esc(formalMember()?t('claim'):t('bind'))}</button>`:''}</footer></article>`;
+    return `<article class="stellar-mail-letter"><header><div>${farmIcon(row.mail_type==='reward'?'attachment':'announcement','is-letter-icon')}<span><small><span>${esc(row.mail_type==='reward'?t('reward'):t('announcement'))}</span>${expiryBadgeMarkup(row,'is-detail-expiry')}</small><h3>${esc(row.title)}</h3></span></div><time>${esc(formatDate(row.created_at))}</time></header><div class="stellar-mail-copy">${esc(row.body||'').replace(/\n/g,'<br>')}</div>${hasRewards(row)?`<section class="stellar-mail-attachments"><b>${esc(t('attachments'))}</b>${rewardMarkup(row.rewards)}</section>`:''}<footer><small>${esc(t('expiry'))}: ${esc(expiryMeta(row).label)}</small><div class="stellar-mail-actions">${hasRewards(row)?row.claimed_at?`<span class="stellar-mail-claimed">✓ ${esc(t('claimed'))}</span>`:`<button type="button" class="stellar-mail-claim" data-mail-claim="${row.id}" ${formalMember()?'':'disabled'}>${farmIcon('attachment')}${esc(formalMember()?t('claim'):t('bind'))}</button>`:''}<button type="button" class="stellar-mail-delete" data-mail-delete="${row.id}">${siteIcon(13,'is-delete-mail-icon')}${esc(t('deleteMail'))}</button></div></footer></article>`;
   }
 
   async function markRead(id) {
@@ -243,19 +267,41 @@
     try {
       const {data,error}=await sb.rpc('claim_system_mail_v1',{p_mail_id:Number(id)}); if(error)throw error;
       const result=Array.isArray(data)?data[0]:data;
-      if(!result?.ok){ if(!quiet) alert(result?.reason==='already_claimed'?t('claimed'):result?.reason==='member_required'?t('memberOnly'):t('claimFail')); return false; }
+      if(!result?.ok){ if(!quiet) alert(result?.reason==='already_claimed'?t('claimed'):result?.reason==='member_required'?t('memberOnly'):result?.reason==='mail_deleted'?t('deleteOk'):t('claimFail')); return false; }
       const row=mailRows.find(x=>Number(x.id)===Number(id)); if(row){row.claimed_at=new Date().toISOString();row.read_at=row.read_at||new Date().toISOString();}
       window.dispatchEvent(new CustomEvent('stellar:mail-reward-claimed',{detail:{mailId:Number(id),rewards:result.rewards||{},farmState:result.farm_state||null,revision:Number(result.revision)||0}}));
-      if(!quiet) alert(t('claimOk'));
-      return true;
+      if(!quiet){const summary=rewardSummaryText(result.rewards||{});alert(`${t('claimSummary')}${summary?`
+${summary}`:''}`);}
+      return result;
     } catch(error) { if(!quiet) alert(`${t('claimFail')}：${String(error?.message||error)}`); return false; }
     finally { busy=false; renderMailbox(); refreshUnread(); }
   }
 
   async function claimAll() {
     const list=mailRows.filter(r=>hasRewards(r)&&!r.claimed_at); if(!list.length)return;
-    for(const row of list) await claimMail(row.id,{quiet:true});
-    alert(t('claimOk')); await loadMailbox(true);
+    const totals=new Map(); let count=0;
+    for(const row of list){
+      const result=await claimMail(row.id,{quiet:true});
+      if(!result?.ok)continue; count+=1;
+      rewardItems(result.rewards||{}).forEach(item=>totals.set(item.label,(totals.get(item.label)||0)+item.qty));
+    }
+    const summary=[...totals.entries()].map(([label,qty])=>`${label} ×${qty}`).join('、');
+    alert(`${count} ${t('mailsClaimed')}${summary?`
+${summary}`:''}`); await loadMailbox(true);
+  }
+
+  async function deleteMail(id) {
+    if(busy)return; const row=mailRows.find(x=>Number(x.id)===Number(id)); if(!row)return;
+    const warning=hasRewards(row)&&!row.claimed_at?t('deleteWithRewardsConfirm'):t('deleteConfirm');
+    if(!confirm(warning))return;
+    const sb=client(); if(!sb)return; busy=true;
+    try {
+      const {data,error}=await sb.rpc('delete_system_mail_v1',{p_mail_id:Number(id)}); if(error)throw error;
+      if(!data)throw new Error(t('deleteFail'));
+      mailRows=mailRows.filter(x=>Number(x.id)!==Number(id)); selectedMailId=null;
+      alert(t('deleteOk')); renderMailbox(); refreshUnread();
+    } catch(error) { alert(`${t('deleteFail')}：${rpcMissing(error)?t('run020'):String(error?.message||error)}`); }
+    finally { busy=false; }
   }
 
   async function openMailbox() { ensureShell(); await loadItemCatalog(); const modal=document.getElementById('stellarMailboxModal'); modal.hidden=false; document.body.classList.add('stellar-mail-open'); selectedMailId=null; loadMailbox(true); }
@@ -318,19 +364,28 @@
     }catch(error){host.textContent=rpcMissing(error)?t('run019'):String(error?.message||error);host.className='stellar-gm-target-status is-error';}
   }
 
+  function updateGmExpiryHint() {
+    const host=document.getElementById('gmExpiryHint'); if(!host)return;
+    const days=Number(document.getElementById('gmExpiry')?.value)||0;
+    if(!days){host.textContent=t('permanent');return;}
+    const end=new Date(Date.now()+days*86400000);
+    const date=end.toLocaleDateString(locale()==='en'?'en-US':locale()==='zh-TW'?'zh-TW':'zh-CN',{month:'2-digit',day:'2-digit'});
+    host.textContent=locale()==='en'?`D+${days} · ${t('expiresOn')} ${date}`:`D+${days} · ${date} ${t('expiresOn')}`;
+  }
+
   function ensureGmModal() {
     if(document.getElementById('stellarGmModal'))return;
     const modal=document.createElement('div'); modal.id='stellarGmModal'; modal.className='stellar-mail-modal stellar-gm-modal'; modal.hidden=true;
-    modal.innerHTML=`<div class="stellar-mail-backdrop" data-gm-close></div><section class="stellar-mail-dialog stellar-gm-dialog" role="dialog" aria-modal="true"><header><div>${farmIcon('announcement','is-mail-title-icon')}<span><small>STELLAR DIARY</small><b>${esc(t('gmTitle'))}</b></span></div><button type="button" data-gm-close>${siteIcon(11,'is-close-icon')}</button></header><div class="stellar-gm-body"><section class="stellar-gm-form"><h3>${esc(t('sendMail'))}</h3><label class="is-wide"><span>${esc(t('mailTitle'))}</span><input type="text" maxlength="120" id="gmMailTitle"></label><label class="is-wide"><span>${esc(t('mailBody'))}</span><textarea maxlength="6000" rows="7" id="gmMailBody"></textarea></label><div class="stellar-gm-grid"><label><span>${esc(t('mailType'))}</span><select id="gmMailType"><option value="announcement">${esc(t('announcement'))}</option><option value="reward">${esc(t('reward'))}</option></select></label><label><span>${esc(t('audience'))}</span><select id="gmMailAudience"><option value="all">${esc(t('allPlayers'))}</option><option value="user">${esc(t('onePlayer'))}</option></select></label><label id="gmTargetWrap" class="stellar-gm-target-wrap" hidden><span>${esc(t('targetUid'))}</span><span class="stellar-gm-uid-line"><input type="text" id="gmTargetUid" placeholder="00000000-0000-0000-0000-000000000000"><button type="button" data-gm-verify-uid>${esc(t('verifyUid'))}</button></span><small id="gmTargetStatus" class="stellar-gm-target-status"></small></label><label><span>${esc(t('expiry'))}</span><select id="gmExpiry"><option value="0">${esc(t('forever'))}</option><option value="7">${esc(t('days7'))}</option><option value="14">${esc(t('days14'))}</option><option value="30">${esc(t('days30'))}</option></select></label></div><h4>${esc(t('rewards'))}</h4><section class="stellar-gm-item-builder"><div class="stellar-gm-item-controls"><label><span>${esc(t('itemCategory'))}</span><select id="gmItemCategory">${gmCategoryOptions()}</select></label><label class="is-item-select"><span>${esc(t('itemSelect'))}</span><select id="gmItemSelect"></select></label><label class="is-qty"><span>${esc(t('itemQty'))}</span><input id="gmItemQty" type="number" min="1" step="1" value="1"></label><button type="button" class="stellar-gm-add-item" data-gm-add-item>${siteIcon(22,'is-add-item-icon')}${esc(t('addAttachment'))}</button></div><div id="gmItemMeta" class="stellar-gm-item-meta"></div><div id="gmAttachmentList" class="stellar-gm-attachment-list"></div></section><p class="stellar-gm-note">${esc(t('preview'))}</p><button type="button" class="stellar-gm-publish" data-gm-publish>${farmIcon('announcement')}${esc(t('publish'))}</button></section><section class="stellar-gm-history"><h3>${esc(t('recent'))}</h3><div id="gmMailHistory"></div></section></div></section>`;
+    modal.innerHTML=`<div class="stellar-mail-backdrop" data-gm-close></div><section class="stellar-mail-dialog stellar-gm-dialog" role="dialog" aria-modal="true"><header><div>${farmIcon('announcement','is-mail-title-icon')}<span><small>STELLAR DIARY</small><b>${esc(t('gmTitle'))}</b></span></div><button type="button" data-gm-close>${siteIcon(11,'is-close-icon')}</button></header><div class="stellar-gm-body"><section class="stellar-gm-form"><h3>${esc(t('sendMail'))}</h3><label class="is-wide"><span>${esc(t('mailTitle'))}</span><input type="text" maxlength="120" id="gmMailTitle"></label><label class="is-wide"><span>${esc(t('mailBody'))}</span><textarea maxlength="6000" rows="7" id="gmMailBody"></textarea></label><div class="stellar-gm-grid"><label><span>${esc(t('mailType'))}</span><select id="gmMailType"><option value="announcement">${esc(t('announcement'))}</option><option value="reward">${esc(t('reward'))}</option></select></label><label><span>${esc(t('audience'))}</span><select id="gmMailAudience"><option value="all">${esc(t('allPlayers'))}</option><option value="user">${esc(t('onePlayer'))}</option></select></label><label id="gmTargetWrap" class="stellar-gm-target-wrap" hidden><span>${esc(t('targetUid'))}</span><span class="stellar-gm-uid-line"><input type="text" id="gmTargetUid" placeholder="00000000-0000-0000-0000-000000000000"><button type="button" data-gm-verify-uid>${esc(t('verifyUid'))}</button></span><small id="gmTargetStatus" class="stellar-gm-target-status"></small></label><label class="stellar-gm-expiry"><span>${esc(t('expiry'))}</span><select id="gmExpiry"><option value="0">${esc(t('forever'))}</option><option value="7">${esc(t('days7'))}</option><option value="14">${esc(t('days14'))}</option><option value="30">${esc(t('days30'))}</option></select><small id="gmExpiryHint" class="stellar-gm-expiry-hint"></small></label></div><h4>${esc(t('rewards'))}</h4><section class="stellar-gm-item-builder"><div class="stellar-gm-item-controls"><label><span>${esc(t('itemCategory'))}</span><select id="gmItemCategory">${gmCategoryOptions()}</select></label><label class="is-item-select"><span>${esc(t('itemSelect'))}</span><select id="gmItemSelect"></select></label><label class="is-qty"><span>${esc(t('itemQty'))}</span><input id="gmItemQty" type="number" min="1" step="1" value="1"></label><button type="button" class="stellar-gm-add-item" data-gm-add-item>${siteIcon(22,'is-add-item-icon')}${esc(t('addAttachment'))}</button></div><div id="gmItemMeta" class="stellar-gm-item-meta"></div><div id="gmAttachmentList" class="stellar-gm-attachment-list"></div></section><p class="stellar-gm-note">${esc(t('preview'))}</p><button type="button" class="stellar-gm-publish" data-gm-publish>${farmIcon('announcement')}${esc(t('publish'))}</button></section><section class="stellar-gm-history"><h3>${esc(t('recent'))}</h3><div id="gmMailHistory"></div></section></div></section>`;
     document.body.appendChild(modal);
-    renderGmItemSelect(); renderGmAttachments();
+    renderGmItemSelect(); renderGmAttachments(); updateGmExpiryHint();
   }
 
   async function loadGmHistory() {
     const host=document.getElementById('gmMailHistory'); if(!host)return; host.innerHTML=`<div class="stellar-mail-loading">${esc(t('loading'))}</div>`;
     try{
       const {data,error}=await client().rpc('gm_list_system_mail_v1',{p_limit:30}); if(error)throw error;
-      const rows=Array.isArray(data)?data:[]; host.innerHTML=rows.length?rows.map(r=>`<article class="stellar-gm-history-row">${farmIcon(r.mail_type==='reward'?'attachment':'announcement')}<span><b>#${r.id} · ${esc(r.title)}</b><small>${esc(r.audience_type==='all'?t('allPlayers'):`${t('onePlayer')} ${r.target_user_id||''}`)} · ${esc(formatDate(r.created_at))}</small>${rewardMarkup(r.rewards,true)}</span></article>`).join(''):`<div class="stellar-mail-empty">${esc(t('noHistory'))}</div>`;
+      const rows=Array.isArray(data)?data:[]; host.innerHTML=rows.length?rows.map(r=>`<article class="stellar-gm-history-row">${farmIcon(r.mail_type==='reward'?'attachment':'announcement')}<span><b>#${r.id} · ${esc(r.title)}</b><small>${esc(r.audience_type==='all'?t('allPlayers'):`${t('onePlayer')} ${r.target_user_id||''}`)} · ${esc(formatDate(r.created_at))} ${expiryBadgeMarkup(r,'is-gm-history-expiry')}</small>${rewardMarkup(r.rewards,true)}</span></article>`).join(''):`<div class="stellar-mail-empty">${esc(t('noHistory'))}</div>`;
     }catch(error){host.innerHTML=`<div class="stellar-mail-empty">${esc(String(error?.message||error))}</div>`;}
   }
 
@@ -346,7 +401,7 @@
     }catch(error){alert(String(error?.message||error));}finally{busy=false;}
   }
 
-  async function openGm() { if(!isGm)return; await loadItemCatalog(); ensureGmModal(); renderGmItemSelect(); renderGmAttachments(); document.getElementById('stellarGmModal').hidden=false; document.body.classList.add('stellar-mail-open'); loadGmHistory(); }
+  async function openGm() { if(!isGm)return; await loadItemCatalog(); ensureGmModal(); renderGmItemSelect(); renderGmAttachments(); updateGmExpiryHint(); document.getElementById('stellarGmModal').hidden=false; document.body.classList.add('stellar-mail-open'); loadGmHistory(); }
   function closeGm() { const m=document.getElementById('stellarGmModal'); if(m)m.hidden=true; document.body.classList.remove('stellar-mail-open'); }
 
   function handleClick(event) {
@@ -357,6 +412,7 @@
     const filter=event.target.closest('[data-mail-filter]'); if(filter){activeFilter=filter.dataset.mailFilter;selectedMailId=null;renderMailbox();return;}
     const row=event.target.closest('[data-mail-id]'); if(row){selectedMailId=Number(row.dataset.mailId);renderMailbox();return;}
     const claim=event.target.closest('[data-mail-claim]'); if(claim){claimMail(Number(claim.dataset.mailClaim));return;}
+    const del=event.target.closest('[data-mail-delete]'); if(del){deleteMail(Number(del.dataset.mailDelete));return;}
     if(event.target.closest('[data-mail-claim-all]')){claimAll();return;}
     if(event.target.closest('[data-gm-verify-uid]')){verifyGmTarget();return;}
     if(event.target.closest('[data-gm-add-item]')){addGmAttachment();return;}
@@ -369,6 +425,7 @@
     if(event.target.matches('#gmTargetUid')){gmTargetVerified=null;const host=document.getElementById('gmTargetStatus');if(host){host.textContent='';host.className='stellar-gm-target-status';}}
     if(event.target.matches('#gmItemCategory')){renderGmItemSelect();}
     if(event.target.matches('#gmItemSelect')){renderGmItemMeta();}
+    if(event.target.matches('#gmExpiry')){updateGmExpiryHint();}
   }
 
   async function refreshIdentity() {
@@ -379,7 +436,7 @@
     console.info(`[Stellar Mail] build ${BUILD}`);
     ensureShell(); document.addEventListener('click',handleClick); document.addEventListener('change',handleChange);
     window.addEventListener('stellar:auth-state',()=>setTimeout(refreshIdentity,60));
-    window.addEventListener('stellar:language-changed',()=>{ensureHeaderButtons(); if(document.getElementById('stellarGmModal')){renderGmItemSelect();renderGmAttachments();}});
+    window.addEventListener('stellar:language-changed',()=>{ensureHeaderButtons(); if(document.getElementById('stellarGmModal')){renderGmItemSelect();renderGmAttachments();updateGmExpiryHint();}});
     refreshIdentity();
     pollTimer=setInterval(()=>{if(!document.hidden)refreshUnread();},POLL_MS);
   }
