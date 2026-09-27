@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const FARM_BUILD = '0.14.5.3.3';
+  const FARM_BUILD = '0.15.0';
   const STORAGE_KEY = 'xingchen-farm-v1';
   const VERSION = 1;
   const PLOT_COUNT = 20;
@@ -94,7 +94,7 @@
     Object.freeze({id:'npc_qinghe', name:'青禾', sex:'male', icon:'🌿', level:20, coins:7250, titleId:'farm_master', trait:'资深农友', note:'经营很久的老农友，农田里经常同时种着不同作物。', favorites:['grape','pumpkin','corn','strawberry'], helpRate:.50, visitRate:.36})
   ]);
 
-  // V0.14.5.3.3 — Stellar Station now has two independent platforms. Both trains are
+  // V0.15.0 — Stellar Station now has two independent platforms. Both trains are
   // available after the 00:00 daily reset, so players may freely choose the better
   // multiplier first. A dispatched train pays immediately; its platform returns
   // after a deterministic 4–6 hour cooldown. Up to three extra trains may arrive
@@ -184,7 +184,7 @@
     {id:'farmer', name:'农夫', icon:'🌾', desc:'累计收成 10 格成熟作物。'},
     {id:'skilled_farmer', name:'熟练农夫', icon:'🧺', desc:'累计收成 50 格成熟作物。'},
     {id:'harvest_master', name:'丰收达人', icon:'🌻', desc:'累计收成 100 格成熟作物。'},
-    {id:'farm_master', name:'农场达人', icon:'🏡', desc:'累计收成 500 格成熟作物。'},
+    {id:'farm_master', name:'农场达人', icon:'farm-expert', desc:'累计收成 500 格成熟作物。'},
     {id:'legendary_farmer', name:'传奇农夫', icon:'⭐', desc:'累计收成 1000 格成熟作物。'},
     {id:'small_landlord', name:'小地主', icon:'🪙', desc:'农场曾经持有 1000 金币。'},
     {id:'ten_thousand', name:'万元户', icon:'💰', desc:'农场曾经持有 10000 金币。'},
@@ -351,7 +351,7 @@
     if (!item) return '';
     const pos = eventSpritePosition(item.eventCell);
     const signCopy = item.id === 'sign'
-      ? `<span class="farm-decor-sign-copy"><b>${escapeHtml(friendName || (window.XingchenPlayer?.getProfile?.()?.name || '我的'))}的农场</b><small>${titleById(titleId || state?.titles?.equipped || 'newbie').icon}【${escapeHtml(titleById(titleId || state?.titles?.equipped || 'newbie').name)}】</small></span>`
+      ? `<span class="farm-decor-sign-copy"><b>${escapeHtml(friendName || (window.XingchenPlayer?.getProfile?.()?.name || '我的'))}的农场</b><small>${uiIconMarkup(titleUiIconKey(titleById(titleId || state?.titles?.equipped || 'newbie').id),'is-sign-title-ui')}【${escapeHtml(titleById(titleId || state?.titles?.equipped || 'newbie').name)}】</small></span>`
       : '';
     return `<span class="farm-decoration-art farm-event-sprite" aria-hidden="true" style="--event-x:${pos.x}%;--event-y:${pos.y}%;--decor-scale:${Number(item.scale) || 1}"></span>${signCopy}`;
   }
@@ -951,7 +951,7 @@
       renderTaskDot();
     }
     openModal({
-      icon:npc.icon || '🌿',
+      icon:'farm-expert',
       eyebrow:'NPC FARM VISIT',
       title:`${npc.name}的农场`,
       subtitle:`${npc.trait} · NPC 会自己经营农场；成熟作物每个周期可限量偷取，也可能来帮你除虫。`,
@@ -1052,7 +1052,7 @@
     if (mutationUserId()) queuePendingOp(op);
     saveState();
     renderAll();
-    toast(`🥷 偷到 ${crop.icon}${crop.name} ×1`, `${npc.name} NPC 这格仍至少保留 1 个；本时段已偷 ${Math.min(NPC_STEAL_CAP_PER_WINDOW, used + 1)}/${NPC_STEAL_CAP_PER_WINDOW} 格。`, 'harvest');
+    toast(`🥷 偷到 ${crop.name} ×1`, `${npc.name} NPC 这格仍至少保留 1 个；本时段已偷 ${Math.min(NPC_STEAL_CAP_PER_WINDOW, used + 1)}/${NPC_STEAL_CAP_PER_WINDOW} 格。`, 'harvest');
     await new Promise(resolve => setTimeout(resolve, 220));
     visitNpcFarm(npc.id);
   }
@@ -1071,8 +1071,92 @@
 
   function currentPestChance() { return Number(currentFarmEvent()?.pestChance ?? BASE_PEST_CHANCE); }
 
+  // V0.15.0 — unified 8×6 farm UI icon atlas.  One image is shared by
+  // desktop and mobile; CSS controls only display size, so the artwork never
+  // diverges between breakpoints.
+  const UI_ICON_INDEX = Object.freeze({
+    coin:1, exp:2, cloud:3, lock:4, cooldown:5, 'reward-box':6,
+    ranking:7, shop:8, bag:9, friends:10, task:11, achievement:12,
+    title:13, 'daily-task':14, success:15, warning:16, refresh:17, claim:18,
+    cooperate:19, visit:20, steal:21, 'add-friend':22, notification:23,
+    sunny:24, rainy:25, storm:26, 'newbie-farmer':27, 'farm-expert':28,
+    'harvest-expert':29, wealth:30, 'farm-rich':31, 'mystery-master':32,
+    rank1:33, rank2:34, rank3:35,
+    'seed-carrot':36, 'seed-wheat':37, 'seed-corn':38, 'seed-tomato':39,
+    'seed-strawberry':40, 'seed-pumpkin':41, 'seed-grape':42, 'seed-starfruit':43
+  });
+  const SEED_UI_ICON = Object.freeze({
+    carrot:'seed-carrot', wheat:'seed-wheat', corn:'seed-corn', tomato:'seed-tomato',
+    strawberry:'seed-strawberry', pumpkin:'seed-pumpkin', grape:'seed-grape', starfruit:'seed-starfruit'
+  });
+  const TITLE_UI_ICON = Object.freeze({
+    newbie:'newbie-farmer', novice_farmer:'newbie-farmer', farmer:'harvest-expert',
+    skilled_farmer:'harvest-expert', harvest_master:'harvest-expert', farm_master:'farm-expert',
+    legendary_farmer:'exp', small_landlord:'coin', ten_thousand:'wealth', farm_tycoon:'farm-rich',
+    stellar_landlord:'exp', sowing_hand:'newbie-farmer', blindbox_fan:'reward-box',
+    blindbox_master:'mystery-master', steal_rookie:'steal', steal_shadow:'steal', steal_master:'steal',
+    senior_farmer:'farm-expert', stellar_host:'exp', social_farmer:'cooperate', popular_host:'cooperate'
+  });
+  const GROUP_UI_ICON = Object.freeze({wealth:'coin',harvest:'harvest-expert',plant:'newbie-farmer',blind:'mystery-master',steal:'steal',growth:'exp',social:'cooperate'});
+  const EVENT_UI_ICON = Object.freeze({sunny:'sunny',harvest:'harvest-expert',rainy:'rainy',storm:'storm',merchant:'shop'});
+  const UI_EMOJI_ICON = Object.freeze({
+    '🪙':'coin','⭐':'exp','🌟':'exp','☁':'cloud','☁️':'cloud','🔒':'lock','⏳':'cooldown',
+    '🎁':'reward-box','🏆':'ranking','🛒':'shop','🎒':'bag','👥':'friends','📜':'task',
+    '🏅':'achievement','🏷️':'title','✅':'success','⚠️':'warning','🔄':'refresh','🤝':'cooperate',
+    '👣':'visit','🥷':'steal','🔔':'notification','🌧️':'rainy','⛈️':'storm','👑':'farm-rich',
+    '🎀':'mystery-master','🥇':'rank1','🥈':'rank2','🥉':'rank3','🏡':'farm-expert','💰':'wealth',
+    '☀️':'sunny','✓':'success','👋':'friends','🌿':'harvest-expert','🌱':'newbie-farmer','🧺':'harvest-expert','🐛':'warning','🪲':'warning','💧':'rainy','✨':'exp','🎉':'reward-box'
+  });
+
+  function uiIconKeyForIndex(index) {
+    return Object.keys(UI_ICON_INDEX).find(key => UI_ICON_INDEX[key] === Number(index)) || '';
+  }
+  function uiIconMarkup(key, className='', label='') {
+    const safeKey = UI_ICON_INDEX[key] ? key : 'newbie-farmer';
+    const aria = label ? ` role="img" aria-label="${escapeHtml(label)}"` : ' aria-hidden="true"';
+    return `<span class="farm-ui-icon ${escapeHtml(className)}" data-ui-icon="${safeKey}"${aria}></span>`;
+  }
+  function trainIconMarkup(className='') {
+    return `<img class="farm-inline-train-icon ${escapeHtml(className)}" src="../images/farm/train-engine.png?v=0.15.0" alt="" aria-hidden="true">`;
+  }
+  function uiTextMarkup(value) {
+    let text = escapeHtml(value ?? '');
+    for (const [emoji,key] of Object.entries(UI_EMOJI_ICON).sort((a,b) => b[0].length - a[0].length)) {
+      text = text.split(emoji).join(uiIconMarkup(key,'is-inline-ui'));
+    }
+    text = text.split('🚂').join(trainIconMarkup('is-inline-train'));
+    text = text.split('🚃').join(trainIconMarkup('is-inline-train'));
+    text = text.split('🚉').join(trainIconMarkup('is-inline-train'));
+    return text;
+  }
+  function titleUiIconKey(titleId) { return TITLE_UI_ICON[titleId] || 'title'; }
+  function groupUiIconKey(groupId) { return GROUP_UI_ICON[groupId] || 'achievement'; }
+  function eventUiIconKey(eventId) { return EVENT_UI_ICON[eventId] || 'sunny'; }
+
+  function rewardTextMarkup(value) {
+    let text = escapeHtml(value ?? '');
+    const seedNames = {
+      '红萝卜种子':'seed-carrot','小麦种子':'seed-wheat','玉米种子':'seed-corn','番茄种子':'seed-tomato',
+      '草莓种子':'seed-strawberry','南瓜种子':'seed-pumpkin','葡萄种子':'seed-grape','星辰果种子':'seed-starfruit'
+    };
+    for (const [name,key] of Object.entries(seedNames)) text = text.split(name).join(`${uiIconMarkup(key,'is-reward-ui')}<span>${name}</span>`);
+    text = text.split('金币').join(`${uiIconMarkup('coin','is-reward-ui')}<span>金币</span>`);
+    text = text.split('EXP').join(`${uiIconMarkup('exp','is-reward-ui')}<span>EXP</span>`);
+    text = text.split('蔬果盲盒').join(`${uiIconMarkup('reward-box','is-reward-ui')}<span>蔬果盲盒</span>`);
+    text = text.replace(/称号【/g, `${uiIconMarkup('title','is-reward-ui')}称号【`);
+    return `<span class="farm-reward-inline">${text}</span>`;
+  }
+
+  function produceIconMarkup(crop, className='') {
+    if (!crop) return uiIconMarkup('harvest-expert', className);
+    if (crop.isMystery || crop.id === 'mystery') return uiIconMarkup('reward-box', className, '蔬果盲盒');
+    const sprite = cropSpritePosition(crop.id, 1);
+    if (!sprite) return uiIconMarkup('harvest-expert', className);
+    return `<span class="farm-produce-ui ${escapeHtml(className)}" data-crop-sheet="${sprite.sheet}" style="--produce-x:${sprite.x}%;--produce-y:${sprite.y}%;--produce-scale:${sprite.scale};--produce-shift-x:${sprite.shiftX}px;--produce-shift-y:${sprite.shiftY}px;--produce-lift:${sprite.lift}px"></span>`;
+  }
+
   function seedIconMarkup(crop) {
-    return crop?.isMystery ? itemSpriteMarkup(3, 'is-seed-icon', '蔬果盲盒') : `<span class="farm-seed-emoji">${escapeHtml(crop?.icon || '🌱')}</span>`;
+    return crop?.isMystery ? itemSpriteMarkup(3, 'is-seed-icon', '蔬果盲盒') : uiIconMarkup(SEED_UI_ICON[crop?.id] || 'newbie-farmer', 'is-seed-ui', `${crop?.name || '作物'}种子`);
   }
   const seedItems = () => PLANTABLES;
   const titleById = (id) => TITLES.find(item => item.id === id) || TITLES[0];
@@ -1146,7 +1230,8 @@
   function announceFarmEventChange(previousKey, nextKey) {
     if (!previousKey || !nextKey || previousKey === nextKey) return;
     const event = currentFarmEvent(nextKey);
-    toast(`${event.icon} ${event.name}来临`, `${farmEventSlotWindow(nextKey)} · ${event.note}`);
+    const eventLead = event.id === 'sunny' ? '☀️' : event.id === 'harvest' ? '🌿' : event.id === 'rainy' ? '🌧️' : event.id === 'storm' ? '⛈️' : '🛒';
+    toast(`${eventLead} ${event.name}来临`, `${farmEventSlotWindow(nextKey)} · ${event.note}`);
     if (activePanel === 'merchant') {
       closeModal();
       toast('🛒 商人时段已更新', '折扣内容已经刷新，请重新点击商人查看。');
@@ -1721,7 +1806,7 @@
     const el = $('farmCloudStatus');
     if (!el) return;
     el.className = `farm-cloud-status is-${mode}`;
-    el.textContent = text;
+    el.innerHTML = `${uiIconMarkup('cloud','is-cloud-ui')}${escapeHtml(String(text).replace(/^☁️?\s*/,''))}`;
   }
 
   function cloudClient() {
@@ -1752,7 +1837,7 @@
   }
 
   function coinInline(value, {label=false} = {}) {
-    return `<span class="farm-coin-inline"><i class="farm-coin-mini" aria-hidden="true"></i><span>${formatNumber(value)}</span>${label ? '<small>金币</small>' : ''}</span>`;
+    return `<span class="farm-coin-inline">${uiIconMarkup('coin','farm-coin-mini')}<span>${formatNumber(value)}</span>${label ? '<small>金币</small>' : ''}</span>`;
   }
 
   function scheduleCloudPush() {
@@ -2298,7 +2383,7 @@
 
         if (index >= unlocked) {
           cls += ' is-locked';
-          content = `<span class="farm-soil"><i>🔒</i><small>Lv.${unlockLevelForPlot(index)}</small></span>`;
+          content = `<span class="farm-soil">${uiIconMarkup('lock','is-plot-lock-ui')}<small>Lv.${unlockLevelForPlot(index)}</small></span>`;
         } else if (!plot.cropId || !cropById(plot.cropId)) {
           cls += ' is-empty';
           content = '<span class="farm-soil"><i>·</i><small>空地</small></span>';
@@ -2360,11 +2445,11 @@
     const friendTitle = titleById(payload?.title_id || 'newbie');
     return `
       <section class="farm-visit-summary ${npc ? 'is-npc-farm' : ''}">
-        <div><b>${name}${sex ? ` <i>${sex}</i>` : ''}${npc ? ' <span class="farm-npc-badge">NPC</span>' : ''}</b><small>Lv.${formatNumber(friendLevel)} · <span class="farm-public-title">${friendTitle.icon}【${escapeHtml(friendTitle.name)}】</span></small></div>
+        <div><b>${name}${sex ? ` <i>${sex}</i>` : ''}${npc ? ' <span class="farm-npc-badge">NPC</span>' : ''}</b><small>Lv.${formatNumber(friendLevel)} · <span class="farm-public-title">${uiIconMarkup(titleUiIconKey(friendTitle.id),'is-public-title-ui')}【${escapeHtml(friendTitle.name)}】</span></small></div>
         <span>${coinInline(payload?.coins || 0, {label:true})}</span>
         <em>成熟 ${matureCount} 格 · ${npc ? `可偷 ${stealableCount} 格 · 本时段已偷 ${npcStealsInWindow(friendId)}/${NPC_STEAL_CAP_PER_WINDOW}` : `可偷 ${stealableCount} 格 · 虫害 ${pestCount} 格`}</em>
       </section>
-      <div class="farm-steal-rule">${npc ? '🥷 NPC 农友不参加排行榜、也不会偷你的菜；成熟作物每个生长周期只能偷 1 次，每位 NPC 每 4 小时最多偷 2 格，地主仍保底 1 个。' : '🥷 成熟作物每位好友每轮可偷 1 个；发现 🐛 虫害时，也可以帮好友免费除虫并有机会获得小奖励。'}</div>
+      <div class="farm-steal-rule">${npc ? `${uiIconMarkup('steal','is-inline-ui')} NPC 农友不参加排行榜、也不会偷你的菜；成熟作物每个生长周期只能偷 1 次，每位 NPC 每 4 小时最多偷 2 格，地主仍保底 1 个。` : `${uiIconMarkup('steal','is-inline-ui')} 成熟作物每位好友每轮可偷 1 个；发现虫害时，也可以帮好友免费除虫并有机会获得小奖励。`}</div>
       <div class="farm-visit-scene">
         ${renderFriendDecorations(payload)}
         <div class="farm-visit-field">${tiles.join('')}</div>
@@ -2378,7 +2463,7 @@
     if (!sb || !user?.id || !friendId) return;
 
     openModal({
-      icon:'🏡', eyebrow:'FARM VISIT', title:'正在前往好友农场',
+      icon:'farm-expert', eyebrow:'FARM VISIT', title:'正在前往好友农场',
       subtitle:'正在读取好友最新的云端农场状态。',
       body:'<div class="farm-network-state"><span class="farm-spinner"></span><b>沿着小路走过去…</b></div>'
     });
@@ -2394,7 +2479,7 @@
         const message = payload.reason === 'not_friend' ? '只有已经互相确认的好友才能拜访农场。'
           : payload.reason === 'no_farm' ? '这位好友还没有建立云端农场。'
           : '暂时无法进入这座农场。';
-        openModal({icon:'🏡', eyebrow:'FARM VISIT', title:'暂时无法拜访', subtitle:message, body:'<div class="farm-visit-actions"><button type="button" class="farm-friend-action" data-open-panel="friends">返回好友列表</button></div>'});
+        openModal({icon:'farm-expert', eyebrow:'FARM VISIT', title:'暂时无法拜访', subtitle:message, body:'<div class="farm-visit-actions"><button type="button" class="farm-friend-action" data-open-panel="friends">返回好友列表</button></div>'});
         return;
       }
       if (bumpDaily('visit', 1, friendId)) {
@@ -2402,7 +2487,7 @@
         renderTaskDot();
       }
       openModal({
-        icon:'🏡', eyebrow:'FARM VISIT',
+        icon:'farm-expert', eyebrow:'FARM VISIT',
         title:`${payload.display_name || '好友'}的农场`,
         subtitle:'看看好友最近种了什么；成熟作物可以偷菜，长虫的作物也能帮忙处理。',
         body:renderFriendFarmVisit(payload)
@@ -2411,7 +2496,7 @@
       const detail = multiplayerMissing(error)
         ? '请先执行 20260926_015_farm_weather_merchant_pests.sql。'
         : '好友农场暂时读取失败，请稍后再试。';
-      openModal({icon:'🏡', eyebrow:'FARM VISIT', title:'拜访失败', subtitle:detail, body:'<div class="farm-visit-actions"><button type="button" class="farm-friend-action" data-open-panel="friends">返回好友列表</button></div>'});
+      openModal({icon:'farm-expert', eyebrow:'FARM VISIT', title:'拜访失败', subtitle:detail, body:'<div class="farm-visit-actions"><button type="button" class="farm-friend-action" data-open-panel="friends">返回好友列表</button></div>'});
     }
   }
 
@@ -2458,7 +2543,7 @@
         // before its next local mutation.
         await pullCloudState({preferRemote:true});
       }
-      toast(`🥷 偷到 ${crop.icon}${crop.name} ×1`, `好友这格至少还保留 ${Number(payload.owner_remaining) || 1} 个。`, 'harvest');
+      toast(`🥷 偷到 ${crop.name} ×1`, `好友这格至少还保留 ${Number(payload.owner_remaining) || 1} 个。`, 'harvest');
       await new Promise(resolve => setTimeout(resolve, 260));
       await visitFriend(friendId, {logVisit:false});
     } catch (error) {
@@ -2547,9 +2632,9 @@
     const overlay = document.createElement('div');
     overlay.id = 'farmLevelUpOverlay';
     overlay.className = 'farm-level-up-overlay';
-    const landText = item.newPlots?.length ? `<span>🌱 新农地 ×${item.newPlots.length}</span>` : '';
-    const cropText = item.crops?.length ? `<span>🌾 解锁 ${item.crops.map(c => escapeHtml(c.name)).join('、')}</span>` : '';
-    overlay.innerHTML = `<div class="farm-level-up-card"><small>STELLAR FARM</small><b>LEVEL UP!</b><strong>Lv.${item.from} <i>→</i> Lv.${item.to}</strong><div>${landText}${cropText || '<span>✨ 农场能力提升</span>'}</div></div><i class="farm-level-star s1">✦</i><i class="farm-level-star s2">✦</i><i class="farm-level-star s3">✧</i><i class="farm-level-leaf l1">🍃</i><i class="farm-level-leaf l2">🍃</i>`;
+    const landText = item.newPlots?.length ? `<span>${uiIconMarkup('newbie-farmer','is-inline-ui')} 新农地 ×${item.newPlots.length}</span>` : '';
+    const cropText = item.crops?.length ? `<span>${uiIconMarkup('harvest-expert','is-inline-ui')} 解锁 ${item.crops.map(c => escapeHtml(c.name)).join('、')}</span>` : '';
+    overlay.innerHTML = `<div class="farm-level-up-card"><small>STELLAR FARM</small><b>LEVEL UP!</b><strong>Lv.${item.from} <i>→</i> Lv.${item.to}</strong><div>${landText}${cropText || `<span>${uiIconMarkup('exp','is-inline-ui')} 农场能力提升</span>`}</div></div><i class="farm-level-star s1">✦</i><i class="farm-level-star s2">✦</i><i class="farm-level-star s3">✧</i><i class="farm-level-leaf l1">🍃</i><i class="farm-level-leaf l2">🍃</i>`;
     document.body.appendChild(overlay);
     requestAnimationFrame(() => overlay.classList.add('is-visible'));
     pulseExp();
@@ -2665,7 +2750,7 @@
     if (sprite) {
       return `<span class="farm-crop-visual is-sprite" aria-hidden="true" data-crop-sprite="${escapeHtml(shown.id)}" data-crop-sheet="${sprite.sheet}" style="--crop-x:${sprite.x}%;--crop-y:${sprite.y}%;--crop-scale:${sprite.scale};--crop-lift:${sprite.lift}px;--crop-shift-x:${sprite.shiftX}px;--crop-shift-y:${sprite.shiftY}px;--crop-anchor-x:${sprite.anchorX}%;--crop-anchor-y:${sprite.anchorY}%"></span>`;
     }
-    return `<span class="farm-crop-visual" aria-hidden="true">${escapeHtml(shown?.icon || '🌱')}</span>`;
+    return uiIconMarkup('newbie-farmer','farm-crop-visual is-fallback-crop-ui');
   }
 
   function applyCropVisual(el, shown, progress) {
@@ -2708,7 +2793,9 @@
     el.style.removeProperty('--crop-shift-y');
     el.style.removeProperty('--crop-anchor-x');
     el.style.removeProperty('--crop-anchor-y');
-    el.textContent = shown?.icon || '🌱';
+    el.className = 'farm-ui-icon farm-crop-visual is-fallback-crop-ui';
+    el.dataset.uiIcon = 'newbie-farmer';
+    el.textContent = '';
   }
 
   function renderDailyEventScene() {
@@ -2716,7 +2803,7 @@
     const badge = $('farmDailyEvent');
     if (badge) {
       badge.className = `farm-daily-event is-${event.id}`;
-      badge.innerHTML = `<b>${event.icon} ${escapeHtml(event.name)}<span class="farm-event-badge-countdown" data-farm-event-countdown>剩 ${formatFarmEventCountdown()}</span></b><small>${escapeHtml(event.note)}<span class="farm-event-window">本时段 ${escapeHtml(farmEventSlotWindow())} · <span data-farm-event-countdown>剩 ${formatFarmEventCountdown()}</span></span></small>`;
+      badge.innerHTML = `<b>${uiIconMarkup(eventUiIconKey(event.id),'is-event-ui')} ${escapeHtml(event.name)}<span class="farm-event-badge-countdown" data-farm-event-countdown>剩 ${formatFarmEventCountdown()}</span></b><small>${escapeHtml(event.note)}<span class="farm-event-window">本时段 ${escapeHtml(farmEventSlotWindow())} · <span data-farm-event-countdown>剩 ${formatFarmEventCountdown()}</span></span></small>`;
     }
     const merchant = $('farmMerchantNpc');
     if (merchant) {
@@ -2748,9 +2835,9 @@
     const cards = discountIds.map(id => {
       const crop = cropById(id);
       const price = Math.max(1, Math.floor(crop.seedPrice * .9));
-      return `<article class="farm-merchant-card"><span class="farm-seed-emoji">${escapeHtml(crop.icon)}</span><div><b>${escapeHtml(crop.name)}种子</b><small>原价 ${crop.seedPrice} · 本时段 9 折</small></div><strong>${price} 金币/包</strong><button type="button" data-merchant-buy="${escapeHtml(crop.id)}" data-qty="1">买 1</button><button type="button" data-merchant-buy="${escapeHtml(crop.id)}" data-qty="5">买 5</button></article>`;
+      return `<article class="farm-merchant-card"><span class="farm-seed-icon">${seedIconMarkup(crop)}</span><div><b>${escapeHtml(crop.name)}种子</b><small>原价 ${crop.seedPrice} · 本时段 9 折</small></div><strong>${uiIconMarkup('coin','is-meta-ui')} ${price} /包</strong><button type="button" data-merchant-buy="${escapeHtml(crop.id)}" data-qty="1">买 1</button><button type="button" data-merchant-buy="${escapeHtml(crop.id)}" data-qty="5">买 5</button></article>`;
     }).join('');
-    openModal({icon:'🛒', eyebrow:'TRAVELING MERCHANT', title:'种子商人来访', subtitle:`本时段 ${farmEventSlotWindow()} · 随机两种已解锁种子 9 折`, body:`<div class="farm-merchant-intro">${eventSpriteMarkup(3,'is-merchant-face')}<p>“今天路过星辰农场，带了两种便宜种子。要不要补一点库存？”<span class="farm-merchant-remaining" data-farm-event-countdown>剩 ${formatFarmEventCountdown()}</span></p></div><div class="farm-merchant-grid">${cards || '<p class="farm-empty-state">目前还没有可购买的折扣种子。</p>'}</div>`});
+    openModal({icon:'shop', eyebrow:'TRAVELING MERCHANT', title:'种子商人来访', subtitle:`本时段 ${farmEventSlotWindow()} · 随机两种已解锁种子 9 折`, body:`<div class="farm-merchant-intro">${eventSpriteMarkup(3,'is-merchant-face')}<p>“今天路过星辰农场，带了两种便宜种子。要不要补一点库存？”<span class="farm-merchant-remaining" data-farm-event-countdown>剩 ${formatFarmEventCountdown()}</span></p></div><div class="farm-merchant-grid">${cards || '<p class="farm-empty-state">目前还没有可购买的折扣种子。</p>'}</div>`});
     updateFarmEventRuntimeLabels();
   }
 
@@ -2803,7 +2890,7 @@
         status.textContent = `返程 ${formatTrainWait(nextAt - Date.now())}`;
         station.setAttribute('aria-label', '打开星辰车站，列车返程中');
       } else {
-        status.textContent = '今日加班已满 ✓';
+        status.innerHTML = `${uiIconMarkup('success','is-station-status-ui')}<span>今日加班已满</span>`;
         station.setAttribute('aria-label', '打开星辰车站，今日额外班次已完成');
       }
     }
@@ -2815,7 +2902,7 @@
     const badge = $('farmEquippedTitle');
     if (badge) {
       const title = titleById(state.titles?.equipped || 'newbie');
-      badge.innerHTML = `<span>${title.icon}</span><b>【${escapeHtml(title.name)}】</b>`;
+      badge.innerHTML = `${uiIconMarkup(titleUiIconKey(title.id),'is-title-badge-ui')}<b>【${escapeHtml(title.name)}】</b>`;
       badge.setAttribute('aria-label', `目前称号：${title.name}，点击管理称号`);
     }
   }
@@ -2860,7 +2947,7 @@
           btn.classList.add('is-locked');
           btn.disabled = false;
           btn.setAttribute('aria-label', `第 ${index + 1} 格农地，Lv.${lvl} 解锁`);
-          btn.innerHTML = `<span class="farm-soil"><i>🔒</i><small>Lv.${lvl}</small></span>`;
+          btn.innerHTML = `<span class="farm-soil">${uiIconMarkup('lock','is-plot-lock-ui')}<small>Lv.${lvl}</small></span>`;
         } else if (!plot.cropId) {
           btn.classList.add('is-empty');
           btn.setAttribute('aria-label', `第 ${index + 1} 格空地，点击播种`);
@@ -2913,7 +3000,7 @@
       </button>`);
     }
     if (decorationMode) {
-      parts.push(`<div class="farm-decor-toolbar"><b>🏡 布置模式</b><span>点选发光位置来放置、替换或收回装饰</span><button type="button" data-decor-exit>完成</button></div>`);
+      parts.push(`<div class="farm-decor-toolbar"><b>${uiIconMarkup('farm-expert','is-heading-ui')} 布置模式</b><span>点选发光位置来放置、替换或收回装饰</span><button type="button" data-decor-exit>完成</button></div>`);
     }
     host.innerHTML = parts.join('');
     host.classList.toggle('is-editing', decorationMode);
@@ -2958,11 +3045,11 @@
       return `<button type="button" class="farm-decor-choice ${item.id === currentId ? 'is-current' : ''}" data-place-decor="${item.id}" data-decor-target-slot="${index}">
         ${eventSpriteMarkup(item.eventCell, 'is-decor-choice-art', item.name)}
         <span><b>${escapeHtml(item.name)}</b><small>${item.id === currentId ? '目前放在这个位置' : `可放置 ×${available}`}</small></span>
-        <em>${item.id === currentId ? '✓' : '放置'}</em>
+        <em>${item.id === currentId ? `${uiIconMarkup('success','is-button-ui')}<span>当前</span>` : '放置'}</em>
       </button>`;
     }).join('') : '<p class="farm-empty-state">目前没有可放置的装饰。可以先到商店购买。</p>';
     openModal({
-      icon:'🏡', eyebrow:`DECOR SLOT ${index + 1}`, title:current ? `调整「${current.name}」` : '选择装饰',
+      icon:'farm-expert', eyebrow:`DECOR SLOT ${index + 1}`, title:current ? `调整「${current.name}」` : '选择装饰',
       subtitle:'固定装饰位置能让电脑与手机版都维持稳定构图。',
       body:`<div class="farm-decor-choice-list">${choiceMarkup}</div><div class="farm-decor-slot-actions">${current ? `<button type="button" data-remove-decor="${index}">收回背包</button>` : ''}<button type="button" data-open-panel="shop" data-open-decor-shop>前往装饰商店</button></div>`
     });
@@ -3035,7 +3122,7 @@
           data-plant-crop="${crop.id}" data-plant-plot="${index}" ${unavailable ? 'disabled' : ''}>
           <span class="farm-seed-icon">${seedIconMarkup(crop)}</span>
           <span><b>${crop.name}${crop.isMystery ? '' : ''}</b><small>${levelLocked ? `Lv.${crop.unlockLevel} 解锁` : `拥有 ${owned} 包 · ${crop.isMystery ? '固定 4 小时 · 随机蔬果' : `${crop.growMinutes} 分钟成熟`}`}</small></span>
-          <em>${levelLocked ? '🔒' : `×${owned}`}</em>
+          <em>${levelLocked ? uiIconMarkup('lock','is-button-ui') : `×${owned}`}</em>
         </button>`;
     }).join('');
 
@@ -3105,7 +3192,7 @@
       : '会按照西北 → 东南顺序，把作物种进目前可用的空地。';
 
     openModal({
-      icon:crop.icon,
+      icon:crop.isMystery ? 'reward-box' : (SEED_UI_ICON[crop.id] || 'newbie-farmer'),
       eyebrow:'BATCH PLANT',
       title:`种植 ${crop.name}`,
       subtitle:`${fieldLabel} ${crop.isMystery ? '固定 4 小时后随机揭晓一种蔬果。' : `成熟时间约 ${crop.growMinutes} 分钟。`}`,
@@ -3132,7 +3219,7 @@
           </div>
 
           <div class="farm-plant-costline">
-            <span>${crop.icon} ${crop.name}</span>
+            <span>${seedIconMarkup(crop)} ${crop.name}</span>
             <b>需要种子 ×<span id="farmPlantSeedCost">${qty}</span></b>
           </div>
 
@@ -3215,7 +3302,7 @@
     saveState();
     if (cloudReady) await pushCloudState(true);
     renderAll();
-    toast(`${crop.icon} 已种下 ${crop.name} ×${chosen.length} 格`, crop.isMystery ? '4 小时后揭晓随机蔬果。' : `${crop.growMinutes} 分钟后回来看看。`);
+    toast(`🌱 已种下 ${crop.name} ×${chosen.length} 格`, crop.isMystery ? '4 小时后揭晓随机蔬果。' : `${crop.growMinutes} 分钟后回来看看。`);
   }
 
   function openCropStatus(index) {
@@ -3230,22 +3317,22 @@
       ? '蔬果盲盒固定成长 4 小时，成熟前不会揭晓结果；成熟后会随机变成一种蔬果，每盒收成 1 个。'
       : `这格作物正在成长，成熟后预计可收成 ${crop.yieldMin}～${crop.yieldMax} 个。`;
     openModal({
-      icon:shown.icon, eyebrow:`FIELD ${String(index + 1).padStart(2,'0')}`, title:`${shown.name} · ${stage.label}`,
+      iconHtml:produceIconMarkup(shown,'is-modal-produce-ui'), eyebrow:`FIELD ${String(index + 1).padStart(2,'0')}`, title:`${shown.name} · ${stage.label}`,
       subtitle:mysteryNote,
       body:`
         <div class="farm-crop-detail">
-          <div class="farm-crop-detail-icon">${shown.icon}</div>
+          <div class="farm-crop-detail-icon">${produceIconMarkup(shown,'is-crop-detail-produce-ui')}</div>
           <div class="farm-crop-detail-info">
             <b>剩余 ${formatDuration(remaining)}</b>
             <div class="farm-detail-progress"><i style="width:${Math.round(progress*100)}%"></i></div>
             <small>${crop.isMystery ? '固定 4 小时 · 成熟时揭晓' : `成熟时间 ${crop.growMinutes} 分钟`} · 收成 EXP +${crop.exp}</small>
           </div>
         </div>
-        ${crop.isMystery ? `<div class="farm-care-panel is-locked-care"><div class="farm-care-panel-head"><b>🎁 盲盒固定成长</b><span>固定 4 小时</span></div><p class="farm-soft-note">蔬果盲盒不受浇水与肥料加速影响，保持固定 4 小时后揭晓。</p></div>` : `<div class="farm-care-panel">
-          <div class="farm-care-panel-head"><b>🌿 农田照料</b><span>每轮作物可浇水 1 次、使用 1 包肥料</span></div>
+        ${crop.isMystery ? `<div class="farm-care-panel is-locked-care"><div class="farm-care-panel-head"><b>${uiIconMarkup('reward-box','is-heading-ui')} 盲盒固定成长</b><span>固定 4 小时</span></div><p class="farm-soft-note">蔬果盲盒不受浇水与肥料加速影响，保持固定 4 小时后揭晓。</p></div>` : `<div class="farm-care-panel">
+          <div class="farm-care-panel-head"><b>${uiIconMarkup('harvest-expert','is-heading-ui')} 农田照料</b><span>每轮作物可浇水 1 次、使用 1 包肥料</span></div>
           <div class="farm-care-current">
             <span>${plot.watered ? `${itemSpriteMarkup(10, 'is-inline-item')} 已浇水 · 时间 ×92%` : `${itemSpriteMarkup(9, 'is-inline-item')} 尚未浇水`}</span>
-            <span>${plot.fertilizerId ? `${itemSpriteMarkup(fertilizerById(plot.fertilizerId)?.statusCell || 11, 'is-inline-item')} ${escapeHtml(fertilizerById(plot.fertilizerId)?.name || '已施肥')}` : '🌱 尚未施肥'}</span>
+            <span>${plot.fertilizerId ? `${itemSpriteMarkup(fertilizerById(plot.fertilizerId)?.statusCell || 11, 'is-inline-item')} ${escapeHtml(fertilizerById(plot.fertilizerId)?.name || '已施肥')}` : `${uiIconMarkup('newbie-farmer','is-inline-ui')} 尚未施肥`}</span>
           </div>
           ${plot.hasPest ? `<div class="farm-pest-alert">${eventSpriteMarkup(5, 'is-inline-event')}<span><b>发现虫害</b><small>成熟前不处理会让这格收成少 1 个。</small></span><button type="button" data-debug-plot="${index}">${eventSpriteMarkup(6, 'is-inline-event')} 除虫</button></div>` : ''}
           <div class="farm-care-actions">
@@ -3450,7 +3537,7 @@
     saveState();
     renderAll();
     const summary = Object.entries(totals)
-      .map(([cropId, amount]) => { const crop = cropById(cropId); return `${crop?.icon || ''}${crop?.name || cropId} ×${amount}`; })
+      .map(([cropId, amount]) => { const crop = cropById(cropId); return `${crop?.name || cropId} ×${amount}`; })
       .join('、');
     toast(`🧺 一键收获完成 · ${ready.length} 格`, `${summary}${totalExp ? ` · EXP +${totalExp}` : ''}`, 'harvest');
   }
@@ -3471,7 +3558,7 @@
     saveState();
     renderAll();
     const reveal = crop.isMystery ? ` · 盲盒开出 ${result.crop.name}` : '';
-    toast(`${result.crop.icon} 收成 ${result.crop.name} ×${result.amount}`, `农场经验 +${earnedExp} EXP${reveal}`, 'harvest');
+    toast(`🧺 收成 ${result.crop.name} ×${result.amount}`, `农场经验 +${earnedExp} EXP${reveal}`, 'harvest');
   }
 
   function randomInt(min, max) {
@@ -3533,7 +3620,7 @@
     state.seeds[cropId] = (state.seeds[cropId] || 0) + qty;
     saveState();
     renderAll();
-    toast(`${crop.icon} 买到了 ${crop.isMystery ? crop.name : `${crop.name}种子`} ×${qty}`, `花费 ${cost} 金币。`);
+    toast(`🛒 买到了 ${crop.isMystery ? crop.name : `${crop.name}种子`} ×${qty}`, `花费 ${cost} 金币。`);
   }
 
   function buySupply(itemId, qty = 1) {
@@ -3629,7 +3716,7 @@
     const overlay = document.createElement('div');
     overlay.className = 'farm-train-load-confirm';
     overlay.innerHTML = `<div class="farm-train-load-card" role="dialog" aria-modal="true" aria-label="确认装箱">
-      <span class="farm-train-load-icon">${crop.icon}</span>
+      <span class="farm-train-load-icon">${produceIconMarkup(crop,'is-train-load-produce-ui')}</span>
       <div class="farm-train-load-copy"><small>第 ${Number(slot.index)+1} 月台 · 装箱确认</small><b>${escapeHtml(crop.name)} ${car.loaded} / ${car.required}</b><p>背包目前拥有 <strong>${owned}</strong> 个 · 本节还需要 <strong>${remaining}</strong> 个 · 本次可装 <strong>${amount}</strong> 个</p><em>${canConfirm ? '确认后会立即从背包扣除并装入车厢。' : `目前没有${escapeHtml(crop.name)}可装箱，先去农田收成后再回来。`}</em></div>
       <div class="farm-train-load-buttons"><button type="button" data-train-load-cancel>取消</button><button type="button" class="is-confirm" data-confirm-train-load data-train-slot-index="${Number(slot.index)}" data-train-load-index="${Number(carIndex)}" ${canConfirm ? '' : 'disabled'}>${canConfirm ? `确认装箱 ×${amount}` : '背包数量不足'}</button></div>
     </div>`;
@@ -3765,7 +3852,7 @@
     saveState();
     if (cloudReady) await pushCloudState(true);
     renderAll();
-    toast(`${title.icon} 称号已装备`, `现在显示为【${title.name}】。`, 'task');
+    toast(`🏷️ 称号已装备`, `现在显示为【${title.name}】。`, 'task');
   }
 
   async function claimTask(id) {
@@ -3840,12 +3927,12 @@
   function openPanel(panel) {
     activePanel = panel;
     const meta = {
-      shop:{icon:'🛒', eyebrow:'FARM SHOP', title:'农场商店', subtitle:'购买种子、农资与装饰品，让农场越来越有自己的样子。'},
-      bag:{icon:'🎒', eyebrow:'INVENTORY', title:'我的背包', subtitle:'管理种子、肥料、装饰与收成蔬果；也可以从这里进入农场布置模式。'},
-      tasks:{icon:'📜', eyebrow:'FARM QUEST', title:'任务与成就', subtitle:'完成每日农务、新手任务与长期成就，领取奖励并解锁专属称号。'},
-      ranking:{icon:'🏆', eyebrow:'RANKING', title:'农场排行榜', subtitle:'查看真实云端玩家的等级榜与金币榜，也可以直接发送好友申请。'},
-      friends:{icon:'👥', eyebrow:'FRIENDS', title:'农场好友', subtitle:'真人好友与 NPC 农友都在这里；NPC 不参加排行榜、不会偷你的菜，但你可以限量偷 NPC 的成熟作物。'},
-      train:{icon:'🚂', eyebrow:'STELLAR STATION', title:'星辰车站', subtitle:'每天 00:00 两个月台同时刷新，可自由挑选倍率；发车奖励立即入账，4～6 小时后还可能有加班列车返程。'}
+      shop:{icon:'shop', eyebrow:'FARM SHOP', title:'农场商店', subtitle:'购买种子、农资与装饰品，让农场越来越有自己的样子。'},
+      bag:{icon:'bag', eyebrow:'INVENTORY', title:'我的背包', subtitle:'管理种子、肥料、装饰与收成蔬果；也可以从这里进入农场布置模式。'},
+      tasks:{icon:'task', eyebrow:'FARM QUEST', title:'任务与成就', subtitle:'完成每日农务、新手任务与长期成就，领取奖励并解锁专属称号。'},
+      ranking:{icon:'ranking', eyebrow:'RANKING', title:'农场排行榜', subtitle:'查看真实云端玩家的等级榜与金币榜，也可以直接发送好友申请。'},
+      friends:{icon:'friends', eyebrow:'FRIENDS', title:'农场好友', subtitle:'真人好友与 NPC 农友都在这里；NPC 不参加排行榜、不会偷你的菜，但你可以限量偷 NPC 的成熟作物。'},
+      train:{icon:'train', eyebrow:'STELLAR STATION', title:'星辰车站', subtitle:'每天 00:00 两个月台同时刷新，可自由挑选倍率；发车奖励立即入账，4～6 小时后还可能有加班列车返程。'}
     }[panel];
     if (!meta) return;
     if (panel === 'train') ensureTrainState(farmDay, {persist:true});
@@ -3888,15 +3975,15 @@
       const slotMarkup = hub.slots.map(slot => {
         if (slot.status === 'cooldown') {
           return `<section class="farm-train-slot is-cooldown" data-train-slot="${slot.index}">
-            <header class="farm-train-slot-head"><div><small>第 ${slot.index + 1} 月台</small><b>🚂 列车返程中</b></div><span>约 <strong data-train-cooldown-until="${slot.availableAt}">${formatTrainWait(slot.availableAt - Date.now())}</strong> 后抵达</span></header>
-            <div class="farm-train-empty-station"><img src="../images/farm/train-station.png?v=0.14.5.3.3" alt="星辰车站"></div>
+            <header class="farm-train-slot-head"><div><small>第 ${slot.index + 1} 月台</small><b>${uiIconMarkup('cooldown','is-heading-ui')} 列车返程中</b></div><span>约 <strong data-train-cooldown-until="${slot.availableAt}">${formatTrainWait(slot.availableAt - Date.now())}</strong> 后抵达</span></header>
+            <div class="farm-train-empty-station"><img src="../images/farm/train-station.png?v=0.15.0" alt="星辰车站"></div>
             <p class="farm-train-slot-note">奖励已在上一班发车时立即入账。返程后这里会自动出现一班全新的订单。</p>
           </section>`;
         }
         if (slot.status === 'done') {
           return `<section class="farm-train-slot is-done" data-train-slot="${slot.index}">
-            <header class="farm-train-slot-head"><div><small>第 ${slot.index + 1} 月台</small><b>✅ 今日加班班次已满</b></div><span>00:00 统一刷新</span></header>
-            <div class="farm-train-empty-station"><img src="../images/farm/train-station.png?v=0.14.5.3.3" alt="星辰车站"></div>
+            <header class="farm-train-slot-head"><div><small>第 ${slot.index + 1} 月台</small><b>${uiIconMarkup('success','is-heading-ui')} 今日加班班次已满</b></div><span>00:00 统一刷新</span></header>
+            <div class="farm-train-empty-station"><img src="../images/farm/train-station.png?v=0.15.0" alt="星辰车站"></div>
           </section>`;
         }
         const train = slot.train;
@@ -3904,43 +3991,43 @@
         const loadedCars = trainLoadedCount(train);
         const complete = trainAllLoaded(train);
         const tierLabel = train.tier === 'gold' ? '黄金列车' : train.tier === 'red' ? '幸运列车' : '普通货运';
-        const tierIcon = train.tier === 'gold' ? '✨' : train.tier === 'red' ? '❤️' : '🤍';
+        const tierIcon = train.tier === 'gold' ? uiIconMarkup('exp','is-train-tier-ui') : train.tier === 'red' ? uiIconMarkup('reward-box','is-train-tier-ui') : uiIconMarkup('success','is-train-tier-ui');
         const cars = train.cars.map((car,index) => {
           const crop = cropById(car.cropId);
           const done = car.loaded >= car.required;
           const owned = Math.max(0, Number(state.produce[car.cropId]) || 0);
           const remaining = Math.max(0, car.required - car.loaded);
           return `<button type="button" class="farm-train-car is-${car.style} ${done ? 'is-complete' : ''} ${!done && owned <= 0 ? 'is-empty-bag' : ''}" data-train-slot-index="${slot.index}" data-train-load-index="${index}" ${done ? 'disabled' : ''} aria-label="${done ? `${crop.name}车厢已装满` : `查看${crop.name}装箱需求，还差${remaining}个，背包${owned}个`}">
-            <img src="../images/farm/train-car-${car.style}.png?v=0.14.5.3.3" alt="" aria-hidden="true">
-            <span class="farm-train-car-ui"><i>${done ? '✓' : crop.icon}</i><b>${escapeHtml(crop.name)}</b><strong>${car.loaded} / ${car.required}</strong><small>${done ? '装载完成' : `背包 ${owned}`}</small></span>
+            <img src="../images/farm/train-car-${car.style}.png?v=0.15.0" alt="" aria-hidden="true">
+            <span class="farm-train-car-ui"><i>${done ? uiIconMarkup('success','is-train-check-ui') : produceIconMarkup(crop,'is-train-produce-ui')}</i><b>${escapeHtml(crop.name)}</b><strong>${car.loaded} / ${car.required}</strong><small>${done ? '装载完成' : `背包 ${owned}`}</small></span>
           </button>`;
         }).join('');
         return `<section class="farm-train-slot farm-train-panel is-${train.tier}" data-train-slot="${slot.index}">
           <header class="farm-train-slot-head"><div><small>第 ${slot.index + 1} 月台</small><b>${tierIcon} ${tierLabel} ×${train.multiplier.toFixed(1)}</b></div><span>可自由选择是否装货</span></header>
           <div class="farm-train-summary">
             <div class="farm-train-rate"><span>${tierIcon}</span><div><small>本班货运加成</small><b>×${train.multiplier.toFixed(1)}</b><em>${tierLabel}</em></div></div>
-            <div class="farm-train-reward"><small>本班发车预计获得</small><b>🪙 ${formatNumber(reward.coins)} <i>+ EXP ${formatNumber(reward.exp)}</i></b><em>发车后立即入账；基础货价为直接出售的 120% 再乘倍率。</em></div>
+            <div class="farm-train-reward"><small>本班发车预计获得</small><b>${uiIconMarkup('coin','is-reward-ui')} ${formatNumber(reward.coins)} <i>${uiIconMarkup('exp','is-reward-ui')} +${formatNumber(reward.exp)}</i></b><em>发车后立即入账；基础货价为直接出售的 120% 再乘倍率。</em></div>
           </div>
           <div class="farm-train-yard">
-            <img class="farm-train-yard-station" src="../images/farm/train-station.png?v=0.14.5.3.3" alt="" aria-hidden="true">
+            <img class="farm-train-yard-station" src="../images/farm/train-station.png?v=0.15.0" alt="" aria-hidden="true">
             <div class="farm-train-consist ${complete ? 'is-ready' : ''}" data-train-slot-index="${slot.index}">
               ${cars}
-              <div class="farm-train-engine is-${train.tier}"><img src="../images/farm/train-engine.png?v=0.14.5.3.3" alt="" aria-hidden="true"><span class="farm-train-engine-rate">×${train.multiplier.toFixed(1)}</span><span class="farm-train-smoke" aria-hidden="true"></span></div>
+              <div class="farm-train-engine is-${train.tier}"><img src="../images/farm/train-engine.png?v=0.15.0" alt="" aria-hidden="true"><span class="farm-train-engine-rate">×${train.multiplier.toFixed(1)}</span><span class="farm-train-smoke" aria-hidden="true"></span></div>
             </div>
           </div>
           <div class="farm-train-progress"><span><b>${loadedCars}</b> / ${train.cars.length} 节车厢已完成</span><div><i style="width:${Math.round((loadedCars/train.cars.length)*100)}%"></i></div></div>
-          <div class="farm-train-actions"><p>点车厢后会先显示背包数量并询问是否装箱。你可以先做倍率较高的另一班列车，不必按月台顺序。</p><button type="button" data-train-depart data-train-slot-index="${slot.index}" ${complete ? '' : 'disabled'}>${complete ? '🚂 发车！' : `还差 ${train.cars.length - loadedCars} 节车厢`}</button></div>
+          <div class="farm-train-actions"><p>点车厢后会先显示背包数量并询问是否装箱。你可以先做倍率较高的另一班列车，不必按月台顺序。</p><button type="button" data-train-depart data-train-slot-index="${slot.index}" ${complete ? '' : 'disabled'}>${complete ? `${trainIconMarkup('is-button-train')} 发车！` : `还差 ${train.cars.length - loadedCars} 节车厢`}</button></div>
         </section>`;
       }).join('');
-      body.innerHTML = `<section class="farm-train-hub-head"><div><b>🚉 今日双月台货运</b><p>每日 00:00 两班基础列车同时刷新；每班发车后 4～6 小时返程，全日最多再补 ${TRAIN_DAILY_BONUS_CAP} 班加班列车。</p></div><span><small>距离 00:00 刷新</small><b data-train-midnight>${escapeHtml(trainNextResetText())}</b><em>额外列车 ${hub.bonusGenerated}/${TRAIN_DAILY_BONUS_CAP}</em></span></section><div class="farm-train-slots">${slotMarkup}</div>`;
+      body.innerHTML = `<section class="farm-train-hub-head"><div><b>${uiIconMarkup('farm-expert','is-heading-ui')} 今日双月台货运</b><p>每日 00:00 两班基础列车同时刷新；每班发车后 4～6 小时返程，全日最多再补 ${TRAIN_DAILY_BONUS_CAP} 班加班列车。</p></div><span><small>距离 00:00 刷新</small><b data-train-midnight>${escapeHtml(trainNextResetText())}</b><em>额外列车 ${hub.bonusGenerated}/${TRAIN_DAILY_BONUS_CAP}</em></span></section><div class="farm-train-slots">${slotMarkup}</div>`;
       return;
     }
 
     if (activePanel === 'shop') {
       const shopTabs = `<div class="farm-shop-tabs">
-        <button type="button" data-shop-tab="seeds" class="${activeShopTab === 'seeds' ? 'is-active' : ''}">🌱 种子</button>
-        <button type="button" data-shop-tab="care" class="${activeShopTab === 'care' ? 'is-active' : ''}">🌿 农资</button>
-        <button type="button" data-shop-tab="decor" class="${activeShopTab === 'decor' ? 'is-active' : ''}">🏡 装饰</button>
+        <button type="button" data-shop-tab="seeds" class="${activeShopTab === 'seeds' ? 'is-active' : ''}">${uiIconMarkup('newbie-farmer','is-tab-ui')} 种子</button>
+        <button type="button" data-shop-tab="care" class="${activeShopTab === 'care' ? 'is-active' : ''}">${uiIconMarkup('harvest-expert','is-tab-ui')} 农资</button>
+        <button type="button" data-shop-tab="decor" class="${activeShopTab === 'decor' ? 'is-active' : ''}">${uiIconMarkup('farm-expert','is-tab-ui')} 装饰</button>
       </div>`;
       if (activeShopTab === 'seeds') {
         const seedShop = `<div class="farm-shop-grid">${seedItems().map(crop => {
@@ -3948,15 +4035,15 @@
           return `<article class="farm-shop-item ${locked ? 'is-locked' : ''}">
             <div class="farm-shop-crop"><span class="farm-shop-crop-icon">${seedIconMarkup(crop)}</span><div><b>${crop.isMystery ? crop.name : `${crop.name}种子`}</b><small>${crop.isMystery ? '固定 4 小时 · 随机蔬果 ×1' : `${crop.growMinutes} 分钟成熟 · 产量 ${crop.yieldMin}～${crop.yieldMax}`}</small></div></div>
             <p>${crop.note}</p>
-            <div class="farm-shop-meta"><span>🪙 ${crop.seedPrice} / ${crop.isMystery ? '个' : '包'}</span>${crop.isMystery ? '<span>随机 8 种蔬果</span>' : `<span>出售 ${crop.sellPrice} / 个</span>`}<span>EXP +${crop.exp}</span></div>
-            ${locked ? `<button disabled>🔒 Lv.${crop.unlockLevel} 解锁</button>` : `<div class="farm-shop-buy"><button type="button" data-buy-seed="${crop.id}" data-qty="1">买 1</button><button type="button" data-buy-seed="${crop.id}" data-qty="5">买 5</button><em>背包 ×${state.seeds[crop.id] || 0}</em></div>`}
+            <div class="farm-shop-meta"><span>${uiIconMarkup('coin','is-meta-ui')} ${crop.seedPrice} / ${crop.isMystery ? '个' : '包'}</span>${crop.isMystery ? '<span>随机 8 种蔬果</span>' : `<span>出售 ${crop.sellPrice} / 个</span>`}<span>${uiIconMarkup('exp','is-meta-ui')} +${crop.exp}</span></div>
+            ${locked ? `<button disabled>${uiIconMarkup('lock','is-button-ui')} Lv.${crop.unlockLevel} 解锁</button>` : `<div class="farm-shop-buy"><button type="button" data-buy-seed="${crop.id}" data-qty="1">买 1</button><button type="button" data-buy-seed="${crop.id}" data-qty="5">买 5</button><em>背包 ×${state.seeds[crop.id] || 0}</em></div>`}
           </article>`;
         }).join('')}</div>`;
         body.innerHTML = shopTabs + seedShop;
         return;
       }
       if (activeShopTab === 'care') {
-        body.innerHTML = shopTabs + `<section class="farm-shop-care is-tab-body"><header><div><b>🌿 农田照料</b><small>每株每轮最多使用一包肥料；浇水免费。</small></div>${itemSpriteMarkup(2, 'is-shop-header-item')}</header><div class="farm-fertilizer-grid">${FERTILIZERS.map(item => `<article class="farm-fertilizer-card">${itemSpriteMarkup(item.itemCell, 'is-fertilizer-art')}<div class="farm-fertilizer-copy"><b>${item.name}</b><p>${item.note}</p></div><div class="farm-shop-meta farm-fertilizer-meta"><span>🪙 ${item.price} / 包</span><span>背包 ×${state.supplies[item.id] || 0}</span></div><div class="farm-shop-buy"><button type="button" data-buy-supply="${item.id}" data-qty="1">买 1</button><button type="button" data-buy-supply="${item.id}" data-qty="5">买 5</button></div></article>`).join('')}</div></section>`;
+        body.innerHTML = shopTabs + `<section class="farm-shop-care is-tab-body"><header><div><b>${uiIconMarkup('harvest-expert','is-heading-ui')} 农田照料</b><small>每株每轮最多使用一包肥料；浇水免费。</small></div>${itemSpriteMarkup(2, 'is-shop-header-item')}</header><div class="farm-fertilizer-grid">${FERTILIZERS.map(item => `<article class="farm-fertilizer-card">${itemSpriteMarkup(item.itemCell, 'is-fertilizer-art')}<div class="farm-fertilizer-copy"><b>${item.name}</b><p>${item.note}</p></div><div class="farm-shop-meta farm-fertilizer-meta"><span>${uiIconMarkup('coin','is-meta-ui')} ${item.price} / 包</span><span>背包 ×${state.supplies[item.id] || 0}</span></div><div class="farm-shop-buy"><button type="button" data-buy-supply="${item.id}" data-qty="1">买 1</button><button type="button" data-buy-supply="${item.id}" data-qty="5">买 5</button></div></article>`).join('')}</div></section>`;
         return;
       }
       const decorCards = DECORATIONS.map(item => {
@@ -3966,11 +4053,11 @@
         return `<article class="farm-decor-shop-card ${locked ? 'is-locked' : ''}">
           ${eventSpriteMarkup(item.eventCell, 'is-decor-shop-art', item.name)}
           <div class="farm-decor-shop-copy"><b>${escapeHtml(item.name)}</b><p>${escapeHtml(item.note)}</p></div>
-          <div class="farm-shop-meta"><span>🪙 ${formatNumber(item.price)} / 个</span><span>拥有 ${owned}</span><span>已摆 ${placed}</span></div>
-          ${locked ? `<button type="button" disabled>🔒 Lv.${item.unlockLevel} 解锁</button>` : `<button type="button" data-buy-decor="${item.id}">购买</button>`}
+          <div class="farm-shop-meta"><span>${uiIconMarkup('coin','is-meta-ui')} ${formatNumber(item.price)} / 个</span><span>拥有 ${owned}</span><span>已摆 ${placed}</span></div>
+          ${locked ? `<button type="button" disabled>${uiIconMarkup('lock','is-button-ui')} Lv.${item.unlockLevel} 解锁</button>` : `<button type="button" data-buy-decor="${item.id}">购买</button>`}
         </article>`;
       }).join('');
-      body.innerHTML = `${shopTabs}<section class="farm-decor-shop-head"><div><b>🏡 农场装饰</b><small>买下后永久拥有；可在 8 个固定位置自由更换与收回。</small></div><button type="button" data-decor-enter>布置农场</button></section><div class="farm-decor-shop-grid">${decorCards}</div>`;
+      body.innerHTML = `${shopTabs}<section class="farm-decor-shop-head"><div><b>${uiIconMarkup('farm-expert','is-heading-ui')} 农场装饰</b><small>买下后永久拥有；可在 8 个固定位置自由更换与收回。</small></div><button type="button" data-decor-enter>布置农场</button></section><div class="farm-decor-shop-grid">${decorCards}</div>`;
       return;
     }
 
@@ -3986,7 +4073,7 @@
       }).join('');
       body.innerHTML = `
         <section class="farm-bag-section">
-          <header><b>🌱 种子</b><span>${seedItemsInBag.reduce((s,c)=>s+(state.seeds[c.id]||0),0)} 包</span></header>
+          <header><b>${uiIconMarkup('newbie-farmer','is-heading-ui')} 种子</b><span>${seedItemsInBag.reduce((s,c)=>s+(state.seeds[c.id]||0),0)} 包</span></header>
           <div class="farm-bag-list">${seedItemsInBag.length ? seedItemsInBag.map(c => {
             const levelLocked = state.level < c.unlockLevel;
             const canPlant = !levelLocked && maxPlantQuantity(c.id) > 0;
@@ -3995,18 +4082,18 @@
           }).join('') : '<p class="farm-empty-state">目前没有种子，可以到商店补货。</p>'}</div>
         </section>
         <section class="farm-bag-section">
-          <header><b>🧺 农作物</b><span>${produceItems.reduce((s,c)=>s+(state.produce[c.id]||0),0)} 个</span></header>
+          <header><b>${uiIconMarkup('harvest-expert','is-heading-ui')} 农作物</b><span>${produceItems.reduce((s,c)=>s+(state.produce[c.id]||0),0)} 个</span></header>
           <div class="farm-bag-list">${produceItems.length ? produceItems.map(c => {
             const qty = state.produce[c.id] || 0;
-            return `<div class="farm-bag-row farm-produce-row"><span>${c.icon}</span><div><b>${c.name}</b><small>单个售价 ${c.sellPrice} 金币 · 全售可得 ${qty*c.sellPrice}</small></div><em>×${qty}</em><div class="farm-sell-actions"><button type="button" data-sell="${c.id}" data-qty="1">卖 1</button><button type="button" data-sell="${c.id}" data-qty="all">全部出售</button></div></div>`;
+            return `<div class="farm-bag-row farm-produce-row"><span class="farm-bag-icon">${produceIconMarkup(c,'is-bag-produce-ui')}</span><div><b>${c.name}</b><small>单个售价 ${uiIconMarkup('coin','is-meta-ui')} ${c.sellPrice} · 全售可得 ${uiIconMarkup('coin','is-meta-ui')} ${qty*c.sellPrice}</small></div><em>×${qty}</em><div class="farm-sell-actions"><button type="button" data-sell="${c.id}" data-qty="1">卖 1</button><button type="button" data-sell="${c.id}" data-qty="all">全部出售</button></div></div>`;
           }).join('') : '<p class="farm-empty-state">成熟作物收成后会放到这里。</p>'}</div>
         </section>
         <section class="farm-bag-section">
-          <header><b>🌿 肥料</b><span>${FERTILIZERS.reduce((sum,item)=>sum+(state.supplies[item.id]||0),0)} 包</span></header>
+          <header><b>${uiIconMarkup('harvest-expert','is-heading-ui')} 肥料</b><span>${FERTILIZERS.reduce((sum,item)=>sum+(state.supplies[item.id]||0),0)} 包</span></header>
           <div class="farm-bag-list">${FERTILIZERS.map(item => `<div class="farm-bag-row farm-supply-row">${itemSpriteMarkup(item.itemCell, 'is-bag-item')}<div><b>${item.name}</b><small>${item.note} · 点正在成长的农田即可使用</small></div><em>×${state.supplies[item.id] || 0}</em></div>`).join('')}</div>
         </section>
         <section class="farm-bag-section farm-decor-bag-section">
-          <header><b>🏡 装饰</b><span>${decorOwnedTotal} 件</span></header>
+          <header><b>${uiIconMarkup('farm-expert','is-heading-ui')} 装饰</b><span>${decorOwnedTotal} 件</span></header>
           <div class="farm-decor-bag-toolbar"><span>已购买的装饰不会消耗，摆放或收回都不收费。</span><button type="button" data-decor-enter>布置农场</button></div>
           <div class="farm-bag-list">${decorRows || '<p class="farm-empty-state">还没有装饰品。到商店的「装饰」分页挑一件喜欢的吧。</p>'}</div>
         </section>`;
@@ -4017,10 +4104,10 @@
       const noticeCounts = taskNoticeCounts();
       const tabBadge = count => count > 0 ? `<i class="farm-tab-notice">${count > 9 ? '9+' : count}</i>` : '';
       const tabs = `<div class="farm-task-tabs">
-        <button type="button" data-task-tab="daily" class="${activeTaskTab === 'daily' ? 'is-active' : ''}">☀️ 每日${tabBadge(noticeCounts.daily)}</button>
-        <button type="button" data-task-tab="newbie" class="${activeTaskTab === 'newbie' ? 'is-active' : ''}">📜 新手${tabBadge(noticeCounts.newbie)}</button>
-        <button type="button" data-task-tab="achievements" class="${activeTaskTab === 'achievements' ? 'is-active' : ''}">🏅 成就${tabBadge(noticeCounts.achievements)}</button>
-        <button type="button" data-task-tab="titles" class="${activeTaskTab === 'titles' ? 'is-active' : ''}">🏷️ 称号${tabBadge(noticeCounts.titles)}</button>
+        <button type="button" data-task-tab="daily" class="${activeTaskTab === 'daily' ? 'is-active' : ''}">${uiIconMarkup('daily-task','is-tab-ui')} 每日${tabBadge(noticeCounts.daily)}</button>
+        <button type="button" data-task-tab="newbie" class="${activeTaskTab === 'newbie' ? 'is-active' : ''}">${uiIconMarkup('task','is-tab-ui')} 新手${tabBadge(noticeCounts.newbie)}</button>
+        <button type="button" data-task-tab="achievements" class="${activeTaskTab === 'achievements' ? 'is-active' : ''}">${uiIconMarkup('achievement','is-tab-ui')} 成就${tabBadge(noticeCounts.achievements)}</button>
+        <button type="button" data-task-tab="titles" class="${activeTaskTab === 'titles' ? 'is-active' : ''}">${uiIconMarkup('title','is-tab-ui')} 称号${tabBadge(noticeCounts.titles)}</button>
       </div>`;
 
       if (activeTaskTab === 'daily') {
@@ -4031,23 +4118,23 @@
           const claimed = isDailyClaimed(task);
           const pct = Math.min(100, Math.round((progress / task.target) * 100));
           const action = claimed
-            ? '<span class="farm-task-claimed">✓ 已领取</span>'
+            ? `<span class="farm-task-claimed">${uiIconMarkup('success','is-inline-ui')} 已领取</span>`
             : complete
-              ? `<button type="button" data-claim-daily="${task.id}">领取奖励</button>`
+              ? `<button type="button" data-claim-daily="${task.id}">${uiIconMarkup('claim','is-button-ui')}领取奖励</button>`
               : `<span class="farm-task-progress-text">${progress} / ${task.target}</span>`;
           return `<article class="farm-task-item farm-daily-item ${complete ? 'is-complete' : ''} ${claimed ? 'is-claimed' : ''}">
-            <div class="farm-task-copy"><b>${task.title}</b><p>${task.desc}</p><small>奖励：${task.rewardText}</small></div>
+            <div class="farm-task-copy"><b>${uiIconMarkup('task','is-heading-ui')}${task.title}</b><p>${task.desc}</p><small>奖励：${rewardTextMarkup(task.rewardText)}</small></div>
             <div class="farm-task-side">${action}</div>
             <div class="farm-task-bar"><i style="width:${pct}%"></i></div>
           </article>`;
         }).join('');
         const bonusReady = isDailyBonusReady();
         const bonusAction = state.daily.bonusClaimed
-          ? '<span class="farm-task-claimed">✓ 今日已领取</span>'
+          ? `<span class="farm-task-claimed">${uiIconMarkup('success','is-inline-ui')} 今日已领取</span>`
           : bonusReady
-            ? '<button type="button" data-claim-daily-bonus>领取全勤</button>'
+            ? `<button type="button" data-claim-daily-bonus>${uiIconMarkup('claim','is-button-ui')}领取全勤</button>`
             : `<span class="farm-task-progress-text">${DAILY_TASKS.filter(isDailyComplete).length} / ${DAILY_TASKS.length}</span>`;
-        body.innerHTML = `${tabs}<section class="farm-daily-head"><div><small>UTC+8 每日 00:00 重置</small><b>${dayLabel}</b></div><span>☀️ 今日农务</span></section><div class="farm-task-list">${dailyItems}<article class="farm-task-item farm-daily-bonus ${bonusReady ? 'is-complete' : ''} ${state.daily.bonusClaimed ? 'is-claimed' : ''}"><div class="farm-task-copy"><b>🎁 ${DAILY_BONUS.title}</b><p>${DAILY_BONUS.desc}</p><small>奖励：${DAILY_BONUS.rewardText}</small></div><div class="farm-task-side">${bonusAction}</div><div class="farm-task-bar"><i style="width:${Math.min(100, DAILY_TASKS.filter(isDailyComplete).length / DAILY_TASKS.length * 100)}%"></i></div></article></div>`;
+        body.innerHTML = `${tabs}<section class="farm-daily-head"><div><small>UTC+8 每日 00:00 重置</small><b>${dayLabel}</b></div><span>${uiIconMarkup('daily-task','is-section-ui')} 今日农务</span></section><div class="farm-task-list">${dailyItems}<article class="farm-task-item farm-daily-bonus ${bonusReady ? 'is-complete' : ''} ${state.daily.bonusClaimed ? 'is-claimed' : ''}"><div class="farm-task-copy"><b>${uiIconMarkup('reward-box','is-heading-ui')} ${DAILY_BONUS.title}</b><p>${DAILY_BONUS.desc}</p><small>奖励：${rewardTextMarkup(DAILY_BONUS.rewardText)}</small></div><div class="farm-task-side">${bonusAction}</div><div class="farm-task-bar"><i style="width:${Math.min(100, DAILY_TASKS.filter(isDailyComplete).length / DAILY_TASKS.length * 100)}%"></i></div></article></div>`;
         return;
       }
 
@@ -4059,11 +4146,11 @@
           const pct = Math.min(100, Math.round((progress / task.target) * 100));
           let action = '';
           if (task.future) action = '<span class="farm-task-future">多人阶段开放</span>';
-          else if (claimed) action = '<span class="farm-task-claimed">✓ 已领取</span>';
-          else if (complete) action = `<button type="button" data-claim-task="${task.id}">领取奖励</button>`;
+          else if (claimed) action = `<span class="farm-task-claimed">${uiIconMarkup('success','is-inline-ui')} 已领取</span>`;
+          else if (complete) action = `<button type="button" data-claim-task="${task.id}">${uiIconMarkup('claim','is-button-ui')}领取奖励</button>`;
           else action = `<span class="farm-task-progress-text">${progress} / ${task.target}</span>`;
           return `<article class="farm-task-item ${complete ? 'is-complete' : ''} ${claimed ? 'is-claimed' : ''} ${task.future ? 'is-future' : ''}">
-            <div class="farm-task-copy"><b>${task.title}</b><p>${task.desc}</p><small>奖励：${task.rewardText}</small></div>
+            <div class="farm-task-copy"><b>${uiIconMarkup('task','is-heading-ui')}${task.title}</b><p>${task.desc}</p><small>奖励：${rewardTextMarkup(task.rewardText)}</small></div>
             <div class="farm-task-side">${action}</div>
             <div class="farm-task-bar"><i style="width:${task.future ? 0 : pct}%"></i></div>
           </article>`;
@@ -4074,7 +4161,7 @@
       if (activeTaskTab === 'achievements') {
         const groups = ACHIEVEMENT_GROUPS.map(group => {
           const count = noticeCounts.achievementByGroup[group.id] || 0;
-          return `<button type="button" data-achievement-group="${group.id}" class="${activeAchievementGroup === group.id ? 'is-active' : ''}">${group.icon} ${group.label}${count ? `<i class="farm-chip-notice">${count > 9 ? '9+' : count}</i>` : ''}</button>`;
+          return `<button type="button" data-achievement-group="${group.id}" class="${activeAchievementGroup === group.id ? 'is-active' : ''}">${uiIconMarkup(groupUiIconKey(group.id),'is-tab-ui')} ${group.label}${count ? `<i class="farm-chip-notice">${count > 9 ? '9+' : count}</i>` : ''}</button>`;
         }).join('');
         const items = ACHIEVEMENTS.filter(item => item.group === activeAchievementGroup);
         body.innerHTML = `${tabs}<div class="farm-achievement-groups">${groups}</div><div class="farm-task-list">${items.map(item => {
@@ -4083,12 +4170,12 @@
           const claimed = isAchievementClaimed(item);
           const pct = Math.min(100, Math.round((progress / item.target) * 100));
           const action = claimed
-            ? '<span class="farm-task-claimed">✓ 已领取</span>'
+            ? `<span class="farm-task-claimed">${uiIconMarkup('success','is-inline-ui')} 已领取</span>`
             : complete
-              ? `<button type="button" data-claim-achievement="${item.id}">领取奖励</button>`
+              ? `<button type="button" data-claim-achievement="${item.id}">${uiIconMarkup('claim','is-button-ui')}领取奖励</button>`
               : `<span class="farm-task-progress-text">${formatNumber(progress)} / ${formatNumber(item.target)}</span>`;
           return `<article class="farm-task-item farm-achievement-item ${complete ? 'is-complete' : ''} ${claimed ? 'is-claimed' : ''}">
-            <div class="farm-task-copy"><b>${item.title}</b><p>${item.desc}</p><small>奖励：${item.rewardText}</small></div>
+            <div class="farm-task-copy"><b>${uiIconMarkup(groupUiIconKey(item.group),'is-heading-ui')}${item.title}</b><p>${item.desc}</p><small>奖励：${rewardTextMarkup(item.rewardText)}</small></div>
             <div class="farm-task-side">${action}</div>
             <div class="farm-task-bar"><i style="width:${pct}%"></i></div>
           </article>`;
@@ -4109,13 +4196,13 @@
       const equippedTitle = titleById(state.titles?.equipped || 'newbie');
       body.innerHTML = `${tabs}
         <section class="farm-title-current">
-          <span>${equippedTitle.icon}</span><div><small>目前展示称号</small><b>【${escapeHtml(equippedTitle.name)}】</b><p>${escapeHtml(equippedTitle.desc)}</p></div>
+          <span>${uiIconMarkup(titleUiIconKey(equippedTitle.id),'is-title-current-ui')}</span><div><small>目前展示称号</small><b>【${escapeHtml(equippedTitle.name)}】</b><p>${escapeHtml(equippedTitle.desc)}</p></div>
         </section>
         <div class="farm-title-grid">${TITLES.map(title => {
           const unlocked = state.titles?.unlocked?.includes(title.id);
           const equipped = state.titles?.equipped === title.id;
           return `<article class="farm-title-card ${unlocked ? 'is-unlocked' : 'is-locked'} ${equipped ? 'is-equipped' : ''}">
-            <span>${unlocked ? title.icon : '🔒'}</span>
+            <span>${unlocked ? uiIconMarkup(titleUiIconKey(title.id),'is-title-card-ui') : uiIconMarkup('lock','is-title-card-ui')}</span>
             <div><b>【${escapeHtml(title.name)}】</b><p>${unlocked ? escapeHtml(title.desc) : '完成对应农场成就后解锁。'}</p></div>
             ${equipped ? '<em>使用中</em>' : unlocked ? `<button type="button" data-equip-title="${title.id}">装备</button>` : '<em>未解锁</em>'}
           </article>`;
@@ -4129,7 +4216,7 @@
       const currentUserId = cloudAuthUser()?.id || '';
       const list = rows.length ? rows.map(row => {
         const rank = Number(row.rank_no) || 0;
-        const medal = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : `<span>${rank}</span>`;
+        const medal = rank === 1 ? uiIconMarkup('rank1','is-rank-medal-ui') : rank === 2 ? uiIconMarkup('rank2','is-rank-medal-ui') : rank === 3 ? uiIconMarkup('rank3','is-rank-medal-ui') : `<span>${rank}</span>`;
         const relation = String(row.relation_state || 'none');
         let action = '';
         if (row.user_id === currentUserId || relation === 'self') action = '<span class="farm-relation-label is-self">自己</span>';
@@ -4140,7 +4227,7 @@
         const publicTitle = titleById(row.title_id || 'newbie');
         return `<article class="farm-ranking-row ${relation === 'self' ? 'is-self' : ''}">
           <div class="farm-rank-no">${medal}</div>
-          <div class="farm-rank-player"><b>${escapeHtml(row.display_name)} <i>${genderSymbol(row.sex)}</i></b><small>Lv.${formatNumber(row.farm_level)} · <span class="farm-public-title">${publicTitle.icon}【${escapeHtml(publicTitle.name)}】</span></small></div>
+          <div class="farm-rank-player"><b>${escapeHtml(row.display_name)} <i>${genderSymbol(row.sex)}</i></b><small>Lv.${formatNumber(row.farm_level)} · <span class="farm-public-title">${uiIconMarkup(titleUiIconKey(publicTitle.id),'is-public-title-ui')}【${escapeHtml(publicTitle.name)}】</span></small></div>
           <div class="farm-rank-value"><b>${rankingSort === 'coins' ? coinInline(row.coins) : `Lv.${formatNumber(row.farm_level)}`}</b><small>${rankingSort === 'coins' ? `Lv.${formatNumber(row.farm_level)}` : coinInline(row.coins)}</small></div>
           <div class="farm-rank-action">${action}</div>
         </article>`;
@@ -4149,13 +4236,13 @@
       body.innerHTML = `
         <div class="farm-ranking-toolbar">
           <div class="farm-ranking-tabs" role="tablist" aria-label="排行榜类型">
-            <button type="button" data-ranking-tab="level" class="${rankingSort === 'level' ? 'is-active' : ''}">🌿 等级榜</button>
-            <button type="button" data-ranking-tab="coins" class="${rankingSort === 'coins' ? 'is-active' : ''}"><span class="farm-coin-mini" aria-hidden="true"></span> 金币榜</button>
+            <button type="button" data-ranking-tab="level" class="${rankingSort === 'level' ? 'is-active' : ''}">${uiIconMarkup('farm-expert','is-tab-ui')} 等级榜</button>
+            <button type="button" data-ranking-tab="coins" class="${rankingSort === 'coins' ? 'is-active' : ''}">${uiIconMarkup('coin','is-tab-ui')} 金币榜</button>
           </div>
-          <button type="button" class="farm-refresh-button" data-refresh-ranking ${rankingLoading ? 'disabled' : ''}>↻ 刷新</button>
+          <button type="button" class="farm-refresh-button" data-refresh-ranking ${rankingLoading ? 'disabled' : ''}>${uiIconMarkup('refresh','is-button-ui')} 刷新</button>
         </div>
         ${rankingLoading ? '<div class="farm-network-state"><span class="farm-spinner"></span><b>正在读取真实农场排名…</b></div>' : ''}
-        ${rankingError ? `<div class="farm-network-state is-error"><b>⚠ ${escapeHtml(rankingError)}</b></div>` : ''}
+        ${rankingError ? `<div class="farm-network-state is-error"><b>${uiIconMarkup('warning','is-heading-ui')} ${escapeHtml(rankingError)}</b></div>` : ''}
         ${!rankingLoading && !rankingError && !rows.length ? '<div class="farm-network-state"><b>目前还没有可显示的农场玩家。</b><small>玩家建立云端农场后会自动出现在这里。</small></div>' : ''}
         ${!rankingLoading && !rankingError && rows.length ? `<div class="farm-ranking-list">${list}</div>` : ''}`;
       return;
@@ -4183,19 +4270,19 @@
         const who = escapeHtml(row.display_name || '农场好友');
         const sex = row.sex === 'male' ? '♂' : row.sex === 'female' ? '♀' : '';
         const when = escapeHtml(formatFarmActivityTime(row.activity_at));
-        let icon = '🌿';
+        let icon = uiIconMarkup('notification','is-activity-ui');
         let title = `${who}${sex ? ` ${sex}` : ''} 来过你的农场`;
         let detail = when;
 
         if (type === 'visit' || type === 'npc_visit') {
-          icon = isNpc ? '🌿' : '👣';
+          icon = isNpc ? uiIconMarkup('farm-expert','is-activity-ui') : uiIconMarkup('visit','is-activity-ui');
           title = `${who}${sex ? ` ${sex}` : ''}${isNpc ? ' NPC' : ''} 拜访了你的农场`;
         } else if (type === 'steal') {
-          icon = crop.icon || '🥷';
+          icon = produceIconMarkup(crop,'is-activity-produce-ui');
           title = `${who}${sex ? ` ${sex}` : ''} 偷走了 ${escapeHtml(crop.name)} ×${Math.max(1, Number(row.amount) || 1)}`;
           if (Number.isInteger(Number(row.plot_id))) detail += ` · 第 ${Number(row.plot_id) + 1} 格`;
         } else if (type === 'help_bug' || type === 'npc_help_bug') {
-          icon = '🪲';
+          icon = uiIconMarkup('harvest-expert','is-activity-ui');
           title = `${who}${sex ? ` ${sex}` : ''}${isNpc ? ' NPC' : ''} 帮你的作物除虫了`;
           if (Number.isInteger(Number(row.plot_id))) detail += ` · 第 ${Number(row.plot_id) + 1} 格`;
         }
@@ -4217,8 +4304,8 @@
       const friendCard = (row, mode) => {
         const safeId = escapeHtml(row.user_id);
         const publicTitle = titleById(row.title_id || 'newbie');
-        const base = `<div class="farm-friend-avatar">${row.sex === 'male' ? '♂' : row.sex === 'female' ? '♀' : '🌱'}</div>
-          <div class="farm-friend-copy"><b>${escapeHtml(row.display_name)}</b><small>Lv.${formatNumber(row.farm_level)} · ${coinInline(row.coins)} · <span class="farm-public-title">${publicTitle.icon}【${escapeHtml(publicTitle.name)}】</span></small></div>`;
+        const base = `<div class="farm-friend-avatar">${uiIconMarkup('friends','is-friend-avatar-ui')}<small>${row.sex === 'male' ? '♂' : row.sex === 'female' ? '♀' : ''}</small></div>
+          <div class="farm-friend-copy"><b>${escapeHtml(row.display_name)}</b><small>Lv.${formatNumber(row.farm_level)} · ${coinInline(row.coins)} · <span class="farm-public-title">${uiIconMarkup(titleUiIconKey(publicTitle.id),'is-public-title-ui')}【${escapeHtml(publicTitle.name)}】</span></small></div>`;
         let actions = '';
         if (mode === 'incoming') actions = `<div class="farm-friend-buttons"><button type="button" class="is-primary" data-friend-accept="${safeId}">接受</button><button type="button" data-friend-reject="${safeId}">忽略</button></div>`;
         else if (mode === 'outgoing') actions = `<div class="farm-friend-buttons"><span>等待对方确认</span><button type="button" data-friend-cancel="${safeId}">取消</button></div>`;
@@ -4233,8 +4320,8 @@
           ? `<div class="farm-friend-buttons"><button type="button" class="is-primary" data-npc-visit="${safeId}">拜访农场</button><button type="button" data-npc-remove="${safeId}">移出农友</button></div>`
           : `<div class="farm-friend-buttons"><button type="button" class="is-primary" data-npc-add="${safeId}">＋ 加为农友</button></div>`;
         return `<article class="farm-friend-row farm-npc-row">
-          <div class="farm-friend-avatar farm-npc-avatar">${npc.icon}</div>
-          <div class="farm-friend-copy"><b>${escapeHtml(npc.name)} <span class="farm-npc-badge">NPC</span></b><small>Lv.${formatNumber(npc.level)} · ${escapeHtml(npc.trait)} · <span class="farm-public-title">${publicTitle.icon}【${escapeHtml(publicTitle.name)}】</span></small><p>${escapeHtml(npc.note)}</p></div>
+          <div class="farm-friend-avatar farm-npc-avatar">${produceIconMarkup(cropById(npc.favorites?.[0]),'is-npc-avatar-ui')}</div>
+          <div class="farm-friend-copy"><b>${escapeHtml(npc.name)} <span class="farm-npc-badge">NPC</span></b><small>Lv.${formatNumber(npc.level)} · ${escapeHtml(npc.trait)} · <span class="farm-public-title">${uiIconMarkup(titleUiIconKey(publicTitle.id),'is-public-title-ui')}【${escapeHtml(publicTitle.name)}】</span></small><p>${escapeHtml(npc.note)}</p></div>
           ${actions}
         </article>`;
       };
@@ -4244,36 +4331,44 @@
 
       if (activeFriendTab === 'activity') {
         tabContent = `<section class="farm-friend-section farm-activity-section">
-          <header><b>🌿 最近动态</b><span>${combinedActivityRows.length}</span></header>
+          <header><b>${uiIconMarkup('notification','is-heading-ui')} 最近动态</b><span>${combinedActivityRows.length}</span></header>
           ${farmActivityLoading && !combinedActivityRows.length ? '<div class="farm-network-state"><span class="farm-spinner"></span><b>正在读取农场动态…</b></div>' : activityHtml || '<p class="farm-empty-state">还没有农场动态。好友拜访、偷菜或 NPC 帮忙除虫后，会在这里留下记录。</p>'}
         </section>`;
       } else if (activeFriendTab === 'friends') {
         tabContent = `
-          <section class="farm-friend-section"><header><b>👥 真人好友</b><span>${accepted.length}</span></header>${accepted.length ? accepted.map(row => friendCard(row,'friend')).join('') : '<p class="farm-empty-state">还没有真人好友。可以到排行榜找到农友并点击「＋ 好友」。</p>'}</section>
-          <section class="farm-friend-section farm-npc-section"><header><b>🌿 NPC 农友</b><span>${npcFriends.length}</span></header>${npcFriends.length ? npcFriends.map(npc => npcCard(npc,true)).join('') : '<p class="farm-empty-state">还没有 NPC 农友。下面可以挑几位加入，让农场世界更热闹。</p>'}</section>
-          ${npcSuggestions.length ? `<section class="farm-friend-section farm-npc-section is-suggestions"><header><b>✨ NPC 农友推荐</b><span>${npcSuggestions.length}</span></header><div class="farm-npc-note">NPC 会自己种菜、收菜，也可能帮你除虫；不会偷你的菜、不参加真人排行榜，但成熟作物可以限量偷取。</div>${npcSuggestions.map(npc => npcCard(npc,false)).join('')}</section>` : ''}
+          <section class="farm-friend-section"><header><b>${uiIconMarkup('friends','is-heading-ui')} 真人好友</b><span>${accepted.length}</span></header>${accepted.length ? accepted.map(row => friendCard(row,'friend')).join('') : '<p class="farm-empty-state">还没有真人好友。可以到排行榜找到农友并点击「＋ 好友」。</p>'}</section>
+          <section class="farm-friend-section farm-npc-section"><header><b>${uiIconMarkup('farm-expert','is-heading-ui')} NPC 农友</b><span>${npcFriends.length}</span></header>${npcFriends.length ? npcFriends.map(npc => npcCard(npc,true)).join('') : '<p class="farm-empty-state">还没有 NPC 农友。下面可以挑几位加入，让农场世界更热闹。</p>'}</section>
+          ${npcSuggestions.length ? `<section class="farm-friend-section farm-npc-section is-suggestions"><header><b>${uiIconMarkup('exp','is-heading-ui')} NPC 农友推荐</b><span>${npcSuggestions.length}</span></header><div class="farm-npc-note">NPC 会自己种菜、收菜，也可能帮你除虫；不会偷你的菜、不参加真人排行榜，但成熟作物可以限量偷取。</div>${npcSuggestions.map(npc => npcCard(npc,false)).join('')}</section>` : ''}
         `;
       } else {
-        tabContent = `${incoming.length ? `<section class="farm-friend-section"><header><b>📩 收到的申请</b><span>${incoming.length}</span></header>${incoming.map(row => friendCard(row,'incoming')).join('')}</section>` : '<section class="farm-friend-section"><header><b>📩 收到的申请</b><span>0</span></header><p class="farm-empty-state">目前没有待确认的好友申请。</p></section>'}
-          ${outgoing.length ? `<section class="farm-friend-section"><header><b>⏳ 已送出的申请</b><span>${outgoing.length}</span></header>${outgoing.map(row => friendCard(row,'outgoing')).join('')}</section>` : ''}`;
+        tabContent = `${incoming.length ? `<section class="farm-friend-section"><header><b>${uiIconMarkup('add-friend','is-heading-ui')} 收到的申请</b><span>${incoming.length}</span></header>${incoming.map(row => friendCard(row,'incoming')).join('')}</section>` : `<section class="farm-friend-section"><header><b>${uiIconMarkup('add-friend','is-heading-ui')} 收到的申请</b><span>0</span></header><p class="farm-empty-state">目前没有待确认的好友申请。</p></section>`}
+          ${outgoing.length ? `<section class="farm-friend-section"><header><b>${uiIconMarkup('cooldown','is-heading-ui')} 已送出的申请</b><span>${outgoing.length}</span></header>${outgoing.map(row => friendCard(row,'outgoing')).join('')}</section>` : ''}`;
       }
 
       body.innerHTML = `
-        <div class="farm-friends-summary"><span>👥 真人 <b>${accepted.length}</b></span><span>🌿 NPC <b>${npcFriends.length}</b></span><span>📩 待确认 <b>${incoming.length}</b></span><span>🌿 未读动态 <b>${unreadActivities}</b></span><button type="button" class="farm-refresh-button" data-refresh-friends ${(friendsLoading || farmActivityLoading) ? 'disabled' : ''}>↻ 刷新</button></div>
+        <div class="farm-friends-summary"><span>${uiIconMarkup('friends','is-summary-ui')} 真人 <b>${accepted.length}</b></span><span>${uiIconMarkup('farm-expert','is-summary-ui')} NPC <b>${npcFriends.length}</b></span><span>${uiIconMarkup('add-friend','is-summary-ui')} 待确认 <b>${incoming.length}</b></span><span>${uiIconMarkup('notification','is-summary-ui')} 未读动态 <b>${unreadActivities}</b></span><button type="button" class="farm-refresh-button" data-refresh-friends ${(friendsLoading || farmActivityLoading) ? 'disabled' : ''}>${uiIconMarkup('refresh','is-button-ui')} 刷新</button></div>
         <div class="farm-friend-tabs" role="tablist" aria-label="好友功能">
-          <button type="button" data-friend-tab="activity" class="${activeFriendTab === 'activity' ? 'is-active' : ''}">🌿 动态 ${tabBadge(unreadActivities)}</button>
-          <button type="button" data-friend-tab="friends" class="${activeFriendTab === 'friends' ? 'is-active' : ''}">👥 好友 <small>${accepted.length + npcFriends.length}</small></button>
-          <button type="button" data-friend-tab="requests" class="${activeFriendTab === 'requests' ? 'is-active' : ''}">📩 申请 ${tabBadge(incoming.length)}</button>
+          <button type="button" data-friend-tab="activity" class="${activeFriendTab === 'activity' ? 'is-active' : ''}">${uiIconMarkup('notification','is-tab-ui')} 动态 ${tabBadge(unreadActivities)}</button>
+          <button type="button" data-friend-tab="friends" class="${activeFriendTab === 'friends' ? 'is-active' : ''}">${uiIconMarkup('friends','is-tab-ui')} 好友 <small>${accepted.length + npcFriends.length}</small></button>
+          <button type="button" data-friend-tab="requests" class="${activeFriendTab === 'requests' ? 'is-active' : ''}">${uiIconMarkup('add-friend','is-tab-ui')} 申请 ${tabBadge(incoming.length)}</button>
         </div>
         ${(friendsLoading && !friendRows.length && activeFriendTab !== 'friends') ? '<div class="farm-network-state"><span class="farm-spinner"></span><b>正在读取真人好友资料…</b></div>' : ''}
-        ${friendsError ? `<div class="farm-network-state is-error"><b>⚠ 真人好友暂时无法读取：${escapeHtml(friendsError)}</b><small>NPC 农友仍可正常使用。</small></div>` : ''}
-        ${farmActivityError && activeFriendTab === 'activity' ? `<div class="farm-network-state is-error"><b>⚠ 真人农场动态暂时无法读取：${escapeHtml(farmActivityError)}</b></div>` : ''}
+        ${friendsError ? `<div class="farm-network-state is-error"><b>${uiIconMarkup('warning','is-heading-ui')} 真人好友暂时无法读取：${escapeHtml(friendsError)}</b><small>NPC 农友仍可正常使用。</small></div>` : ''}
+        ${farmActivityError && activeFriendTab === 'activity' ? `<div class="farm-network-state is-error"><b>${uiIconMarkup('warning','is-heading-ui')} 真人农场动态暂时无法读取：${escapeHtml(farmActivityError)}</b></div>` : ''}
         ${tabContent}`;
     }
   }
 
-  function openModal({icon='🌱', eyebrow='STELLAR FARM', title='农场', subtitle='', body=''}) {
-    $('farmModalIcon').textContent = icon;
+  function openModal({icon='newbie-farmer', iconHtml='', eyebrow='STELLAR FARM', title='农场', subtitle='', body=''}) {
+    const modalIcon = $('farmModalIcon');
+    if (modalIcon) {
+      if (iconHtml) modalIcon.innerHTML = iconHtml;
+      else if (icon === 'train') modalIcon.innerHTML = '<img class="farm-modal-asset-icon" src="../images/farm/train-engine.png?v=0.15.0" alt="">';
+      else {
+        const mapped = UI_ICON_INDEX[icon] ? icon : (UI_EMOJI_ICON[icon] || (icon === '🌱' ? 'newbie-farmer' : ''));
+        modalIcon.innerHTML = mapped ? uiIconMarkup(mapped,'is-modal-ui') : escapeHtml(icon || '');
+      }
+    }
     $('farmModalEyebrow').textContent = eyebrow;
     $('farmModalTitle').textContent = title;
     $('farmModalSubtitle').textContent = subtitle;
@@ -4295,7 +4390,7 @@
     if (!host) return;
     const el = document.createElement('div');
     el.className = `farm-toast farm-toast-${type}`;
-    el.innerHTML = `<b>${title}</b>${detail ? `<span>${detail}</span>` : ''}`;
+    el.innerHTML = `<b>${uiTextMarkup(title)}</b>${detail ? `<span>${uiTextMarkup(detail)}</span>` : ''}`;
     host.appendChild(el);
     requestAnimationFrame(() => el.classList.add('is-visible'));
     setTimeout(() => {
