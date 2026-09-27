@@ -1,3 +1,14 @@
+# 星辰日记 V0.16.3
+
+## V0.16.3 — 信箱批次清理 / GM 预览
+
+- 玩家信箱工具列新增「清理已领取」；只会软删除 `claimed_at` 已存在的奖励邮件，未领取附件与普通公告不会被清理。
+- 批次清理由 `clear_claimed_system_mail_v1()` 一次处理，不会逐封发出大量请求；GM 原始信件与其他玩家完全不受影响。
+- 单封删除后会自动选择下一封可见邮件，避免右侧内容突然留白。
+- GM 管理台新增「预览邮件」，发布前可先以玩家信箱样式检查标题、正文、附件、发送对象与期限。
+- GM 最近发布记录新增附件文字摘要，方便快速确认历史发放内容。
+- 需在 018、019、020 后执行 `20260927_021_mail_bulk_cleanup.sql`。
+
 # 星辰日记 V0.16.2
 
 ## V0.16.2 — 信箱操作完善
@@ -449,3 +460,7 @@ V0.13.6 不需要执行新的 SQL。既有 003～006 migration 保持不变。
 ## V0.16.1
 
 GM 邮件附件改为数据库物品目录选择器，以固定 Item ID / item_code 管理；指定玩家邮件可先验证 Supabase Auth UID。升级前请执行 `20260927_019_mail_item_catalog.sql`。
+
+
+## V0.16.4 Guest mailbox
+Anonymous Supabase guest users can now open Stellar Mail, read active mail and view attachment contents. Reward claiming remains restricted to email-bound formal accounts; the bind action links to the account page and preserves the anonymous UUID when upgraded. No new SQL migration is required after V0.16.3.

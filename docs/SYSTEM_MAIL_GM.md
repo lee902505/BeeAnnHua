@@ -1,4 +1,4 @@
-# V0.16.2 系统信箱 / GM 管理台
+# V0.16.3 系统信箱 / GM 管理台
 
 ## 1. Supabase
 
@@ -6,8 +6,10 @@
 
 1. `supabase/migrations/20260927_018_system_mail_gm.sql`
 2. `supabase/migrations/20260927_019_mail_item_catalog.sql`
+3. `supabase/migrations/20260927_020_mail_actions_expiry.sql`
+4. `supabase/migrations/20260927_021_mail_bulk_cleanup.sql`
 
-如果 V0.16.0 的 018 已经执行成功，这次只需要执行 019。
+如果先前版本已经执行过部分 migration，只需继续依序执行尚未执行的项目；若你已经在 V0.16.2 执行到 020，本次升级只需要执行 021。
 
 019 会新增：
 
@@ -83,3 +85,15 @@ GM 管理台不再把所有物品写死成输入框。附件改成：
 - 未领取附件的邮件删除前会警告。
 - D+7 / D+14 / D+30 到期后自动从玩家信箱隐藏；永久邮件无到期时间。
 - GM 历史仍保留原始 `system_mail`。
+
+
+## V0.16.3 批次清理与 GM 预览
+
+执行 `supabase/migrations/20260927_021_mail_bulk_cleanup.sql` 后：
+
+- 玩家可按「清理已领取」一次软删除自己所有已领取奖励邮件。
+- RPC 只处理 `claimed_at is not null` 且尚未删除的玩家邮件状态；不会删除未领取附件或普通公告。
+- 原始 `system_mail`、GM 历史与其他玩家信箱不受影响。
+- 单封删除后会自动选中下一封可见邮件。
+- GM 发布前可点击「预览邮件」，用玩家实际信件版面检查标题、内容、附件、收件对象与期限。
+- GM 最近发布列表会同步显示附件文字摘要。
