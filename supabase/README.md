@@ -38,3 +38,8 @@ It converts one-click friend watering / pest care into true batch writes, fixes 
 
 Run `migrations/20260928_025_farm_friend_task_final.sql` after migration 024.
 It adds the UTC+8 daily social EXP pool (50 max), +2 EXP first-visit rewards, +5 EXP per successful friend-watering plot, cumulative friend-care statistics, and `get_friend_farm_v7`. Pest-help random rewards stay outside the social EXP cap.
+
+## V0.17.2 daily quest 2.0
+
+Run `migrations/20260928_026_farm_daily_quest_v2.sql` after migration 025.
+It keeps the server-authoritative friend interaction helper aligned with the expanded V0.17.2 daily-state shape, including daily friend-water / pest-care counters used by the random quest pool. No new table is created; quest selection, mastery claims, the free reroll flag and train reset tickets remain inside the existing `farm_saves.state` JSON.

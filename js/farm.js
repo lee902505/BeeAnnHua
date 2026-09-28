@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const FARM_BUILD = '0.17.1';
+  const FARM_BUILD = '0.17.2';
   const STORAGE_KEY = 'xingchen-farm-v1';
   const VERSION = 1;
   const PLOT_COUNT = 20;
@@ -172,14 +172,57 @@
     { id:'friend10', title:'农场交友达人', desc:'好友达到 10 人。', type:'friend', target:10, reward:{seeds:{pumpkin:3}}, rewardText:'南瓜种子 ×3' }
   ];
 
-  const DAILY_TASKS = [
-    { id:'dailyPlant5', title:'今日播种', desc:'今天播种 5 格农地。', metric:'plant', target:5, reward:{coins:15}, rewardText:'金币 ×15' },
-    { id:'dailyHarvest5', title:'今日丰收', desc:'今天收成 5 格成熟作物。', metric:'harvest', target:5, reward:{exp:20}, rewardText:'EXP +20' },
-    { id:'dailySell10', title:'今日交易', desc:'今天出售 10 个农作物。', metric:'sell', target:10, reward:{coins:20}, rewardText:'金币 ×20' },
-    { id:'dailyVisit2', title:'串门子', desc:'今天拜访 2 位不同的农场好友。', metric:'visit', target:2, reward:{exp:15}, rewardText:'EXP +15' },
-    { id:'dailySteal1', title:'今天也偷一下', desc:'今天成功偷菜 1 次。', metric:'steal', target:1, reward:{coins:10}, rewardText:'金币 ×10' }
-  ];
+  // V0.17.2 — Daily Quest 2.0. Five quests are selected once per UTC+8 farm day
+  // from a level-aware pool. The selected ids live inside the existing farm save,
+  // so F5 / mobile / desktop all see the same plan without an extra database table.
+  const DAILY_TASK_COUNT = 5;
+  const DAILY_MASTERY_PER_TASK = 20;
+  const TRAIN_RESET_TICKET_ID = 'trainResetTicket';
+  const DAILY_TASK_POOL = Object.freeze([
+    // Farm work — two slots are reserved for this category every day.
+    Object.freeze({id:'dailyPlant5', category:'farm', family:'plant', title:'今日播种', desc:'今天播种 5 格农地。', metric:'plant', target:5, minLevel:1, reward:{coins:15}, rewardText:'金币 ×15'}),
+    Object.freeze({id:'dailyPlant8', category:'farm', family:'plant', title:'播种不停手', desc:'今天播种 8 格农地。', metric:'plant', target:8, minLevel:4, reward:{coins:20}, rewardText:'金币 ×20'}),
+    Object.freeze({id:'dailyPlant12', category:'farm', family:'plant', title:'满田新芽', desc:'今天播种 12 格农地。', metric:'plant', target:12, minLevel:10, reward:{exp:25}, rewardText:'EXP +25'}),
+    Object.freeze({id:'dailyHarvest5', category:'farm', family:'harvest', title:'今日丰收', desc:'今天收成 5 格成熟作物。', metric:'harvest', target:5, minLevel:1, reward:{exp:20}, rewardText:'EXP +20'}),
+    Object.freeze({id:'dailyHarvest8', category:'farm', family:'harvest', title:'收成好时光', desc:'今天收成 8 格成熟作物。', metric:'harvest', target:8, minLevel:4, reward:{exp:25}, rewardText:'EXP +25'}),
+    Object.freeze({id:'dailyHarvest12', category:'farm', family:'harvest', title:'丰收一整轮', desc:'今天收成 12 格成熟作物。', metric:'harvest', target:12, minLevel:10, reward:{coins:25}, rewardText:'金币 ×25'}),
+    Object.freeze({id:'dailyCarrotPlant3', category:'farm', family:'crop-carrot-plant', title:'红萝卜小田', desc:'今天种下 3 格红萝卜。', metric:'plantCrop', cropId:'carrot', target:3, minLevel:1, reward:{coins:12}, rewardText:'金币 ×12'}),
+    Object.freeze({id:'dailyCarrotHarvest3', category:'farm', family:'crop-carrot-harvest', title:'红萝卜收成', desc:'今天收成 3 格红萝卜。', metric:'harvestCrop', cropId:'carrot', target:3, minLevel:1, reward:{exp:15}, rewardText:'EXP +15'}),
+    Object.freeze({id:'dailyWheatPlant3', category:'farm', family:'crop-wheat-plant', title:'麦浪准备中', desc:'今天种下 3 格小麦。', metric:'plantCrop', cropId:'wheat', target:3, minLevel:2, reward:{coins:15}, rewardText:'金币 ×15'}),
+    Object.freeze({id:'dailyWheatHarvest3', category:'farm', family:'crop-wheat-harvest', title:'收一篮小麦', desc:'今天收成 3 格小麦。', metric:'harvestCrop', cropId:'wheat', target:3, minLevel:2, reward:{exp:18}, rewardText:'EXP +18'}),
+    Object.freeze({id:'dailyCornPlant3', category:'farm', family:'crop-corn-plant', title:'玉米苗圃', desc:'今天种下 3 格玉米。', metric:'plantCrop', cropId:'corn', target:3, minLevel:3, reward:{coins:18}, rewardText:'金币 ×18'}),
+    Object.freeze({id:'dailyCornHarvest3', category:'farm', family:'crop-corn-harvest', title:'金黄玉米', desc:'今天收成 3 格玉米。', metric:'harvestCrop', cropId:'corn', target:3, minLevel:3, reward:{exp:20}, rewardText:'EXP +20'}),
+    Object.freeze({id:'dailyTomatoPlant3', category:'farm', family:'crop-tomato-plant', title:'番茄小队', desc:'今天种下 3 格番茄。', metric:'plantCrop', cropId:'tomato', target:3, minLevel:5, reward:{coins:20}, rewardText:'金币 ×20'}),
+    Object.freeze({id:'dailyFertilize1', category:'farm', family:'fertilize', title:'给作物加点营养', desc:'今天为 1 格成长中的作物使用肥料。', metric:'fertilize', target:1, minLevel:3, reward:{exp:15}, rewardText:'EXP +15'}),
+    Object.freeze({id:'dailyMystery1', category:'farm', family:'mystery', title:'种下一个惊喜', desc:'今天种下 1 个蔬果盲盒。', metric:'mysteryPlant', target:1, minLevel:1, reward:{coins:12}, rewardText:'金币 ×12'}),
+
+    // Social — only enters the plan when the player already has a real or NPC friend.
+    Object.freeze({id:'dailyVisit2', category:'social', family:'visit', title:'串门子', desc:'今天拜访 2 位不同的农场好友。', metric:'visit', target:2, minLevel:1, requiresFriend:true, reward:{exp:15}, rewardText:'EXP +15'}),
+    Object.freeze({id:'dailyVisit3', category:'social', family:'visit', title:'邻里走一圈', desc:'今天拜访 3 位不同的农场好友。', metric:'visit', target:3, minLevel:5, requiresFriend:true, reward:{exp:20}, rewardText:'EXP +20'}),
+    Object.freeze({id:'dailyHelpWater2', category:'social', family:'help-water', title:'递上一壶水', desc:'今天帮农友助力浇水 2 格。', metric:'helpWater', target:2, minLevel:1, requiresFriend:true, reward:{coins:15}, rewardText:'金币 ×15'}),
+    Object.freeze({id:'dailyHelpWater3', category:'social', family:'help-water', title:'甘霖互助', desc:'今天帮农友助力浇水 3 格。', metric:'helpWater', target:3, minLevel:4, requiresFriend:true, reward:{exp:20}, rewardText:'EXP +20'}),
+    Object.freeze({id:'dailyHelpWater5', category:'social', family:'help-water', title:'热心浇灌', desc:'今天帮农友助力浇水 5 格。', metric:'helpWater', target:5, minLevel:10, requiresFriend:true, reward:{coins:25}, rewardText:'金币 ×25'}),
+    Object.freeze({id:'dailySteal1', category:'social', family:'steal', title:'今天也偷一下', desc:'今天成功偷菜 1 次。', metric:'steal', target:1, minLevel:1, requiresFriend:true, reward:{coins:10}, rewardText:'金币 ×10'}),
+    Object.freeze({id:'dailySteal2', category:'social', family:'steal', title:'夜行小手', desc:'今天成功偷菜 2 次。', metric:'steal', target:2, minLevel:8, requiresFriend:true, reward:{coins:18}, rewardText:'金币 ×18'}),
+    Object.freeze({id:'dailyFriendCare3', category:'social', family:'friend-care', title:'农友互助', desc:'今天完成 3 格好友照料（助力浇水或帮忙除虫都算）。', metric:'friendCare', target:3, minLevel:3, requiresFriend:true, reward:{exp:20}, rewardText:'EXP +20'}),
+
+    // Economy / station. Train quests enter after Lv.3 so a brand-new farm is not overloaded.
+    Object.freeze({id:'dailySell10', category:'economy', family:'sell', title:'今日交易', desc:'今天出售 10 个农作物。', metric:'sell', target:10, minLevel:1, reward:{coins:20}, rewardText:'金币 ×20'}),
+    Object.freeze({id:'dailySell20', category:'economy', family:'sell', title:'小小批发商', desc:'今天出售 20 个农作物。', metric:'sell', target:20, minLevel:5, reward:{coins:25}, rewardText:'金币 ×25'}),
+    Object.freeze({id:'dailySell30', category:'economy', family:'sell', title:'农产交易日', desc:'今天出售 30 个农作物。', metric:'sell', target:30, minLevel:12, reward:{exp:25}, rewardText:'EXP +25'}),
+    Object.freeze({id:'dailyTrainCar1', category:'train', family:'train-car', title:'装好一节车厢', desc:'今天完整装满 1 节火车车厢。', metric:'trainCars', target:1, minLevel:3, reward:{coins:20}, rewardText:'金币 ×20'}),
+    Object.freeze({id:'dailyTrainCar2', category:'train', family:'train-car', title:'货运装箱', desc:'今天完整装满 2 节火车车厢。', metric:'trainCars', target:2, minLevel:5, reward:{coins:25}, rewardText:'金币 ×25'}),
+    Object.freeze({id:'dailyTrainCar3', category:'train', family:'train-car', title:'月台装货手', desc:'今天完整装满 3 节火车车厢。', metric:'trainCars', target:3, minLevel:10, reward:{exp:30}, rewardText:'EXP +30'}),
+    Object.freeze({id:'dailyTrainDepart1', category:'train', family:'train-depart', title:'送走一班列车', desc:'今天完成并发出 1 班星辰货运列车。', metric:'trainDepart', target:1, minLevel:5, reward:{coins:30}, rewardText:'金币 ×30'})
+  ]);
+  // Compatibility only: pending V0.17.1 full-attendance claims are still honored
+  // during conflict replay, but V0.17.2 no longer renders this old bonus card.
   const DAILY_BONUS = { id:'dailyBonus', title:'今日农场全勤', desc:'完成今天全部 5 项每日任务。', reward:{seeds:{mystery:1}, exp:30}, rewardText:'蔬果盲盒 ×1 · EXP +30' };
+  const DAILY_MASTERY_REWARDS = Object.freeze([
+    Object.freeze({points:40, title:'今日熟练 I', reward:{coins:20}, rewardText:'金币 ×20'}),
+    Object.freeze({points:80, title:'今日熟练 II', reward:{exp:30}, rewardText:'EXP +30'}),
+    Object.freeze({points:100, title:'今日熟练 MAX', reward:{supplies:{[TRAIN_RESET_TICKET_ID]:1}}, rewardText:'火车重置券 ×1'})
+  ]);
   const DAILY_SOCIAL_EXP_CAP = 50;
   const DAILY_SOCIAL_WATER_EXP = 5;
   const DAILY_SOCIAL_VISIT_EXP = 2;
@@ -575,6 +618,52 @@
         if (crop && loaded) state.produce[crop.id] = (state.produce[crop.id] || 0) + loaded;
       });
     });
+  }
+
+
+  function trainCargoSignature(train) {
+    return (train?.cars || []).map(car => `${car.cropId}:${Number(car.required) || 0}`).join('|');
+  }
+
+  function trainManifestSignature(train) {
+    return `${Number(train?.multiplier) || 0}|${trainCargoSignature(train)}`;
+  }
+
+  function refundSingleTrainCargo(train) {
+    let count = 0;
+    (train?.cars || []).forEach(car => {
+      const crop = cropById(car?.cropId);
+      const loaded = Math.max(0, Math.floor(Number(car?.loaded) || 0));
+      if (!crop || loaded <= 0) return;
+      state.produce[crop.id] = Math.max(0, Number(state.produce[crop.id]) || 0) + loaded;
+      count += loaded;
+    });
+    return count;
+  }
+
+  function createTrainRerollPlan(slot, hub = ensureTrainState()) {
+    if (!slot || slot.status !== 'ready' || !slot.train || slot.train.departed) return null;
+    const oldSignature = trainManifestSignature(slot.train);
+    const oldCargoSignature = trainCargoSignature(slot.train);
+    const oldMultiplier = Number(slot.train.multiplier) || 0;
+    let generation = Math.max(0, Number(slot.generation) || 0) + 1;
+    let replacement = null;
+    let fallback = null;
+    // Prefer an order where BOTH the multiplier and cargo manifest change. At
+    // very low levels the crop pool is intentionally small, so keep a safe
+    // fallback that still guarantees the overall order is different.
+    for (let attempt = 0; attempt < 36; attempt += 1, generation += 1) {
+      const candidate = createTrainManifest(hub.date, slot.index, generation, {level:state.level, createdAt:state.createdAt});
+      if (trainManifestSignature(candidate) === oldSignature) continue;
+      if (!fallback) fallback = candidate;
+      if ((Number(candidate.multiplier) || 0) !== oldMultiplier && trainCargoSignature(candidate) !== oldCargoSignature) {
+        replacement = candidate;
+        break;
+      }
+    }
+    replacement ||= fallback;
+    if (!replacement) return null;
+    return {generation:Math.max(0, Number(replacement.generation) || 0), replacement};
   }
 
   function refreshTrainSlots(hub, now=Date.now(), context={}) {
@@ -1213,7 +1302,10 @@
     }
     if (addedCount > 0) {
       state.stats.helpWater = Math.max(0, Number(state.stats.helpWater) || 0) + addedCount;
-      op.socialExpAwarded = grantDailySocialExp(addedCount * DAILY_SOCIAL_WATER_EXP, {silent:true});
+      if (!op.day || op.day === farmDay) {
+        bumpDaily('helpWater', addedCount);
+        op.socialExpAwarded = grantDailySocialExp(addedCount * DAILY_SOCIAL_WATER_EXP, {silent:true});
+      } else op.socialExpAwarded = 0;
       op.appliedCount = addedCount;
     }
     if (changed && !silent) {
@@ -1243,7 +1335,7 @@
       return;
     }
 
-    const op = {type:'npc-help-water',npcId:npc.id,targets,at:Date.now()};
+    const op = {type:'npc-help-water',npcId:npc.id,targets,day:farmDay,at:Date.now()};
     if (!applyNpcWaterHelpMutation(op)) {
       toast('💧 这轮已经帮过了','等 NPC 种下下一轮作物后再来看看。');
       visitNpcFarm(npc.id,{logVisit:false});
@@ -1321,7 +1413,7 @@
     return `<span class="farm-ui-icon ${escapeHtml(className)}" data-ui-icon="${safeKey}"${aria}></span>`;
   }
   function trainIconMarkup(className='') {
-    return `<img class="farm-inline-train-icon ${escapeHtml(className)}" src="../images/farm/train-engine.png?v=0.17.1" alt="" aria-hidden="true">`;
+    return `<img class="farm-inline-train-icon ${escapeHtml(className)}" src="../images/farm/train-engine.png?v=0.17.2" alt="" aria-hidden="true">`;
   }
   function uiTextMarkup(value) {
     let text = escapeHtml(value ?? '');
@@ -1347,6 +1439,7 @@
     text = text.split('金币').join(`${uiIconMarkup('coin','is-reward-ui')}<span>金币</span>`);
     text = text.split('EXP').join(`${uiIconMarkup('exp','is-reward-ui')}<span>EXP</span>`);
     text = text.split('蔬果盲盒').join(`${uiIconMarkup('reward-box','is-reward-ui')}<span>蔬果盲盒</span>`);
+    text = text.split('火车重置券').join(`${uiIconMarkup('refresh','is-reward-ui')}<span>火车重置券</span>`);
     text = text.replace(/称号【/g, `${uiIconMarkup('title','is-reward-ui')}称号【`);
     return `<span class="farm-reward-inline">${text}</span>`;
   }
@@ -1365,7 +1458,7 @@
   const seedItems = () => PLANTABLES;
   const titleById = (id) => TITLES.find(item => item.id === id) || TITLES[0];
   const achievementById = (id) => ACHIEVEMENTS.find(item => item.id === id) || null;
-  const dailyTaskById = (id) => DAILY_TASKS.find(item => item.id === id) || null;
+  const dailyTaskById = (id) => DAILY_TASK_POOL.find(item => item.id === id) || null;
 
   function localFarmDay(date = new Date()) {
     try {
@@ -1443,20 +1536,100 @@
   }
 
   function createDailyState(day = localFarmDay()) {
-    return {date:day, plant:0, harvest:0, sell:0, steal:0, visitedFriends:[], socialExp:0, claimed:[], bonusClaimed:false};
+    return {
+      date:day,
+      plant:0, harvest:0, sell:0, steal:0,
+      helpWater:0, helpBug:0, trainCars:0, trainDepart:0, fertilize:0, mysteryPlant:0,
+      plantByCrop:{}, harvestByCrop:{},
+      visitedFriends:[], socialExp:0,
+      taskIds:[], levelSnapshot:0, rerollUsed:false, rerollSlot:null,
+      claimed:[], masteryClaimed:[], bonusClaimed:false
+    };
+  }
+
+  function dailySeedIdentity() {
+    return String(state?.ownerUserId || cloudAuthUser()?.id || `local-${Number(state?.createdAt) || 0}`);
+  }
+
+  function hasDailyFriendContext() {
+    return npcFriendIds().length > 0 || Math.max(0, Number(state?.stats?.friend) || 0) > 0;
+  }
+
+  function dailyEligibleTasks(levelSnapshot = state?.level || 1) {
+    const level = Math.max(1, Number(levelSnapshot) || 1);
+    const hasFriend = hasDailyFriendContext();
+    return DAILY_TASK_POOL.filter(task => level >= Math.max(1, Number(task.minLevel) || 1) && (!task.requiresFriend || hasFriend));
+  }
+
+  function pickDailyTask(candidates, seed, usedIds, usedFamilies, {allowFamilyRepeat=false} = {}) {
+    let pool = candidates.filter(task => !usedIds.has(task.id) && (allowFamilyRepeat || !usedFamilies.has(task.family || task.id)));
+    if (!pool.length) pool = candidates.filter(task => !usedIds.has(task.id));
+    if (!pool.length) return null;
+    const task = pool[stableHash(seed) % pool.length];
+    usedIds.add(task.id);
+    usedFamilies.add(task.family || task.id);
+    return task;
+  }
+
+  function generateDailyTaskIds(day, levelSnapshot) {
+    const eligible = dailyEligibleTasks(levelSnapshot);
+    const usedIds = new Set();
+    const usedFamilies = new Set();
+    const picked = [];
+    const identity = dailySeedIdentity();
+    const hasSocial = eligible.some(task => task.category === 'social');
+    const slots = ['farm','farm',hasSocial ? 'social' : 'economy','logistics','any'];
+    slots.forEach((slotType, index) => {
+      let pool = eligible;
+      if (slotType === 'farm') pool = eligible.filter(task => task.category === 'farm');
+      else if (slotType === 'social') pool = eligible.filter(task => task.category === 'social');
+      else if (slotType === 'economy') pool = eligible.filter(task => task.category === 'economy');
+      else if (slotType === 'logistics') pool = eligible.filter(task => ['train','economy'].includes(task.category));
+      const task = pickDailyTask(pool, `daily:${day}:${identity}:${levelSnapshot}:${slotType}:${index}`, usedIds, usedFamilies)
+        || pickDailyTask(eligible, `daily:${day}:${identity}:${levelSnapshot}:fallback:${index}`, usedIds, usedFamilies, {allowFamilyRepeat:true});
+      if (task) picked.push(task.id);
+    });
+    return picked.slice(0, DAILY_TASK_COUNT);
+  }
+
+  function ensureDailyTaskPlan() {
+    if (!state?.daily) return false;
+    const validIds = Array.isArray(state.daily.taskIds)
+      ? state.daily.taskIds.filter(id => DAILY_TASK_POOL.some(task => task.id === id)).slice(0, DAILY_TASK_COUNT)
+      : [];
+    if (!Number.isFinite(Number(state.daily.levelSnapshot)) || Number(state.daily.levelSnapshot) <= 0) {
+      state.daily.levelSnapshot = Math.max(1, Number(state.level) || 1);
+    }
+    if (validIds.length === DAILY_TASK_COUNT && new Set(validIds).size === DAILY_TASK_COUNT) {
+      const normalizedChanged = validIds.join('|') !== (state.daily.taskIds || []).join('|');
+      if (normalizedChanged) state.daily.taskIds = validIds;
+      return normalizedChanged;
+    }
+    state.daily.taskIds = generateDailyTaskIds(state.daily.date || farmDay || localFarmDay(), state.daily.levelSnapshot);
+    return true;
   }
 
   function ensureDailyState(day = farmDay || localFarmDay(), {persist=false} = {}) {
     const normalizedDay = typeof day === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(day) ? day : localFarmDay();
     farmDay = normalizedDay;
     renderDailyEventScene?.();
+    let changed = false;
     if (!state.daily || state.daily.date !== normalizedDay) {
       state.daily = createDailyState(normalizedDay);
+      state.daily.levelSnapshot = Math.max(1, Number(state.level) || 1);
+      changed = true;
+    }
+    if (ensureDailyTaskPlan()) changed = true;
+    if (changed) {
       if (persist) saveState();
       else writeLocalState();
-      return true;
     }
-    return false;
+    return changed;
+  }
+
+  function dailyTasks() {
+    ensureDailyState(farmDay);
+    return (state.daily?.taskIds || []).map(dailyTaskById).filter(Boolean).slice(0, DAILY_TASK_COUNT);
   }
 
   function bumpDaily(metric, amount = 1, uniqueFriendId = '') {
@@ -1469,21 +1642,37 @@
       state.daily.visitedFriends = state.daily.visitedFriends.slice(-100);
       return true;
     }
-    if (!['plant','harvest','sell','steal'].includes(metric)) return false;
+    const numericMetrics = ['plant','harvest','sell','steal','helpWater','helpBug','trainCars','trainDepart','fertilize','mysteryPlant'];
+    if (!numericMetrics.includes(metric)) return false;
     state.daily[metric] = Math.max(0, Number(state.daily[metric]) || 0) + Math.max(0, Number(amount) || 0);
+    return true;
+  }
+
+  function bumpDailyCrop(kind, cropId, amount = 1) {
+    ensureDailyState(farmDay);
+    if (!['plantByCrop','harvestByCrop'].includes(kind) || !CROPS.some(crop => crop.id === cropId)) return false;
+    if (!state.daily[kind] || typeof state.daily[kind] !== 'object' || Array.isArray(state.daily[kind])) state.daily[kind] = {};
+    state.daily[kind][cropId] = Math.max(0, Number(state.daily[kind][cropId]) || 0) + Math.max(0, Number(amount) || 0);
     return true;
   }
 
   function dailyProgress(task) {
     ensureDailyState(farmDay);
     if (!task) return 0;
-    if (task.metric === 'visit') return Math.min(task.target, state.daily.visitedFriends.length);
-    return Math.min(task.target, Math.max(0, Number(state.daily[task.metric]) || 0));
+    let value = 0;
+    if (task.metric === 'visit') value = state.daily.visitedFriends.length;
+    else if (task.metric === 'plantCrop') value = Number(state.daily?.plantByCrop?.[task.cropId]) || 0;
+    else if (task.metric === 'harvestCrop') value = Number(state.daily?.harvestByCrop?.[task.cropId]) || 0;
+    else if (task.metric === 'friendCare') value = (Number(state.daily?.helpWater) || 0) + (Number(state.daily?.helpBug) || 0);
+    else value = Math.max(0, Number(state.daily?.[task.metric]) || 0);
+    return Math.min(task.target, Math.max(0, value));
   }
 
   function isDailyComplete(task) { return dailyProgress(task) >= task.target; }
   function isDailyClaimed(task) { return Boolean(state.daily?.claimed?.includes(task.id)); }
-  function isDailyBonusReady() { return DAILY_TASKS.every(isDailyComplete); }
+  function isDailyBonusReady() { const tasks = dailyTasks(); return tasks.length === DAILY_TASK_COUNT && tasks.every(isDailyComplete); }
+  function dailyMasteryPoints() { return Math.min(100, dailyTasks().filter(isDailyComplete).length * DAILY_MASTERY_PER_TASK); }
+  function isDailyMasteryClaimed(points) { return Boolean(state.daily?.masteryClaimed?.includes(Number(points))); }
 
   function defaultPlots() {
     return Array.from({length:PLOT_COUNT}, (_, i) => ({ id:i, cropId:null, plantedAt:null, watered:false, friendWatered:false, friendWateredBy:'', friendWateredByName:'', friendWateredAt:null, fertilizerId:null, hasPest:false, eventGrowFactor:1 }));
@@ -1499,7 +1688,7 @@
       plots: defaultPlots(),
       seeds: { carrot:3, wheat:2 },
       produce: {},
-      supplies: { fertilizerLow:0, fertilizerMid:0, fertilizerHigh:0 },
+      supplies: { fertilizerLow:0, fertilizerMid:0, fertilizerHigh:0, [TRAIN_RESET_TICKET_ID]:0 },
       decorations: { owned:{}, slots:Array(DECORATION_SLOT_COUNT).fill(null) },
       npcSocial: { friends:[], activities:[], steals:[], waterHelps:[], footprints:[], lastHelpCheckAt:0, lastVisitCheckAt:0 },
       train: null,
@@ -1544,6 +1733,7 @@
     merged.produce = {...(raw?.produce || {})};
     merged.supplies = {...base.supplies, ...(raw?.supplies || {})};
     for (const fertilizer of FERTILIZERS) merged.supplies[fertilizer.id] = Math.max(0, Number(merged.supplies[fertilizer.id]) || 0);
+    merged.supplies[TRAIN_RESET_TICKET_ID] = Math.max(0, Math.floor(Number(merged.supplies[TRAIN_RESET_TICKET_ID]) || 0));
     const decorRaw = raw?.decorations && typeof raw.decorations === 'object' ? raw.decorations : {};
     const decorOwned = {};
     for (const item of DECORATIONS) decorOwned[item.id] = Math.max(0, Math.floor(Number(decorRaw?.owned?.[item.id]) || 0));
@@ -1629,15 +1819,32 @@
     merged.titles = {unlocked, equipped};
 
     const dailyRaw = raw?.daily && typeof raw.daily === 'object' ? raw.daily : {};
+    const normalizeDailyCropMap = value => {
+      const source = value && typeof value === 'object' && !Array.isArray(value) ? value : {};
+      return Object.fromEntries(CROPS.map(crop => [crop.id, Math.max(0, Number(source[crop.id]) || 0)]));
+    };
     merged.daily = {
       date: typeof dailyRaw.date === 'string' ? dailyRaw.date : localFarmDay(),
       plant: Math.max(0, Number(dailyRaw.plant) || 0),
       harvest: Math.max(0, Number(dailyRaw.harvest) || 0),
       sell: Math.max(0, Number(dailyRaw.sell) || 0),
       steal: Math.max(0, Number(dailyRaw.steal) || 0),
+      helpWater: Math.max(0, Number(dailyRaw.helpWater) || 0),
+      helpBug: Math.max(0, Number(dailyRaw.helpBug) || 0),
+      trainCars: Math.max(0, Number(dailyRaw.trainCars) || 0),
+      trainDepart: Math.max(0, Number(dailyRaw.trainDepart) || 0),
+      fertilize: Math.max(0, Number(dailyRaw.fertilize) || 0),
+      mysteryPlant: Math.max(0, Number(dailyRaw.mysteryPlant) || 0),
+      plantByCrop: normalizeDailyCropMap(dailyRaw.plantByCrop),
+      harvestByCrop: normalizeDailyCropMap(dailyRaw.harvestByCrop),
       visitedFriends: Array.isArray(dailyRaw.visitedFriends) ? [...new Set(dailyRaw.visitedFriends.filter(Boolean).map(String))].slice(-100) : [],
       socialExp: Math.min(DAILY_SOCIAL_EXP_CAP, Math.max(0, Number(dailyRaw.socialExp) || 0)),
-      claimed: Array.isArray(dailyRaw.claimed) ? [...new Set(dailyRaw.claimed.filter(id => DAILY_TASKS.some(task => task.id === id)))] : [],
+      taskIds: Array.isArray(dailyRaw.taskIds) ? [...new Set(dailyRaw.taskIds.filter(id => DAILY_TASK_POOL.some(task => task.id === id)))].slice(0, DAILY_TASK_COUNT) : [],
+      levelSnapshot: Math.max(0, Number(dailyRaw.levelSnapshot) || 0),
+      rerollUsed: Boolean(dailyRaw.rerollUsed),
+      rerollSlot: dailyRaw.rerollSlot !== null && dailyRaw.rerollSlot !== '' && Number.isInteger(Number(dailyRaw.rerollSlot)) ? Math.max(0, Math.min(DAILY_TASK_COUNT - 1, Number(dailyRaw.rerollSlot))) : null,
+      claimed: Array.isArray(dailyRaw.claimed) ? [...new Set(dailyRaw.claimed.filter(id => DAILY_TASK_POOL.some(task => task.id === id)))] : [],
+      masteryClaimed: Array.isArray(dailyRaw.masteryClaimed) ? [...new Set(dailyRaw.masteryClaimed.map(Number).filter(points => DAILY_MASTERY_REWARDS.some(item => item.points === points)))] : [],
       bonusClaimed: Boolean(dailyRaw.bonusClaimed)
     };
     const noticeRaw = raw?.notices && typeof raw.notices === 'object' ? raw.notices : {};
@@ -1775,6 +1982,13 @@
         state.seeds[cropId] = (state.seeds[cropId] || 0) + Math.max(0, Number(qty) || 0);
       });
     }
+    if (reward.supplies) {
+      Object.entries(reward.supplies).forEach(([itemId, qty]) => {
+        if (itemId === TRAIN_RESET_TICKET_ID || FERTILIZERS.some(item => item.id === itemId)) {
+          state.supplies[itemId] = Math.max(0, Number(state.supplies[itemId]) || 0) + Math.max(0, Math.floor(Number(qty) || 0));
+        }
+      });
+    }
     if (reward.title) unlockTitle(reward.title);
     updateHighWatermarks();
   }
@@ -1793,6 +2007,51 @@
     if (state.daily.date !== day || state.daily.bonusClaimed || !isDailyBonusReady()) return false;
     state.daily.bonusClaimed = true;
     applyGenericReward(DAILY_BONUS.reward || {}, {silent});
+    return true;
+  }
+
+
+  function dailyMasteryRewardByPoints(points) {
+    return DAILY_MASTERY_REWARDS.find(item => item.points === Number(points)) || null;
+  }
+
+  function applyDailyMasteryReward(points, day = farmDay, {silent=false} = {}) {
+    ensureDailyState(day);
+    const milestone = dailyMasteryRewardByPoints(points);
+    if (!milestone || state.daily.date !== day || dailyMasteryPoints() < milestone.points || isDailyMasteryClaimed(milestone.points)) return false;
+    if (!Array.isArray(state.daily.masteryClaimed)) state.daily.masteryClaimed = [];
+    state.daily.masteryClaimed.push(milestone.points);
+    state.daily.masteryClaimed = [...new Set(state.daily.masteryClaimed.map(Number))];
+    applyGenericReward(milestone.reward || {}, {silent});
+    return true;
+  }
+
+  function dailyReplacementTask(slotIndex, currentIds = state.daily?.taskIds || []) {
+    ensureDailyState(farmDay);
+    const index = Math.max(0, Math.min(DAILY_TASK_COUNT - 1, Number(slotIndex) || 0));
+    const currentId = String(currentIds[index] || '');
+    const current = dailyTaskById(currentId);
+    if (!current) return null;
+    const used = new Set(currentIds.map(String));
+    const eligible = dailyEligibleTasks(state.daily.levelSnapshot || state.level).filter(task => task.id !== currentId && !used.has(task.id));
+    let pool = eligible.filter(task => task.category === current.category && (task.family || task.id) !== (current.family || current.id));
+    if (!pool.length) pool = eligible.filter(task => task.category === current.category);
+    if (!pool.length) pool = eligible;
+    if (!pool.length) return null;
+    return pool[stableHash(`daily-reroll:${state.daily.date}:${dailySeedIdentity()}:${index}:${currentId}`) % pool.length];
+  }
+
+  function applyDailyRerollMutation(op) {
+    ensureDailyState(op?.day || farmDay);
+    if (!op || state.daily.date !== op.day) return false;
+    if (state.daily.rerollUsed) return false;
+    const index = Math.max(0, Math.min(DAILY_TASK_COUNT - 1, Number(op.slotIndex) || 0));
+    const current = state.daily.taskIds?.[index];
+    if (String(current || '') !== String(op.oldTaskId || '')) return false;
+    if (!dailyTaskById(op.newTaskId) || state.daily.taskIds.includes(op.newTaskId)) return false;
+    state.daily.taskIds[index] = op.newTaskId;
+    state.daily.rerollUsed = true;
+    state.daily.rerollSlot = index;
     return true;
   }
 
@@ -1815,6 +2074,17 @@
     if (op.type === 'claim-daily-bonus') {
       if (targetState?.daily?.date && targetState.daily.date !== op.day) return true;
       return targetState?.daily?.date === op.day && Boolean(targetState.daily.bonusClaimed);
+    }
+    if (op.type === 'claim-daily-mastery') {
+      if (targetState?.daily?.date && targetState.daily.date !== op.day) return true;
+      const claimed = Array.isArray(targetState?.daily?.masteryClaimed) ? targetState.daily.masteryClaimed.map(Number) : [];
+      return targetState?.daily?.date === op.day && claimed.includes(Number(op.points));
+    }
+    if (op.type === 'daily-reroll') {
+      if (targetState?.daily?.date && targetState.daily.date !== op.day) return true;
+      if (targetState?.daily?.date !== op.day) return false;
+      if (Boolean(targetState?.daily?.rerollUsed)) return true;
+      return Array.isArray(targetState?.daily?.taskIds) && targetState.daily.taskIds[Number(op.slotIndex)] === op.newTaskId;
     }
     if (op.type === 'npc-player-visit') {
       if (targetState?.daily?.date && targetState.daily.date !== op.day) return true;
@@ -1844,6 +2114,15 @@
     if (op.type === 'npc-visit') {
       const activities = Array.isArray(targetState?.npcSocial?.activities) ? targetState.npcSocial.activities : [];
       return activities.some(item => item?.id === op.activityId);
+    }
+    if (op.type === 'train-reroll') {
+      const hub = targetState?.train;
+      if (!hub || hub.date !== op.day) return true;
+      if (Array.isArray(hub.appliedOps) && hub.appliedOps.includes(op.id)) return true;
+      const slot = Array.isArray(hub.slots) ? hub.slots.find(item => Number(item?.index) === Number(op.slotIndex)) : null;
+      if (!slot) return false;
+      if (slot.train?.id === op.replacementTrain?.id) return true;
+      return Math.max(0, Number(slot.generation) || 0) > Math.max(0, Number(op.oldGeneration) || 0);
     }
     if (op.type === 'train-load' || op.type === 'train-depart') {
       const hub = targetState?.train;
@@ -1912,6 +2191,16 @@
         continue;
       }
 
+      if (op.type === 'claim-daily-mastery') {
+        if (op.day === farmDay && applyDailyMasteryReward(op.points, op.day, {silent:true})) changed = true;
+        continue;
+      }
+
+      if (op.type === 'daily-reroll') {
+        if (op.day === farmDay && applyDailyRerollMutation(op)) changed = true;
+        continue;
+      }
+
       if (op.type === 'npc-player-visit') {
         if (applyNpcPlayerVisitMutation(op, {silent:true})) changed = true;
         continue;
@@ -1939,6 +2228,11 @@
 
       if (op.type === 'npc-visit') {
         if (applyNpcVisitMutation(op)) changed = true;
+        continue;
+      }
+
+      if (op.type === 'train-reroll') {
+        if (applyTrainRerollMutation(op, {silent:true})) changed = true;
         continue;
       }
 
@@ -1976,6 +2270,7 @@
         if (plot && fertilizer && plot.cropId && Number(plot.plantedAt) === Number(op.plantedAt) && !plot.fertilizerId && (state.supplies[fertilizer.id] || 0) > 0) {
           state.supplies[fertilizer.id] -= 1;
           plot.fertilizerId = fertilizer.id;
+          bumpDaily('fertilize', 1);
           changed = true;
         }
         continue;
@@ -2004,7 +2299,10 @@
           plot.eventGrowFactor = Math.max(0.90, Math.min(1, Number(item.eventGrowFactor) || 1));
           state.stats.plant += 1;
           bumpDaily('plant', 1);
-          if (op.cropId === 'mystery') state.stats.blindBoxPlant += 1;
+          if (op.cropId === 'mystery') {
+            state.stats.blindBoxPlant += 1;
+            bumpDaily('mysteryPlant', 1);
+          } else bumpDailyCrop('plantByCrop', op.cropId, 1);
           state.history.push({type:'plant', cropId:op.cropId, plotId:index, at:plot.plantedAt, recovered:true, mutationId:op.id});
           changed = true;
         }
@@ -3021,6 +3319,7 @@
         // Compatibility fallback before migration 025: keep the UI usable and
         // grant the social EXP locally until the server migration is applied.
         state.stats.helpWater = Math.max(0, Number(state.stats.helpWater) || 0) + count;
+        bumpDaily('helpWater', count);
         socialAward = grantDailySocialExp(count * DAILY_SOCIAL_WATER_EXP, {silent:true});
         saveState();
       }
@@ -3757,7 +4056,10 @@
       plot.eventGrowFactor = Math.max(0.90, Math.min(1, Number(item.eventGrowFactor) || 1));
       state.stats.plant += 1;
       bumpDaily('plant', 1);
-      if (crop.isMystery) state.stats.blindBoxPlant += 1;
+      if (crop.isMystery) {
+        state.stats.blindBoxPlant += 1;
+        bumpDaily('mysteryPlant', 1);
+      } else bumpDailyCrop('plantByCrop', cropId, 1);
       state.history.push({type:'plant', cropId, plotId:index, at:plot.plantedAt, mutationId:mutation.id});
       saveState();
       renderField();
@@ -3942,6 +4244,7 @@
     queuePendingOp({type:'fertilize', plotIndex:Number(index), plantedAt:plot.plantedAt, fertilizerId:fertilizer.id});
     state.supplies[fertilizer.id] -= 1;
     plot.fertilizerId = fertilizer.id;
+    bumpDaily('fertilize', 1);
     state.history.push({type:'fertilize', fertilizerId:fertilizer.id, plotId:Number(index), at:Date.now()});
     saveState();
     closeModal();
@@ -4000,6 +4303,7 @@
       totalExp += Math.max(1, Math.round(crop.exp * (Number(currentFarmEvent()?.expFactor) || 1)));
       state.stats.harvest += 1;
       bumpDaily('harvest', 1);
+      if (!crop.isMystery) bumpDailyCrop('harvestByCrop', crop.id, 1);
       state.history.push({type:'harvest', cropId:result.crop.id, sourceCropId:crop.id, amount:result.amount, at:Date.now(), batch:true});
       clearPlot(plot);
     }
@@ -4022,6 +4326,7 @@
     state.produce[result.crop.id] = (state.produce[result.crop.id] || 0) + result.amount;
     state.stats.harvest += 1;
     bumpDaily('harvest', 1);
+    if (!crop.isMystery) bumpDailyCrop('harvestByCrop', crop.id, 1);
     state.history.push({type:'harvest', cropId:result.crop.id, sourceCropId:crop.id, amount:result.amount, at:Date.now()});
     clearPlot(plot);
     const earnedExp = Math.max(1, Math.round(crop.exp * (Number(currentFarmEvent()?.expFactor) || 1)));
@@ -4158,6 +4463,7 @@
     const car = train.cars[index];
     if (!car || car.cropId !== op.cropId) { markTrainOpApplied(hub, train, op.id); return true; }
     const crop = cropById(car.cropId);
+    const wasComplete = Number(car.loaded) >= Number(car.required);
     const remaining = Math.max(0, car.required - car.loaded);
     const owned = Math.max(0, Number(state.produce[car.cropId]) || 0);
     const amount = Math.min(remaining, owned, Math.max(0, Math.floor(Number(op.amount) || 0)));
@@ -4165,14 +4471,79 @@
     if (amount <= 0) { markTrainOpApplied(hub, train, op.id); return true; }
     state.produce[car.cropId] = owned - amount;
     car.loaded += amount;
+    if (!wasComplete && car.loaded >= car.required) bumpDaily('trainCars', 1);
     markTrainOpApplied(hub, train, op.id);
     state.history.push({type:'train_load', cropId:car.cropId, amount, slotIndex:Number(slot.index), carIndex:index, trainDay:train.date, trainId:train.id, at:Date.now(), mutationId:op.id});
     if (!silent) toast(`🚃 ${crop.name}装货 +${amount}`, car.loaded >= car.required ? '这节车厢已经装满 ✓' : `还差 ${car.required - car.loaded} 个。`, 'harvest');
     return true;
   }
 
+  function applyTrainRerollMutation(op, {silent=false} = {}) {
+    const hub = ensureTrainState(farmDay);
+    if (!op || !hub || hub.date !== op.day) return false;
+    if (Array.isArray(hub.appliedOps) && hub.appliedOps.includes(op.id)) return false;
+    const slot = trainSlot(op.slotIndex, hub);
+    if (!slot) return false;
+    const oldGeneration = Math.max(0, Number(op.oldGeneration) || 0);
+    const currentGeneration = Math.max(0, Number(slot.generation) || 0);
+    if (currentGeneration > oldGeneration) return false;
+    if (currentGeneration < oldGeneration || slot.status !== 'ready' || !slot.train || slot.train.departed || slot.train.id !== op.oldTrainId) return false;
+    if (Math.max(0, Number(state.supplies?.[TRAIN_RESET_TICKET_ID]) || 0) <= 0) return false;
+    const replacement = normalizeTrainManifest(op.replacementTrain, slot.index, op.newGeneration, hub.date);
+    if (!replacement) return false;
+    const refunded = refundSingleTrainCargo(slot.train);
+    state.supplies[TRAIN_RESET_TICKET_ID] = Math.max(0, Math.floor(Number(state.supplies[TRAIN_RESET_TICKET_ID]) || 0) - 1);
+    slot.generation = Math.max(currentGeneration + 1, Number(op.newGeneration) || currentGeneration + 1);
+    slot.train = replacement;
+    slot.status = 'ready';
+    slot.availableAt = 0;
+    markTrainOpApplied(hub, slot.train, op.id);
+    state.history.push({type:'train_reroll', trainDay:hub.date, oldTrainId:op.oldTrainId, trainId:slot.train.id, slotIndex:Number(slot.index), refunded, at:Date.now(), mutationId:op.id});
+    state.history = state.history.slice(-30);
+    if (!silent) toast('🎟️ 火车订单已刷新', `第 ${Number(slot.index)+1} 月台已重新抽取倍率与货物需求${refunded ? ` · 已退回 ${refunded} 个已装货物` : ''}。`, 'task');
+    return true;
+  }
+
+  async function rerollTrain(slotIndex) {
+    const hub = ensureTrainState(farmDay, {persist:true});
+    const slot = trainSlot(slotIndex, hub);
+    if (!slot || slot.status !== 'ready' || !slot.train || slot.train.departed) return;
+    const tickets = Math.max(0, Math.floor(Number(state.supplies?.[TRAIN_RESET_TICKET_ID]) || 0));
+    if (tickets <= 0) { toast('🎟️ 没有火车重置券', '完成每日任务并达到 100 熟练度，可以领取 1 张火车重置券。'); return; }
+    const plan = createTrainRerollPlan(slot, hub);
+    if (!plan) return;
+    const op = queuePendingOp({
+      type:'train-reroll', day:hub.date, slotIndex:Number(slot.index), oldGeneration:Math.max(0, Number(slot.generation) || 0),
+      oldTrainId:slot.train.id, newGeneration:plan.generation, replacementTrain:plan.replacement
+    });
+    if (!applyTrainRerollMutation(op)) return;
+    saveState();
+    if (cloudReady) await pushCloudState(true);
+    renderAll();
+    if (activePanel === 'train') renderActivePanel();
+  }
+
   function closeTrainLoadConfirm() {
     document.querySelector('.farm-train-load-confirm')?.remove();
+  }
+
+
+  function showTrainRerollConfirm(slotIndex) {
+    closeTrainLoadConfirm();
+    const hub = ensureTrainState(farmDay, {persist:true});
+    const slot = trainSlot(slotIndex, hub);
+    if (!slot || slot.status !== 'ready' || !slot.train || slot.train.departed) return;
+    const tickets = Math.max(0, Math.floor(Number(state.supplies?.[TRAIN_RESET_TICKET_ID]) || 0));
+    if (tickets <= 0) { toast('🎟️ 没有火车重置券', '今日熟练度达到 100 后可以领取 1 张。'); return; }
+    const loaded = (slot.train.cars || []).reduce((sum,car) => sum + Math.max(0, Number(car.loaded) || 0), 0);
+    const overlay = document.createElement('div');
+    overlay.className = 'farm-train-load-confirm';
+    overlay.innerHTML = `<div class="farm-train-load-card" role="dialog" aria-modal="true" aria-label="确认刷新火车订单">
+      <span class="farm-train-load-icon">${uiIconMarkup('refresh','is-train-load-produce-ui')}</span>
+      <div class="farm-train-load-copy"><small>第 ${Number(slot.index)+1} 月台 · 火车重置券</small><b>重新抽取倍率与货物需求</b><p>目前拥有 <strong>${tickets}</strong> 张重置券。本次会消耗 <strong>1</strong> 张。</p><em>${loaded > 0 ? `已经装入的 ${loaded} 个货物会完整退回背包，再生成全新订单。` : '当前倍率、作物种类与需求数量都会重新抽取。'}</em></div>
+      <div class="farm-train-load-buttons"><button type="button" data-train-reroll-cancel>取消</button><button type="button" class="is-confirm" data-confirm-train-reroll data-train-slot-index="${Number(slot.index)}">确认刷新</button></div>
+    </div>`;
+    document.body.appendChild(overlay);
   }
 
   function showTrainLoadConfirm(slotIndex, carIndex) {
@@ -4243,6 +4614,7 @@
     const cargoCount = train.cars.reduce((sum, car) => sum + Math.max(0, Number(car.required) || 0), 0);
     state.stats.sell = Math.max(0, Number(state.stats.sell) || 0) + cargoCount;
     bumpDaily('sell', cargoCount);
+    bumpDaily('trainDepart', 1);
     addExp(reward.exp, {silent});
     updateHighWatermarks();
     const reservedReturns = hub.slots.filter(item => item !== slot && item.status === 'cooldown').length;
@@ -4368,9 +4740,43 @@
     toast('🎁 今日农场全勤！', DAILY_BONUS.rewardText, 'task');
   }
 
+
+  async function claimDailyMastery(points) {
+    await syncFarmDay(true);
+    const milestone = dailyMasteryRewardByPoints(points);
+    if (!milestone || dailyMasteryPoints() < milestone.points || isDailyMasteryClaimed(milestone.points)) return;
+    queuePendingOp({type:'claim-daily-mastery', points:milestone.points, day:farmDay});
+    if (!applyDailyMasteryReward(milestone.points, farmDay)) return;
+    saveState();
+    if (cloudReady) await pushCloudState(true);
+    renderAll();
+    toast(milestone.points >= 100 ? '🎟️ 今日熟练度达成！' : '⭐ 熟练度奖励已领取', `${milestone.points} 熟练度 · ${milestone.rewardText}`, 'task');
+  }
+
+  async function rerollDailyTask(slotIndex) {
+    await syncFarmDay(true);
+    ensureDailyState(farmDay);
+    if (state.daily.rerollUsed) { toast('🔄 今日已经换过任务', '每天只有 1 次免费更换机会，明天 00:00 会重置。'); return; }
+    const tasks = dailyTasks();
+    const index = Math.max(0, Math.min(tasks.length - 1, Number(slotIndex) || 0));
+    const current = tasks[index];
+    if (!current) return;
+    if (isDailyComplete(current)) { toast('✅ 已完成的任务不能更换', '请选择一项尚未完成的每日任务。'); return; }
+    const replacement = dailyReplacementTask(index, state.daily.taskIds);
+    if (!replacement) { toast('🔄 暂时没有其他合适任务', '今天的任务池已经没有可替换项目了。'); return; }
+    const op = queuePendingOp({type:'daily-reroll', day:farmDay, slotIndex:index, oldTaskId:current.id, newTaskId:replacement.id});
+    if (!applyDailyRerollMutation(op)) return;
+    saveState();
+    if (cloudReady) await pushCloudState(true);
+    renderAll();
+    toast('🔄 每日任务已更换', `${current.title} → ${replacement.title} · 今日免费次数已使用`, 'task');
+  }
+
   function taskNoticeCounts() {
     ensureDailyState(farmDay);
-    const daily = DAILY_TASKS.filter(task => isDailyComplete(task) && !isDailyClaimed(task)).length + (isDailyBonusReady() && !state.daily.bonusClaimed ? 1 : 0);
+    const mastery = dailyMasteryPoints();
+    const masteryReady = DAILY_MASTERY_REWARDS.filter(item => mastery >= item.points && !isDailyMasteryClaimed(item.points)).length;
+    const daily = dailyTasks().filter(task => isDailyComplete(task) && !isDailyClaimed(task)).length + masteryReady;
     const newbie = TASKS.filter(task => !task.future && isTaskComplete(task) && !isTaskClaimed(task)).length;
     const achievementByGroup = Object.fromEntries(ACHIEVEMENT_GROUPS.map(group => [group.id, 0]));
     ACHIEVEMENTS.forEach(item => {
@@ -4451,14 +4857,14 @@
         if (slot.status === 'cooldown') {
           return `<section class="farm-train-slot is-cooldown" data-train-slot="${slot.index}">
             <header class="farm-train-slot-head"><div><small>第 ${slot.index + 1} 月台</small><b>${uiIconMarkup('cooldown','is-heading-ui')} 列车返程中</b></div><span>约 <strong data-train-cooldown-until="${slot.availableAt}">${formatTrainWait(slot.availableAt - Date.now())}</strong> 后抵达</span></header>
-            <div class="farm-train-empty-station"><img src="../images/farm/train-station.png?v=0.17.1" alt="星辰车站"></div>
+            <div class="farm-train-empty-station"><img src="../images/farm/train-station.png?v=0.17.2" alt="星辰车站"></div>
             <p class="farm-train-slot-note">奖励已在上一班发车时立即入账。返程后这里会自动出现一班全新的订单。</p>
           </section>`;
         }
         if (slot.status === 'done') {
           return `<section class="farm-train-slot is-done" data-train-slot="${slot.index}">
             <header class="farm-train-slot-head"><div><small>第 ${slot.index + 1} 月台</small><b>${uiIconMarkup('success','is-heading-ui')} 今日加班班次已满</b></div><span>00:00 统一刷新</span></header>
-            <div class="farm-train-empty-station"><img src="../images/farm/train-station.png?v=0.17.1" alt="星辰车站"></div>
+            <div class="farm-train-empty-station"><img src="../images/farm/train-station.png?v=0.17.2" alt="星辰车站"></div>
           </section>`;
         }
         const train = slot.train;
@@ -4473,7 +4879,7 @@
           const owned = Math.max(0, Number(state.produce[car.cropId]) || 0);
           const remaining = Math.max(0, car.required - car.loaded);
           return `<button type="button" class="farm-train-car is-${car.style} ${done ? 'is-complete' : ''} ${!done && owned <= 0 ? 'is-empty-bag' : ''}" data-train-slot-index="${slot.index}" data-train-load-index="${index}" ${done ? 'disabled' : ''} aria-label="${done ? `${crop.name}车厢已装满` : `查看${crop.name}装箱需求，还差${remaining}个，背包${owned}个`}">
-            <img src="../images/farm/train-car-${car.style}.png?v=0.17.1" alt="" aria-hidden="true">
+            <img src="../images/farm/train-car-${car.style}.png?v=0.17.2" alt="" aria-hidden="true">
             <span class="farm-train-car-ui"><i>${done ? uiIconMarkup('success','is-train-check-ui') : produceIconMarkup(crop,'is-train-produce-ui')}</i><b>${escapeHtml(crop.name)}</b><strong>${car.loaded} / ${car.required}</strong><small>${done ? '装载完成' : `背包 ${owned}`}</small></span>
           </button>`;
         }).join('');
@@ -4482,16 +4888,17 @@
           <div class="farm-train-summary">
             <div class="farm-train-rate"><span>${tierIcon}</span><div><small>本班货运加成</small><b>×${train.multiplier.toFixed(1)}</b><em>${tierLabel}</em></div></div>
             <div class="farm-train-reward"><small>本班发车预计获得</small><b>${uiIconMarkup('coin','is-reward-ui')} ${formatNumber(reward.coins)} <i>${uiIconMarkup('exp','is-reward-ui')} +${formatNumber(reward.exp)}</i></b><em>发车后立即入账；基础货价为直接出售的 120% 再乘倍率。</em></div>
+            <div class="farm-train-reset"><small>火车重置券</small><b>${uiIconMarkup('refresh','is-inline-ui')} ×${Math.max(0,Math.floor(Number(state.supplies?.[TRAIN_RESET_TICKET_ID])||0))}</b></div>
           </div>
           <div class="farm-train-yard">
-            <img class="farm-train-yard-station" src="../images/farm/train-station.png?v=0.17.1" alt="" aria-hidden="true">
+            <img class="farm-train-yard-station" src="../images/farm/train-station.png?v=0.17.2" alt="" aria-hidden="true">
             <div class="farm-train-consist ${complete ? 'is-ready' : ''}" data-train-slot-index="${slot.index}">
               ${cars}
-              <div class="farm-train-engine is-${train.tier}"><img src="../images/farm/train-engine.png?v=0.17.1" alt="" aria-hidden="true"><span class="farm-train-engine-rate">×${train.multiplier.toFixed(1)}</span><span class="farm-train-smoke" aria-hidden="true"></span></div>
+              <div class="farm-train-engine is-${train.tier}"><img src="../images/farm/train-engine.png?v=0.17.2" alt="" aria-hidden="true"><span class="farm-train-engine-rate">×${train.multiplier.toFixed(1)}</span><span class="farm-train-smoke" aria-hidden="true"></span></div>
             </div>
           </div>
           <div class="farm-train-progress"><span><b>${loadedCars}</b> / ${train.cars.length} 节车厢已完成</span><div><i style="width:${Math.round((loadedCars/train.cars.length)*100)}%"></i></div></div>
-          <div class="farm-train-actions"><p>点车厢后会先显示背包数量并询问是否装箱。你可以先做倍率较高的另一班列车，不必按月台顺序。</p><button type="button" data-train-depart data-train-slot-index="${slot.index}" ${complete ? '' : 'disabled'}>${complete ? `${trainIconMarkup('is-button-train')} 发车！` : `还差 ${train.cars.length - loadedCars} 节车厢`}</button></div>
+          <div class="farm-train-actions"><p>点车厢后会先显示背包数量并询问是否装箱。火车重置券可重新抽取倍率与货物需求，已装货物会先退回背包。</p><div class="farm-train-action-buttons"><button type="button" class="is-reroll" data-train-reroll data-train-slot-index="${slot.index}" ${Math.max(0,Number(state.supplies?.[TRAIN_RESET_TICKET_ID])||0)>0 ? '' : 'disabled'}>${uiIconMarkup('refresh','is-button-ui')} 刷新订单</button><button type="button" data-train-depart data-train-slot-index="${slot.index}" ${complete ? '' : 'disabled'}>${complete ? `${trainIconMarkup('is-button-train')} 发车！` : `还差 ${train.cars.length - loadedCars} 节车厢`}</button></div></div>
         </section>`;
       }).join('');
       body.innerHTML = `<section class="farm-train-hub-head"><div><b>${uiIconMarkup('farm-expert','is-heading-ui')} 今日双月台货运</b><p>每日 00:00 两班基础列车同时刷新；每班发车后 4～6 小时返程，全日最多再补 ${TRAIN_DAILY_BONUS_CAP} 班加班列车。</p></div><span><small>距离 00:00 刷新</small><b data-train-midnight>${escapeHtml(trainNextResetText())}</b><em>额外列车 ${hub.bonusGenerated}/${TRAIN_DAILY_BONUS_CAP}</em></span></section><div class="farm-train-slots">${slotMarkup}</div>`;
@@ -4567,6 +4974,10 @@
           <header><b>${uiIconMarkup('harvest-expert','is-heading-ui')} 肥料</b><span>${FERTILIZERS.reduce((sum,item)=>sum+(state.supplies[item.id]||0),0)} 包</span></header>
           <div class="farm-bag-list">${FERTILIZERS.map(item => `<div class="farm-bag-row farm-supply-row">${itemSpriteMarkup(item.itemCell, 'is-bag-item')}<div><b>${item.name}</b><small>${item.note} · 点正在成长的农田即可使用</small></div><em>×${state.supplies[item.id] || 0}</em></div>`).join('')}</div>
         </section>
+        <section class="farm-bag-section farm-station-item-section">
+          <header><b>${uiIconMarkup('refresh','is-heading-ui')} 车站道具</b><span>${Math.max(0,Math.floor(Number(state.supplies?.[TRAIN_RESET_TICKET_ID])||0))} 张</span></header>
+          <div class="farm-bag-list"><div class="farm-bag-row farm-supply-row"><span class="farm-ticket-icon">${uiIconMarkup('refresh','is-bag-ui')}</span><div><b>火车重置券</b><small>在星辰车站刷新一班尚未发车的订单：倍率、作物种类与需求数量都会重新抽取，已装货物会退回背包。</small></div><em>×${Math.max(0,Math.floor(Number(state.supplies?.[TRAIN_RESET_TICKET_ID])||0))}</em></div></div>
+        </section>
         <section class="farm-bag-section farm-decor-bag-section">
           <header><b>${uiIconMarkup('farm-expert','is-heading-ui')} 装饰</b><span>${decorOwnedTotal} 件</span></header>
           <div class="farm-decor-bag-toolbar"><span>已购买的装饰不会消耗，摆放或收回都不收费。</span><button type="button" data-decor-enter>布置农场</button></div>
@@ -4586,6 +4997,8 @@
       </div>`;
 
       if (activeTaskTab === 'daily') {
+        ensureDailyState(farmDay);
+        const tasks = dailyTasks();
         const dayLabel = escapeHtml(state.daily?.date || farmDay);
         const socialExp = Math.min(DAILY_SOCIAL_EXP_CAP, Math.max(0, Number(state.daily?.socialExp) || 0));
         const socialPct = Math.min(100, Math.round((socialExp / DAILY_SOCIAL_EXP_CAP) * 100));
@@ -4594,29 +5007,42 @@
           <strong>${socialExp} / ${DAILY_SOCIAL_EXP_CAP}</strong>
           <div class="farm-social-exp-bar"><i style="width:${socialPct}%"></i></div>
         </section>`;
-        const dailyItems = DAILY_TASKS.map(task => {
+
+        const mastery = dailyMasteryPoints();
+        const masteryRewards = DAILY_MASTERY_REWARDS.map(item => {
+          const claimed = isDailyMasteryClaimed(item.points);
+          const ready = mastery >= item.points;
+          const action = claimed
+            ? `<span class="farm-mastery-claimed">${uiIconMarkup('success','is-inline-ui')} 已领取</span>`
+            : ready
+              ? `<button type="button" data-claim-daily-mastery="${item.points}">${uiIconMarkup('claim','is-button-ui')}领取</button>`
+              : `<span class="farm-mastery-locked">${mastery} / ${item.points}</span>`;
+          return `<article class="farm-mastery-reward ${ready ? 'is-ready' : ''} ${claimed ? 'is-claimed' : ''}"><div><b>${item.points}</b><small>熟练度</small></div><p>${rewardTextMarkup(item.rewardText)}</p>${action}</article>`;
+        }).join('');
+        const masteryCard = `<section class="farm-daily-mastery ${mastery >= 100 ? 'is-complete' : ''}">
+          <header><div><span>${uiIconMarkup('daily-task','is-section-ui')}</span><div><b>今日熟练度</b><small>每完成 1 项每日任务 +${DAILY_MASTERY_PER_TASK} · 完成 5 项即可达到 100</small></div></div><strong>${mastery} / 100</strong></header>
+          <div class="farm-mastery-bar"><i style="width:${mastery}%"></i><span style="left:40%"></span><span style="left:80%"></span></div>
+          <div class="farm-mastery-rewards">${masteryRewards}</div>
+          <footer><span>${state.daily.rerollUsed ? `${uiIconMarkup('success','is-inline-ui')} 今日免费换任务已使用` : `${uiIconMarkup('refresh','is-inline-ui')} 今日可免费更换 1 项未完成任务`}</span><em>100 熟练度奖励：火车重置券可刷新倍率与货物需求</em></footer>
+        </section>`;
+
+        const dailyItems = tasks.map((task,index) => {
           const progress = dailyProgress(task);
           const complete = isDailyComplete(task);
           const claimed = isDailyClaimed(task);
           const pct = Math.min(100, Math.round((progress / task.target) * 100));
-          const action = claimed
-            ? `<span class="farm-task-claimed">${uiIconMarkup('success','is-inline-ui')} 已领取</span>`
-            : complete
-              ? `<button type="button" data-claim-daily="${task.id}">${uiIconMarkup('claim','is-button-ui')}领取奖励</button>`
-              : `<span class="farm-task-progress-text">${progress} / ${task.target}</span>`;
-          return `<article class="farm-task-item farm-daily-item ${complete ? 'is-complete' : ''} ${claimed ? 'is-claimed' : ''}">
-            <div class="farm-task-copy"><b>${uiIconMarkup('task','is-heading-ui')}${task.title}</b><p>${task.desc}</p><small>奖励：${rewardTextMarkup(task.rewardText)}</small></div>
+          let action = '';
+          if (claimed) action = `<span class="farm-task-claimed">${uiIconMarkup('success','is-inline-ui')} 已领取</span>`;
+          else if (complete) action = `<button type="button" data-claim-daily="${task.id}">${uiIconMarkup('claim','is-button-ui')}领取奖励</button>`;
+          else action = `<div class="farm-daily-task-actions"><span class="farm-task-progress-text">${progress} / ${task.target}</span>${state.daily.rerollUsed ? '' : `<button type="button" class="farm-task-reroll" data-reroll-daily-task="${index}">${uiIconMarkup('refresh','is-button-ui')}换任务</button>`}</div>`;
+          return `<article class="farm-task-item farm-daily-item ${complete ? 'is-complete' : ''} ${claimed ? 'is-claimed' : ''}" data-daily-task-slot="${index}">
+            <div class="farm-task-copy"><b>${uiIconMarkup(task.category === 'social' ? 'cooperate' : task.category === 'train' ? 'refresh' : 'task','is-heading-ui')}${task.title}</b><p>${task.desc}</p><small>奖励：${rewardTextMarkup(task.rewardText)} · 完成 +${DAILY_MASTERY_PER_TASK} 熟练度</small></div>
             <div class="farm-task-side">${action}</div>
             <div class="farm-task-bar"><i style="width:${pct}%"></i></div>
           </article>`;
         }).join('');
-        const bonusReady = isDailyBonusReady();
-        const bonusAction = state.daily.bonusClaimed
-          ? `<span class="farm-task-claimed">${uiIconMarkup('success','is-inline-ui')} 今日已领取</span>`
-          : bonusReady
-            ? `<button type="button" data-claim-daily-bonus>${uiIconMarkup('claim','is-button-ui')}领取全勤</button>`
-            : `<span class="farm-task-progress-text">${DAILY_TASKS.filter(isDailyComplete).length} / ${DAILY_TASKS.length}</span>`;
-        body.innerHTML = `${tabs}<section class="farm-daily-head"><div><small>UTC+8 每日 00:00 重置</small><b>${dayLabel}</b></div><span>${uiIconMarkup('daily-task','is-section-ui')} 今日农务</span></section>${socialCard}<div class="farm-task-list">${dailyItems}<article class="farm-task-item farm-daily-bonus ${bonusReady ? 'is-complete' : ''} ${state.daily.bonusClaimed ? 'is-claimed' : ''}"><div class="farm-task-copy"><b>${uiIconMarkup('reward-box','is-heading-ui')} ${DAILY_BONUS.title}</b><p>${DAILY_BONUS.desc}</p><small>奖励：${rewardTextMarkup(DAILY_BONUS.rewardText)}</small></div><div class="farm-task-side">${bonusAction}</div><div class="farm-task-bar"><i style="width:${Math.min(100, DAILY_TASKS.filter(isDailyComplete).length / DAILY_TASKS.length * 100)}%"></i></div></article></div>`;
+
+        body.innerHTML = `${tabs}<section class="farm-daily-head"><div><small>UTC+8 每日 00:00 重置</small><b>${dayLabel}</b></div><span>${uiIconMarkup('daily-task','is-section-ui')} 随机 5 项 · Lv.${Math.max(1,Number(state.daily.levelSnapshot)||1)} 任务池</span></section>${socialCard}${masteryCard}<div class="farm-task-list">${dailyItems}</div>`;
         return;
       }
 
@@ -4911,7 +5337,7 @@
     const modalIcon = $('farmModalIcon');
     if (modalIcon) {
       if (iconHtml) modalIcon.innerHTML = iconHtml;
-      else if (icon === 'train') modalIcon.innerHTML = '<img class="farm-modal-asset-icon" src="../images/farm/train-engine.png?v=0.17.1" alt="">';
+      else if (icon === 'train') modalIcon.innerHTML = '<img class="farm-modal-asset-icon" src="../images/farm/train-engine.png?v=0.17.2" alt="">';
       else {
         const mapped = UI_ICON_INDEX[icon] ? icon : (UI_EMOJI_ICON[icon] || (icon === '🌱' ? 'newbie-farmer' : ''));
         modalIcon.innerHTML = mapped ? uiIconMarkup(mapped,'is-modal-ui') : escapeHtml(icon || '');
@@ -5090,6 +5516,18 @@
       return;
     }
 
+    const dailyMasteryClaim = event.target.closest('[data-claim-daily-mastery]');
+    if (dailyMasteryClaim) {
+      claimDailyMastery(Number(dailyMasteryClaim.dataset.claimDailyMastery));
+      return;
+    }
+
+    const dailyReroll = event.target.closest('[data-reroll-daily-task]');
+    if (dailyReroll) {
+      rerollDailyTask(Number(dailyReroll.dataset.rerollDailyTask));
+      return;
+    }
+
     if (event.target.closest('[data-claim-daily-bonus]')) {
       claimDailyBonus();
       return;
@@ -5236,6 +5674,17 @@
 
     const fertilizePlot = event.target.closest('[data-fertilize-plot][data-fertilizer]');
     if (fertilizePlot) { applyFertilizer(Number(fertilizePlot.dataset.fertilizePlot), fertilizePlot.dataset.fertilizer); return; }
+
+    if (event.target.closest('[data-train-reroll-cancel]')) { closeTrainLoadConfirm(); return; }
+    const trainRerollConfirm = event.target.closest('[data-confirm-train-reroll]');
+    if (trainRerollConfirm) {
+      const slotIndex = Number(trainRerollConfirm.dataset.trainSlotIndex);
+      closeTrainLoadConfirm();
+      rerollTrain(slotIndex);
+      return;
+    }
+    const trainReroll = event.target.closest('[data-train-reroll]');
+    if (trainReroll) { showTrainRerollConfirm(Number(trainReroll.dataset.trainSlotIndex)); return; }
 
     if (event.target.closest('[data-train-load-cancel]')) { closeTrainLoadConfirm(); return; }
     const trainConfirm = event.target.closest('[data-confirm-train-load]');
