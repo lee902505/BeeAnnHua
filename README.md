@@ -1,3 +1,27 @@
+# V0.18.1
+
+## 农场物品 ID／衣橱拥有权／套用系统
+
+- 建立农场稳定物品编号：`#4004 火车重置券`、`#5001 星辰农夫`、`#5002 中秋节造型`、`#5003 万圣节造型`、`#5004 圣诞造型`。
+- 新增 `wardrobe.outfits` 永久拥有权；`avatar.outfit` 只保存目前穿着，拥有与穿着正式分离。
+- 基础造型 `#5001` 所有玩家永久拥有。季节造型编号先保留，素材完成前不会开放 GM 发放，避免玩家取得尚无 Sprite 的时装。
+- 角色衣橱改为明确的「套用」按钮：使用中／可套用／未拥有／尚未开放四种状态，不再点击整张卡片直接换装。
+- `#4004 火车重置券` 正式加入邮件 Item Catalog，可由 GM 系统邮件／公告附件发放并直接进入现有 `supplies.trainResetTicket`。
+- 邮件 Item Catalog 后端新增 `outfit` 类型与永久时装发奖逻辑；领取时装只解锁衣橱，不会强制自动换装。
+- GM 物品分类新增「时装」；永久时装数量固定为 1。
+- 未来活动盲盒可直接沿用这些稳定 Item ID 作为奖池项目，不需要重新设计另一套物品编号。
+- 需要执行 Supabase migration：`supabase/migrations/20260928_027_farm_item_wardrobe.sql`（026 已执行的情况下只需执行 027）。
+
+### 当前稳定 Item ID
+
+| Item ID | item_code | 类型 | 状态 |
+|---:|---|---|---|
+| 4004 | `supply.train_reset_ticket` | 农资／票券 | 已开放，可邮件发放 |
+| 5001 | `outfit.default` | 人物时装 | 基础永久拥有，不需发放 |
+| 5002 | `outfit.mid_autumn` | 人物时装 | 编号预留，待素材完成 |
+| 5003 | `outfit.halloween` | 人物时装 | 编号预留，待素材完成 |
+| 5004 | `outfit.christmas` | 人物时装 | 编号预留，待素材完成 |
+
 # V0.18.0.5
 
 - Added the approved Default Female v1 farm-owner sprite and enabled automatic male/female rendering from the player profile gender.

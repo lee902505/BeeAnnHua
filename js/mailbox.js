@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const BUILD = '0.18.0.5';
+  const BUILD = '0.18.1';
   const MAX_MAIL = 60;
   const POLL_MS = 90 * 1000;
   let mailRows = [];
@@ -23,28 +23,28 @@
       announcement:'更新公告', reward:'系统奖励', unreadMark:'未读', claimed:'已领取', expired:'已过期', permanent:'永久', claim:'领取附件', claimAll:'一键领取全部',
       memberOnly:'请先绑定正式邮箱账号后再领取附件。', claimOk:'附件已领取', claimFail:'领取失败', close:'关闭', published:'已发布', gmTitle:'GM 管理台',
       sendMail:'发布系统信件', mailTitle:'标题', mailBody:'内容', mailType:'信件类型', audience:'发送对象', allPlayers:'全体玩家', onePlayer:'指定 UID', targetUid:'目标玩家 UID', expiry:'有效期限', forever:'永久', days7:'D+7', days14:'D+14', days30:'D+30',
-      rewards:'附件奖励', coins:'金币', exp:'EXP', blind:'蔬果盲盒', carrot:'红萝卜种子', wheat:'小麦种子', corn:'玉米种子', tomato:'番茄种子', strawberry:'草莓种子', pumpkin:'南瓜种子', grape:'葡萄种子', starfruit:'星辰果种子', fertLow:'低级肥料', fertMid:'中级肥料', fertHigh:'高级肥料',
-      publish:'确认发布', preview:'发送后玩家会立即在信箱看到这封信。奖励附件每个正式账号只能领取一次。', recent:'最近发布', noHistory:'尚无发布记录。', confirmSend:'确定发布这封系统信件吗？', sent:'系统信件已发布', invalidTarget:'请输入正确的玩家 UID。', bind:'绑定账号', setup:'系统信箱尚未启用，请先执行 018_system_mail_gm.sql。', itemCategory:'物品分类', itemSelect:'选择物品', itemQty:'数量', addAttachment:'加入附件', noAttachments:'尚未加入附件。', remove:'移除', itemId:'物品 ID', categoryAll:'全部分类', categoryCurrency:'货币', categorySeed:'种子', categoryBox:'盲盒', categorySupply:'农资', verifyUid:'验证 UID', playerVerified:'玩家已确认', playerNotFound:'找不到这个玩家 UID。', run019:'请先执行 019_mail_item_catalog.sql。', claimedTab:'已领取', deleteMail:'删除邮件', deleteConfirm:'确定删除这封邮件吗？删除只会影响你的信箱。', deleteWithRewardsConfirm:'这封邮件还有未领取附件。确定删除吗？删除后将无法再领取附件。', deleteOk:'邮件已删除', deleteFail:'删除失败', expiresOn:'到期', claimSummary:'领取成功', mailsClaimed:'封邮件附件已领取', run020:'请先执行 020_mail_actions_expiry.sql。', clearClaimed:'清理已领取', clearClaimedConfirm:'确定从你的信箱移除所有已领取附件的邮件吗？未领取附件与普通公告不会被删除。', clearClaimedOk:'已清理已领取邮件', run021:'请先执行 021_mail_bulk_cleanup.sql。', gmPreview:'预览邮件', previewTitle:'玩家视角预览', previewAudience:'发送对象', previewClose:'返回编辑', guestNotice:'游客可以阅读系统公告；绑定正式账号后即可领取邮件附件。', bindToClaim:'绑定账号后领取', guestAttachment:'绑定后可领取', allFuturePlayers:'全体玩家（包含未来）', currentPlayers:'目前全体玩家（发送后新玩家不收）', status:'状态', statusPublished:'已发布', statusWithdrawn:'已撤回', statusExpired:'已到期', withdrawMail:'撤回邮件', withdrawConfirm:'确定撤回这封系统邮件吗？撤回后所有玩家会立即看不到，但 GM 稽核记录会保留；已经领取的奖励不会自动回收。', withdrawOk:'邮件已撤回', copyMail:'复制此邮件', copyOk:'已复制到编辑区', run022:'请先执行 022_mailbox_v1_final.sql。', confirmTitle:'请确认', confirmAction:'确定', cancel:'取消', currentOnlyHint:'仅发送当下已经存在的玩家可以收到。', unavailable:'邮件已撤回、过期或不在你的收件范围。'
+      rewards:'附件奖励', coins:'金币', exp:'EXP', blind:'蔬果盲盒', carrot:'红萝卜种子', wheat:'小麦种子', corn:'玉米种子', tomato:'番茄种子', strawberry:'草莓种子', pumpkin:'南瓜种子', grape:'葡萄种子', starfruit:'星辰果种子', fertLow:'低级肥料', fertMid:'中级肥料', fertHigh:'高级肥料', trainResetTicket:'火车重置券', noCatalogItems:'目前没有已开放的可发放物品。',
+      publish:'确认发布', preview:'发送后玩家会立即在信箱看到这封信。奖励附件每个正式账号只能领取一次。', recent:'最近发布', noHistory:'尚无发布记录。', confirmSend:'确定发布这封系统信件吗？', sent:'系统信件已发布', invalidTarget:'请输入正确的玩家 UID。', bind:'绑定账号', setup:'系统信箱尚未启用，请先执行 018_system_mail_gm.sql。', itemCategory:'物品分类', itemSelect:'选择物品', itemQty:'数量', addAttachment:'加入附件', noAttachments:'尚未加入附件。', remove:'移除', itemId:'物品 ID', categoryAll:'全部分类', categoryCurrency:'货币', categorySeed:'种子', categoryBox:'盲盒', categorySupply:'农资', categoryOutfit:'时装', verifyUid:'验证 UID', playerVerified:'玩家已确认', playerNotFound:'找不到这个玩家 UID。', run019:'请先执行 019_mail_item_catalog.sql。', claimedTab:'已领取', deleteMail:'删除邮件', deleteConfirm:'确定删除这封邮件吗？删除只会影响你的信箱。', deleteWithRewardsConfirm:'这封邮件还有未领取附件。确定删除吗？删除后将无法再领取附件。', deleteOk:'邮件已删除', deleteFail:'删除失败', expiresOn:'到期', claimSummary:'领取成功', mailsClaimed:'封邮件附件已领取', run020:'请先执行 020_mail_actions_expiry.sql。', clearClaimed:'清理已领取', clearClaimedConfirm:'确定从你的信箱移除所有已领取附件的邮件吗？未领取附件与普通公告不会被删除。', clearClaimedOk:'已清理已领取邮件', run021:'请先执行 021_mail_bulk_cleanup.sql。', gmPreview:'预览邮件', previewTitle:'玩家视角预览', previewAudience:'发送对象', previewClose:'返回编辑', guestNotice:'游客可以阅读系统公告；绑定正式账号后即可领取邮件附件。', bindToClaim:'绑定账号后领取', guestAttachment:'绑定后可领取', allFuturePlayers:'全体玩家（包含未来）', currentPlayers:'目前全体玩家（发送后新玩家不收）', status:'状态', statusPublished:'已发布', statusWithdrawn:'已撤回', statusExpired:'已到期', withdrawMail:'撤回邮件', withdrawConfirm:'确定撤回这封系统邮件吗？撤回后所有玩家会立即看不到，但 GM 稽核记录会保留；已经领取的奖励不会自动回收。', withdrawOk:'邮件已撤回', copyMail:'复制此邮件', copyOk:'已复制到编辑区', run022:'请先执行 022_mailbox_v1_final.sql。', confirmTitle:'请确认', confirmAction:'确定', cancel:'取消', currentOnlyHint:'仅发送当下已经存在的玩家可以收到。', unavailable:'邮件已撤回、过期或不在你的收件范围。'
     },
     'zh-TW': {
       mailbox:'星辰信箱', gm:'GM 管理', all:'全部', unread:'未讀', attachments:'有附件', empty:'目前沒有信件。', loading:'正在讀取信件…',
       announcement:'更新公告', reward:'系統獎勵', unreadMark:'未讀', claimed:'已領取', expired:'已過期', permanent:'永久', claim:'領取附件', claimAll:'一鍵領取全部',
       memberOnly:'請先綁定正式信箱帳號後再領取附件。', claimOk:'附件已領取', claimFail:'領取失敗', close:'關閉', published:'已發布', gmTitle:'GM 管理台',
       sendMail:'發布系統信件', mailTitle:'標題', mailBody:'內容', mailType:'信件類型', audience:'發送對象', allPlayers:'全體玩家', onePlayer:'指定 UID', targetUid:'目標玩家 UID', expiry:'有效期限', forever:'永久', days7:'D+7', days14:'D+14', days30:'D+30',
-      rewards:'附件獎勵', coins:'金幣', exp:'EXP', blind:'蔬果盲盒', carrot:'紅蘿蔔種子', wheat:'小麥種子', corn:'玉米種子', tomato:'番茄種子', strawberry:'草莓種子', pumpkin:'南瓜種子', grape:'葡萄種子', starfruit:'星辰果種子', fertLow:'低級肥料', fertMid:'中級肥料', fertHigh:'高級肥料',
-      publish:'確認發布', preview:'發送後玩家會立即在信箱看到這封信。獎勵附件每個正式帳號只能領取一次。', recent:'最近發布', noHistory:'尚無發布紀錄。', confirmSend:'確定發布這封系統信件嗎？', sent:'系統信件已發布', invalidTarget:'請輸入正確的玩家 UID。', bind:'綁定帳號', setup:'系統信箱尚未啟用，請先執行 018_system_mail_gm.sql。', itemCategory:'物品分類', itemSelect:'選擇物品', itemQty:'數量', addAttachment:'加入附件', noAttachments:'尚未加入附件。', remove:'移除', itemId:'物品 ID', categoryAll:'全部分類', categoryCurrency:'貨幣', categorySeed:'種子', categoryBox:'盲盒', categorySupply:'農資', verifyUid:'驗證 UID', playerVerified:'玩家已確認', playerNotFound:'找不到這個玩家 UID。', run019:'請先執行 019_mail_item_catalog.sql。', claimedTab:'已領取', deleteMail:'刪除郵件', deleteConfirm:'確定刪除這封郵件嗎？刪除只會影響你的信箱。', deleteWithRewardsConfirm:'這封郵件還有未領取附件。確定刪除嗎？刪除後將無法再領取附件。', deleteOk:'郵件已刪除', deleteFail:'刪除失敗', expiresOn:'到期', claimSummary:'領取成功', mailsClaimed:'封郵件附件已領取', run020:'請先執行 020_mail_actions_expiry.sql。', clearClaimed:'清理已領取', clearClaimedConfirm:'確定從你的信箱移除所有已領取附件的郵件嗎？未領取附件與普通公告不會被刪除。', clearClaimedOk:'已清理已領取郵件', run021:'請先執行 021_mail_bulk_cleanup.sql。', gmPreview:'預覽郵件', previewTitle:'玩家視角預覽', previewAudience:'發送對象', previewClose:'返回編輯', guestNotice:'遊客可以閱讀系統公告；綁定正式帳號後即可領取郵件附件。', bindToClaim:'綁定帳號後領取', guestAttachment:'綁定後可領取', allFuturePlayers:'全體玩家（包含未來）', currentPlayers:'目前全體玩家（發送後新玩家不收）', status:'狀態', statusPublished:'已發布', statusWithdrawn:'已撤回', statusExpired:'已到期', withdrawMail:'撤回郵件', withdrawConfirm:'確定撤回這封系統郵件嗎？撤回後所有玩家會立即看不到，但 GM 稽核紀錄會保留；已經領取的獎勵不會自動回收。', withdrawOk:'郵件已撤回', copyMail:'複製此郵件', copyOk:'已複製到編輯區', run022:'請先執行 022_mailbox_v1_final.sql。', confirmTitle:'請確認', confirmAction:'確定', cancel:'取消', currentOnlyHint:'僅發送當下已經存在的玩家可以收到。', unavailable:'郵件已撤回、過期或不在你的收件範圍。'
+      rewards:'附件獎勵', coins:'金幣', exp:'EXP', blind:'蔬果盲盒', carrot:'紅蘿蔔種子', wheat:'小麥種子', corn:'玉米種子', tomato:'番茄種子', strawberry:'草莓種子', pumpkin:'南瓜種子', grape:'葡萄種子', starfruit:'星辰果種子', fertLow:'低級肥料', fertMid:'中級肥料', fertHigh:'高級肥料', trainResetTicket:'火車重置券', noCatalogItems:'目前沒有已開放的可發放物品。',
+      publish:'確認發布', preview:'發送後玩家會立即在信箱看到這封信。獎勵附件每個正式帳號只能領取一次。', recent:'最近發布', noHistory:'尚無發布紀錄。', confirmSend:'確定發布這封系統信件嗎？', sent:'系統信件已發布', invalidTarget:'請輸入正確的玩家 UID。', bind:'綁定帳號', setup:'系統信箱尚未啟用，請先執行 018_system_mail_gm.sql。', itemCategory:'物品分類', itemSelect:'選擇物品', itemQty:'數量', addAttachment:'加入附件', noAttachments:'尚未加入附件。', remove:'移除', itemId:'物品 ID', categoryAll:'全部分類', categoryCurrency:'貨幣', categorySeed:'種子', categoryBox:'盲盒', categorySupply:'農資', categoryOutfit:'時裝', verifyUid:'驗證 UID', playerVerified:'玩家已確認', playerNotFound:'找不到這個玩家 UID。', run019:'請先執行 019_mail_item_catalog.sql。', claimedTab:'已領取', deleteMail:'刪除郵件', deleteConfirm:'確定刪除這封郵件嗎？刪除只會影響你的信箱。', deleteWithRewardsConfirm:'這封郵件還有未領取附件。確定刪除嗎？刪除後將無法再領取附件。', deleteOk:'郵件已刪除', deleteFail:'刪除失敗', expiresOn:'到期', claimSummary:'領取成功', mailsClaimed:'封郵件附件已領取', run020:'請先執行 020_mail_actions_expiry.sql。', clearClaimed:'清理已領取', clearClaimedConfirm:'確定從你的信箱移除所有已領取附件的郵件嗎？未領取附件與普通公告不會被刪除。', clearClaimedOk:'已清理已領取郵件', run021:'請先執行 021_mail_bulk_cleanup.sql。', gmPreview:'預覽郵件', previewTitle:'玩家視角預覽', previewAudience:'發送對象', previewClose:'返回編輯', guestNotice:'遊客可以閱讀系統公告；綁定正式帳號後即可領取郵件附件。', bindToClaim:'綁定帳號後領取', guestAttachment:'綁定後可領取', allFuturePlayers:'全體玩家（包含未來）', currentPlayers:'目前全體玩家（發送後新玩家不收）', status:'狀態', statusPublished:'已發布', statusWithdrawn:'已撤回', statusExpired:'已到期', withdrawMail:'撤回郵件', withdrawConfirm:'確定撤回這封系統郵件嗎？撤回後所有玩家會立即看不到，但 GM 稽核紀錄會保留；已經領取的獎勵不會自動回收。', withdrawOk:'郵件已撤回', copyMail:'複製此郵件', copyOk:'已複製到編輯區', run022:'請先執行 022_mailbox_v1_final.sql。', confirmTitle:'請確認', confirmAction:'確定', cancel:'取消', currentOnlyHint:'僅發送當下已經存在的玩家可以收到。', unavailable:'郵件已撤回、過期或不在你的收件範圍。'
     },
     en: {
       mailbox:'Stellar Mail', gm:'GM Console', all:'All', unread:'Unread', attachments:'Attachments', empty:'No mail yet.', loading:'Loading mail…',
       announcement:'Update', reward:'Reward', unreadMark:'Unread', claimed:'Claimed', expired:'Expired', permanent:'Permanent', claim:'Claim attachments', claimAll:'Claim all',
       memberOnly:'Bind a permanent email account before claiming rewards.', claimOk:'Attachments claimed', claimFail:'Claim failed', close:'Close', published:'Published', gmTitle:'GM Console',
       sendMail:'Publish system mail', mailTitle:'Title', mailBody:'Content', mailType:'Mail type', audience:'Audience', allPlayers:'All players', onePlayer:'Specific UID', targetUid:'Target player UID', expiry:'Expiry', forever:'Permanent', days7:'D+7', days14:'D+14', days30:'D+30',
-      rewards:'Attachments', coins:'Coins', exp:'EXP', blind:'Produce mystery box', carrot:'Carrot seeds', wheat:'Wheat seeds', corn:'Corn seeds', tomato:'Tomato seeds', strawberry:'Strawberry seeds', pumpkin:'Pumpkin seeds', grape:'Grape seeds', starfruit:'Starfruit seeds', fertLow:'Basic fertilizer', fertMid:'Medium fertilizer', fertHigh:'Advanced fertilizer',
-      publish:'Publish', preview:'Players will see this mail immediately. Each permanent account can claim each attachment only once.', recent:'Recent mail', noHistory:'No published mail yet.', confirmSend:'Publish this system mail?', sent:'System mail published', invalidTarget:'Enter a valid player UID.', bind:'Bind account', setup:'Mailbox is not enabled yet. Run 018_system_mail_gm.sql first.', itemCategory:'Item category', itemSelect:'Choose item', itemQty:'Quantity', addAttachment:'Add attachment', noAttachments:'No attachments added.', remove:'Remove', itemId:'Item ID', categoryAll:'All categories', categoryCurrency:'Currency', categorySeed:'Seeds', categoryBox:'Boxes', categorySupply:'Supplies', verifyUid:'Verify UID', playerVerified:'Player verified', playerNotFound:'Player UID not found.', run019:'Run 019_mail_item_catalog.sql first.', claimedTab:'Claimed', deleteMail:'Delete mail', deleteConfirm:'Delete this mail? This only removes it from your mailbox.', deleteWithRewardsConfirm:'This mail still has unclaimed attachments. Delete it anyway? You will not be able to claim them later.', deleteOk:'Mail deleted', deleteFail:'Delete failed', expiresOn:'Expires', claimSummary:'Claimed', mailsClaimed:'mail rewards claimed', run020:'Run 020_mail_actions_expiry.sql first.', clearClaimed:'Clear claimed', clearClaimedConfirm:'Remove all claimed reward mails from your mailbox? Unclaimed reward mail and normal announcements will be kept.', clearClaimedOk:'Claimed mail cleared', run021:'Run 021_mail_bulk_cleanup.sql first.', gmPreview:'Preview mail', previewTitle:'Player preview', previewAudience:'Audience', previewClose:'Back to edit', guestNotice:'Guests can read system mail. Bind a permanent account to claim attachments.', bindToClaim:'Bind account to claim', guestAttachment:'Bind to claim', allFuturePlayers:'All players (including future)', currentPlayers:'Current players only', status:'Status', statusPublished:'Published', statusWithdrawn:'Withdrawn', statusExpired:'Expired', withdrawMail:'Withdraw mail', withdrawConfirm:'Withdraw this system mail? Players will lose access immediately and the GM audit record is retained. Rewards already claimed are not clawed back.', withdrawOk:'Mail withdrawn', copyMail:'Copy mail', copyOk:'Copied to editor', run022:'Run 022_mailbox_v1_final.sql first.', confirmTitle:'Confirm', confirmAction:'Confirm', cancel:'Cancel', currentOnlyHint:'Only accounts that already exist when this mail is published can receive it.', unavailable:'This mail was withdrawn, expired, or is outside your recipient scope.'
+      rewards:'Attachments', coins:'Coins', exp:'EXP', blind:'Produce mystery box', carrot:'Carrot seeds', wheat:'Wheat seeds', corn:'Corn seeds', tomato:'Tomato seeds', strawberry:'Strawberry seeds', pumpkin:'Pumpkin seeds', grape:'Grape seeds', starfruit:'Starfruit seeds', fertLow:'Basic fertilizer', fertMid:'Medium fertilizer', fertHigh:'Advanced fertilizer', trainResetTicket:'Train reset ticket', noCatalogItems:'No released sendable items in this category yet.',
+      publish:'Publish', preview:'Players will see this mail immediately. Each permanent account can claim each attachment only once.', recent:'Recent mail', noHistory:'No published mail yet.', confirmSend:'Publish this system mail?', sent:'System mail published', invalidTarget:'Enter a valid player UID.', bind:'Bind account', setup:'Mailbox is not enabled yet. Run 018_system_mail_gm.sql first.', itemCategory:'Item category', itemSelect:'Choose item', itemQty:'Quantity', addAttachment:'Add attachment', noAttachments:'No attachments added.', remove:'Remove', itemId:'Item ID', categoryAll:'All categories', categoryCurrency:'Currency', categorySeed:'Seeds', categoryBox:'Boxes', categorySupply:'Supplies', categoryOutfit:'Outfits', verifyUid:'Verify UID', playerVerified:'Player verified', playerNotFound:'Player UID not found.', run019:'Run 019_mail_item_catalog.sql first.', claimedTab:'Claimed', deleteMail:'Delete mail', deleteConfirm:'Delete this mail? This only removes it from your mailbox.', deleteWithRewardsConfirm:'This mail still has unclaimed attachments. Delete it anyway? You will not be able to claim them later.', deleteOk:'Mail deleted', deleteFail:'Delete failed', expiresOn:'Expires', claimSummary:'Claimed', mailsClaimed:'mail rewards claimed', run020:'Run 020_mail_actions_expiry.sql first.', clearClaimed:'Clear claimed', clearClaimedConfirm:'Remove all claimed reward mails from your mailbox? Unclaimed reward mail and normal announcements will be kept.', clearClaimedOk:'Claimed mail cleared', run021:'Run 021_mail_bulk_cleanup.sql first.', gmPreview:'Preview mail', previewTitle:'Player preview', previewAudience:'Audience', previewClose:'Back to edit', guestNotice:'Guests can read system mail. Bind a permanent account to claim attachments.', bindToClaim:'Bind account to claim', guestAttachment:'Bind to claim', allFuturePlayers:'All players (including future)', currentPlayers:'Current players only', status:'Status', statusPublished:'Published', statusWithdrawn:'Withdrawn', statusExpired:'Expired', withdrawMail:'Withdraw mail', withdrawConfirm:'Withdraw this system mail? Players will lose access immediately and the GM audit record is retained. Rewards already claimed are not clawed back.', withdrawOk:'Mail withdrawn', copyMail:'Copy mail', copyOk:'Copied to editor', run022:'Run 022_mailbox_v1_final.sql first.', confirmTitle:'Confirm', confirmAction:'Confirm', cancel:'Cancel', currentOnlyHint:'Only accounts that already exist when this mail is published can receive it.', unavailable:'This mail was withdrawn, expired, or is outside your recipient scope.'
     }
   };
 
-  const FARM_ICONS = Object.freeze({coin:1,exp:2,'reward-box':6,'seed-carrot':36,'seed-wheat':37,'seed-corn':38,'seed-tomato':39,'seed-strawberry':40,'seed-pumpkin':41,'seed-grape':42,'seed-starfruit':43,mailbox:44,announcement:45,attachment:46,'claim-all':47,mail:48});
+  const FARM_ICONS = Object.freeze({coin:1,exp:2,'reward-box':6,refresh:17,outfit:27,'seed-carrot':36,'seed-wheat':37,'seed-corn':38,'seed-tomato':39,'seed-strawberry':40,'seed-pumpkin':41,'seed-grape':42,'seed-starfruit':43,mailbox:44,announcement:45,attachment:46,'claim-all':47,mail:48});
   const REWARD_LABELS = Object.freeze({
     coins:['coin','coins'], exp:['exp','exp'], mystery:['reward-box','blind'], carrot:['seed-carrot','carrot'], wheat:['seed-wheat','wheat'], corn:['seed-corn','corn'], tomato:['seed-tomato','tomato'], strawberry:['seed-strawberry','strawberry'], pumpkin:['seed-pumpkin','pumpkin'], grape:['seed-grape','grape'], starfruit:['seed-starfruit','starfruit']
   });
@@ -102,7 +102,12 @@
     return locale()==='en' ? (item.name_en || item.item_code) : locale()==='zh-TW' ? (item.name_zh_tw || item.name_zh_cn || item.item_code) : (item.name_zh_cn || item.item_code);
   }
   function categoryName(category) {
-    return t(category==='currency'?'categoryCurrency':category==='seed'?'categorySeed':category==='box'?'categoryBox':'categorySupply');
+    const key = category==='currency' ? 'categoryCurrency'
+      : category==='seed' ? 'categorySeed'
+      : category==='box' ? 'categoryBox'
+      : category==='outfit' ? 'categoryOutfit'
+      : 'categorySupply';
+    return t(key);
   }
   function farmItemIcon(cell,className='') {
     const index=Math.max(1,Number(cell)||1), col=(index-1)%4,row=Math.floor((index-1)/4);
@@ -153,6 +158,7 @@
     if(Number(supplies.fertilizerLow)>0)items.push({farmItemCell:5,label:t('fertLow'),qty:Number(supplies.fertilizerLow)});
     if(Number(supplies.fertilizerMid)>0)items.push({farmItemCell:6,label:t('fertMid'),qty:Number(supplies.fertilizerMid)});
     if(Number(supplies.fertilizerHigh)>0)items.push({farmItemCell:7,label:t('fertHigh'),qty:Number(supplies.fertilizerHigh)});
+    if(Number(supplies.trainResetTicket)>0)items.push({icon:'refresh',label:t('trainResetTicket'),qty:Number(supplies.trainResetTicket)});
     return items;
   }
   function rewardMarkup(rewards,compact=false) {
@@ -367,7 +373,7 @@
   function closeMailbox() { const modal=document.getElementById('stellarMailboxModal'); if(modal)modal.hidden=true; document.body.classList.remove('stellar-mail-open'); }
 
   function gmCategoryOptions() {
-    return [['all','categoryAll'],['currency','categoryCurrency'],['seed','categorySeed'],['box','categoryBox'],['supply','categorySupply']]
+    return [['all','categoryAll'],['currency','categoryCurrency'],['seed','categorySeed'],['box','categoryBox'],['supply','categorySupply'],['outfit','categoryOutfit']]
       .map(([value,key])=>`<option value="${value}">${esc(t(key))}</option>`).join('');
   }
   function gmItemOptions(category='all') {
@@ -378,7 +384,8 @@
     const select=document.getElementById('gmItemSelect'); if(!select)return;
     const category=document.getElementById('gmItemCategory')?.value||'all';
     const current=select.value;
-    select.innerHTML=gmItemOptions(category)||`<option value="">${esc(t('run019'))}</option>`;
+    const options=gmItemOptions(category);
+    select.innerHTML=options||`<option value="">${esc(itemCatalogLoaded ? t('noCatalogItems') : t('run019'))}</option>`;
     if([...select.options].some(o=>o.value===current))select.value=current;
     renderGmItemMeta();
   }
@@ -386,6 +393,12 @@
     const host=document.getElementById('gmItemMeta'); if(!host)return;
     const item=catalogById(document.getElementById('gmItemSelect')?.value);
     host.innerHTML=item?`${catalogIcon(item,'is-gm-item-icon')}<span><b>${esc(catalogName(item))}</b><small>#${item.item_id} · ${esc(item.item_code)} · ${esc(categoryName(item.category))}</small></span>`:'';
+    const qty=document.getElementById('gmItemQty');
+    if(qty && item){
+      const max=Math.max(1,Number(item.max_quantity)||1);
+      qty.max=String(max);
+      if(item.category==='outfit'){qty.value='1';qty.disabled=true;} else {qty.disabled=false;qty.value=String(Math.max(1,Math.min(max,Math.floor(Number(qty.value)||1))));}
+    }
   }
   function renderGmAttachments() {
     const host=document.getElementById('gmAttachmentList'); if(!host)return;
@@ -414,7 +427,7 @@
     add(1001,rewards?.coins); add(1002,rewards?.exp);
     const seedIds={mystery:2001,carrot:3001,wheat:3002,corn:3003,tomato:3004,strawberry:3005,pumpkin:3006,grape:3007,starfruit:3008};
     Object.entries(rewards?.seeds||{}).forEach(([key,qty])=>{if(seedIds[key])add(seedIds[key],qty);});
-    const supplyIds={fertilizerLow:4001,fertilizerMid:4002,fertilizerHigh:4003};
+    const supplyIds={fertilizerLow:4001,fertilizerMid:4002,fertilizerHigh:4003,trainResetTicket:4004};
     Object.entries(rewards?.supplies||{}).forEach(([key,qty])=>{if(supplyIds[key])add(supplyIds[key],qty);});
     return out;
   }

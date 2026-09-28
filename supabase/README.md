@@ -43,3 +43,8 @@ It adds the UTC+8 daily social EXP pool (50 max), +2 EXP first-visit rewards, +5
 
 Run `migrations/20260928_026_farm_daily_quest_v2.sql` after migration 025.
 It keeps the server-authoritative friend interaction helper aligned with the expanded V0.17.2 daily-state shape, including daily friend-water / pest-care counters used by the random quest pool. No new table is created; quest selection, mastery claims, the free reroll flag and train reset tickets remain inside the existing `farm_saves.state` JSON.
+
+## V0.18.1 farm item IDs / wardrobe ownership
+
+Run `migrations/20260928_027_farm_item_wardrobe.sql` after migration 026.
+It registers `#4004` train reset tickets in the stable item catalog, reserves `#5001–#5004` outfit IDs, adds the `outfit` reward type, and stores permanent cosmetic ownership in `farm_saves.state.wardrobe.outfits`. Seasonal outfits remain mail-disabled until their male/female Sprite Sheets are released.

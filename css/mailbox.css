@@ -1,4 +1,4 @@
-/* Stellar Diary V0.18.0.5 — System mailbox + GM console */
+/* Stellar Diary V0.18.1 — System mailbox + GM console */
 body.stellar-mail-open{overflow:hidden}
 .stellar-account-tools{display:inline-flex;align-items:center;justify-content:flex-end;gap:8px;min-width:0}
 .stellar-mail-entry,.stellar-gm-entry{position:relative;display:inline-grid;place-items:center;flex:0 0 auto;border:1px solid rgba(235,207,159,.34);background:rgba(255,247,226,.09);color:#f7e7c9;cursor:pointer;box-shadow:inset 0 1px rgba(255,255,255,.08);transition:.18s ease;font:800 .69rem/1 inherit}
@@ -6,8 +6,8 @@ body.stellar-mail-open{overflow:hidden}
 .stellar-gm-entry{min-width:38px;height:32px;padding:0 9px;border-radius:999px;letter-spacing:.08em;color:#ffe7a3;background:rgba(109,80,27,.32)}
 .stellar-mail-count{position:absolute;right:-5px;top:-5px;min-width:18px;height:18px;padding:0 4px;display:grid;place-items:center;border-radius:999px;background:#d84f49;color:#fff;font-size:.55rem;box-shadow:0 0 0 2px #292444}
 .mail-farm-icon,.mail-site-icon{display:inline-block;flex:0 0 auto;background-repeat:no-repeat;background-color:transparent;vertical-align:middle}
-.mail-farm-icon{width:24px;height:24px;background-image:url("../images/farm/farm-ui-icon-sheet-01.png?v=0.18.0.5");background-size:800% 600%;background-position:var(--mail-farm-x,0%) var(--mail-farm-y,0%)}
-.mail-site-icon{width:24px;height:24px;background-image:url("../images/ui/stellar-ui-icon-sheet-02.png?v=0.18.0.5");background-size:600% 400%;background-position:var(--mail-site-x,0%) var(--mail-site-y,0%)}
+.mail-farm-icon{width:24px;height:24px;background-image:url("../images/farm/farm-ui-icon-sheet-01.png?v=0.18.1");background-size:800% 600%;background-position:var(--mail-farm-x,0%) var(--mail-farm-y,0%)}
+.mail-site-icon{width:24px;height:24px;background-image:url("../images/ui/stellar-ui-icon-sheet-02.png?v=0.18.1");background-size:600% 400%;background-position:var(--mail-site-x,0%) var(--mail-site-y,0%)}
 .stellar-mail-entry .mail-farm-icon{width:27px;height:27px}.stellar-mail-modal[hidden]{display:none!important}.stellar-mail-modal{position:fixed;inset:0;z-index:12000;display:grid;place-items:center;padding:18px}.stellar-mail-backdrop{position:absolute;inset:0;background:rgba(14,15,22,.68);backdrop-filter:blur(9px)}
 .stellar-mail-dialog{position:relative;width:min(980px,96vw);max-height:min(820px,91vh);display:flex;flex-direction:column;overflow:hidden;border:1px solid rgba(188,158,103,.28);border-radius:27px;background:linear-gradient(155deg,#fffdf2,#f5ead0 72%,#ece0bd);box-shadow:0 32px 90px rgba(22,18,13,.34);color:#554d3d}
 .stellar-mail-dialog>header{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:18px 20px 15px;border-bottom:1px solid rgba(114,91,55,.13);background:rgba(255,253,244,.66)}
@@ -20,7 +20,7 @@ body.stellar-mail-open{overflow:hidden}
 @media(max-width:430px){.stellar-gm-rewards{grid-template-columns:1fr}.stellar-mail-dialog>header span>b{font-size:1rem}.stellar-mail-row>em i{display:none}}
 
 /* ===== V0.17.1 GM ITEM CATALOG / ATTACHMENT BUILDER ===== */
-.mail-farm-item-icon{display:inline-block;flex:0 0 auto;width:24px;height:24px;background-image:url("../images/farm/farm-item-sheet-01.webp?v=0.18.0.5");background-size:400% 400%;background-position:var(--mail-item-x,0%) var(--mail-item-y,0%);background-repeat:no-repeat;background-color:transparent;vertical-align:middle}
+.mail-farm-item-icon{display:inline-block;flex:0 0 auto;width:24px;height:24px;background-image:url("../images/farm/farm-item-sheet-01.webp?v=0.18.1");background-size:400% 400%;background-position:var(--mail-item-x,0%) var(--mail-item-y,0%);background-repeat:no-repeat;background-color:transparent;vertical-align:middle}
 .stellar-gm-item-builder{display:grid;gap:10px;padding:12px;border:1px solid rgba(232,201,143,.13);border-radius:14px;background:rgba(255,255,255,.025)}
 .stellar-gm-item-controls{display:grid;grid-template-columns:minmax(120px,.7fr) minmax(220px,1.45fr) 92px auto;gap:8px;align-items:end}
 .stellar-gm-item-controls label{min-width:0}.stellar-gm-item-controls .is-item-select{min-width:0}.stellar-gm-item-controls .is-qty input{text-align:center}

@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const FARM_BUILD = '0.18.0.5';
+  const FARM_BUILD = '0.18.1';
   const STORAGE_KEY = 'xingchen-farm-v1';
   const VERSION = 1;
   const PLOT_COUNT = 20;
@@ -16,12 +16,23 @@
   const PENDING_OPS_KEY = 'xingchen-farm-v1-pending-ops';
 
 
-  // V0.18.0.5 — default male + female farm owners. Avatar gender follows
-  // the player's main profile setting; this panel manages appearance only.
-  // Both default sprites share the same 1024×2048 / 2×4 / 512px frame spec.
+  // V0.18.1 — stable farm item IDs + wardrobe ownership.  Outfit ownership
+  // is permanent, while avatar.outfit only records the currently equipped look.
+  // Seasonal IDs are reserved now; they stay unreleased until both sprite sheets
+  // are added in a later version.
+  const FARM_ITEM_IDS = Object.freeze({
+    TRAIN_RESET_TICKET:4004,
+    OUTFIT_DEFAULT:5001,
+    OUTFIT_MID_AUTUMN:5002,
+    OUTFIT_HALLOWEEN:5003,
+    OUTFIT_CHRISTMAS:5004
+  });
   const AVATAR_GENDERS = Object.freeze(['male','female']);
   const AVATAR_OUTFITS = Object.freeze([
-    Object.freeze({id:'default', name:'星辰农夫', note:'温暖朴实的基础农夫造型。', male:true, female:true})
+    Object.freeze({id:'default', itemId:FARM_ITEM_IDS.OUTFIT_DEFAULT, name:'星辰农夫', note:'温暖朴实的基础农夫造型。', icon:'🌾', released:true, male:true, female:true, maleAsset:'default-male.png', femaleAsset:'default-female.png'}),
+    Object.freeze({id:'mid_autumn', itemId:FARM_ITEM_IDS.OUTFIT_MID_AUTUMN, name:'中秋节造型', note:'节日限定服装。', icon:'🌕', released:false, male:false, female:false, maleAsset:'', femaleAsset:''}),
+    Object.freeze({id:'halloween', itemId:FARM_ITEM_IDS.OUTFIT_HALLOWEEN, name:'万圣节造型', note:'节日限定服装。', icon:'🎃', released:false, male:false, female:false, maleAsset:'', femaleAsset:''}),
+    Object.freeze({id:'christmas', itemId:FARM_ITEM_IDS.OUTFIT_CHRISTMAS, name:'圣诞造型', note:'节日限定服装。', icon:'🎄', released:false, male:false, female:false, maleAsset:'', femaleAsset:''})
   ]);
 
   const CROPS = [
@@ -181,12 +192,13 @@
     { id:'friend10', title:'农场交友达人', desc:'好友达到 10 人。', type:'friend', target:10, reward:{seeds:{pumpkin:3}}, rewardText:'南瓜种子 ×3' }
   ];
 
-  // V0.18.0.5 — Daily Quest 2.0. Five quests are selected once per UTC+8 farm day
+  // V0.18.1 — Daily Quest 2.0. Five quests are selected once per UTC+8 farm day
   // from a level-aware pool. The selected ids live inside the existing farm save,
   // so F5 / mobile / desktop all see the same plan without an extra database table.
   const DAILY_TASK_COUNT = 5;
   const DAILY_MASTERY_PER_TASK = 20;
   const TRAIN_RESET_TICKET_ID = 'trainResetTicket';
+  const TRAIN_RESET_TICKET_ITEM_ID = FARM_ITEM_IDS.TRAIN_RESET_TICKET;
   const DAILY_TASK_POOL = Object.freeze([
     // Farm work — two slots are reserved for this category every day.
     Object.freeze({id:'dailyPlant5', category:'farm', family:'plant', title:'今日播种', desc:'今天播种 5 格农地。', metric:'plant', target:5, minLevel:1, reward:{coins:15}, rewardText:'金币 ×15'}),
@@ -225,7 +237,7 @@
     Object.freeze({id:'dailyTrainDepart1', category:'train', family:'train-depart', title:'送走一班列车', desc:'今天完成并发出 1 班星辰货运列车。', metric:'trainDepart', target:1, minLevel:5, reward:{coins:30}, rewardText:'金币 ×30'})
   ]);
   // Compatibility only: pending V0.17.1 full-attendance claims are still honored
-  // during conflict replay, but V0.18.0.5 no longer renders this old bonus card.
+  // during conflict replay, but V0.18.1 no longer renders this old bonus card.
   const DAILY_BONUS = { id:'dailyBonus', title:'今日农场全勤', desc:'完成今天全部 5 项每日任务。', reward:{seeds:{mystery:1}, exp:30}, rewardText:'蔬果盲盒 ×1 · EXP +30' };
   const DAILY_MASTERY_REWARDS = Object.freeze([
     Object.freeze({points:40, title:'今日熟练 I', reward:{coins:20}, rewardText:'金币 ×20'}),
@@ -415,17 +427,52 @@
   let achievementGroupScrollLeft = 0;
 
   const $ = (id) => document.getElementById(id);
-  const avatarOutfitById = id => AVATAR_OUTFITS.find(item => item.id === id) || AVATAR_OUTFITS[0];
-  function renderedAvatarGender() {
+  function avatarOutfitById(id) { return AVATAR_OUTFITS.find(item => item.id === id) || AVATAR_OUTFITS[0]; }
+  function outfitOwned(id) {
+    if (id === 'default') return true;
+    return state.wardrobe?.outfits?.[id] === true;
+  }
+  function outfitSupportsGender(outfit, gender) {
+    if (!outfit) return false;
+    return gender === 'female' ? Boolean(outfit.female && outfit.femaleAsset) : Boolean(outfit.male && outfit.maleAsset);
+  }
+  function renderedAvatarGender(outfitId = state.avatar?.outfit || 'default') {
     const requested = AVATAR_GENDERS.includes(state.avatar?.gender) ? state.avatar.gender : 'male';
-    const outfit = avatarOutfitById(state.avatar?.outfit || 'default');
-    if (requested === 'female' && !outfit.female && outfit.male) return 'male';
-    if (requested === 'male' && !outfit.male && outfit.female) return 'female';
+    const outfit = avatarOutfitById(outfitId);
+    if (requested === 'female' && !outfitSupportsGender(outfit,'female') && outfitSupportsGender(outfit,'male')) return 'male';
+    if (requested === 'male' && !outfitSupportsGender(outfit,'male') && outfitSupportsGender(outfit,'female')) return 'female';
     return requested;
   }
-  function avatarSpriteMarkup(extraClass = '', label = '') {
-    const gender = renderedAvatarGender();
-    return `<span class="farm-avatar-sprite ${extraClass}" data-avatar-gender="${gender}" ${label ? `role="img" aria-label="${escapeHtml(label)}"` : 'aria-hidden="true"'}></span>`;
+  function avatarSpriteAsset(outfitId = state.avatar?.outfit || 'default', gender = renderedAvatarGender(outfitId)) {
+    const outfit = avatarOutfitById(outfitId);
+    const asset = gender === 'female' ? outfit.femaleAsset : outfit.maleAsset;
+    if (asset) return asset;
+    const fallback = AVATAR_OUTFITS[0];
+    return gender === 'female' ? fallback.femaleAsset : fallback.maleAsset;
+  }
+  function avatarSpriteUrl(outfitId = state.avatar?.outfit || 'default', gender = renderedAvatarGender(outfitId)) {
+    return `../images/farm/avatar/${avatarSpriteAsset(outfitId,gender)}?v=${FARM_BUILD}`;
+  }
+  function avatarSpriteMarkup(extraClass = '', label = '', outfitId = state.avatar?.outfit || 'default') {
+    const outfit = avatarOutfitById(outfitId);
+    const gender = renderedAvatarGender(outfit.id);
+    return `<span class="farm-avatar-sprite ${extraClass}" data-avatar-gender="${gender}" data-avatar-outfit="${escapeHtml(outfit.id)}" style="--avatar-sprite-image:url('${avatarSpriteUrl(outfit.id,gender)}')" ${label ? `role="img" aria-label="${escapeHtml(label)}"` : 'aria-hidden="true"'}></span>`;
+  }
+  function outfitCardMarkup(outfit) {
+    const active = state.avatar?.outfit === outfit.id;
+    const owned = outfitOwned(outfit.id);
+    const requestedGender = AVATAR_GENDERS.includes(state.avatar?.gender) ? state.avatar.gender : 'male';
+    const ready = Boolean(outfit.released && outfitSupportsGender(outfit,requestedGender));
+    const visual = ready
+      ? `<span class="farm-outfit-thumb">${avatarSpriteMarkup('is-outfit-thumb','',outfit.id)}</span>`
+      : `<span class="farm-outfit-placeholder-art" aria-hidden="true">${outfit.icon || '👕'}</span>`;
+    const note = outfit.id === 'default' ? '基础造型 · 永久拥有' : ready ? (owned ? '节日限定 · 已拥有' : '节日限定 · 未拥有') : '节日限定 · 尚未开放';
+    const action = active
+      ? `<button type="button" class="farm-outfit-apply is-current" disabled>✓ 使用中</button>`
+      : ready && owned
+        ? `<button type="button" class="farm-outfit-apply" data-apply-outfit="${escapeHtml(outfit.id)}">套用</button>`
+        : `<button type="button" class="farm-outfit-apply is-locked" disabled>${ready ? '🔒 未拥有' : '尚未开放'}</button>`;
+    return `<article class="farm-outfit-card ${active ? 'is-active' : ''} ${owned ? 'is-owned' : 'is-locked'} ${ready ? '' : 'is-coming-soon'}">${visual}<span class="farm-outfit-copy"><b>${escapeHtml(outfit.name)}</b><small>${escapeHtml(note)} · #${outfit.itemId}</small></span>${action}</article>`;
   }
   function cropById(id) { return id === MYSTERY_CROP.id ? MYSTERY_CROP : CROPS.find(c => c.id === id); }
   const fertilizerById = (id) => FERTILIZERS.find(item => item.id === id) || null;
@@ -1448,7 +1495,7 @@
     return `<span class="farm-ui-icon ${escapeHtml(className)}" data-ui-icon="${safeKey}"${aria}></span>`;
   }
   function trainIconMarkup(className='') {
-    return `<img class="farm-inline-train-icon ${escapeHtml(className)}" src="../images/farm/train-engine.png?v=0.18.0.5" alt="" aria-hidden="true">`;
+    return `<img class="farm-inline-train-icon ${escapeHtml(className)}" src="../images/farm/train-engine.png?v=0.18.1" alt="" aria-hidden="true">`;
   }
   function uiTextMarkup(value) {
     let text = escapeHtml(value ?? '');
@@ -1725,6 +1772,7 @@
       produce: {},
       supplies: { fertilizerLow:0, fertilizerMid:0, fertilizerHigh:0, [TRAIN_RESET_TICKET_ID]:0 },
       decorations: { owned:{}, slots:Array(DECORATION_SLOT_COUNT).fill(null) },
+      wardrobe: { outfits:{ default:true } },
       avatar: { gender:'male', outfit:'default' },
       npcSocial: { friends:[], activities:[], steals:[], waterHelps:[], footprints:[], lastHelpCheckAt:0, lastVisitCheckAt:0 },
       train: null,
@@ -1780,11 +1828,24 @@
     });
     merged.decorations = {owned:decorOwned, slots:decorSlots};
 
+    const wardrobeRaw = raw?.wardrobe && typeof raw.wardrobe === 'object' ? raw.wardrobe : {};
+    const ownedRaw = wardrobeRaw.outfits && typeof wardrobeRaw.outfits === 'object' && !Array.isArray(wardrobeRaw.outfits) ? wardrobeRaw.outfits : {};
+    // Preserve unknown future outfit keys so an older client never erases a
+    // server-granted cosmetic from a newer catalog version.
+    const ownedOutfits = {};
+    Object.entries(ownedRaw).forEach(([id,value]) => {
+      if (/^[a-z0-9][a-z0-9_-]{0,63}$/i.test(id) && value === true) ownedOutfits[id] = true;
+    });
+    ownedOutfits.default = true;
+    merged.wardrobe = {outfits:ownedOutfits};
+
     const avatarRaw = raw?.avatar && typeof raw.avatar === 'object' ? raw.avatar : {};
     const requestedAvatarGender = AVATAR_GENDERS.includes(avatarRaw.gender) ? avatarRaw.gender : 'male';
     const avatarOutfitEntry = avatarOutfitById(avatarRaw.outfit);
     const avatarGender = requestedAvatarGender;
-    merged.avatar = {gender:avatarGender, outfit:avatarOutfitEntry.id};
+    const normalizedOutfit = (avatarOutfitEntry.id === 'default' || ownedOutfits[avatarOutfitEntry.id] === true) && avatarOutfitEntry.released && outfitSupportsGender(avatarOutfitEntry,avatarGender)
+      ? avatarOutfitEntry.id : 'default';
+    merged.avatar = {gender:avatarGender, outfit:normalizedOutfit};
 
     const validNpcIds = new Set(NPC_FARMERS.map(item => item.id));
     const npcRaw = raw?.npcSocial && typeof raw.npcSocial === 'object' ? raw.npcSocial : {};
@@ -3862,6 +3923,7 @@
     if (sprite) {
       sprite.dataset.avatarGender = renderedGender;
       sprite.dataset.avatarOutfit = outfit.id;
+      sprite.style.setProperty('--avatar-sprite-image', `url('${avatarSpriteUrl(outfit.id,renderedGender)}')`);
     }
     const label = profile?.name ? `${profile.name} · ${outfit.name}` : `农场主人 · ${outfit.name}`;
     host.setAttribute('aria-label', `${label}，点击打开角色管理`);
@@ -5075,12 +5137,7 @@
         <div class="farm-character-controls">
           <section class="farm-character-control-section">
             <header><div><small>OUTFIT</small><b>我的衣橱</b></div></header>
-            <div class="farm-outfit-list">
-              <button type="button" data-avatar-outfit="default" class="is-owned is-active"><span class="farm-outfit-thumb">${avatarSpriteMarkup('is-outfit-thumb')}</span><span><b>星辰农夫</b><small>基础造型 · 已拥有</small></span><i>✓ 使用中</i></button>
-              <div class="farm-outfit-placeholder"><span>🌕</span><div><b>中秋节造型</b><small>节日限定服装</small></div><i>预留</i></div>
-              <div class="farm-outfit-placeholder"><span>🎃</span><div><b>万圣节造型</b><small>节日限定服装</small></div><i>预留</i></div>
-              <div class="farm-outfit-placeholder"><span>🎄</span><div><b>圣诞造型</b><small>节日限定服装</small></div><i>预留</i></div>
-            </div>
+            <div class="farm-outfit-list">${AVATAR_OUTFITS.map(outfitCardMarkup).join('')}</div>
           </section>
         </div>
       </section>`;
@@ -5093,14 +5150,14 @@
         if (slot.status === 'cooldown') {
           return `<section class="farm-train-slot is-cooldown" data-train-slot="${slot.index}">
             <header class="farm-train-slot-head"><div><small>第 ${slot.index + 1} 月台</small><b>${uiIconMarkup('cooldown','is-heading-ui')} 列车返程中</b></div><span>约 <strong data-train-cooldown-until="${slot.availableAt}">${formatTrainWait(slot.availableAt - Date.now())}</strong> 后抵达</span></header>
-            <div class="farm-train-empty-station"><img src="../images/farm/train-station.png?v=0.18.0.5" alt="星辰车站"></div>
+            <div class="farm-train-empty-station"><img src="../images/farm/train-station.png?v=0.18.1" alt="星辰车站"></div>
             <p class="farm-train-slot-note">奖励已在上一班发车时立即入账。返程后这里会自动出现一班全新的订单。</p>
           </section>`;
         }
         if (slot.status === 'done') {
           return `<section class="farm-train-slot is-done" data-train-slot="${slot.index}">
             <header class="farm-train-slot-head"><div><small>第 ${slot.index + 1} 月台</small><b>${uiIconMarkup('success','is-heading-ui')} 今日加班班次已满</b></div><span>00:00 统一刷新</span></header>
-            <div class="farm-train-empty-station"><img src="../images/farm/train-station.png?v=0.18.0.5" alt="星辰车站"></div>
+            <div class="farm-train-empty-station"><img src="../images/farm/train-station.png?v=0.18.1" alt="星辰车站"></div>
           </section>`;
         }
         const train = slot.train;
@@ -5115,7 +5172,7 @@
           const owned = Math.max(0, Number(state.produce[car.cropId]) || 0);
           const remaining = Math.max(0, car.required - car.loaded);
           return `<button type="button" class="farm-train-car is-${car.style} ${done ? 'is-complete' : ''} ${!done && owned <= 0 ? 'is-empty-bag' : ''}" data-train-slot-index="${slot.index}" data-train-load-index="${index}" ${done ? 'disabled' : ''} aria-label="${done ? `${crop.name}车厢已装满` : `查看${crop.name}装箱需求，还差${remaining}个，背包${owned}个`}">
-            <img src="../images/farm/train-car-${car.style}.png?v=0.18.0.5" alt="" aria-hidden="true">
+            <img src="../images/farm/train-car-${car.style}.png?v=0.18.1" alt="" aria-hidden="true">
             <span class="farm-train-car-ui"><i>${done ? uiIconMarkup('success','is-train-check-ui') : produceIconMarkup(crop,'is-train-produce-ui')}</i><b>${escapeHtml(crop.name)}</b><strong>${car.loaded} / ${car.required}</strong><small>${done ? '装载完成' : `背包 ${owned}`}</small></span>
           </button>`;
         }).join('');
@@ -5127,10 +5184,10 @@
             <div class="farm-train-reset"><small>火车重置券</small><b>${uiIconMarkup('refresh','is-inline-ui')} ×${Math.max(0,Math.floor(Number(state.supplies?.[TRAIN_RESET_TICKET_ID])||0))}</b></div>
           </div>
           <div class="farm-train-yard">
-            <img class="farm-train-yard-station" src="../images/farm/train-station.png?v=0.18.0.5" alt="" aria-hidden="true">
+            <img class="farm-train-yard-station" src="../images/farm/train-station.png?v=0.18.1" alt="" aria-hidden="true">
             <div class="farm-train-consist ${complete ? 'is-ready' : ''}" data-train-slot-index="${slot.index}">
               ${cars}
-              <div class="farm-train-engine is-${train.tier}"><img src="../images/farm/train-engine.png?v=0.18.0.5" alt="" aria-hidden="true"><span class="farm-train-engine-rate">×${train.multiplier.toFixed(1)}</span><span class="farm-train-smoke" aria-hidden="true"></span></div>
+              <div class="farm-train-engine is-${train.tier}"><img src="../images/farm/train-engine.png?v=0.18.1" alt="" aria-hidden="true"><span class="farm-train-engine-rate">×${train.multiplier.toFixed(1)}</span><span class="farm-train-smoke" aria-hidden="true"></span></div>
             </div>
           </div>
           <div class="farm-train-progress"><span><b>${loadedCars}</b> / ${train.cars.length} 节车厢已完成</span><div><i style="width:${Math.round((loadedCars/train.cars.length)*100)}%"></i></div></div>
@@ -5212,7 +5269,7 @@
         </section>
         <section class="farm-bag-section farm-station-item-section">
           <header><b>${uiIconMarkup('refresh','is-heading-ui')} 车站道具</b><span>${Math.max(0,Math.floor(Number(state.supplies?.[TRAIN_RESET_TICKET_ID])||0))} 张</span></header>
-          <div class="farm-bag-list"><div class="farm-bag-row farm-supply-row"><span class="farm-ticket-icon">${uiIconMarkup('refresh','is-bag-ui')}</span><div><b>火车重置券</b><small>在星辰车站刷新一班尚未发车的订单：倍率、作物种类与需求数量都会重新抽取，已装货物会退回背包。</small></div><em>×${Math.max(0,Math.floor(Number(state.supplies?.[TRAIN_RESET_TICKET_ID])||0))}</em></div></div>
+          <div class="farm-bag-list"><div class="farm-bag-row farm-supply-row"><span class="farm-ticket-icon">${uiIconMarkup('refresh','is-bag-ui')}</span><div><b>火车重置券 <small>#${TRAIN_RESET_TICKET_ITEM_ID}</small></b><small>在星辰车站刷新一班尚未发车的订单：倍率、作物种类与需求数量都会重新抽取，已装货物会退回背包。</small></div><em>×${Math.max(0,Math.floor(Number(state.supplies?.[TRAIN_RESET_TICKET_ID])||0))}</em></div></div>
         </section>
         <section class="farm-bag-section farm-decor-bag-section">
           <header><b>${uiIconMarkup('farm-expert','is-heading-ui')} 装饰</b><span>${decorOwnedTotal} 件</span></header>
@@ -5579,7 +5636,7 @@
     const modalIcon = $('farmModalIcon');
     if (modalIcon) {
       if (iconHtml) modalIcon.innerHTML = iconHtml;
-      else if (icon === 'train') modalIcon.innerHTML = '<img class="farm-modal-asset-icon" src="../images/farm/train-engine.png?v=0.18.0.5" alt="">';
+      else if (icon === 'train') modalIcon.innerHTML = '<img class="farm-modal-asset-icon" src="../images/farm/train-engine.png?v=0.18.1" alt="">';
       else {
         const mapped = UI_ICON_INDEX[icon] ? icon : (UI_EMOJI_ICON[icon] || (icon === '🌱' ? 'newbie-farmer' : ''));
         modalIcon.innerHTML = mapped ? uiIconMarkup(mapped,'is-modal-ui') : escapeHtml(icon || '');
@@ -5751,9 +5808,11 @@
     }
 
 
-    const avatarOutfit = event.target.closest('[data-avatar-outfit]');
-    if (avatarOutfit) {
-      const outfit = avatarOutfitById(avatarOutfit.dataset.avatarOutfit);
+    const outfitApply = event.target.closest('[data-apply-outfit]');
+    if (outfitApply) {
+      const outfit = avatarOutfitById(outfitApply.dataset.applyOutfit);
+      const gender = AVATAR_GENDERS.includes(state.avatar?.gender) ? state.avatar.gender : 'male';
+      if (!outfitOwned(outfit.id) || !outfit.released || !outfitSupportsGender(outfit,gender)) return;
       state.avatar.outfit = outfit.id;
       saveState();
       renderFarmAvatar();
