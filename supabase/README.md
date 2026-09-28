@@ -49,7 +49,7 @@ It keeps the server-authoritative friend interaction helper aligned with the exp
 Run `migrations/20260928_027_farm_item_wardrobe.sql` after migration 026.
 It registers `#4004` train reset tickets in the stable item catalog, reserves `#5001–#5004` outfit IDs, adds the `outfit` reward type, and stores permanent cosmetic ownership in `farm_saves.state.wardrobe.outfits`. Seasonal outfits remain mail-disabled until their male/female Sprite Sheets are released.
 
-## V0.18.2 Mid-Autumn outfit
+## V0.18.2.1 Mid-Autumn outfit
 
 Run `migrations/20260928_028_mid_autumn_outfit.sql` after migration 027.
 It enables the already-reserved `#5002 outfit.mid_autumn` item for GM/system-mail delivery now that both male and female Sprite Sheets are shipped. Claiming the attachment unlocks permanent wardrobe ownership and does not auto-equip the outfit.

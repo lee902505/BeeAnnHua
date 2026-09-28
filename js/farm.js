@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const FARM_BUILD = '0.18.2';
+  const FARM_BUILD = '0.18.2.1.1';
   const STORAGE_KEY = 'xingchen-farm-v1';
   const VERSION = 1;
   const PLOT_COUNT = 20;
@@ -16,7 +16,7 @@
   const PENDING_OPS_KEY = 'xingchen-farm-v1-pending-ops';
 
 
-  // V0.18.2 — stable farm item IDs + wardrobe ownership. Outfit ownership
+  // V0.18.2.1.1 — wardrobe preview enhancement. Outfit ownership
   // is permanent, while avatar.outfit only records the currently equipped look.
   // #5002 Mid-Autumn is released with both male/female Sprite Sheets; later
   // seasonal IDs remain reserved until their artwork is ready.
@@ -408,6 +408,8 @@
   let activeActivityDirection = 'received';
   let activeShopTab = 'seeds';
   let activeCharacterTab = 'avatar';
+  // Ephemeral wardrobe preview. Never saved or synced; the farm scene keeps the equipped outfit.
+  let previewOutfitId = '';
   // V0.17.2.1 — friend farm patrol UX. Keep the list position and current
   // visit locally; no extra Supabase table/read is needed for navigation.
   let friendListScrollTop = 0;
@@ -458,21 +460,39 @@
     const gender = renderedAvatarGender(outfit.id);
     return `<span class="farm-avatar-sprite ${extraClass}" data-avatar-gender="${gender}" data-avatar-outfit="${escapeHtml(outfit.id)}" style="--avatar-sprite-image:url('${avatarSpriteUrl(outfit.id,gender)}')" ${label ? `role="img" aria-label="${escapeHtml(label)}"` : 'aria-hidden="true"'}></span>`;
   }
+  function previewableOutfitId() {
+    const requestedGender = AVATAR_GENDERS.includes(state.avatar?.gender) ? state.avatar.gender : 'male';
+    const preview = previewOutfitId ? avatarOutfitById(previewOutfitId) : null;
+    if (preview && preview.id === previewOutfitId && preview.released && outfitSupportsGender(preview, requestedGender)) return preview.id;
+    return state.avatar?.outfit || 'default';
+  }
   function outfitCardMarkup(outfit) {
     const active = state.avatar?.outfit === outfit.id;
     const owned = outfitOwned(outfit.id);
     const requestedGender = AVATAR_GENDERS.includes(state.avatar?.gender) ? state.avatar.gender : 'male';
     const ready = Boolean(outfit.released && outfitSupportsGender(outfit,requestedGender));
+    const previewing = ready && previewOutfitId === outfit.id && !active;
     const visual = ready
       ? `<span class="farm-outfit-thumb">${avatarSpriteMarkup('is-outfit-thumb','',outfit.id)}</span>`
       : `<span class="farm-outfit-placeholder-art" aria-hidden="true">${outfit.icon || '👕'}</span>`;
-    const note = outfit.id === 'default' ? '基础造型 · 永久拥有' : ready ? (owned ? '节日限定 · 已拥有' : '节日限定 · 未拥有') : '节日限定 · 尚未开放';
+    const note = outfit.id === 'default'
+      ? '基础造型 · 永久拥有'
+      : ready
+        ? (owned ? '节日限定 · 已拥有' : (previewing ? '节日限定 · 未拥有 · 预览中' : '节日限定 · 未拥有'))
+        : '节日限定 · 尚未开放';
+    const previewingAnother = Boolean(previewOutfitId && previewOutfitId !== outfit.id);
     const action = active
-      ? `<button type="button" class="farm-outfit-apply is-current" disabled>✓ 使用中</button>`
+      ? (previewingAnother
+          ? `<button type="button" class="farm-outfit-apply is-current" data-preview-outfit="${escapeHtml(outfit.id)}">返回当前</button>`
+          : `<button type="button" class="farm-outfit-apply is-current" disabled>✓ 使用中</button>`)
       : ready && owned
         ? `<button type="button" class="farm-outfit-apply" data-apply-outfit="${escapeHtml(outfit.id)}">套用</button>`
-        : `<button type="button" class="farm-outfit-apply is-locked" disabled>${ready ? '🔒 未拥有' : '尚未开放'}</button>`;
-    return `<article class="farm-outfit-card ${active ? 'is-active' : ''} ${owned ? 'is-owned' : 'is-locked'} ${ready ? '' : 'is-coming-soon'}">${visual}<span class="farm-outfit-copy"><b>${escapeHtml(outfit.name)}</b><small>${escapeHtml(note)} · #${outfit.itemId}</small></span>${action}</article>`;
+        : ready
+          ? (previewing
+              ? `<button type="button" class="farm-outfit-apply is-preview" disabled>👁 预览中</button>`
+              : `<button type="button" class="farm-outfit-apply is-preview" data-preview-outfit="${escapeHtml(outfit.id)}">预览</button>`)
+          : `<button type="button" class="farm-outfit-apply is-locked" disabled>尚未开放</button>`;
+    return `<article class="farm-outfit-card ${active ? 'is-active' : ''} ${previewing ? 'is-previewing' : ''} ${owned ? 'is-owned' : 'is-locked'} ${ready ? '' : 'is-coming-soon'}">${visual}<span class="farm-outfit-copy"><b>${escapeHtml(outfit.name)}</b><small>${escapeHtml(note)} · #${outfit.itemId}</small></span>${action}</article>`;
   }
   function cropById(id) { return id === MYSTERY_CROP.id ? MYSTERY_CROP : CROPS.find(c => c.id === id); }
   const fertilizerById = (id) => FERTILIZERS.find(item => item.id === id) || null;
@@ -1495,7 +1515,7 @@
     return `<span class="farm-ui-icon ${escapeHtml(className)}" data-ui-icon="${safeKey}"${aria}></span>`;
   }
   function trainIconMarkup(className='') {
-    return `<img class="farm-inline-train-icon ${escapeHtml(className)}" src="../images/farm/train-engine.png?v=0.18.2" alt="" aria-hidden="true">`;
+    return `<img class="farm-inline-train-icon ${escapeHtml(className)}" src="../images/farm/train-engine.png?v=0.18.2.1" alt="" aria-hidden="true">`;
   }
   function uiTextMarkup(value) {
     let text = escapeHtml(value ?? '');
@@ -5066,6 +5086,7 @@
 
   function openPanel(panel, options = {}) {
     activePanel = panel;
+    if (panel === 'character') previewOutfitId = '';
     const meta = {
       shop:{icon:'shop', eyebrow:'FARM SHOP', title:'农场商店', subtitle:'购买种子、农资与装饰品，让农场越来越有自己的样子。'},
       bag:{icon:'bag', eyebrow:'INVENTORY', title:'我的背包', subtitle:'管理种子、肥料、装饰与收成蔬果；也可以从这里进入农场布置模式。'},
@@ -5113,7 +5134,10 @@
 
     if (activePanel === 'character') {
       const profile = window.XingchenPlayer?.getProfile?.();
-      const outfit = avatarOutfitById(state.avatar?.outfit || 'default');
+      const equippedOutfit = avatarOutfitById(state.avatar?.outfit || 'default');
+      const previewId = previewableOutfitId();
+      const outfit = avatarOutfitById(previewId);
+      const isPreviewing = outfit.id !== equippedOutfit.id;
       const tabs = `<div class="farm-character-tabs">
         <button type="button" data-character-tab="avatar" class="${activeCharacterTab === 'avatar' ? 'is-active' : ''}"><span class="stellar-ui-icon" data-site-icon="account" aria-hidden="true"></span> 人物</button>
         <button type="button" data-character-tab="pet" class="${activeCharacterTab === 'pet' ? 'is-active' : ''}">🐾 宠物 <small>预留</small></button>
@@ -5130,9 +5154,9 @@
         return;
       }
       body.innerHTML = tabs + `<section class="farm-character-layout">
-        <div class="farm-character-preview-card">
-          <div class="farm-character-preview-stage">${avatarSpriteMarkup('is-character-preview', `${profile?.name || '农场主人'}的角色`)}</div>
-          <div class="farm-character-preview-copy"><small>当前角色</small><b>${escapeHtml(profile?.name || '农场主人')}</b><span>${escapeHtml(outfit.name)}</span></div>
+        <div class="farm-character-preview-card ${isPreviewing ? 'is-preview-mode' : ''}">
+          <div class="farm-character-preview-stage">${avatarSpriteMarkup('is-character-preview', `${profile?.name || '农场主人'}的角色`, outfit.id)}</div>
+          <div class="farm-character-preview-copy"><small>${isPreviewing ? '造型预览' : '当前角色'}</small><b>${escapeHtml(profile?.name || '农场主人')}</b><span>${escapeHtml(outfit.name)}${isPreviewing ? ' · 仅预览，尚未拥有／套用' : ''}</span></div>
         </div>
         <div class="farm-character-controls">
           <section class="farm-character-control-section">
@@ -5150,14 +5174,14 @@
         if (slot.status === 'cooldown') {
           return `<section class="farm-train-slot is-cooldown" data-train-slot="${slot.index}">
             <header class="farm-train-slot-head"><div><small>第 ${slot.index + 1} 月台</small><b>${uiIconMarkup('cooldown','is-heading-ui')} 列车返程中</b></div><span>约 <strong data-train-cooldown-until="${slot.availableAt}">${formatTrainWait(slot.availableAt - Date.now())}</strong> 后抵达</span></header>
-            <div class="farm-train-empty-station"><img src="../images/farm/train-station.png?v=0.18.2" alt="星辰车站"></div>
+            <div class="farm-train-empty-station"><img src="../images/farm/train-station.png?v=0.18.2.1" alt="星辰车站"></div>
             <p class="farm-train-slot-note">奖励已在上一班发车时立即入账。返程后这里会自动出现一班全新的订单。</p>
           </section>`;
         }
         if (slot.status === 'done') {
           return `<section class="farm-train-slot is-done" data-train-slot="${slot.index}">
             <header class="farm-train-slot-head"><div><small>第 ${slot.index + 1} 月台</small><b>${uiIconMarkup('success','is-heading-ui')} 今日加班班次已满</b></div><span>00:00 统一刷新</span></header>
-            <div class="farm-train-empty-station"><img src="../images/farm/train-station.png?v=0.18.2" alt="星辰车站"></div>
+            <div class="farm-train-empty-station"><img src="../images/farm/train-station.png?v=0.18.2.1" alt="星辰车站"></div>
           </section>`;
         }
         const train = slot.train;
@@ -5172,7 +5196,7 @@
           const owned = Math.max(0, Number(state.produce[car.cropId]) || 0);
           const remaining = Math.max(0, car.required - car.loaded);
           return `<button type="button" class="farm-train-car is-${car.style} ${done ? 'is-complete' : ''} ${!done && owned <= 0 ? 'is-empty-bag' : ''}" data-train-slot-index="${slot.index}" data-train-load-index="${index}" ${done ? 'disabled' : ''} aria-label="${done ? `${crop.name}车厢已装满` : `查看${crop.name}装箱需求，还差${remaining}个，背包${owned}个`}">
-            <img src="../images/farm/train-car-${car.style}.png?v=0.18.2" alt="" aria-hidden="true">
+            <img src="../images/farm/train-car-${car.style}.png?v=0.18.2.1" alt="" aria-hidden="true">
             <span class="farm-train-car-ui"><i>${done ? uiIconMarkup('success','is-train-check-ui') : produceIconMarkup(crop,'is-train-produce-ui')}</i><b>${escapeHtml(crop.name)}</b><strong>${car.loaded} / ${car.required}</strong><small>${done ? '装载完成' : `背包 ${owned}`}</small></span>
           </button>`;
         }).join('');
@@ -5184,10 +5208,10 @@
             <div class="farm-train-reset"><small>火车重置券</small><b>${uiIconMarkup('refresh','is-inline-ui')} ×${Math.max(0,Math.floor(Number(state.supplies?.[TRAIN_RESET_TICKET_ID])||0))}</b></div>
           </div>
           <div class="farm-train-yard">
-            <img class="farm-train-yard-station" src="../images/farm/train-station.png?v=0.18.2" alt="" aria-hidden="true">
+            <img class="farm-train-yard-station" src="../images/farm/train-station.png?v=0.18.2.1" alt="" aria-hidden="true">
             <div class="farm-train-consist ${complete ? 'is-ready' : ''}" data-train-slot-index="${slot.index}">
               ${cars}
-              <div class="farm-train-engine is-${train.tier}"><img src="../images/farm/train-engine.png?v=0.18.2" alt="" aria-hidden="true"><span class="farm-train-engine-rate">×${train.multiplier.toFixed(1)}</span><span class="farm-train-smoke" aria-hidden="true"></span></div>
+              <div class="farm-train-engine is-${train.tier}"><img src="../images/farm/train-engine.png?v=0.18.2.1" alt="" aria-hidden="true"><span class="farm-train-engine-rate">×${train.multiplier.toFixed(1)}</span><span class="farm-train-smoke" aria-hidden="true"></span></div>
             </div>
           </div>
           <div class="farm-train-progress"><span><b>${loadedCars}</b> / ${train.cars.length} 节车厢已完成</span><div><i style="width:${Math.round((loadedCars/train.cars.length)*100)}%"></i></div></div>
@@ -5636,7 +5660,7 @@
     const modalIcon = $('farmModalIcon');
     if (modalIcon) {
       if (iconHtml) modalIcon.innerHTML = iconHtml;
-      else if (icon === 'train') modalIcon.innerHTML = '<img class="farm-modal-asset-icon" src="../images/farm/train-engine.png?v=0.18.2" alt="">';
+      else if (icon === 'train') modalIcon.innerHTML = '<img class="farm-modal-asset-icon" src="../images/farm/train-engine.png?v=0.18.2.1" alt="">';
       else {
         const mapped = UI_ICON_INDEX[icon] ? icon : (UI_EMOJI_ICON[icon] || (icon === '🌱' ? 'newbie-farmer' : ''));
         modalIcon.innerHTML = mapped ? uiIconMarkup(mapped,'is-modal-ui') : escapeHtml(icon || '');
@@ -5655,6 +5679,7 @@
     $('farmModal').hidden = true;
     document.body.classList.remove('farm-modal-open');
     activePanel = null;
+    previewOutfitId = '';
     $('farmModal')?.classList.remove('is-train-modal');
   }
 
@@ -5808,12 +5833,23 @@
     }
 
 
+    const outfitPreview = event.target.closest('[data-preview-outfit]');
+    if (outfitPreview) {
+      const outfit = avatarOutfitById(outfitPreview.dataset.previewOutfit);
+      const gender = AVATAR_GENDERS.includes(state.avatar?.gender) ? state.avatar.gender : 'male';
+      if (!outfit.released || !outfitSupportsGender(outfit,gender)) return;
+      previewOutfitId = state.avatar?.outfit === outfit.id ? '' : outfit.id;
+      renderActivePanel();
+      return;
+    }
+
     const outfitApply = event.target.closest('[data-apply-outfit]');
     if (outfitApply) {
       const outfit = avatarOutfitById(outfitApply.dataset.applyOutfit);
       const gender = AVATAR_GENDERS.includes(state.avatar?.gender) ? state.avatar.gender : 'male';
       if (!outfitOwned(outfit.id) || !outfit.released || !outfitSupportsGender(outfit,gender)) return;
       state.avatar.outfit = outfit.id;
+      previewOutfitId = '';
       saveState();
       renderFarmAvatar();
       renderActivePanel();
