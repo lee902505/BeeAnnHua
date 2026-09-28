@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const FARM_BUILD = '0.19.0.1';
+  const FARM_BUILD = '0.19.0.2';
   const STORAGE_KEY = 'xingchen-farm-v1';
   const VERSION = 1;
   const PLOT_COUNT = 20;
@@ -16,7 +16,7 @@
   const PENDING_OPS_KEY = 'xingchen-farm-v1-pending-ops';
 
 
-  // V0.19.0.1 — seasonal wardrobe release. Outfit ownership remains permanent,
+  // V0.19.0.2 — seasonal wardrobe release. Outfit ownership remains permanent,
   // while avatar.outfit only records the currently equipped look. #5002 Mid-Autumn,
   // #5003 Halloween and #5004 Christmas now ship with male/female Sprite Sheets.
   const FARM_ITEM_IDS = Object.freeze({
@@ -86,11 +86,11 @@
   ]);
 
 
-  // V0.19.0.1 — fixed-slot decoration catalog now includes seasonal scenery.
+  // V0.19.0.2 — fixed-slot decoration catalog now includes seasonal scenery.
   // Existing farm decor keeps using the event atlas. Seasonal decor uses its own
   // 4×4 scene atlas plus Item IDs / item-icon cells for GM mail and backpack UI.
   const DECORATION_SLOT_COUNT = 8;
-  // V0.19.0.1: slot 5 overlaps the farm owner avatar, so keep the save-array
+  // V0.19.0.2: slot 5 overlaps the farm owner avatar, so keep the save-array
   // shape stable but retire that visual placement. Old saves are migrated below.
   const DISABLED_DECORATION_SLOT_INDEXES = new Set([4]);
   const DECORATIONS = Object.freeze([
@@ -134,14 +134,14 @@
   const NPC_STEAL_RECORD_LIMIT = 160;
   const NPC_STEAL_CAP_PER_WINDOW = 2;
   const NPC_FARMERS = Object.freeze([
-    Object.freeze({id:'npc_xiaohe', name:'小禾', sex:'female', icon:'🌾', level:8,  coins:680,  titleId:'farmer',          trait:'麦田守望者', note:'喜欢小麦和玉米，看到虫害时常会顺手帮忙。', favorites:['wheat','corn'], helpRate:.62, visitRate:.34}),
-    Object.freeze({id:'npc_meimei', name:'莓莓', sex:'female', icon:'🍓', level:10, coins:1280, titleId:'skilled_farmer', trait:'甜果农友',   note:'偏爱草莓和番茄，农田总是整理得很可爱。', favorites:['strawberry','tomato'], helpRate:.48, visitRate:.38}),
-    Object.freeze({id:'npc_amu', name:'阿牧', sex:'male', icon:'🌽', level:12, coins:1750, titleId:'senior_farmer', trait:'慢活农夫', note:'收菜不赶时间，但很喜欢到朋友的农场串门。', favorites:['corn','pumpkin','wheat'], helpRate:.44, visitRate:.62}),
-    Object.freeze({id:'npc_xiaonuan', name:'小暖', sex:'female', icon:'🌻', level:6, coins:520, titleId:'novice_farmer', trait:'热心邻居', note:'等级不高，却是最爱帮忙处理虫害的邻居。', favorites:['carrot','tomato'], helpRate:.72, visitRate:.42}),
-    Object.freeze({id:'npc_xingzai', name:'星仔', sex:'male', icon:'✨', level:18, coins:4660, titleId:'farm_master', trait:'夜班农友', note:'常在晚一点的时候上线，偶尔会种比较稀有的作物。', favorites:['grape','strawberry','pumpkin'], helpRate:.40, visitRate:.30}),
-    Object.freeze({id:'npc_nanfeng', name:'南风', sex:'male', icon:'🍇', level:15, coins:3380, titleId:'harvest_master', trait:'果园派', note:'喜欢葡萄、南瓜与长时间作物，农场变化比较慢。', favorites:['grape','pumpkin','strawberry'], helpRate:.46, visitRate:.28}),
-    Object.freeze({id:'npc_mili', name:'米粒', sex:'female', icon:'🥕', level:5, coins:360, titleId:'novice_farmer', trait:'新手伙伴', note:'和新玩家差不多的成长节奏，最常种红萝卜。', favorites:['carrot','wheat','tomato'], helpRate:.55, visitRate:.46}),
-    Object.freeze({id:'npc_qinghe', name:'青禾', sex:'male', icon:'🌿', level:20, coins:7250, titleId:'farm_master', trait:'资深农友', note:'经营很久的老农友，农田里经常同时种着不同作物。', favorites:['grape','pumpkin','corn','strawberry'], helpRate:.50, visitRate:.36})
+    Object.freeze({id:'npc_xiaohe', name:'小禾', sex:'female', icon:'🌾', level:8,  coins:680,  titleId:'farmer',          outfit:'mid_autumn', decorTheme:'mid_autumn', trait:'麦田守望者', note:'喜欢小麦和玉米，看到虫害时常会顺手帮忙。', favorites:['wheat','corn'], helpRate:.62, visitRate:.34}),
+    Object.freeze({id:'npc_meimei', name:'莓莓', sex:'female', icon:'🍓', level:10, coins:1280, titleId:'skilled_farmer', outfit:'christmas', decorTheme:'christmas', trait:'甜果农友',   note:'偏爱草莓和番茄，农田总是整理得很可爱。', favorites:['strawberry','tomato'], helpRate:.48, visitRate:.38}),
+    Object.freeze({id:'npc_amu', name:'阿牧', sex:'male', icon:'🌽', level:12, coins:1750, titleId:'senior_farmer', outfit:'halloween', decorTheme:'halloween', trait:'慢活农夫', note:'收菜不赶时间，但很喜欢到朋友的农场串门。', favorites:['corn','pumpkin','wheat'], helpRate:.44, visitRate:.62}),
+    Object.freeze({id:'npc_xiaonuan', name:'小暖', sex:'female', icon:'🌻', level:6, coins:520, titleId:'novice_farmer', outfit:'default', decorTheme:'christmas', trait:'热心邻居', note:'等级不高，却是最爱帮忙处理虫害的邻居。', favorites:['carrot','tomato'], helpRate:.72, visitRate:.42}),
+    Object.freeze({id:'npc_xingzai', name:'星仔', sex:'male', icon:'✨', level:18, coins:4660, titleId:'farm_master', outfit:'halloween', decorTheme:'halloween', trait:'夜班农友', note:'常在晚一点的时候上线，偶尔会种比较稀有的作物。', favorites:['grape','strawberry','pumpkin'], helpRate:.40, visitRate:.30}),
+    Object.freeze({id:'npc_nanfeng', name:'南风', sex:'male', icon:'🍇', level:15, coins:3380, titleId:'harvest_master', outfit:'christmas', decorTheme:'christmas', trait:'果园派', note:'喜欢葡萄、南瓜与长时间作物，农场变化比较慢。', favorites:['grape','pumpkin','strawberry'], helpRate:.46, visitRate:.28}),
+    Object.freeze({id:'npc_mili', name:'米粒', sex:'female', icon:'🥕', level:5, coins:360, titleId:'novice_farmer', outfit:'mid_autumn', decorTheme:'mid_autumn', trait:'新手伙伴', note:'和新玩家差不多的成长节奏，最常种红萝卜。', favorites:['carrot','wheat','tomato'], helpRate:.55, visitRate:.46}),
+    Object.freeze({id:'npc_qinghe', name:'青禾', sex:'male', icon:'🌿', level:20, coins:7250, titleId:'farm_master', outfit:'default', decorTheme:'halloween', trait:'资深农友', note:'经营很久的老农友，农田里经常同时种着不同作物。', favorites:['grape','pumpkin','corn','strawberry'], helpRate:.50, visitRate:.36})
   ]);
 
   // V0.15.0 — Stellar Station now has two independent platforms. Both trains are
@@ -488,6 +488,14 @@
     const outfit = avatarOutfitById(outfitId);
     const gender = renderedAvatarGender(outfit.id);
     return `<span class="farm-avatar-sprite ${extraClass}" data-avatar-gender="${gender}" data-avatar-outfit="${escapeHtml(outfit.id)}" style="--avatar-sprite-image:url('${avatarSpriteUrl(outfit.id,gender)}')" ${label ? `role="img" aria-label="${escapeHtml(label)}"` : 'aria-hidden="true"'}></span>`;
+  }
+  function avatarSpriteMarkupFor(gender = 'male', outfitId = 'default', extraClass = '', label = '') {
+    const outfit = avatarOutfitById(outfitId);
+    const requested = gender === 'female' ? 'female' : 'male';
+    const resolved = outfitSupportsGender(outfit, requested)
+      ? requested
+      : (outfitSupportsGender(outfit, requested === 'female' ? 'male' : 'female') ? (requested === 'female' ? 'male' : 'female') : 'male');
+    return `<span class="farm-avatar-sprite ${extraClass}" data-avatar-gender="${resolved}" data-avatar-outfit="${escapeHtml(outfit.id)}" style="--avatar-sprite-image:url('${avatarSpriteUrl(outfit.id,resolved)}')" ${label ? `role="img" aria-label="${escapeHtml(label)}"` : 'aria-hidden="true"'}></span>`;
   }
   function previewableOutfitId() {
     const requestedGender = AVATAR_GENDERS.includes(state.avatar?.gender) ? state.avatar.gender : 'male';
@@ -1148,13 +1156,28 @@
       });
     }
 
-    const decorPool = DECORATIONS.filter(item => item.unlockLevel <= npc.level);
+    // V0.19.0.2: NPC farms may wear seasonal outfits and intentionally use
+    // matching seasonal scenery, including Halloween / Christmas assets that are
+    // still hidden from the normal player shop. This remains deterministic and
+    // local-only, so it adds no background Supabase traffic.
+    const genericDecor = DECORATIONS.filter(item => item.unlockLevel <= npc.level && !item.seasonal);
+    const themedDecor = DECORATIONS.filter(item => item.unlockLevel <= npc.level && item.seasonal === npc.decorTheme);
+    const decorPool = [...themedDecor, ...genericDecor];
     const slots = Array(DECORATION_SLOT_COUNT).fill(null);
-    const decorCount = Math.min(4, 2 + (stableHash(`${npc.id}:decor-count`) % 3));
+    const enabledSlots = Array.from({length:DECORATION_SLOT_COUNT}, (_, index) => index)
+      .filter(index => !DISABLED_DECORATION_SLOT_INDEXES.has(index));
+    const decorCount = Math.min(4, 2 + (stableHash(`${npc.id}:decor-count`) % 3), enabledSlots.length);
+    const usedDecor = new Set();
     for (let i=0; i<decorCount && decorPool.length; i+=1) {
-      const item = decorPool[stableHash(`${npc.id}:decor:${i}`) % decorPool.length];
-      let slot = stableHash(`${npc.id}:slot:${i}`) % DECORATION_SLOT_COUNT;
-      for (let tries=0; tries<DECORATION_SLOT_COUNT && slots[slot]; tries+=1) slot = (slot + 1) % DECORATION_SLOT_COUNT;
+      const sourcePool = i < Math.min(2,themedDecor.length) ? themedDecor : decorPool;
+      let item = sourcePool[stableHash(`${npc.id}:decor:${i}`) % sourcePool.length];
+      for (let tries=0; tries<sourcePool.length && usedDecor.has(item.id); tries+=1) {
+        item = sourcePool[(stableHash(`${npc.id}:decor:${i}`) + tries + 1) % sourcePool.length];
+      }
+      usedDecor.add(item.id);
+      let slotCursor = stableHash(`${npc.id}:slot:${i}`) % enabledSlots.length;
+      for (let tries=0; tries<enabledSlots.length && slots[enabledSlots[slotCursor]]; tries+=1) slotCursor = (slotCursor + 1) % enabledSlots.length;
+      const slot = enabledSlots[slotCursor];
       if (!slots[slot]) slots[slot] = item.id;
     }
 
@@ -1167,6 +1190,7 @@
       level:npc.level,
       coins:npc.coins,
       title_id:npc.titleId,
+      avatar:{outfit:avatarOutfitById(npc.outfit || 'default').id},
       plots,
       decorations:{slots}
     };
@@ -1569,7 +1593,7 @@
     return `<span class="farm-ui-icon ${escapeHtml(className)}" data-ui-icon="${safeKey}"${aria}></span>`;
   }
   function trainIconMarkup(className='') {
-    return `<img class="farm-inline-train-icon ${escapeHtml(className)}" src="../images/farm/train-engine.png?v=0.19.0.1" alt="" aria-hidden="true">`;
+    return `<img class="farm-inline-train-icon ${escapeHtml(className)}" src="../images/farm/train-engine.png?v=0.19.0.2" alt="" aria-hidden="true">`;
   }
   function uiTextMarkup(value) {
     let text = escapeHtml(value ?? '');
@@ -3368,9 +3392,13 @@
       }
     }
 
-    const name = escapeHtml(payload?.display_name || '星辰农友');
+    const rawName = String(payload?.display_name || '星辰农友');
+    const name = escapeHtml(rawName);
     const sex = genderSymbol(payload?.sex);
     const friendTitle = titleById(payload?.title_id || 'newbie');
+    const friendOutfit = avatarOutfitById(payload?.avatar?.outfit || 'default');
+    const friendGender = payload?.sex === 'female' ? 'female' : 'male';
+    const friendAvatar = `<div class="farm-visit-owner-avatar" title="${escapeHtml(`${rawName} · ${friendOutfit.name}`)}">${avatarSpriteMarkupFor(friendGender, friendOutfit.id, 'is-visit-avatar', `${rawName} · ${friendOutfit.name}`)}</div>`;
     const bugAllButton = npc
       ? `<button type="button" class="farm-visit-care-button" disabled>${eventSpriteMarkup(6,'is-care-toolbar-icon')} 一键帮忙除虫 <b>0</b></button>`
       : `<button type="button" class="farm-visit-care-button" data-help-bug-all="${escapeHtml(friendId)}" ${pestCount ? '' : 'disabled'}>${eventSpriteMarkup(6,'is-care-toolbar-icon')} 一键帮忙除虫 <b>${pestCount}</b></button>`;
@@ -3388,6 +3416,7 @@
       <div class="farm-visit-care-toolbar">${bugAllButton}${waterAllButton}</div>
       <div class="farm-visit-scene">
         ${renderFriendDecorations(payload)}
+        ${friendAvatar}
         <div class="farm-visit-field">${tiles.join('')}</div>
       </div>
       ${patrolNavMarkup(friendId,npc)}`;
@@ -5243,14 +5272,14 @@
         if (slot.status === 'cooldown') {
           return `<section class="farm-train-slot is-cooldown" data-train-slot="${slot.index}">
             <header class="farm-train-slot-head"><div><small>第 ${slot.index + 1} 月台</small><b>${uiIconMarkup('cooldown','is-heading-ui')} 列车返程中</b></div><span>约 <strong data-train-cooldown-until="${slot.availableAt}">${formatTrainWait(slot.availableAt - Date.now())}</strong> 后抵达</span></header>
-            <div class="farm-train-empty-station"><img src="../images/farm/train-station.png?v=0.19.0.1" alt="星辰车站"></div>
+            <div class="farm-train-empty-station"><img src="../images/farm/train-station.png?v=0.19.0.2" alt="星辰车站"></div>
             <p class="farm-train-slot-note">奖励已在上一班发车时立即入账。返程后这里会自动出现一班全新的订单。</p>
           </section>`;
         }
         if (slot.status === 'done') {
           return `<section class="farm-train-slot is-done" data-train-slot="${slot.index}">
             <header class="farm-train-slot-head"><div><small>第 ${slot.index + 1} 月台</small><b>${uiIconMarkup('success','is-heading-ui')} 今日加班班次已满</b></div><span>00:00 统一刷新</span></header>
-            <div class="farm-train-empty-station"><img src="../images/farm/train-station.png?v=0.19.0.1" alt="星辰车站"></div>
+            <div class="farm-train-empty-station"><img src="../images/farm/train-station.png?v=0.19.0.2" alt="星辰车站"></div>
           </section>`;
         }
         const train = slot.train;
@@ -5265,7 +5294,7 @@
           const owned = Math.max(0, Number(state.produce[car.cropId]) || 0);
           const remaining = Math.max(0, car.required - car.loaded);
           return `<button type="button" class="farm-train-car is-${car.style} ${done ? 'is-complete' : ''} ${!done && owned <= 0 ? 'is-empty-bag' : ''}" data-train-slot-index="${slot.index}" data-train-load-index="${index}" ${done ? 'disabled' : ''} aria-label="${done ? `${crop.name}车厢已装满` : `查看${crop.name}装箱需求，还差${remaining}个，背包${owned}个`}">
-            <img src="../images/farm/train-car-${car.style}.png?v=0.19.0.1" alt="" aria-hidden="true">
+            <img src="../images/farm/train-car-${car.style}.png?v=0.19.0.2" alt="" aria-hidden="true">
             <span class="farm-train-car-ui"><i>${done ? uiIconMarkup('success','is-train-check-ui') : produceIconMarkup(crop,'is-train-produce-ui')}</i><b>${escapeHtml(crop.name)}</b><strong>${car.loaded} / ${car.required}</strong><small>${done ? '装载完成' : `背包 ${owned}`}</small></span>
           </button>`;
         }).join('');
@@ -5277,10 +5306,10 @@
             <div class="farm-train-reset"><small>火车重置券</small><b>${uiIconMarkup('refresh','is-inline-ui')} ×${Math.max(0,Math.floor(Number(state.supplies?.[TRAIN_RESET_TICKET_ID])||0))}</b></div>
           </div>
           <div class="farm-train-yard">
-            <img class="farm-train-yard-station" src="../images/farm/train-station.png?v=0.19.0.1" alt="" aria-hidden="true">
+            <img class="farm-train-yard-station" src="../images/farm/train-station.png?v=0.19.0.2" alt="" aria-hidden="true">
             <div class="farm-train-consist ${complete ? 'is-ready' : ''}" data-train-slot-index="${slot.index}">
               ${cars}
-              <div class="farm-train-engine is-${train.tier}"><img src="../images/farm/train-engine.png?v=0.19.0.1" alt="" aria-hidden="true"><span class="farm-train-engine-rate">×${train.multiplier.toFixed(1)}</span><span class="farm-train-smoke" aria-hidden="true"></span></div>
+              <div class="farm-train-engine is-${train.tier}"><img src="../images/farm/train-engine.png?v=0.19.0.2" alt="" aria-hidden="true"><span class="farm-train-engine-rate">×${train.multiplier.toFixed(1)}</span><span class="farm-train-smoke" aria-hidden="true"></span></div>
             </div>
           </div>
           <div class="farm-train-progress"><span><b>${loadedCars}</b> / ${train.cars.length} 节车厢已完成</span><div><i style="width:${Math.round((loadedCars/train.cars.length)*100)}%"></i></div></div>
@@ -5729,7 +5758,7 @@
     const modalIcon = $('farmModalIcon');
     if (modalIcon) {
       if (iconHtml) modalIcon.innerHTML = iconHtml;
-      else if (icon === 'train') modalIcon.innerHTML = '<img class="farm-modal-asset-icon" src="../images/farm/train-engine.png?v=0.19.0.1" alt="">';
+      else if (icon === 'train') modalIcon.innerHTML = '<img class="farm-modal-asset-icon" src="../images/farm/train-engine.png?v=0.19.0.2" alt="">';
       else {
         const mapped = UI_ICON_INDEX[icon] ? icon : (UI_EMOJI_ICON[icon] || (icon === '🌱' ? 'newbie-farmer' : ''));
         modalIcon.innerHTML = mapped ? uiIconMarkup(mapped,'is-modal-ui') : escapeHtml(icon || '');
