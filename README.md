@@ -1,12 +1,13 @@
-# V0.18.0.2
+# V0.18.0.3
 
-- Desktop farm owner avatar moved an additional 60px left (right: 90px).
-- Mobile avatar positioning unchanged.
+- Removed the obsolete bottom “newbie gift moved to backpack” banner; gift inventory/state logic is unchanged.
+- Desktop farm owner avatar moved another 60px left (`right: 150px`).
+- Mobile avatar positioning remains unchanged.
 - No database migration required.
 
-# 星辰日記 Stellar Diary V0.18.0.2
+# 星辰日記 Stellar Diary V0.18.0.3
 
-## V0.18.0.2 — 农场主人 / 角色系统测试版
+## V0.18.0.3 — 农场主人 / 角色系统测试版
 
 - 农场右下角加入已确认的 Default Male v1 青年农夫角色，使用 2×4 / 8 Frame 透明 Sprite 待机动画。
 - 新增右侧「角色」功能入口；点击农场主人本体也能直接进入角色管理。
