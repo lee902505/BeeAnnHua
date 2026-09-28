@@ -1,11 +1,11 @@
-# V0.18.0.4
+# V0.18.0.5
 
 - Added the approved Default Female v1 farm-owner sprite and enabled automatic male/female rendering from the player profile gender.
 - Standardized both default avatar sheets to 1024×2048, 2×4, 8 frames, 512×512 per frame, with the same X=256 / feet Y=467 anchor system.
 - Character panel preview and outfit thumbnail now follow the same player gender as the farm owner.
 - No database migration required.
 
-## V0.18.0.4 — 男女农场主人基础造型
+## V0.18.0.5 — 男女农场主人基础造型
 
 - 新增 Default Female v1 青年女性农夫，风格、比例与男性星辰农夫统一。
 - 女性原始生成图已重新切格与标准化：整张 1024×2048、2×4、8 Frame、每格 512×512。
@@ -571,3 +571,11 @@ Anonymous Supabase guest users can now open Stellar Mail, read active mail and v
 - GM history shows scope, status, expiry, attachments, and supports copying an old mail into the editor.
 - Mailbox native browser alerts/confirms were replaced by Stellar Diary toast and confirmation UI.
 - Player reward claiming uses hardened `claim_system_mail_v2` so withdrawn/cutoff mail cannot be claimed through an older client call.
+
+## V0.18.0.5 — 农场场景角色性别同步修正
+
+- 修正玩家切换为女性后，角色管理面板已显示女性，但农场右下角主人仍停留男性的问题。
+- 场景静态 Sprite 现在会同步套用 `avatar.gender`。
+- 追加 CSS 容错选择器，避免外层状态与 Sprite 状态不同步。
+- 不需要 Supabase migration。
+

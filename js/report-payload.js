@@ -1,5 +1,5 @@
 (() => {
-  const APP_VERSION = '0.18.0.4';
+  const APP_VERSION = '0.18.0.5';
   const SCHEMA = 'stellar-diary.report-input';
   const SCHEMA_VERSION = '1.0.0';
   const PLANETS = ['sun','moon','mercury','venus','mars','jupiter','saturn','uranus','neptune','pluto'];
