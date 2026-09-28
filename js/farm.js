@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const FARM_BUILD = '0.17.2.1';
+  const FARM_BUILD = '0.18.0';
   const STORAGE_KEY = 'xingchen-farm-v1';
   const VERSION = 1;
   const PLOT_COUNT = 20;
@@ -14,6 +14,16 @@
   const FARM_ACTIVITY_UNREAD_POLL_MS = 120 * 1000;
   const SYNC_META_KEY = 'xingchen-farm-v1-sync-meta';
   const PENDING_OPS_KEY = 'xingchen-farm-v1-pending-ops';
+
+
+  // V0.18.0 — lightweight player avatar foundation. The selected avatar lives
+  // inside the existing farm save JSON, so no new table or background request
+  // is required. Only the default male art is enabled in this visual test build;
+  // female / pet slots are already reserved by the character panel.
+  const AVATAR_GENDERS = Object.freeze(['male','female']);
+  const AVATAR_OUTFITS = Object.freeze([
+    Object.freeze({id:'default', name:'星辰农夫', note:'温暖朴实的基础农夫造型。', male:true, female:false})
+  ]);
 
   const CROPS = [
     { id:'carrot', name:'红萝卜', icon:'🥕', seedPrice:8, growMinutes:20, yieldMin:4, yieldMax:5, sellPrice:3, exp:4, unlockLevel:1, note:'成长快速，适合刚开始经营农场。' },
@@ -172,7 +182,7 @@
     { id:'friend10', title:'农场交友达人', desc:'好友达到 10 人。', type:'friend', target:10, reward:{seeds:{pumpkin:3}}, rewardText:'南瓜种子 ×3' }
   ];
 
-  // V0.17.2.1 — Daily Quest 2.0. Five quests are selected once per UTC+8 farm day
+  // V0.18.0 — Daily Quest 2.0. Five quests are selected once per UTC+8 farm day
   // from a level-aware pool. The selected ids live inside the existing farm save,
   // so F5 / mobile / desktop all see the same plan without an extra database table.
   const DAILY_TASK_COUNT = 5;
@@ -216,7 +226,7 @@
     Object.freeze({id:'dailyTrainDepart1', category:'train', family:'train-depart', title:'送走一班列车', desc:'今天完成并发出 1 班星辰货运列车。', metric:'trainDepart', target:1, minLevel:5, reward:{coins:30}, rewardText:'金币 ×30'})
   ]);
   // Compatibility only: pending V0.17.1 full-attendance claims are still honored
-  // during conflict replay, but V0.17.2.1 no longer renders this old bonus card.
+  // during conflict replay, but V0.18.0 no longer renders this old bonus card.
   const DAILY_BONUS = { id:'dailyBonus', title:'今日农场全勤', desc:'完成今天全部 5 项每日任务。', reward:{seeds:{mystery:1}, exp:30}, rewardText:'蔬果盲盒 ×1 · EXP +30' };
   const DAILY_MASTERY_REWARDS = Object.freeze([
     Object.freeze({points:40, title:'今日熟练 I', reward:{coins:20}, rewardText:'金币 ×20'}),
@@ -386,6 +396,7 @@
   let activeFriendTab = 'activity';
   let activeActivityDirection = 'received';
   let activeShopTab = 'seeds';
+  let activeCharacterTab = 'avatar';
   // V0.17.2.1 — friend farm patrol UX. Keep the list position and current
   // visit locally; no extra Supabase table/read is needed for navigation.
   let friendListScrollTop = 0;
@@ -405,6 +416,10 @@
   let achievementGroupScrollLeft = 0;
 
   const $ = (id) => document.getElementById(id);
+  const avatarOutfitById = id => AVATAR_OUTFITS.find(item => item.id === id) || AVATAR_OUTFITS[0];
+  function avatarSpriteMarkup(extraClass = '', label = '') {
+    return `<span class="farm-avatar-sprite ${extraClass}" ${label ? `role="img" aria-label="${escapeHtml(label)}"` : 'aria-hidden="true"'}></span>`;
+  }
   function cropById(id) { return id === MYSTERY_CROP.id ? MYSTERY_CROP : CROPS.find(c => c.id === id); }
   const fertilizerById = (id) => FERTILIZERS.find(item => item.id === id) || null;
 
@@ -1426,7 +1441,7 @@
     return `<span class="farm-ui-icon ${escapeHtml(className)}" data-ui-icon="${safeKey}"${aria}></span>`;
   }
   function trainIconMarkup(className='') {
-    return `<img class="farm-inline-train-icon ${escapeHtml(className)}" src="../images/farm/train-engine.png?v=0.17.2.1" alt="" aria-hidden="true">`;
+    return `<img class="farm-inline-train-icon ${escapeHtml(className)}" src="../images/farm/train-engine.png?v=0.18.0" alt="" aria-hidden="true">`;
   }
   function uiTextMarkup(value) {
     let text = escapeHtml(value ?? '');
@@ -1703,6 +1718,7 @@
       produce: {},
       supplies: { fertilizerLow:0, fertilizerMid:0, fertilizerHigh:0, [TRAIN_RESET_TICKET_ID]:0 },
       decorations: { owned:{}, slots:Array(DECORATION_SLOT_COUNT).fill(null) },
+      avatar: { gender:'male', outfit:'default' },
       npcSocial: { friends:[], activities:[], steals:[], waterHelps:[], footprints:[], lastHelpCheckAt:0, lastVisitCheckAt:0 },
       train: null,
       stats: { visit:1, plant:0, harvest:0, sell:0, friend:0, blindBoxPlant:0, steals:0, friendVisits:0, helpWater:0, helpBug:0, maxCoins:INITIAL_COINS },
@@ -1756,6 +1772,12 @@
       return validDecorIds.has(id) ? id : null;
     });
     merged.decorations = {owned:decorOwned, slots:decorSlots};
+
+    const avatarRaw = raw?.avatar && typeof raw.avatar === 'object' ? raw.avatar : {};
+    const requestedAvatarGender = AVATAR_GENDERS.includes(avatarRaw.gender) ? avatarRaw.gender : 'male';
+    const avatarOutfitEntry = avatarOutfitById(avatarRaw.outfit);
+    const avatarGender = requestedAvatarGender === 'female' && !avatarOutfitEntry.female ? 'male' : requestedAvatarGender;
+    merged.avatar = {gender:avatarGender, outfit:avatarOutfitEntry.id};
 
     const validNpcIds = new Set(NPC_FARMERS.map(item => item.id));
     const npcRaw = raw?.npcSocial && typeof raw.npcSocial === 'object' ? raw.npcSocial : {};
@@ -3766,6 +3788,7 @@
 
   function renderAll() {
     renderOwner();
+    renderFarmAvatar();
     renderStats();
     renderField();
     renderDecorations();
@@ -3815,6 +3838,23 @@
       badge.innerHTML = `${uiIconMarkup(titleUiIconKey(title.id),'is-title-badge-ui')}<b>【${escapeHtml(title.name)}】</b>`;
       badge.setAttribute('aria-label', `目前称号：${title.name}，点击管理称号`);
     }
+  }
+
+  function renderFarmAvatar() {
+    const host = $('farmOwnerAvatar');
+    if (!host) return;
+    const profile = window.XingchenPlayer?.getProfile?.();
+    const requestedGender = state.avatar?.gender || 'male';
+    const outfit = avatarOutfitById(state.avatar?.outfit || 'default');
+    // V0.18.0 ships the approved male template first. Keep saved future values,
+    // but render the available male art until the matching female asset arrives.
+    const renderedGender = requestedGender === 'female' && !outfit.female ? 'male' : requestedGender;
+    host.dataset.avatarGender = renderedGender;
+    host.dataset.avatarOutfit = outfit.id;
+    const label = profile?.name ? `${profile.name} · ${outfit.name}` : `农场主人 · ${outfit.name}`;
+    host.setAttribute('aria-label', `${label}，点击打开角色管理`);
+    const labelEl = $('farmOwnerAvatarLabel');
+    if (labelEl) labelEl.textContent = profile?.name || '农场主人';
   }
 
   function renderStats() {
@@ -4958,6 +4998,7 @@
       tasks:{icon:'task', eyebrow:'FARM QUEST', title:'任务与成就', subtitle:'完成每日农务、新手任务与长期成就，领取奖励并解锁专属称号。'},
       ranking:{icon:'ranking', eyebrow:'RANKING', title:'农场排行榜', subtitle:'查看真实云端玩家的等级榜与金币榜，也可以直接发送好友申请。'},
       friends:{icon:'friends', eyebrow:'FRIENDS', title:'农场好友', subtitle:'真人好友与 NPC 农友都在这里；NPC 不参加排行榜、不会偷你的菜，但你可以限量偷 NPC 的成熟作物。'},
+      character:{iconHtml:'<span class="stellar-ui-icon is-character-modal-site-icon" data-site-icon="account" aria-hidden="true"></span>', eyebrow:'MY CHARACTER', title:'我的角色', subtitle:'预览与切换农场主人造型；宠物功能先预留位置，后续版本开放。'},
       train:{icon:'train', eyebrow:'STELLAR STATION', title:'星辰车站', subtitle:'每天 00:00 两个月台同时刷新，可自由挑选倍率；发车奖励立即入账，4～6 小时后还可能有加班列车返程。'}
     }[panel];
     if (!meta) return;
@@ -4996,20 +5037,65 @@
     const body = $('farmModalBody');
     if (!body || !activePanel || $('farmModal').hidden) return;
 
+    if (activePanel === 'character') {
+      const profile = window.XingchenPlayer?.getProfile?.();
+      const outfit = avatarOutfitById(state.avatar?.outfit || 'default');
+      const tabs = `<div class="farm-character-tabs">
+        <button type="button" data-character-tab="avatar" class="${activeCharacterTab === 'avatar' ? 'is-active' : ''}"><span class="stellar-ui-icon" data-site-icon="account" aria-hidden="true"></span> 人物</button>
+        <button type="button" data-character-tab="pet" class="${activeCharacterTab === 'pet' ? 'is-active' : ''}">🐾 宠物 <small>预留</small></button>
+      </div>`;
+      if (activeCharacterTab === 'pet') {
+        body.innerHTML = tabs + `<section class="farm-pet-placeholder">
+          <div class="farm-pet-placeholder-hero"><span>🥚</span><div><small>STELLAR PET</small><b>宠物系统预留区</b><p>未来可在这里管理跟随宠物、宠物收藏与宠物蛋孵化。</p></div></div>
+          <div class="farm-pet-placeholder-grid">
+            <article><span>🐾</span><b>目前跟随</b><small>尚未拥有宠物</small></article>
+            <article><span>✨</span><b>宠物收藏</b><small>后续版本开放</small></article>
+            <article><span>🥚</span><b>孵化区</b><small>宠物蛋功能预留</small></article>
+          </div>
+        </section>`;
+        return;
+      }
+      const maleSelected = state.avatar?.gender !== 'female';
+      body.innerHTML = tabs + `<section class="farm-character-layout">
+        <div class="farm-character-preview-card">
+          <div class="farm-character-preview-stage">${avatarSpriteMarkup('is-character-preview', `${profile?.name || '农场主人'}的角色`)}</div>
+          <div class="farm-character-preview-copy"><small>当前角色</small><b>${escapeHtml(profile?.name || '农场主人')}</b><span>${escapeHtml(outfit.name)}</span></div>
+        </div>
+        <div class="farm-character-controls">
+          <section class="farm-character-control-section">
+            <header><div><small>GENDER</small><b>角色性别</b></div><em>测试阶段可自由切换；女角素材完成后启用。</em></header>
+            <div class="farm-gender-options">
+              <button type="button" data-avatar-gender="male" class="${maleSelected ? 'is-active' : ''}"><strong>♂</strong><span><b>男性</b><small>Default Male v1</small></span>${maleSelected ? '<i>使用中</i>' : ''}</button>
+              <button type="button" class="is-coming" disabled><strong>♀</strong><span><b>女性</b><small>角色素材制作中</small></span><i>待开放</i></button>
+            </div>
+          </section>
+          <section class="farm-character-control-section">
+            <header><div><small>OUTFIT</small><b>我的衣橱</b></div><em>第一版先使用整套 Outfit，后续节日造型直接替换整身。</em></header>
+            <div class="farm-outfit-list">
+              <button type="button" data-avatar-outfit="default" class="is-owned is-active"><span class="farm-outfit-thumb">${avatarSpriteMarkup('is-outfit-thumb')}</span><span><b>星辰农夫</b><small>基础造型 · 已拥有</small></span><i>✓ 使用中</i></button>
+              <div class="farm-outfit-placeholder"><span>🎃</span><div><b>万圣节造型</b><small>后续活动服装</small></div><i>预留</i></div>
+              <div class="farm-outfit-placeholder"><span>🎄</span><div><b>圣诞造型</b><small>后续活动服装</small></div><i>预留</i></div>
+            </div>
+          </section>
+        </div>
+      </section>`;
+      return;
+    }
+
     if (activePanel === 'train') {
       const hub = ensureTrainState(farmDay, {persist:true});
       const slotMarkup = hub.slots.map(slot => {
         if (slot.status === 'cooldown') {
           return `<section class="farm-train-slot is-cooldown" data-train-slot="${slot.index}">
             <header class="farm-train-slot-head"><div><small>第 ${slot.index + 1} 月台</small><b>${uiIconMarkup('cooldown','is-heading-ui')} 列车返程中</b></div><span>约 <strong data-train-cooldown-until="${slot.availableAt}">${formatTrainWait(slot.availableAt - Date.now())}</strong> 后抵达</span></header>
-            <div class="farm-train-empty-station"><img src="../images/farm/train-station.png?v=0.17.2.1" alt="星辰车站"></div>
+            <div class="farm-train-empty-station"><img src="../images/farm/train-station.png?v=0.18.0" alt="星辰车站"></div>
             <p class="farm-train-slot-note">奖励已在上一班发车时立即入账。返程后这里会自动出现一班全新的订单。</p>
           </section>`;
         }
         if (slot.status === 'done') {
           return `<section class="farm-train-slot is-done" data-train-slot="${slot.index}">
             <header class="farm-train-slot-head"><div><small>第 ${slot.index + 1} 月台</small><b>${uiIconMarkup('success','is-heading-ui')} 今日加班班次已满</b></div><span>00:00 统一刷新</span></header>
-            <div class="farm-train-empty-station"><img src="../images/farm/train-station.png?v=0.17.2.1" alt="星辰车站"></div>
+            <div class="farm-train-empty-station"><img src="../images/farm/train-station.png?v=0.18.0" alt="星辰车站"></div>
           </section>`;
         }
         const train = slot.train;
@@ -5024,7 +5110,7 @@
           const owned = Math.max(0, Number(state.produce[car.cropId]) || 0);
           const remaining = Math.max(0, car.required - car.loaded);
           return `<button type="button" class="farm-train-car is-${car.style} ${done ? 'is-complete' : ''} ${!done && owned <= 0 ? 'is-empty-bag' : ''}" data-train-slot-index="${slot.index}" data-train-load-index="${index}" ${done ? 'disabled' : ''} aria-label="${done ? `${crop.name}车厢已装满` : `查看${crop.name}装箱需求，还差${remaining}个，背包${owned}个`}">
-            <img src="../images/farm/train-car-${car.style}.png?v=0.17.2.1" alt="" aria-hidden="true">
+            <img src="../images/farm/train-car-${car.style}.png?v=0.18.0" alt="" aria-hidden="true">
             <span class="farm-train-car-ui"><i>${done ? uiIconMarkup('success','is-train-check-ui') : produceIconMarkup(crop,'is-train-produce-ui')}</i><b>${escapeHtml(crop.name)}</b><strong>${car.loaded} / ${car.required}</strong><small>${done ? '装载完成' : `背包 ${owned}`}</small></span>
           </button>`;
         }).join('');
@@ -5036,10 +5122,10 @@
             <div class="farm-train-reset"><small>火车重置券</small><b>${uiIconMarkup('refresh','is-inline-ui')} ×${Math.max(0,Math.floor(Number(state.supplies?.[TRAIN_RESET_TICKET_ID])||0))}</b></div>
           </div>
           <div class="farm-train-yard">
-            <img class="farm-train-yard-station" src="../images/farm/train-station.png?v=0.17.2.1" alt="" aria-hidden="true">
+            <img class="farm-train-yard-station" src="../images/farm/train-station.png?v=0.18.0" alt="" aria-hidden="true">
             <div class="farm-train-consist ${complete ? 'is-ready' : ''}" data-train-slot-index="${slot.index}">
               ${cars}
-              <div class="farm-train-engine is-${train.tier}"><img src="../images/farm/train-engine.png?v=0.17.2.1" alt="" aria-hidden="true"><span class="farm-train-engine-rate">×${train.multiplier.toFixed(1)}</span><span class="farm-train-smoke" aria-hidden="true"></span></div>
+              <div class="farm-train-engine is-${train.tier}"><img src="../images/farm/train-engine.png?v=0.18.0" alt="" aria-hidden="true"><span class="farm-train-engine-rate">×${train.multiplier.toFixed(1)}</span><span class="farm-train-smoke" aria-hidden="true"></span></div>
             </div>
           </div>
           <div class="farm-train-progress"><span><b>${loadedCars}</b> / ${train.cars.length} 节车厢已完成</span><div><i style="width:${Math.round((loadedCars/train.cars.length)*100)}%"></i></div></div>
@@ -5488,7 +5574,7 @@
     const modalIcon = $('farmModalIcon');
     if (modalIcon) {
       if (iconHtml) modalIcon.innerHTML = iconHtml;
-      else if (icon === 'train') modalIcon.innerHTML = '<img class="farm-modal-asset-icon" src="../images/farm/train-engine.png?v=0.17.2.1" alt="">';
+      else if (icon === 'train') modalIcon.innerHTML = '<img class="farm-modal-asset-icon" src="../images/farm/train-engine.png?v=0.18.0" alt="">';
       else {
         const mapped = UI_ICON_INDEX[icon] ? icon : (UI_EMOJI_ICON[icon] || (icon === '🌱' ? 'newbie-farmer' : ''));
         modalIcon.innerHTML = mapped ? uiIconMarkup(mapped,'is-modal-ui') : escapeHtml(icon || '');
@@ -5648,6 +5734,38 @@
         state.notices.titles = [];
         saveState();
       }
+      renderActivePanel();
+      return;
+    }
+
+    const characterTab = event.target.closest('[data-character-tab]');
+    if (characterTab) {
+      activeCharacterTab = characterTab.dataset.characterTab === 'pet' ? 'pet' : 'avatar';
+      renderActivePanel();
+      return;
+    }
+
+    const avatarGender = event.target.closest('[data-avatar-gender]');
+    if (avatarGender) {
+      const nextGender = AVATAR_GENDERS.includes(avatarGender.dataset.avatarGender) ? avatarGender.dataset.avatarGender : 'male';
+      if (nextGender === 'female') {
+        toast('👤 女角色素材准备中', '目前测试版先使用男性 Default 角色，女角色完成后即可自由切换。');
+        return;
+      }
+      state.avatar.gender = nextGender;
+      saveState();
+      renderFarmAvatar();
+      renderActivePanel();
+      toast('👤 角色已切换', '目前使用男性「星辰农夫」造型。');
+      return;
+    }
+
+    const avatarOutfit = event.target.closest('[data-avatar-outfit]');
+    if (avatarOutfit) {
+      const outfit = avatarOutfitById(avatarOutfit.dataset.avatarOutfit);
+      state.avatar.outfit = outfit.id;
+      saveState();
+      renderFarmAvatar();
       renderActivePanel();
       return;
     }
