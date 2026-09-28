@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const FARM_BUILD = '0.18.2.1.1';
+  const FARM_BUILD = '0.18.3';
   const STORAGE_KEY = 'xingchen-farm-v1';
   const VERSION = 1;
   const PLOT_COUNT = 20;
@@ -16,10 +16,9 @@
   const PENDING_OPS_KEY = 'xingchen-farm-v1-pending-ops';
 
 
-  // V0.18.2.1.1 — wardrobe preview enhancement. Outfit ownership
-  // is permanent, while avatar.outfit only records the currently equipped look.
-  // #5002 Mid-Autumn is released with both male/female Sprite Sheets; later
-  // seasonal IDs remain reserved until their artwork is ready.
+  // V0.18.3 — seasonal wardrobe release. Outfit ownership remains permanent,
+  // while avatar.outfit only records the currently equipped look. #5002 Mid-Autumn,
+  // #5003 Halloween and #5004 Christmas now ship with male/female Sprite Sheets.
   const FARM_ITEM_IDS = Object.freeze({
     TRAIN_RESET_TICKET:4004,
     OUTFIT_DEFAULT:5001,
@@ -31,8 +30,8 @@
   const AVATAR_OUTFITS = Object.freeze([
     Object.freeze({id:'default', itemId:FARM_ITEM_IDS.OUTFIT_DEFAULT, name:'星辰农夫', note:'温暖朴实的基础农夫造型。', icon:'🌾', released:true, male:true, female:true, maleAsset:'default-male.png', femaleAsset:'default-female.png'}),
     Object.freeze({id:'mid_autumn', itemId:FARM_ITEM_IDS.OUTFIT_MID_AUTUMN, name:'中秋节造型', note:'月白与淡紫／冰蓝配色的中秋限定古风服装。', icon:'🌕', released:true, male:true, female:true, maleAsset:'mid-autumn-male.png', femaleAsset:'mid-autumn-female.png'}),
-    Object.freeze({id:'halloween', itemId:FARM_ITEM_IDS.OUTFIT_HALLOWEEN, name:'万圣节造型', note:'节日限定服装。', icon:'🎃', released:false, male:false, female:false, maleAsset:'', femaleAsset:''}),
-    Object.freeze({id:'christmas', itemId:FARM_ITEM_IDS.OUTFIT_CHRISTMAS, name:'圣诞造型', note:'节日限定服装。', icon:'🎄', released:false, male:false, female:false, maleAsset:'', femaleAsset:''})
+    Object.freeze({id:'halloween', itemId:FARM_ITEM_IDS.OUTFIT_HALLOWEEN, name:'万圣节造型', note:'黑红吸血鬼绅士／暗黑哥德礼服的万圣节限定造型。', icon:'🎃', released:true, male:true, female:true, maleAsset:'halloween-male.png', femaleAsset:'halloween-female.png'}),
+    Object.freeze({id:'christmas', itemId:FARM_ITEM_IDS.OUTFIT_CHRISTMAS, name:'圣诞造型', note:'圣诞红冬装／红色毛绒斗篷的节日限定造型。', icon:'🎄', released:true, male:true, female:true, maleAsset:'christmas-male.png', femaleAsset:'christmas-female.png'})
   ]);
 
   const CROPS = [
@@ -1515,7 +1514,7 @@
     return `<span class="farm-ui-icon ${escapeHtml(className)}" data-ui-icon="${safeKey}"${aria}></span>`;
   }
   function trainIconMarkup(className='') {
-    return `<img class="farm-inline-train-icon ${escapeHtml(className)}" src="../images/farm/train-engine.png?v=0.18.2.1" alt="" aria-hidden="true">`;
+    return `<img class="farm-inline-train-icon ${escapeHtml(className)}" src="../images/farm/train-engine.png?v=0.18.3" alt="" aria-hidden="true">`;
   }
   function uiTextMarkup(value) {
     let text = escapeHtml(value ?? '');
@@ -5174,14 +5173,14 @@
         if (slot.status === 'cooldown') {
           return `<section class="farm-train-slot is-cooldown" data-train-slot="${slot.index}">
             <header class="farm-train-slot-head"><div><small>第 ${slot.index + 1} 月台</small><b>${uiIconMarkup('cooldown','is-heading-ui')} 列车返程中</b></div><span>约 <strong data-train-cooldown-until="${slot.availableAt}">${formatTrainWait(slot.availableAt - Date.now())}</strong> 后抵达</span></header>
-            <div class="farm-train-empty-station"><img src="../images/farm/train-station.png?v=0.18.2.1" alt="星辰车站"></div>
+            <div class="farm-train-empty-station"><img src="../images/farm/train-station.png?v=0.18.3" alt="星辰车站"></div>
             <p class="farm-train-slot-note">奖励已在上一班发车时立即入账。返程后这里会自动出现一班全新的订单。</p>
           </section>`;
         }
         if (slot.status === 'done') {
           return `<section class="farm-train-slot is-done" data-train-slot="${slot.index}">
             <header class="farm-train-slot-head"><div><small>第 ${slot.index + 1} 月台</small><b>${uiIconMarkup('success','is-heading-ui')} 今日加班班次已满</b></div><span>00:00 统一刷新</span></header>
-            <div class="farm-train-empty-station"><img src="../images/farm/train-station.png?v=0.18.2.1" alt="星辰车站"></div>
+            <div class="farm-train-empty-station"><img src="../images/farm/train-station.png?v=0.18.3" alt="星辰车站"></div>
           </section>`;
         }
         const train = slot.train;
@@ -5196,7 +5195,7 @@
           const owned = Math.max(0, Number(state.produce[car.cropId]) || 0);
           const remaining = Math.max(0, car.required - car.loaded);
           return `<button type="button" class="farm-train-car is-${car.style} ${done ? 'is-complete' : ''} ${!done && owned <= 0 ? 'is-empty-bag' : ''}" data-train-slot-index="${slot.index}" data-train-load-index="${index}" ${done ? 'disabled' : ''} aria-label="${done ? `${crop.name}车厢已装满` : `查看${crop.name}装箱需求，还差${remaining}个，背包${owned}个`}">
-            <img src="../images/farm/train-car-${car.style}.png?v=0.18.2.1" alt="" aria-hidden="true">
+            <img src="../images/farm/train-car-${car.style}.png?v=0.18.3" alt="" aria-hidden="true">
             <span class="farm-train-car-ui"><i>${done ? uiIconMarkup('success','is-train-check-ui') : produceIconMarkup(crop,'is-train-produce-ui')}</i><b>${escapeHtml(crop.name)}</b><strong>${car.loaded} / ${car.required}</strong><small>${done ? '装载完成' : `背包 ${owned}`}</small></span>
           </button>`;
         }).join('');
@@ -5208,10 +5207,10 @@
             <div class="farm-train-reset"><small>火车重置券</small><b>${uiIconMarkup('refresh','is-inline-ui')} ×${Math.max(0,Math.floor(Number(state.supplies?.[TRAIN_RESET_TICKET_ID])||0))}</b></div>
           </div>
           <div class="farm-train-yard">
-            <img class="farm-train-yard-station" src="../images/farm/train-station.png?v=0.18.2.1" alt="" aria-hidden="true">
+            <img class="farm-train-yard-station" src="../images/farm/train-station.png?v=0.18.3" alt="" aria-hidden="true">
             <div class="farm-train-consist ${complete ? 'is-ready' : ''}" data-train-slot-index="${slot.index}">
               ${cars}
-              <div class="farm-train-engine is-${train.tier}"><img src="../images/farm/train-engine.png?v=0.18.2.1" alt="" aria-hidden="true"><span class="farm-train-engine-rate">×${train.multiplier.toFixed(1)}</span><span class="farm-train-smoke" aria-hidden="true"></span></div>
+              <div class="farm-train-engine is-${train.tier}"><img src="../images/farm/train-engine.png?v=0.18.3" alt="" aria-hidden="true"><span class="farm-train-engine-rate">×${train.multiplier.toFixed(1)}</span><span class="farm-train-smoke" aria-hidden="true"></span></div>
             </div>
           </div>
           <div class="farm-train-progress"><span><b>${loadedCars}</b> / ${train.cars.length} 节车厢已完成</span><div><i style="width:${Math.round((loadedCars/train.cars.length)*100)}%"></i></div></div>
@@ -5660,7 +5659,7 @@
     const modalIcon = $('farmModalIcon');
     if (modalIcon) {
       if (iconHtml) modalIcon.innerHTML = iconHtml;
-      else if (icon === 'train') modalIcon.innerHTML = '<img class="farm-modal-asset-icon" src="../images/farm/train-engine.png?v=0.18.2.1" alt="">';
+      else if (icon === 'train') modalIcon.innerHTML = '<img class="farm-modal-asset-icon" src="../images/farm/train-engine.png?v=0.18.3" alt="">';
       else {
         const mapped = UI_ICON_INDEX[icon] ? icon : (UI_EMOJI_ICON[icon] || (icon === '🌱' ? 'newbie-farmer' : ''));
         modalIcon.innerHTML = mapped ? uiIconMarkup(mapped,'is-modal-ui') : escapeHtml(icon || '');
