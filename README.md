@@ -1,3 +1,33 @@
+# V0.19.0
+
+## 季节装饰物／Item Atlas／GM 预发布测试
+
+- 新增正式 `item-icon-atlas-01.png`：1024×1024、4×4、16 格，统一承载 #4004、#5001～#5004 与季节装饰 #6001～#6012 的背包／GM／商店小 Icon。
+- 新增 `farm-decor-seasonal-atlas-01.png`：2048×2048、4×4、每格 512×512；逐物件重新裁切并置中，避免原始 AI 图直接平均切格造成跨格或截断。
+- 中秋装饰正式开放商店：#6001 中秋宫灯、#6002 玉兔摆饰、#6003 桂花盆栽、#6004 月亮景观灯。
+- 万圣节 #6005～#6007 与圣诞节 #6009～#6012 已接入背包／布置／好友农场，但普通装饰商店暂时隐藏；GM 可先通过系统邮件发放给测试账号。#6008 保留。
+- 邮件 Item Catalog 新增 `decoration` 类别与奖励逻辑；领取后增加 `state.decorations.owned.<decorId>`，不会自动摆放。
+- 好友农场安全公开布局已允许新的季节装饰 ID，因此测试摆设在好友访问时也能正常显示。
+- TOP／HOME 与主要 X 关闭按钮放大；桌面提高到约 2 倍的视觉操作面积，手机保持不溢出的 52～56px 级触控目标。
+- 需要在 029 已执行的情况下再执行：`supabase/migrations/20260928_030_seasonal_decorations.sql`。
+
+### 新增装饰 Item ID
+
+| Item ID | item_code | 普通商店 | GM 邮件 |
+|---:|---|---|---|
+| 6001 | `decoration.mid_lantern` | ✅ | ✅ |
+| 6002 | `decoration.mid_rabbit` | ✅ | ✅ |
+| 6003 | `decoration.mid_osmanthus` | ✅ | ✅ |
+| 6004 | `decoration.mid_moon_lamp` | ✅ | ✅ |
+| 6005 | `decoration.halloween_pumpkin` | 🔒 暂时隐藏 | ✅ |
+| 6006 | `decoration.halloween_ghost` | 🔒 暂时隐藏 | ✅ |
+| 6007 | `decoration.halloween_candle` | 🔒 暂时隐藏 | ✅ |
+| 6008 | 保留 | — | — |
+| 6009 | `decoration.christmas_tree` | 🔒 暂时隐藏 | ✅ |
+| 6010 | `decoration.christmas_gifts` | 🔒 暂时隐藏 | ✅ |
+| 6011 | `decoration.christmas_snowman` | 🔒 暂时隐藏 | ✅ |
+| 6012 | `decoration.christmas_lamp` | 🔒 暂时隐藏 | ✅ |
+
 # V0.18.3
 
 ## 万圣节 / 圣诞节限定时装 #5003 / #5004

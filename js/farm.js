@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const FARM_BUILD = '0.18.3';
+  const FARM_BUILD = '0.19.0';
   const STORAGE_KEY = 'xingchen-farm-v1';
   const VERSION = 1;
   const PLOT_COUNT = 20;
@@ -16,7 +16,7 @@
   const PENDING_OPS_KEY = 'xingchen-farm-v1-pending-ops';
 
 
-  // V0.18.3 — seasonal wardrobe release. Outfit ownership remains permanent,
+  // V0.19.0 — seasonal wardrobe release. Outfit ownership remains permanent,
   // while avatar.outfit only records the currently equipped look. #5002 Mid-Autumn,
   // #5003 Halloween and #5004 Christmas now ship with male/female Sprite Sheets.
   const FARM_ITEM_IDS = Object.freeze({
@@ -24,7 +24,18 @@
     OUTFIT_DEFAULT:5001,
     OUTFIT_MID_AUTUMN:5002,
     OUTFIT_HALLOWEEN:5003,
-    OUTFIT_CHRISTMAS:5004
+    OUTFIT_CHRISTMAS:5004,
+    DECOR_MID_LANTERN:6001,
+    DECOR_MID_RABBIT:6002,
+    DECOR_MID_OSMANTHUS:6003,
+    DECOR_MID_MOON_LAMP:6004,
+    DECOR_HALLOWEEN_PUMPKIN:6005,
+    DECOR_HALLOWEEN_GHOST:6006,
+    DECOR_HALLOWEEN_CANDLE:6007,
+    DECOR_CHRISTMAS_TREE:6009,
+    DECOR_CHRISTMAS_GIFTS:6010,
+    DECOR_CHRISTMAS_SNOWMAN:6011,
+    DECOR_CHRISTMAS_LAMP:6012
   });
   const AVATAR_GENDERS = Object.freeze(['male','female']);
   const AVATAR_OUTFITS = Object.freeze([
@@ -56,6 +67,8 @@
   // Cell numbers are 1-based so they match the artwork brief.
   const ITEM_ATLAS = Object.freeze({cols:4, rows:4});
   const EVENT_ATLAS = Object.freeze({cols:4, rows:4});
+  const CATALOG_ATLAS = Object.freeze({cols:4, rows:4});
+  const SEASONAL_DECOR_ATLAS = Object.freeze({cols:4, rows:4});
   const BASE_PEST_CHANCE = 0.10;
   const DAILY_EVENTS = Object.freeze([
     Object.freeze({id:'sunny', icon:'☀️', name:'晴朗', note:'本时段播种的普通作物成长时间缩短 5%。', growFactor:0.95, pestChance:0.10}),
@@ -73,8 +86,9 @@
   ]);
 
 
-  // V0.14.0 — fixed-slot farm decoration system. Artwork reuses cells 7–16
-  // of the existing 4×4 farm-event atlas, so no extra image requests are needed.
+  // V0.19.0 — fixed-slot decoration catalog now includes seasonal scenery.
+  // Existing farm decor keeps using the event atlas. Seasonal decor uses its own
+  // 4×4 scene atlas plus Item IDs / item-icon cells for GM mail and backpack UI.
   const DECORATION_SLOT_COUNT = 8;
   const DECORATIONS = Object.freeze([
     Object.freeze({id:'hay', name:'稻草堆', eventCell:13, price:100, unlockLevel:3, scale:.86, note:'朴实温暖的小型稻草装饰。'}),
@@ -86,9 +100,22 @@
     Object.freeze({id:'scarecrow', name:'稻草人', eventCell:7, price:500, unlockLevel:10, scale:.96, note:'经典农场守护者，远远就能看到。'}),
     Object.freeze({id:'lamp', name:'农场路灯', eventCell:11, price:700, unlockLevel:12, scale:.88, note:'带暖黄色灯光的复古农场路灯。'}),
     Object.freeze({id:'windmill', name:'小型风车', eventCell:15, price:1000, unlockLevel:15, scale:.96, note:'庭院里的小型景观风车。'}),
-    Object.freeze({id:'sign', name:'星辰农场木牌', eventCell:16, price:1500, unlockLevel:10, scale:1.02, note:'会自动显示农场主人名称与当前称号。'})
-  ]);
+    Object.freeze({id:'sign', name:'星辰农场木牌', eventCell:16, price:1500, unlockLevel:10, scale:1.02, note:'会自动显示农场主人名称与当前称号。'}),
 
+    Object.freeze({id:'mid_lantern', itemId:FARM_ITEM_IDS.DECOR_MID_LANTERN, name:'中秋宫灯', decorCell:1, itemIconCell:6, price:600, unlockLevel:1, scale:1.02, seasonal:'mid_autumn', shopVisible:true, note:'月色与桂花相伴的古典宫灯，中秋限定装饰。'}),
+    Object.freeze({id:'mid_rabbit', itemId:FARM_ITEM_IDS.DECOR_MID_RABBIT, name:'玉兔摆饰', decorCell:2, itemIconCell:7, price:800, unlockLevel:1, scale:1.04, seasonal:'mid_autumn', shopVisible:true, note:'抱着月饼的可爱玉兔，为农场添上一点团圆气息。'}),
+    Object.freeze({id:'mid_osmanthus', itemId:FARM_ITEM_IDS.DECOR_MID_OSMANTHUS, name:'桂花盆栽', decorCell:3, itemIconCell:8, price:650, unlockLevel:1, scale:1.03, seasonal:'mid_autumn', shopVisible:true, note:'金桂盛开的古典盆景，中秋限定装饰。'}),
+    Object.freeze({id:'mid_moon_lamp', itemId:FARM_ITEM_IDS.DECOR_MID_MOON_LAMP, name:'月亮景观灯', decorCell:4, itemIconCell:9, price:1200, unlockLevel:1, scale:1.08, seasonal:'mid_autumn', shopVisible:true, note:'柔和发光的满月景观灯，适合放在草地边赏月。'}),
+
+    Object.freeze({id:'halloween_pumpkin', itemId:FARM_ITEM_IDS.DECOR_HALLOWEEN_PUMPKIN, name:'万圣南瓜灯', decorCell:5, itemIconCell:10, price:900, unlockLevel:1, scale:1.00, seasonal:'halloween', shopVisible:false, note:'微笑发光的南瓜灯。素材已准备，活动开放前仅可由 GM 发放测试。'}),
+    Object.freeze({id:'halloween_ghost', itemId:FARM_ITEM_IDS.DECOR_HALLOWEEN_GHOST, name:'幽灵墓碑', decorCell:6, itemIconCell:11, price:1100, unlockLevel:1, scale:1.02, seasonal:'halloween', shopVisible:false, note:'调皮小幽灵躲在墓碑旁。活动开放前仅可由 GM 发放测试。'}),
+    Object.freeze({id:'halloween_candle', itemId:FARM_ITEM_IDS.DECOR_HALLOWEEN_CANDLE, name:'万圣烛台', decorCell:7, itemIconCell:12, price:1000, unlockLevel:1, scale:.94, seasonal:'halloween', shopVisible:false, note:'黑金烛台与紫色烛火。活动开放前仅可由 GM 发放测试。'}),
+
+    Object.freeze({id:'christmas_tree', itemId:FARM_ITEM_IDS.DECOR_CHRISTMAS_TREE, name:'圣诞树', decorCell:9, itemIconCell:13, price:1200, unlockLevel:1, scale:1.08, seasonal:'christmas', shopVisible:false, note:'挂满灯饰的节日圣诞树。活动开放前仅可由 GM 发放测试。'}),
+    Object.freeze({id:'christmas_gifts', itemId:FARM_ITEM_IDS.DECOR_CHRISTMAS_GIFTS, name:'圣诞礼物堆', decorCell:10, itemIconCell:14, price:900, unlockLevel:1, scale:1.02, seasonal:'christmas', shopVisible:false, note:'红绿金色礼物盒堆。活动开放前仅可由 GM 发放测试。'}),
+    Object.freeze({id:'christmas_snowman', itemId:FARM_ITEM_IDS.DECOR_CHRISTMAS_SNOWMAN, name:'雪人', decorCell:11, itemIconCell:15, price:1000, unlockLevel:1, scale:1.04, seasonal:'christmas', shopVisible:false, note:'戴着围巾与冬帽的温暖雪人。活动开放前仅可由 GM 发放测试。'}),
+    Object.freeze({id:'christmas_lamp', itemId:FARM_ITEM_IDS.DECOR_CHRISTMAS_LAMP, name:'圣诞路灯', decorCell:12, itemIconCell:16, price:1050, unlockLevel:1, scale:.96, seasonal:'christmas', shopVisible:false, note:'冬青、蝴蝶结与金铃点缀的节日路灯。活动开放前仅可由 GM 发放测试。'})
+  ]);
 
   // V0.14.2 — lightweight NPC farmers. NPC farms are lazily simulated from
   // the current clock, so they do not need background browser sessions, cron
@@ -524,6 +551,30 @@
     return `<span class="farm-event-sprite ${extraClass}" aria-hidden="true"${label ? ` title="${escapeHtml(label)}"` : ''} style="--event-x:${pos.x}%;--event-y:${pos.y}%"></span>`;
   }
 
+  function atlasPosition(cell, atlas) {
+    const count = atlas.cols * atlas.rows;
+    const index = Math.max(0, Math.min(count - 1, Number(cell || 1) - 1));
+    const col = index % atlas.cols;
+    const row = Math.floor(index / atlas.cols);
+    return {x:col * (100 / (atlas.cols - 1)), y:row * (100 / (atlas.rows - 1))};
+  }
+
+  function catalogSpriteMarkup(cell, extraClass = '', label = '') {
+    const pos = atlasPosition(cell, CATALOG_ATLAS);
+    return `<span class="farm-catalog-sprite ${extraClass}" aria-hidden="true"${label ? ` title="${escapeHtml(label)}"` : ''} style="--catalog-x:${pos.x}%;--catalog-y:${pos.y}%"></span>`;
+  }
+
+  function seasonalDecorSpriteMarkup(cell, extraClass = '', label = '', scale = 1) {
+    const pos = atlasPosition(cell, SEASONAL_DECOR_ATLAS);
+    return `<span class="farm-seasonal-decor-sprite ${extraClass}" aria-hidden="true"${label ? ` title="${escapeHtml(label)}"` : ''} style="--seasonal-decor-x:${pos.x}%;--seasonal-decor-y:${pos.y}%;--decor-scale:${Number(scale) || 1}"></span>`;
+  }
+
+  function decorationIconMarkup(item, extraClass = '', label = '') {
+    if (!item) return '';
+    if (item.itemIconCell) return catalogSpriteMarkup(item.itemIconCell, extraClass, label || item.name);
+    return eventSpriteMarkup(item.eventCell, extraClass, label || item.name);
+  }
+
 
   const decorationById = (id) => DECORATIONS.find(item => item.id === id) || null;
   function placedDecorationCount(id, decorations = state?.decorations) {
@@ -535,10 +586,11 @@
   }
   function decorationSceneMarkup(item, {friendName='', titleId='newbie'} = {}) {
     if (!item) return '';
-    const pos = eventSpritePosition(item.eventCell);
     const signCopy = item.id === 'sign'
       ? `<span class="farm-decor-sign-copy"><b>${escapeHtml(friendName || (window.XingchenPlayer?.getProfile?.()?.name || '我的'))}的农场</b><small>${uiIconMarkup(titleUiIconKey(titleById(titleId || state?.titles?.equipped || 'newbie').id),'is-sign-title-ui')}【${escapeHtml(titleById(titleId || state?.titles?.equipped || 'newbie').name)}】</small></span>`
       : '';
+    if (item.decorCell) return `${seasonalDecorSpriteMarkup(item.decorCell,'farm-decoration-art',item.name,item.scale)}${signCopy}`;
+    const pos = eventSpritePosition(item.eventCell);
     return `<span class="farm-decoration-art farm-event-sprite" aria-hidden="true" style="--event-x:${pos.x}%;--event-y:${pos.y}%;--decor-scale:${Number(item.scale) || 1}"></span>${signCopy}`;
   }
 
@@ -1514,7 +1566,7 @@
     return `<span class="farm-ui-icon ${escapeHtml(className)}" data-ui-icon="${safeKey}"${aria}></span>`;
   }
   function trainIconMarkup(className='') {
-    return `<img class="farm-inline-train-icon ${escapeHtml(className)}" src="../images/farm/train-engine.png?v=0.18.3" alt="" aria-hidden="true">`;
+    return `<img class="farm-inline-train-icon ${escapeHtml(className)}" src="../images/farm/train-engine.png?v=0.19.0" alt="" aria-hidden="true">`;
   }
   function uiTextMarkup(value) {
     let text = escapeHtml(value ?? '');
@@ -4086,7 +4138,7 @@
     const choiceMarkup = choices.length ? choices.map(item => {
       const available = availableDecorationCount(item.id) + (item.id === currentId ? 1 : 0);
       return `<button type="button" class="farm-decor-choice ${item.id === currentId ? 'is-current' : ''}" data-place-decor="${item.id}" data-decor-target-slot="${index}">
-        ${eventSpriteMarkup(item.eventCell, 'is-decor-choice-art', item.name)}
+        ${decorationIconMarkup(item, 'is-decor-choice-art', item.name)}
         <span><b>${escapeHtml(item.name)}</b><small>${item.id === currentId ? '目前放在这个位置' : `可放置 ×${available}`}</small></span>
         <em>${item.id === currentId ? `${uiIconMarkup('success','is-button-ui')}<span>当前</span>` : '放置'}</em>
       </button>`;
@@ -4100,7 +4152,7 @@
 
   async function buyDecoration(id) {
     const item = decorationById(id);
-    if (!item || state.level < item.unlockLevel) return;
+    if (!item || item.shopVisible === false || state.level < item.unlockLevel) return;
     if (state.coins < item.price) {
       toast('🪙 金币不够', `购买 ${item.name} 需要 ${item.price} 金币。`);
       return;
@@ -5173,14 +5225,14 @@
         if (slot.status === 'cooldown') {
           return `<section class="farm-train-slot is-cooldown" data-train-slot="${slot.index}">
             <header class="farm-train-slot-head"><div><small>第 ${slot.index + 1} 月台</small><b>${uiIconMarkup('cooldown','is-heading-ui')} 列车返程中</b></div><span>约 <strong data-train-cooldown-until="${slot.availableAt}">${formatTrainWait(slot.availableAt - Date.now())}</strong> 后抵达</span></header>
-            <div class="farm-train-empty-station"><img src="../images/farm/train-station.png?v=0.18.3" alt="星辰车站"></div>
+            <div class="farm-train-empty-station"><img src="../images/farm/train-station.png?v=0.19.0" alt="星辰车站"></div>
             <p class="farm-train-slot-note">奖励已在上一班发车时立即入账。返程后这里会自动出现一班全新的订单。</p>
           </section>`;
         }
         if (slot.status === 'done') {
           return `<section class="farm-train-slot is-done" data-train-slot="${slot.index}">
             <header class="farm-train-slot-head"><div><small>第 ${slot.index + 1} 月台</small><b>${uiIconMarkup('success','is-heading-ui')} 今日加班班次已满</b></div><span>00:00 统一刷新</span></header>
-            <div class="farm-train-empty-station"><img src="../images/farm/train-station.png?v=0.18.3" alt="星辰车站"></div>
+            <div class="farm-train-empty-station"><img src="../images/farm/train-station.png?v=0.19.0" alt="星辰车站"></div>
           </section>`;
         }
         const train = slot.train;
@@ -5195,7 +5247,7 @@
           const owned = Math.max(0, Number(state.produce[car.cropId]) || 0);
           const remaining = Math.max(0, car.required - car.loaded);
           return `<button type="button" class="farm-train-car is-${car.style} ${done ? 'is-complete' : ''} ${!done && owned <= 0 ? 'is-empty-bag' : ''}" data-train-slot-index="${slot.index}" data-train-load-index="${index}" ${done ? 'disabled' : ''} aria-label="${done ? `${crop.name}车厢已装满` : `查看${crop.name}装箱需求，还差${remaining}个，背包${owned}个`}">
-            <img src="../images/farm/train-car-${car.style}.png?v=0.18.3" alt="" aria-hidden="true">
+            <img src="../images/farm/train-car-${car.style}.png?v=0.19.0" alt="" aria-hidden="true">
             <span class="farm-train-car-ui"><i>${done ? uiIconMarkup('success','is-train-check-ui') : produceIconMarkup(crop,'is-train-produce-ui')}</i><b>${escapeHtml(crop.name)}</b><strong>${car.loaded} / ${car.required}</strong><small>${done ? '装载完成' : `背包 ${owned}`}</small></span>
           </button>`;
         }).join('');
@@ -5207,10 +5259,10 @@
             <div class="farm-train-reset"><small>火车重置券</small><b>${uiIconMarkup('refresh','is-inline-ui')} ×${Math.max(0,Math.floor(Number(state.supplies?.[TRAIN_RESET_TICKET_ID])||0))}</b></div>
           </div>
           <div class="farm-train-yard">
-            <img class="farm-train-yard-station" src="../images/farm/train-station.png?v=0.18.3" alt="" aria-hidden="true">
+            <img class="farm-train-yard-station" src="../images/farm/train-station.png?v=0.19.0" alt="" aria-hidden="true">
             <div class="farm-train-consist ${complete ? 'is-ready' : ''}" data-train-slot-index="${slot.index}">
               ${cars}
-              <div class="farm-train-engine is-${train.tier}"><img src="../images/farm/train-engine.png?v=0.18.3" alt="" aria-hidden="true"><span class="farm-train-engine-rate">×${train.multiplier.toFixed(1)}</span><span class="farm-train-smoke" aria-hidden="true"></span></div>
+              <div class="farm-train-engine is-${train.tier}"><img src="../images/farm/train-engine.png?v=0.19.0" alt="" aria-hidden="true"><span class="farm-train-engine-rate">×${train.multiplier.toFixed(1)}</span><span class="farm-train-smoke" aria-hidden="true"></span></div>
             </div>
           </div>
           <div class="farm-train-progress"><span><b>${loadedCars}</b> / ${train.cars.length} 节车厢已完成</span><div><i style="width:${Math.round((loadedCars/train.cars.length)*100)}%"></i></div></div>
@@ -5244,12 +5296,12 @@
         body.innerHTML = shopTabs + `<section class="farm-shop-care is-tab-body"><header><div><b>${uiIconMarkup('harvest-expert','is-heading-ui')} 农田照料</b><small>每株每轮最多使用一包肥料；浇水免费。</small></div>${itemSpriteMarkup(2, 'is-shop-header-item')}</header><div class="farm-fertilizer-grid">${FERTILIZERS.map(item => `<article class="farm-fertilizer-card">${itemSpriteMarkup(item.itemCell, 'is-fertilizer-art')}<div class="farm-fertilizer-copy"><b>${item.name}</b><p>${item.note}</p></div><div class="farm-shop-meta farm-fertilizer-meta"><span>${uiIconMarkup('coin','is-meta-ui')} ${item.price} / 包</span><span>背包 ×${state.supplies[item.id] || 0}</span></div><div class="farm-shop-buy"><button type="button" data-buy-supply="${item.id}" data-qty="1">买 1</button><button type="button" data-buy-supply="${item.id}" data-qty="5">买 5</button></div></article>`).join('')}</div></section>`;
         return;
       }
-      const decorCards = DECORATIONS.map(item => {
+      const decorCards = DECORATIONS.filter(item => item.shopVisible !== false).map(item => {
         const locked = state.level < item.unlockLevel;
         const owned = Number(state.decorations?.owned?.[item.id]) || 0;
         const placed = placedDecorationCount(item.id);
         return `<article class="farm-decor-shop-card ${locked ? 'is-locked' : ''}">
-          ${eventSpriteMarkup(item.eventCell, 'is-decor-shop-art', item.name)}
+          ${decorationIconMarkup(item, 'is-decor-shop-art', item.name)}
           <div class="farm-decor-shop-copy"><b>${escapeHtml(item.name)}</b><p>${escapeHtml(item.note)}</p></div>
           <div class="farm-shop-meta"><span>${uiIconMarkup('coin','is-meta-ui')} ${formatNumber(item.price)} / 个</span><span>拥有 ${owned}</span><span>已摆 ${placed}</span></div>
           ${locked ? `<button type="button" disabled>${uiIconMarkup('lock','is-button-ui')} Lv.${item.unlockLevel} 解锁</button>` : `<button type="button" data-buy-decor="${item.id}">购买</button>`}
@@ -5267,7 +5319,7 @@
         const owned = Number(state.decorations.owned[item.id]) || 0;
         const placed = placedDecorationCount(item.id);
         const available = Math.max(0, owned - placed);
-        return `<div class="farm-bag-row farm-decor-bag-row">${eventSpriteMarkup(item.eventCell, 'is-bag-decor', item.name)}<div><b>${escapeHtml(item.name)}</b><small>${escapeHtml(item.note)} · 可用 ${available} / ${owned}</small></div><em>×${owned}</em></div>`;
+        return `<div class="farm-bag-row farm-decor-bag-row">${decorationIconMarkup(item, 'is-bag-decor', item.name)}<div><b>${escapeHtml(item.name)}</b><small>${escapeHtml(item.note)} · 可用 ${available} / ${owned}</small></div><em>×${owned}</em></div>`;
       }).join('');
       body.innerHTML = `
         <section class="farm-bag-section">
@@ -5292,7 +5344,7 @@
         </section>
         <section class="farm-bag-section farm-station-item-section">
           <header><b>${uiIconMarkup('refresh','is-heading-ui')} 车站道具</b><span>${Math.max(0,Math.floor(Number(state.supplies?.[TRAIN_RESET_TICKET_ID])||0))} 张</span></header>
-          <div class="farm-bag-list"><div class="farm-bag-row farm-supply-row"><span class="farm-ticket-icon">${uiIconMarkup('refresh','is-bag-ui')}</span><div><b>火车重置券 <small>#${TRAIN_RESET_TICKET_ITEM_ID}</small></b><small>在星辰车站刷新一班尚未发车的订单：倍率、作物种类与需求数量都会重新抽取，已装货物会退回背包。</small></div><em>×${Math.max(0,Math.floor(Number(state.supplies?.[TRAIN_RESET_TICKET_ID])||0))}</em></div></div>
+          <div class="farm-bag-list"><div class="farm-bag-row farm-supply-row"><span class="farm-ticket-icon">${catalogSpriteMarkup(1,'is-bag-ticket','火车重置券')}</span><div><b>火车重置券 <small>#${TRAIN_RESET_TICKET_ITEM_ID}</small></b><small>在星辰车站刷新一班尚未发车的订单：倍率、作物种类与需求数量都会重新抽取，已装货物会退回背包。</small></div><em>×${Math.max(0,Math.floor(Number(state.supplies?.[TRAIN_RESET_TICKET_ID])||0))}</em></div></div>
         </section>
         <section class="farm-bag-section farm-decor-bag-section">
           <header><b>${uiIconMarkup('farm-expert','is-heading-ui')} 装饰</b><span>${decorOwnedTotal} 件</span></header>
@@ -5659,7 +5711,7 @@
     const modalIcon = $('farmModalIcon');
     if (modalIcon) {
       if (iconHtml) modalIcon.innerHTML = iconHtml;
-      else if (icon === 'train') modalIcon.innerHTML = '<img class="farm-modal-asset-icon" src="../images/farm/train-engine.png?v=0.18.3" alt="">';
+      else if (icon === 'train') modalIcon.innerHTML = '<img class="farm-modal-asset-icon" src="../images/farm/train-engine.png?v=0.19.0" alt="">';
       else {
         const mapped = UI_ICON_INDEX[icon] ? icon : (UI_EMOJI_ICON[icon] || (icon === '🌱' ? 'newbie-farmer' : ''));
         modalIcon.innerHTML = mapped ? uiIconMarkup(mapped,'is-modal-ui') : escapeHtml(icon || '');

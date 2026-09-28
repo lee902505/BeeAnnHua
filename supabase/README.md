@@ -53,3 +53,8 @@ It registers `#4004` train reset tickets in the stable item catalog, reserves `#
 
 Run `migrations/20260928_028_mid_autumn_outfit.sql` after migration 027.
 It enables the already-reserved `#5002 outfit.mid_autumn` item for GM/system-mail delivery now that both male and female Sprite Sheets are shipped. Claiming the attachment unlocks permanent wardrobe ownership and does not auto-equip the outfit.
+
+## V0.19.0 seasonal decorations
+
+After migration 029, run `migrations/20260928_030_seasonal_decorations.sql` once.
+It adds Item IDs 6001–6012 (6008 reserved), the `decoration` mail reward kind, GM test delivery, and friend-farm visibility for seasonal decorations.
