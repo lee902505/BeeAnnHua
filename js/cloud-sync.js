@@ -1,5 +1,5 @@
 (() => {
-  const VERSION = '0.18.0.1';
+  const VERSION = '0.18.0.2';
   const META_KEY = 'stellar-diary-cloud-sync-meta-v1';
   const RESTORE_PENDING_KEY = 'stellar-diary-account-restore-pending-v1';
   const PROFILE_KEY = 'xingchen-player-profile-v1';
