@@ -8,6 +8,7 @@
   let initPromise = null;
   let authSubscription = null;
   let lastProfileSyncAt = null;
+  let lastProfilePayloadKey = '';
 
   function client() {
     return window.XingchenSupabase?.getClient?.() || null;
@@ -138,6 +139,10 @@
       locale: currentLocale(),
       timezone: currentTimezone()
     };
+    const payloadKey = `${currentUser.id}|${JSON.stringify(payload)}`;
+    if (!force && lastProfilePayloadKey === payloadKey) {
+      return {ok:true, skipped:'unchanged-profile', syncedAt:lastProfileSyncAt};
+    }
 
     try {
       const {data, error} = await instance
@@ -153,6 +158,7 @@
       }
 
       lastProfileSyncAt = new Date().toISOString();
+      lastProfilePayloadKey = payloadKey;
       emit();
       return {ok: true, data, syncedAt: lastProfileSyncAt};
     } catch (error) {

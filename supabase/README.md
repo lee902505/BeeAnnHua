@@ -28,3 +28,9 @@ Run `migrations/20260926_014_farm_activity_center.sql` after migration 013. It c
 ## V0.16 系统信箱 / GM
 
 执行 `migrations/20260927_018_system_mail_gm.sql`，然后参阅 `../docs/SYSTEM_MAIL_GM.md`。
+
+## V0.17.0.1 farm stability / traffic optimization
+
+Run `migrations/20260928_024_farm_stability_traffic.sql` after migration 023.
+It converts one-click friend watering / pest care into true batch writes, fixes care EXP leveling, hardens malformed JSON handling, marks all opened activity as seen, and adds deterministic pair locking for two-player farm mutations.
+

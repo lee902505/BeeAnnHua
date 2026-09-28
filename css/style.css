@@ -9921,10 +9921,10 @@ body.farm-modal-open { overflow: hidden; }
 }
 
 .farm-crop-visual.is-sprite[data-crop-sheet="1"] {
-  background-image:url("../images/farm/crops-sheet-01.webp?v=0.16.5");
+  background-image:url("../images/farm/crops-sheet-01.webp?v=0.17.0.1");
 }
 .farm-crop-visual.is-sprite[data-crop-sheet="2"] {
-  background-image:url("../images/farm/crops-sheet-02.webp?v=0.16.5");
+  background-image:url("../images/farm/crops-sheet-02.webp?v=0.17.0.1");
 }
 
 /* Growth size is already painted into the atlas frames; do not scale sprite
@@ -11382,7 +11382,7 @@ body.farm-modal-open { overflow: hidden; }
   width:42px;
   height:42px;
   flex:0 0 auto;
-  background-image:url("../images/farm/farm-item-sheet-01.webp?v=0.16.5");
+  background-image:url("../images/farm/farm-item-sheet-01.webp?v=0.17.0.1");
   background-size:400% 400%;
   background-position:var(--item-x,0%) var(--item-y,0%);
   background-repeat:no-repeat;
@@ -11487,7 +11487,7 @@ body.farm-modal-open { overflow: hidden; }
   height:74px;
   margin:-37px 0 0 -37px;
   pointer-events:none;
-  background-image:url("../images/farm/farm-item-sheet-01.webp?v=0.16.5");
+  background-image:url("../images/farm/farm-item-sheet-01.webp?v=0.17.0.1");
   background-size:400% 400%;
   background-position:var(--item-x,0%) var(--item-y,0%);
   background-repeat:no-repeat;
@@ -11726,7 +11726,7 @@ body.farm-modal-open { overflow: hidden; }
 /* V0.13.30 — daily events, traveling merchant and pest-control system */
 .farm-event-sprite {
   display:inline-block;width:42px;height:42px;flex:0 0 auto;
-  background-image:url("../images/farm/farm-event-sheet-01.webp?v=0.16.5");
+  background-image:url("../images/farm/farm-event-sheet-01.webp?v=0.17.0.1");
   background-size:400% 400%;background-position:var(--event-x,0%) var(--event-y,0%);background-repeat:no-repeat;
   filter:drop-shadow(0 2px 2px rgba(55,46,29,.16));vertical-align:middle;
 }
@@ -11737,7 +11737,7 @@ body.farm-modal-open { overflow: hidden; }
 .farm-merchant-npc { position:absolute;z-index:20;left:12.5%;top:26%;width:120px;height:120px;border:0;background:none;padding:0;cursor:pointer;filter:drop-shadow(0 7px 7px rgba(45,52,31,.2));transition:transform .2s ease; }
 .farm-merchant-npc:hover { transform:translateY(-4px) scale(1.02); }
 .farm-merchant-npc em { position:absolute;left:50%;bottom:-7px;transform:translateX(-50%);white-space:nowrap;padding:4px 8px;border-radius:999px;background:#fff4bd;color:#786331;font-size:.62rem;font-style:normal;font-weight:800;border:1px solid rgba(156,124,48,.25); }
-.farm-merchant-sprite { position:absolute;inset:0;background-image:url("../images/farm/farm-event-sheet-01.webp?v=0.16.5");background-size:400% 400%;background-repeat:no-repeat;animation:farm-merchant-idle 6.2s steps(1,end) infinite; }
+.farm-merchant-sprite { position:absolute;inset:0;background-image:url("../images/farm/farm-event-sheet-01.webp?v=0.17.0.1");background-size:400% 400%;background-repeat:no-repeat;animation:farm-merchant-idle 6.2s steps(1,end) infinite; }
 @keyframes farm-merchant-idle { 0%,28%,100%{background-position:0% 0%} 32%,48%{background-position:33.333333% 0%} 52%,66%{background-position:66.666667% 0%} 70%,82%{background-position:100% 0%} 86%,96%{background-position:33.333333% 0%} }
 .farm-field-tools .farm-debug-all { position:relative;display:inline-flex;align-items:center;gap:7px;min-height:42px;padding:8px 12px;border-radius:999px;color:#586746;background:linear-gradient(180deg,rgba(245,252,222,.97),rgba(211,230,174,.96));border:2px solid rgba(105,137,65,.48);box-shadow:0 6px 0 rgba(81,111,52,.14),0 10px 20px rgba(47,76,42,.1);cursor:pointer;transition:.18s ease; }
 .farm-field-tools .farm-debug-all em { background:#78904d; }
@@ -11749,7 +11749,7 @@ body.farm-modal-open { overflow: hidden; }
 .farm-pest-alert .is-inline-event { width:31px;height:31px; }
 .farm-pest-alert b,.farm-pest-alert small { display:block; }.farm-pest-alert b{color:#6c673f}.farm-pest-alert small{color:#8a8063;font-size:.68rem;margin-top:2px}
 .farm-pest-alert button { display:inline-flex;align-items:center;gap:5px;padding:6px 9px;border:0;border-radius:10px;background:#71824c;color:#fff8df;font-weight:800;cursor:pointer; }.farm-pest-alert button .farm-event-sprite{width:24px;height:24px;}
-.farm-event-burst { position:absolute;z-index:60;left:50%;top:43%;width:72px;height:72px;margin:-36px 0 0 -36px;pointer-events:none;background-image:url("../images/farm/farm-event-sheet-01.webp?v=0.16.5");background-size:400% 400%;background-position:var(--event-x,0%) var(--event-y,0%);background-repeat:no-repeat;animation:farm-event-pop .82s ease-out both; }
+.farm-event-burst { position:absolute;z-index:60;left:50%;top:43%;width:72px;height:72px;margin:-36px 0 0 -36px;pointer-events:none;background-image:url("../images/farm/farm-event-sheet-01.webp?v=0.17.0.1");background-size:400% 400%;background-position:var(--event-x,0%) var(--event-y,0%);background-repeat:no-repeat;animation:farm-event-pop .82s ease-out both; }
 @keyframes farm-event-pop { 0%{opacity:0;transform:translateY(8px) scale(.45) rotate(-8deg)} 30%{opacity:1} 70%{transform:translateY(-10px) scale(1.05) rotate(5deg)} 100%{opacity:0;transform:translateY(-22px) scale(1.12) rotate(7deg)} }
 .farm-help-bug { position:absolute;z-index:72;left:50%;bottom:-8px;transform:translateX(-50%);display:inline-flex;align-items:center;gap:3px;padding:3px 6px;border:0;border-radius:999px;background:rgba(241,249,216,.95);color:#5c7044;font-size:.48rem;font-weight:800;white-space:nowrap;box-shadow:0 2px 5px rgba(47,67,35,.16);cursor:pointer;pointer-events:auto; }
 .farm-help-bug .is-help-net { width:18px;height:18px; }
@@ -11765,7 +11765,7 @@ body.farm-modal-open { overflow: hidden; }
   z-index:4;
   pointer-events:none;
   border-radius:inherit;
-  background-image:url("../images/farm/farm-weather-sheet-01.webp?v=0.16.5");
+  background-image:url("../images/farm/farm-weather-sheet-01.webp?v=0.17.0.1");
   background-size:400% 400%;
   background-repeat:no-repeat;
   background-position:0% 0%;
@@ -12027,7 +12027,7 @@ body.farm-modal-open { overflow: hidden; }
 .farm-train-engine{position:relative;flex:0 0 auto;width:clamp(74px,14.7vw,168px);aspect-ratio:2/1;margin-left:-7px;z-index:4}.farm-train-engine.is-red{filter:drop-shadow(0 0 7px rgba(192,71,61,.55))}.farm-train-engine.is-gold{filter:drop-shadow(0 0 10px rgba(246,198,52,.72))}
 .farm-train-engine-rate{position:absolute;left:43%;top:47%;transform:translate(-50%,-50%);padding:2px 5px;border-radius:999px;color:#fff7d5;background:rgba(40,48,65,.78);border:1px solid rgba(255,211,100,.62);font-size:clamp(.39rem,.68vw,.58rem);font-weight:900;line-height:1}
 .farm-train-engine.is-red .farm-train-engine-rate{background:rgba(122,46,42,.83)}.farm-train-engine.is-gold .farm-train-engine-rate{background:rgba(142,94,12,.86);box-shadow:0 0 8px rgba(255,220,94,.5)}
-.farm-train-smoke{position:absolute;right:6%;top:-35%;width:42%;aspect-ratio:1;background-image:url("../images/farm/train-smoke-sheet.png?v=0.16.5");background-size:400% 200%;background-position:0 0;background-repeat:no-repeat;opacity:.84;pointer-events:none;animation:farm-train-smoke 2.4s steps(1,end) infinite}
+.farm-train-smoke{position:absolute;right:6%;top:-35%;width:42%;aspect-ratio:1;background-image:url("../images/farm/train-smoke-sheet.png?v=0.17.0.1");background-size:400% 200%;background-position:0 0;background-repeat:no-repeat;opacity:.84;pointer-events:none;animation:farm-train-smoke 2.4s steps(1,end) infinite}
 @keyframes farm-train-smoke{0%,11%{background-position:0% 0%}12%,23%{background-position:33.333% 0%}24%,35%{background-position:66.666% 0%}36%,47%{background-position:100% 0%}48%,59%{background-position:0% 100%}60%,71%{background-position:33.333% 100%}72%,83%{background-position:66.666% 100%}84%,100%{background-position:100% 100%}}
 .farm-train-progress{display:flex;align-items:center;gap:10px}.farm-train-progress>span{flex:0 0 auto;color:#756954;font-size:.68rem}.farm-train-progress>span b{color:var(--train-accent);font-size:.9rem}.farm-train-progress>div{height:8px;flex:1;overflow:hidden;border-radius:999px;background:rgba(104,88,60,.11)}.farm-train-progress>div i{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,var(--train-accent),#a9b875);transition:width .3s ease}
 .farm-train-actions{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:10px 12px;border-radius:15px;background:rgba(238,235,209,.48)}.farm-train-actions p{margin:0;color:#807563;font-size:.64rem;line-height:1.55}.farm-train-actions button{flex:0 0 auto;min-width:150px;padding:10px 18px;border:0;border-radius:13px;color:#fff8e4;background:var(--train-accent);font-weight:900;cursor:pointer;box-shadow:0 6px 14px rgba(68,67,43,.14)}.farm-train-actions button:disabled{cursor:not-allowed;opacity:.5;box-shadow:none}
@@ -12109,9 +12109,9 @@ body.farm-modal-open { overflow: hidden; }
 
 
 /* ===== V0.15.0 — UNIFIED FARM UI ICON ATLAS ===== */
-.farm-ui-icon{display:inline-block;flex:0 0 auto;width:1.35em;height:1.35em;background-image:url("../images/farm/farm-ui-icon-sheet-01.png?v=0.16.5");background-size:800% 600%;background-position:var(--ui-x,0%) var(--ui-y,0%);background-repeat:no-repeat;background-color:transparent;vertical-align:-.28em;filter:drop-shadow(0 1px 1px rgba(58,45,22,.12));}
+.farm-ui-icon{display:inline-block;flex:0 0 auto;width:1.35em;height:1.35em;background-image:url("../images/farm/farm-ui-icon-sheet-01.png?v=0.17.0.1");background-size:800% 600%;background-position:var(--ui-x,0%) var(--ui-y,0%);background-repeat:no-repeat;background-color:transparent;vertical-align:-.28em;filter:drop-shadow(0 1px 1px rgba(58,45,22,.12));}
 .farm-ui-icon[data-ui-icon="coin"]{--ui-x:0.000000%;--ui-y:0.000000%;}.farm-ui-icon[data-ui-icon="exp"]{--ui-x:14.285714%;--ui-y:0.000000%;}.farm-ui-icon[data-ui-icon="cloud"]{--ui-x:28.571429%;--ui-y:0.000000%;}.farm-ui-icon[data-ui-icon="lock"]{--ui-x:42.857143%;--ui-y:0.000000%;}.farm-ui-icon[data-ui-icon="cooldown"]{--ui-x:57.142857%;--ui-y:0.000000%;}.farm-ui-icon[data-ui-icon="reward-box"]{--ui-x:71.428571%;--ui-y:0.000000%;}.farm-ui-icon[data-ui-icon="ranking"]{--ui-x:85.714286%;--ui-y:0.000000%;}.farm-ui-icon[data-ui-icon="shop"]{--ui-x:100.000000%;--ui-y:0.000000%;}.farm-ui-icon[data-ui-icon="bag"]{--ui-x:0.000000%;--ui-y:20.000000%;}.farm-ui-icon[data-ui-icon="friends"]{--ui-x:14.285714%;--ui-y:20.000000%;}.farm-ui-icon[data-ui-icon="task"]{--ui-x:28.571429%;--ui-y:20.000000%;}.farm-ui-icon[data-ui-icon="achievement"]{--ui-x:42.857143%;--ui-y:20.000000%;}.farm-ui-icon[data-ui-icon="title"]{--ui-x:57.142857%;--ui-y:20.000000%;}.farm-ui-icon[data-ui-icon="daily-task"]{--ui-x:71.428571%;--ui-y:20.000000%;}.farm-ui-icon[data-ui-icon="success"]{--ui-x:85.714286%;--ui-y:20.000000%;}.farm-ui-icon[data-ui-icon="warning"]{--ui-x:100.000000%;--ui-y:20.000000%;}.farm-ui-icon[data-ui-icon="refresh"]{--ui-x:0.000000%;--ui-y:40.000000%;}.farm-ui-icon[data-ui-icon="claim"]{--ui-x:14.285714%;--ui-y:40.000000%;}.farm-ui-icon[data-ui-icon="cooperate"]{--ui-x:28.571429%;--ui-y:40.000000%;}.farm-ui-icon[data-ui-icon="visit"]{--ui-x:42.857143%;--ui-y:40.000000%;}.farm-ui-icon[data-ui-icon="steal"]{--ui-x:57.142857%;--ui-y:40.000000%;}.farm-ui-icon[data-ui-icon="add-friend"]{--ui-x:71.428571%;--ui-y:40.000000%;}.farm-ui-icon[data-ui-icon="notification"]{--ui-x:85.714286%;--ui-y:40.000000%;}.farm-ui-icon[data-ui-icon="sunny"]{--ui-x:100.000000%;--ui-y:40.000000%;}.farm-ui-icon[data-ui-icon="rainy"]{--ui-x:0.000000%;--ui-y:60.000000%;}.farm-ui-icon[data-ui-icon="storm"]{--ui-x:14.285714%;--ui-y:60.000000%;}.farm-ui-icon[data-ui-icon="newbie-farmer"]{--ui-x:28.571429%;--ui-y:60.000000%;}.farm-ui-icon[data-ui-icon="farm-expert"]{--ui-x:42.857143%;--ui-y:60.000000%;}.farm-ui-icon[data-ui-icon="harvest-expert"]{--ui-x:57.142857%;--ui-y:60.000000%;}.farm-ui-icon[data-ui-icon="wealth"]{--ui-x:71.428571%;--ui-y:60.000000%;}.farm-ui-icon[data-ui-icon="farm-rich"]{--ui-x:85.714286%;--ui-y:60.000000%;}.farm-ui-icon[data-ui-icon="mystery-master"]{--ui-x:100.000000%;--ui-y:60.000000%;}.farm-ui-icon[data-ui-icon="rank1"]{--ui-x:0.000000%;--ui-y:80.000000%;}.farm-ui-icon[data-ui-icon="rank2"]{--ui-x:14.285714%;--ui-y:80.000000%;}.farm-ui-icon[data-ui-icon="rank3"]{--ui-x:28.571429%;--ui-y:80.000000%;}.farm-ui-icon[data-ui-icon="seed-carrot"]{--ui-x:42.857143%;--ui-y:80.000000%;}.farm-ui-icon[data-ui-icon="seed-wheat"]{--ui-x:57.142857%;--ui-y:80.000000%;}.farm-ui-icon[data-ui-icon="seed-corn"]{--ui-x:71.428571%;--ui-y:80.000000%;}.farm-ui-icon[data-ui-icon="seed-tomato"]{--ui-x:85.714286%;--ui-y:80.000000%;}.farm-ui-icon[data-ui-icon="seed-strawberry"]{--ui-x:100.000000%;--ui-y:80.000000%;}.farm-ui-icon[data-ui-icon="seed-pumpkin"]{--ui-x:0.000000%;--ui-y:100.000000%;}.farm-ui-icon[data-ui-icon="seed-grape"]{--ui-x:14.285714%;--ui-y:100.000000%;}.farm-ui-icon[data-ui-icon="seed-starfruit"]{--ui-x:28.571429%;--ui-y:100.000000%;}.farm-ui-icon[data-ui-icon="mailbox"]{--ui-x:42.857143%;--ui-y:100.000000%;}.farm-ui-icon[data-ui-icon="announcement"]{--ui-x:57.142857%;--ui-y:100.000000%;}.farm-ui-icon[data-ui-icon="attachment"]{--ui-x:71.428571%;--ui-y:100.000000%;}.farm-ui-icon[data-ui-icon="claim-all"]{--ui-x:85.714286%;--ui-y:100.000000%;}.farm-ui-icon[data-ui-icon="mail"]{--ui-x:100.000000%;--ui-y:100.000000%;}
-.farm-ui-icon.is-inline-ui{width:1.18em;height:1.18em;margin-right:.18em;vertical-align:-.22em}.farm-ui-icon.is-tab-ui{width:22px;height:22px;margin-right:3px;vertical-align:-6px}.farm-ui-icon.is-heading-ui{width:23px;height:23px;margin-right:4px;vertical-align:-6px}.farm-ui-icon.is-section-ui{width:22px;height:22px;margin-right:4px;vertical-align:-6px}.farm-ui-icon.is-summary-ui{width:19px;height:19px;margin-right:3px;vertical-align:-5px}.farm-ui-icon.is-meta-ui{width:17px;height:17px;margin-right:2px;vertical-align:-4px}.farm-ui-icon.is-button-ui{width:18px;height:18px;margin-right:3px;vertical-align:-5px}.farm-ui-icon.is-reward-ui{width:18px;height:18px;margin:0 2px;vertical-align:-5px}.farm-reward-inline{display:inline-flex;align-items:center;flex-wrap:wrap;gap:2px}.farm-ui-icon.is-status-coin-ui{width:27px;height:27px;vertical-align:middle}.farm-ui-icon.is-cloud-ui{width:17px;height:17px;margin-right:5px;vertical-align:-4px}.farm-ui-icon.is-nav-ui{width:35px!important;height:35px!important;font-size:0!important;vertical-align:middle}.farm-ui-icon.is-tip-ui{width:26px;height:26px;font-size:0!important}.farm-ui-icon.is-modal-ui{width:40px;height:40px;vertical-align:middle}.farm-ui-icon.is-title-badge-ui{width:24px;height:24px;font-size:0!important;vertical-align:middle}.farm-ui-icon.is-title-current-ui{width:44px;height:44px}.farm-ui-icon.is-title-card-ui{width:36px;height:36px}.farm-ui-icon.is-public-title-ui{width:17px;height:17px;margin-right:2px;vertical-align:-4px}.farm-ui-icon.is-sign-title-ui{width:13px;height:13px;margin-right:2px;vertical-align:-3px}.farm-ui-icon.is-rank-medal-ui{width:34px;height:34px}.farm-ui-icon.is-plot-lock-ui{width:24px;height:24px;filter:drop-shadow(0 1px 2px rgba(0,0,0,.30))}.farm-ui-icon.is-event-ui{width:21px;height:21px;margin-right:3px;vertical-align:-5px}.farm-ui-icon.is-train-check-ui{width:25px;height:25px}.farm-ui-icon.is-activity-ui{width:30px;height:30px;vertical-align:middle}.farm-ui-icon.is-bottom-nav-ui{width:23px;height:23px;vertical-align:middle}.farm-ui-icon.is-seed-ui{width:54px;height:54px;vertical-align:middle}.farm-modal-asset-icon{display:block;width:47px;height:47px;object-fit:contain}.farm-modal-head>span .farm-ui-icon{display:block}.farm-coins i{display:none!important}.farm-coins .farm-ui-icon{display:inline-block!important}.farm-exp-seed.farm-ui-icon{left:-10px;width:23px;height:23px;font-size:0;filter:drop-shadow(0 2px 3px rgba(0,0,0,.2))}.farm-cloud-status{display:flex;align-items:center}.farm-equipped-title>.farm-ui-icon{font-size:0}.farm-side-actions>.farm-ui-icon{font-size:0}.farm-side-actions button>.farm-ui-icon{font-size:0}.farm-bottom-note>.farm-ui-icon{font-size:0}.farm-task-tabs button,.farm-achievement-groups button,.farm-shop-tabs button,.farm-friend-tabs button{display:flex;align-items:center;justify-content:center}.farm-achievement-item .farm-task-copy b::before{content:none!important}.farm-title-current>span .farm-ui-icon,.farm-title-card>span .farm-ui-icon{margin:auto}.farm-public-title{display:inline-flex;align-items:center}.farm-rank-no{display:grid;place-items:center}.farm-train-car-ui i .farm-ui-icon{display:block}.farm-produce-ui{display:inline-block;flex:0 0 auto;width:46px;height:46px;background-repeat:no-repeat;background-size:400% 400%;background-position:var(--produce-x,0%) var(--produce-y,0%);vertical-align:middle;filter:drop-shadow(0 2px 2px rgba(44,32,18,.18));}.farm-produce-ui[data-crop-sheet="1"]{background-image:url("../images/farm/crops-sheet-01.webp?v=0.16.5")}.farm-produce-ui[data-crop-sheet="2"]{background-image:url("../images/farm/crops-sheet-02.webp?v=0.16.5")}.farm-produce-ui.is-bag-produce-ui{width:48px;height:48px}.farm-produce-ui.is-train-produce-ui{width:30px;height:30px}.farm-produce-ui.is-activity-produce-ui{width:32px;height:32px}.farm-produce-fallback{display:inline-grid;place-items:center}.farm-shop-crop-icon .farm-ui-icon.is-seed-ui,.farm-bag-icon .farm-ui-icon.is-seed-ui{width:50px;height:50px}.farm-seed-icon .farm-ui-icon.is-seed-ui{width:42px;height:42px}
+.farm-ui-icon.is-inline-ui{width:1.18em;height:1.18em;margin-right:.18em;vertical-align:-.22em}.farm-ui-icon.is-tab-ui{width:22px;height:22px;margin-right:3px;vertical-align:-6px}.farm-ui-icon.is-heading-ui{width:23px;height:23px;margin-right:4px;vertical-align:-6px}.farm-ui-icon.is-section-ui{width:22px;height:22px;margin-right:4px;vertical-align:-6px}.farm-ui-icon.is-summary-ui{width:19px;height:19px;margin-right:3px;vertical-align:-5px}.farm-ui-icon.is-meta-ui{width:17px;height:17px;margin-right:2px;vertical-align:-4px}.farm-ui-icon.is-button-ui{width:18px;height:18px;margin-right:3px;vertical-align:-5px}.farm-ui-icon.is-reward-ui{width:18px;height:18px;margin:0 2px;vertical-align:-5px}.farm-reward-inline{display:inline-flex;align-items:center;flex-wrap:wrap;gap:2px}.farm-ui-icon.is-status-coin-ui{width:27px;height:27px;vertical-align:middle}.farm-ui-icon.is-cloud-ui{width:17px;height:17px;margin-right:5px;vertical-align:-4px}.farm-ui-icon.is-nav-ui{width:35px!important;height:35px!important;font-size:0!important;vertical-align:middle}.farm-ui-icon.is-tip-ui{width:26px;height:26px;font-size:0!important}.farm-ui-icon.is-modal-ui{width:40px;height:40px;vertical-align:middle}.farm-ui-icon.is-title-badge-ui{width:24px;height:24px;font-size:0!important;vertical-align:middle}.farm-ui-icon.is-title-current-ui{width:44px;height:44px}.farm-ui-icon.is-title-card-ui{width:36px;height:36px}.farm-ui-icon.is-public-title-ui{width:17px;height:17px;margin-right:2px;vertical-align:-4px}.farm-ui-icon.is-sign-title-ui{width:13px;height:13px;margin-right:2px;vertical-align:-3px}.farm-ui-icon.is-rank-medal-ui{width:34px;height:34px}.farm-ui-icon.is-plot-lock-ui{width:24px;height:24px;filter:drop-shadow(0 1px 2px rgba(0,0,0,.30))}.farm-ui-icon.is-event-ui{width:21px;height:21px;margin-right:3px;vertical-align:-5px}.farm-ui-icon.is-train-check-ui{width:25px;height:25px}.farm-ui-icon.is-activity-ui{width:30px;height:30px;vertical-align:middle}.farm-ui-icon.is-bottom-nav-ui{width:23px;height:23px;vertical-align:middle}.farm-ui-icon.is-seed-ui{width:54px;height:54px;vertical-align:middle}.farm-modal-asset-icon{display:block;width:47px;height:47px;object-fit:contain}.farm-modal-head>span .farm-ui-icon{display:block}.farm-coins i{display:none!important}.farm-coins .farm-ui-icon{display:inline-block!important}.farm-exp-seed.farm-ui-icon{left:-10px;width:23px;height:23px;font-size:0;filter:drop-shadow(0 2px 3px rgba(0,0,0,.2))}.farm-cloud-status{display:flex;align-items:center}.farm-equipped-title>.farm-ui-icon{font-size:0}.farm-side-actions>.farm-ui-icon{font-size:0}.farm-side-actions button>.farm-ui-icon{font-size:0}.farm-bottom-note>.farm-ui-icon{font-size:0}.farm-task-tabs button,.farm-achievement-groups button,.farm-shop-tabs button,.farm-friend-tabs button{display:flex;align-items:center;justify-content:center}.farm-achievement-item .farm-task-copy b::before{content:none!important}.farm-title-current>span .farm-ui-icon,.farm-title-card>span .farm-ui-icon{margin:auto}.farm-public-title{display:inline-flex;align-items:center}.farm-rank-no{display:grid;place-items:center}.farm-train-car-ui i .farm-ui-icon{display:block}.farm-produce-ui{display:inline-block;flex:0 0 auto;width:46px;height:46px;background-repeat:no-repeat;background-size:400% 400%;background-position:var(--produce-x,0%) var(--produce-y,0%);vertical-align:middle;filter:drop-shadow(0 2px 2px rgba(44,32,18,.18));}.farm-produce-ui[data-crop-sheet="1"]{background-image:url("../images/farm/crops-sheet-01.webp?v=0.17.0.1")}.farm-produce-ui[data-crop-sheet="2"]{background-image:url("../images/farm/crops-sheet-02.webp?v=0.17.0.1")}.farm-produce-ui.is-bag-produce-ui{width:48px;height:48px}.farm-produce-ui.is-train-produce-ui{width:30px;height:30px}.farm-produce-ui.is-activity-produce-ui{width:32px;height:32px}.farm-produce-fallback{display:inline-grid;place-items:center}.farm-shop-crop-icon .farm-ui-icon.is-seed-ui,.farm-bag-icon .farm-ui-icon.is-seed-ui{width:50px;height:50px}.farm-seed-icon .farm-ui-icon.is-seed-ui{width:42px;height:42px}
 @media(max-width:760px){.farm-ui-icon.is-nav-ui{width:29px!important;height:29px!important}.farm-ui-icon.is-tab-ui{width:18px;height:18px;vertical-align:-5px}.farm-ui-icon.is-heading-ui{width:20px;height:20px}.farm-ui-icon.is-modal-ui{width:34px;height:34px}.farm-ui-icon.is-title-card-ui{width:32px;height:32px}.farm-ui-icon.is-rank-medal-ui{width:29px;height:29px}.farm-ui-icon.is-seed-ui{width:46px;height:46px}.farm-produce-ui.is-train-produce-ui{width:27px;height:27px}}
 
 .farm-coin-mini.farm-ui-icon{border:0;border-radius:0;box-shadow:none;background-color:transparent;}
@@ -12138,12 +12138,12 @@ body.farm-modal-open { overflow: hidden; }
 
 
 /* ===== V0.15.1 — STELLAR DIARY SITE-WIDE UI ICON ATLAS ===== */
-.stellar-ui-icon{display:inline-block;flex:0 0 auto;width:1.25em;height:1.25em;background-image:url("../images/ui/stellar-ui-icon-sheet-02.png?v=0.16.5");background-size:600% 400%;background-position:var(--site-icon-x,0%) var(--site-icon-y,0%);background-repeat:no-repeat;background-color:transparent;vertical-align:-.25em;filter:drop-shadow(0 1px 1px rgba(33,28,22,.14));}
+.stellar-ui-icon{display:inline-block;flex:0 0 auto;width:1.25em;height:1.25em;background-image:url("../images/ui/stellar-ui-icon-sheet-02.png?v=0.17.0.1");background-size:600% 400%;background-position:var(--site-icon-x,0%) var(--site-icon-y,0%);background-repeat:no-repeat;background-color:transparent;vertical-align:-.25em;filter:drop-shadow(0 1px 1px rgba(33,28,22,.14));}
 .stellar-ui-icon[data-site-icon="mailbox"]{--site-icon-x:0%;--site-icon-y:0%}.stellar-ui-icon[data-site-icon="announcement"]{--site-icon-x:20%;--site-icon-y:0%}.stellar-ui-icon[data-site-icon="attachment"]{--site-icon-x:40%;--site-icon-y:0%}.stellar-ui-icon[data-site-icon="claim-all"]{--site-icon-x:60%;--site-icon-y:0%}.stellar-ui-icon[data-site-icon="mail"]{--site-icon-x:80%;--site-icon-y:0%}.stellar-ui-icon[data-site-icon="home"]{--site-icon-x:100%;--site-icon-y:0%}
 .stellar-ui-icon[data-site-icon="up"]{--site-icon-x:0%;--site-icon-y:33.333333%}.stellar-ui-icon[data-site-icon="down"]{--site-icon-x:20%;--site-icon-y:33.333333%}.stellar-ui-icon[data-site-icon="left"]{--site-icon-x:40%;--site-icon-y:33.333333%}.stellar-ui-icon[data-site-icon="right"]{--site-icon-x:60%;--site-icon-y:33.333333%}.stellar-ui-icon[data-site-icon="close"]{--site-icon-x:80%;--site-icon-y:33.333333%}.stellar-ui-icon[data-site-icon="history"]{--site-icon-x:100%;--site-icon-y:33.333333%}
 .stellar-ui-icon[data-site-icon="delete"]{--site-icon-x:0%;--site-icon-y:66.666667%}.stellar-ui-icon[data-site-icon="edit"]{--site-icon-x:20%;--site-icon-y:66.666667%}.stellar-ui-icon[data-site-icon="calendar"]{--site-icon-x:40%;--site-icon-y:66.666667%}.stellar-ui-icon[data-site-icon="time"]{--site-icon-x:60%;--site-icon-y:66.666667%}.stellar-ui-icon[data-site-icon="location"]{--site-icon-x:80%;--site-icon-y:66.666667%}.stellar-ui-icon[data-site-icon="lunar"]{--site-icon-x:100%;--site-icon-y:66.666667%}
 .stellar-ui-icon[data-site-icon="account"]{--site-icon-x:0%;--site-icon-y:100%}.stellar-ui-icon[data-site-icon="logout"]{--site-icon-x:20%;--site-icon-y:100%}.stellar-ui-icon[data-site-icon="link"]{--site-icon-x:40%;--site-icon-y:100%}.stellar-ui-icon[data-site-icon="plus"]{--site-icon-x:60%;--site-icon-y:100%}.stellar-ui-icon[data-site-icon="minus"]{--site-icon-x:80%;--site-icon-y:100%}.stellar-ui-icon[data-site-icon="security"]{--site-icon-x:100%;--site-icon-y:100%}
-.stellar-core-icon{display:inline-block;flex:0 0 auto;width:1.22em;height:1.22em;background-image:url("../images/farm/farm-ui-icon-sheet-01.png?v=0.16.5");background-size:800% 600%;background-position:var(--core-icon-x,0%) var(--core-icon-y,0%);background-repeat:no-repeat;background-color:transparent;vertical-align:-.24em;filter:drop-shadow(0 1px 1px rgba(33,28,22,.12));}
+.stellar-core-icon{display:inline-block;flex:0 0 auto;width:1.22em;height:1.22em;background-image:url("../images/farm/farm-ui-icon-sheet-01.png?v=0.17.0.1");background-size:800% 600%;background-position:var(--core-icon-x,0%) var(--core-icon-y,0%);background-repeat:no-repeat;background-color:transparent;vertical-align:-.24em;filter:drop-shadow(0 1px 1px rgba(33,28,22,.12));}
 .stellar-core-icon[data-core-icon="refresh"]{--core-icon-x:0%;--core-icon-y:40%}.stellar-core-icon[data-core-icon="cloud"]{--core-icon-x:28.571429%;--core-icon-y:0%}.stellar-core-icon[data-core-icon="success"]{--core-icon-x:85.714286%;--core-icon-y:20%}
 .is-inline-site-icon{width:19px;height:19px;vertical-align:-5px}.is-button-site-icon{width:21px;height:21px;vertical-align:-6px}.is-bottom-site-icon{width:27px;height:27px;vertical-align:middle}.is-field-site-icon{width:21px;height:21px;vertical-align:middle}.is-calendar-toggle-icon{width:18px;height:18px;vertical-align:middle}.is-history-site-icon{width:34px;height:34px;vertical-align:middle}.is-close-site-icon{width:27px;height:27px;vertical-align:middle}.is-reset-site-icon{width:27px;height:27px;vertical-align:middle}
 .stellar-field-label{display:inline-flex;align-items:center;gap:6px}.birth-calendar-btn{display:inline-flex;align-items:center;justify-content:center;gap:4px}.tarot-bottom-action{align-items:center}.tarot-bottom-action .stellar-ui-icon{margin-right:3px}.primary-btn .stellar-ui-icon,.astrology-calculate-btn .stellar-ui-icon,.stellar-report-generate-btn .stellar-ui-icon,.fortune-draw-stage .stellar-ui-icon{pointer-events:none}.tarot-history-toggle>.stellar-ui-icon{margin-right:12px}.tarot-history-clear,.tarot-compact-redraw{display:inline-flex;align-items:center;justify-content:center;gap:5px}.fortune-reset-note>.stellar-core-icon{flex:0 0 auto}.birth-lunar-day-summary-edit{display:inline-flex;align-items:center;gap:3px}
@@ -12156,7 +12156,7 @@ body.farm-modal-open { overflow: hidden; }
 .player-profile-chevron.stellar-ui-icon{width:19px;height:19px;font-size:0;color:transparent;transform:none}.player-profile-badge:hover .player-profile-chevron.stellar-ui-icon,.player-profile-badge:focus-visible .player-profile-chevron.stellar-ui-icon{transform:translateX(2px)}.profile-modal-close{display:grid;place-items:center}.profile-modal-close .stellar-ui-icon{display:block}
 
 /* V0.15.1 — plus/minus controls also use the official atlas. */
-.astro-summary-toggle{background-image:url("../images/ui/stellar-ui-icon-sheet-02.png?v=0.16.5");background-size:600% 400%;background-position:60% 100%;background-repeat:no-repeat}
+.astro-summary-toggle{background-image:url("../images/ui/stellar-ui-icon-sheet-02.png?v=0.17.0.1");background-size:600% 400%;background-position:60% 100%;background-repeat:no-repeat}
 .astro-summary-toggle::before,.astro-summary-toggle::after{display:none!important}.astro-expand-section[open] .astro-summary-toggle{background-position:80% 100%}
 .is-accordion-site-icon{width:22px;height:22px;vertical-align:middle}.is-qty-site-icon{width:24px;height:24px;display:block}.farm-qty-stepper button .stellar-ui-icon{pointer-events:none}.farm-qty-stepper button{display:grid;place-items:center}
 
@@ -12164,10 +12164,279 @@ body.farm-modal-open { overflow: hidden; }
 .is-empty-plot-plus{width:27px;height:27px;display:block}.farm-decoration-plus .is-decoration-plus-icon{width:30px;height:30px;display:block;margin:auto}
 
 
-/* ===== V0.16.5 — OCCULT HOME CTA POLISH =====
+/* ===== V0.17.0.1 — OCCULT HOME CTA POLISH =====
    Home panels 01–04 use text-only CTA buttons to preserve the divination visual
    language. Functional site icons (HOME/back/close/history/etc.) and all farm
    navigation icons remain active. Only the member badge's decorative entry cue
    is hidden; the whole badge remains clickable. */
 .player-profile-cue,.player-profile-chevron{display:none!important;}
 .player-profile-badge{justify-content:center!important;}
+
+/* ===== V0.17.0.1 FARM FRIEND INTERACTION 2.0 ===== */
+.farm-friend-row.is-interactable {
+  border-color:rgba(164,126,47,.24);
+  background:linear-gradient(135deg,rgba(255,251,229,.82),rgba(244,250,230,.68));
+  box-shadow:0 5px 14px rgba(95,103,57,.06);
+}
+.farm-friend-overview {
+  display:flex;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:5px 7px;
+  margin-top:5px;
+}
+.farm-friend-overview strong,
+.farm-friend-overview span {
+  display:inline-flex;
+  align-items:center;
+  gap:3px;
+  min-height:23px;
+  padding:3px 7px;
+  border:1px solid rgba(123,130,89,.11);
+  border-radius:999px;
+  background:rgba(255,255,255,.58);
+  color:#827762;
+  font-size:.63rem;
+  line-height:1;
+  white-space:nowrap;
+}
+.farm-friend-overview strong {
+  border-color:rgba(182,135,53,.18);
+  background:rgba(255,240,194,.58);
+  color:#9a6f2d;
+}
+.farm-friend-overview strong.is-idle {
+  border-color:rgba(115,138,83,.13);
+  background:rgba(235,244,219,.58);
+  color:#6e7958;
+}
+.farm-friend-overview span b { color:#5c6748; font-size:.68rem; }
+.farm-friend-sort-note {
+  margin:12px 2px 3px;
+  padding:8px 11px;
+  border:1px solid rgba(159,125,61,.13);
+  border-radius:13px;
+  background:rgba(255,246,215,.52);
+  color:#807258;
+  font-size:.7rem;
+  line-height:1.55;
+}
+.farm-activity-direction-tabs {
+  display:flex;
+  gap:7px;
+  margin:7px 0 10px;
+  padding:3px;
+  border-radius:13px;
+  background:rgba(111,128,79,.07);
+}
+.farm-activity-direction-tabs button {
+  flex:1;
+  min-height:35px;
+  padding:7px 10px;
+  border:1px solid transparent;
+  border-radius:10px;
+  background:transparent;
+  color:#89806d;
+  font:inherit;
+  font-size:.72rem;
+  font-weight:800;
+  cursor:pointer;
+}
+.farm-activity-direction-tabs button.is-active {
+  border-color:rgba(107,127,72,.17);
+  background:rgba(255,255,255,.8);
+  color:#5c6947;
+  box-shadow:0 2px 8px rgba(83,95,54,.06);
+}
+.farm-activity-direction-tabs button small { margin-left:3px; color:#9d927e; font-size:.62rem; }
+.farm-activity-row.is-help_water .farm-activity-icon { background:rgba(89,151,170,.13); }
+
+.farm-visit-care-toolbar {
+  display:flex;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:8px;
+  margin:-3px 0 11px;
+}
+.farm-visit-care-button {
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:5px;
+  min-height:37px;
+  padding:7px 11px;
+  border:1px solid rgba(101,131,76,.2);
+  border-radius:12px;
+  background:linear-gradient(135deg,rgba(239,248,218,.93),rgba(255,252,235,.9));
+  color:#617148;
+  font:inherit;
+  font-size:.72rem;
+  font-weight:800;
+  box-shadow:0 3px 10px rgba(81,99,54,.06);
+  cursor:pointer;
+}
+.farm-visit-care-button.is-water {
+  border-color:rgba(76,137,157,.2);
+  background:linear-gradient(135deg,rgba(226,245,246,.94),rgba(247,252,240,.92));
+  color:#527a81;
+}
+.farm-visit-care-button b {
+  min-width:20px;
+  height:20px;
+  padding:0 5px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:999px;
+  background:rgba(255,255,255,.7);
+  color:inherit;
+  font-size:.64rem;
+}
+.farm-visit-care-button:disabled { opacity:.42; cursor:not-allowed; filter:grayscale(.18); box-shadow:none; }
+.farm-visit-care-button .is-care-toolbar-icon { width:23px; height:23px; }
+
+.farm-friend-care-actions {
+  position:absolute;
+  z-index:78;
+  left:50%;
+  bottom:-10px;
+  transform:translateX(-50%);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:3px;
+  pointer-events:auto;
+}
+.farm-friend-care-chip {
+  display:inline-flex;
+  align-items:center;
+  gap:2px;
+  min-height:20px;
+  padding:2px 5px;
+  border:1px solid rgba(98,128,72,.16);
+  border-radius:999px;
+  background:rgba(243,250,222,.96);
+  color:#607247;
+  box-shadow:0 2px 6px rgba(46,65,35,.14);
+  font-size:.42rem;
+  font-weight:900;
+  white-space:nowrap;
+  cursor:pointer;
+  pointer-events:auto;
+  user-select:none;
+}
+.farm-friend-care-chip.is-water {
+  border-color:rgba(77,137,157,.18);
+  background:rgba(231,247,247,.97);
+  color:#4f7880;
+}
+.farm-friend-care-chip:hover { transform:translateY(-2px); filter:brightness(1.03); }
+.farm-friend-care-chip:active { transform:translateY(0); }
+.farm-friend-care-chip:focus-visible { outline:2px solid rgba(89,130,155,.45); outline-offset:2px; }
+.farm-friend-care-chip .is-help-net,
+.farm-friend-care-chip .is-help-water { width:17px; height:17px; }
+.farm-friend-watered-tag {
+  position:absolute;
+  z-index:67;
+  left:50%;
+  top:-7px;
+  transform:translateX(-50%);
+  max-width:108px;
+  padding:2px 6px;
+  overflow:hidden;
+  border:1px solid rgba(76,132,155,.18);
+  border-radius:999px;
+  background:rgba(232,247,248,.94);
+  color:#4f7880;
+  box-shadow:0 2px 5px rgba(50,86,96,.11);
+  font-size:.38rem;
+  font-weight:900;
+  line-height:1.25;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  pointer-events:none;
+}
+.farm-care-current .is-friend-helped { color:#4f7b83; font-weight:800; }
+
+@media (max-width:720px) {
+  .farm-friend-overview { gap:4px; }
+  .farm-friend-overview strong,.farm-friend-overview span { padding:3px 6px; font-size:.58rem; }
+  .farm-friend-sort-note { font-size:.65rem; }
+  .farm-activity-direction-tabs { overflow-x:auto; }
+  .farm-activity-direction-tabs button { flex:1 0 auto; min-width:112px; }
+  .farm-visit-care-toolbar { gap:6px; }
+  .farm-visit-care-button { flex:1 1 145px; min-height:35px; padding:6px 8px; font-size:.66rem; }
+  .farm-visit-care-button .is-care-toolbar-icon { width:20px; height:20px; }
+  .farm-friend-care-actions { bottom:-8px; gap:2px; }
+  .farm-friend-care-chip { padding:2px 4px; font-size:.36rem; }
+  .farm-friend-care-chip .is-help-net,.farm-friend-care-chip .is-help-water { width:14px; height:14px; }
+  .farm-friend-watered-tag { top:-5px; max-width:86px; padding:1px 4px; font-size:.32rem; }
+}
+
+@media (prefers-reduced-motion:reduce) {
+  .farm-friend-care-chip:hover { transform:none; }
+}
+
+/* ===== V0.17.0.1 — friend visit interaction hardening ===== */
+/* Visit plots are presentation containers. Steal/care actions are independent
+   native buttons, avoiding nested interactive controls on mobile/keyboard. */
+.farm-visit-field .farm-plot.can-steal {
+  pointer-events:none;
+  cursor:default;
+}
+.farm-steal-hitbox {
+  position:absolute;
+  inset:0;
+  z-index:60;
+  display:block;
+  width:100%;
+  height:100%;
+  margin:0;
+  padding:0;
+  border:0;
+  border-radius:12px;
+  background:transparent;
+  color:inherit;
+  font:inherit;
+  cursor:pointer;
+  pointer-events:auto;
+  appearance:none;
+  -webkit-appearance:none;
+}
+.farm-steal-hitbox:disabled { cursor:wait; }
+.farm-steal-hitbox:focus-visible {
+  outline:2px solid rgba(106,132,75,.55);
+  outline-offset:2px;
+}
+.farm-steal-hitbox .farm-steal-tag { pointer-events:none; }
+.farm-visit-field .farm-plot.can-steal:hover .farm-soil {
+  transform:none;
+  filter:none;
+}
+.farm-visit-field .farm-plot.can-steal:has(.farm-steal-hitbox:hover) .farm-soil {
+  transform:translateY(-9px) scale(1.035);
+  filter:brightness(1.08);
+}
+.farm-visit-field .farm-plot.can-steal:has(.farm-steal-hitbox:active) .farm-soil {
+  transform:translateY(-3px) scale(.99);
+}
+.farm-friend-care-chip {
+  margin:0;
+  font:inherit;
+  appearance:none;
+  -webkit-appearance:none;
+}
+.farm-friend-care-chip:disabled { opacity:.55; cursor:wait; }
+/* Keep steal hit-testing compact like the main farm field so overlapping
+   isometric tile rectangles do not swallow adjacent care controls. */
+.farm-steal-hitbox {
+  left:21%;
+  right:21%;
+  top:22%;
+  bottom:22%;
+  width:auto;
+  height:auto;
+  clip-path:polygon(42% 0, 100% 48%, 58% 100%, 0 52%);
+  -webkit-clip-path:polygon(42% 0, 100% 48%, 58% 100%, 0 52%);
+  touch-action:manipulation;
+}

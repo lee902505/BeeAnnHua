@@ -1,3 +1,30 @@
+# 星辰日记 V0.17.0.1
+
+## V0.17.0.1 — 农友互动稳定性 / Supabase 流量优化
+
+- 修正「成熟＋有虫＋可偷」的好友作物点击除虫时可能先触发偷菜的问题；好友田地改为独立原生按钮，不再出现 nested interactive control。
+- 农场初次进入不再预载完整好友概览；只有真正打开好友面板时才批次读取，减少无意义的数据库计算。
+- 云端 revision 与农场动态未读背景检查由约 60 秒放慢为 120 秒；切回页面仍会即时检查。
+- 多人面板不再强制重复写入 profile；同一页面内资料未改变时会跳过重复 UPDATE。
+- 单格／一键互动完成后不再立刻重新读取整份好友概览，回到好友列表时才更新。
+- 一键助力浇水与一键除虫改为真正 batch：一次 farm update＋一笔聚合 activity，避免 10～20 格产生 10～20 笔动态写入。
+- 一键除虫仍保留逐格随机小奖励机率，但奖励聚合后一次写入；EXP 会立即依正式等级曲线升级，不再出现 EXP 满格却没升级。
+- 好友、偷菜与照料相关 JSON boolean / plots 解析加强，异常旧存档不会轻易拖垮整份好友列表。
+- 双玩家经济操作加入固定 pair lock 顺序，降低双方同时互动时的 deadlock 风险。
+- 打开「收到的互动」时会一次标记全部未读，修正超过 50 笔后未读数重新跳回的问题。
+- 需在既有 023 完成后执行 `supabase/migrations/20260928_024_farm_stability_traffic.sql`。
+
+## V0.17.0 — 农友互动 2.0
+
+- 好友列表新增实时互动预览：成熟、可偷、虫害、可助力浇水，并自动把目前可互动的农友排在前面。
+- 好友成长中的普通作物每一轮可接受一次额外助力浇水，成熟时间再乘 `0.95`（额外缩短 5%）；与地主自己的浇水、肥料、天气效果叠加，盲盒不适用。
+- 拜访真人好友时新增单格／一键帮忙除虫，以及单格／一键助力浇水；后端重新验证每一格状态，避免重复助力。
+- NPC 农友同样可接受玩家的单格／一键助力浇水，并记录本轮作物是否已经获得帮助。
+- 农场动态升级为「收到的互动／我的足迹」，拜访、偷菜、除虫、助力浇水都能双向查看。
+- 好友田地与自己的作物详情会显示好友助力状态与助力者名称。
+- 好友概览改用单次批量 RPC，避免好友数量增加后产生 N+1 查询。
+- 需在既有迁移完成后执行 `supabase/migrations/20260928_023_farm_friend_interaction_v2.sql`。
+
 # 星辰日记 V0.16.3
 
 ## V0.16.3 — 信箱批次清理 / GM 预览
@@ -465,7 +492,7 @@ GM 邮件附件改为数据库物品目录选择器，以固定 Item ID / item_c
 ## V0.16.4 Guest mailbox
 Anonymous Supabase guest users can now open Stellar Mail, read active mail and view attachment contents. Reward claiming remains restricted to email-bound formal accounts; the bind action links to the account page and preserves the anonymous UUID when upgraded. No new SQL migration is required after V0.16.3.
 
-## V0.16.5 System Mail V1 final
+## V0.17.0.1 System Mail V1 final
 
 - GM recipient scopes: all players including future users / current players only / specific UID.
 - Recipient scope and expiry are independent (Permanent / D+7 / D+14 / D+30).
