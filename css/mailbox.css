@@ -1,4 +1,4 @@
-/* Stellar Diary V0.17.0.1 — System mailbox + GM console */
+/* Stellar Diary V0.17.1 — System mailbox + GM console */
 body.stellar-mail-open{overflow:hidden}
 .stellar-account-tools{display:inline-flex;align-items:center;justify-content:flex-end;gap:8px;min-width:0}
 .stellar-mail-entry,.stellar-gm-entry{position:relative;display:inline-grid;place-items:center;flex:0 0 auto;border:1px solid rgba(235,207,159,.34);background:rgba(255,247,226,.09);color:#f7e7c9;cursor:pointer;box-shadow:inset 0 1px rgba(255,255,255,.08);transition:.18s ease;font:800 .69rem/1 inherit}
@@ -6,8 +6,8 @@ body.stellar-mail-open{overflow:hidden}
 .stellar-gm-entry{min-width:38px;height:32px;padding:0 9px;border-radius:999px;letter-spacing:.08em;color:#ffe7a3;background:rgba(109,80,27,.32)}
 .stellar-mail-count{position:absolute;right:-5px;top:-5px;min-width:18px;height:18px;padding:0 4px;display:grid;place-items:center;border-radius:999px;background:#d84f49;color:#fff;font-size:.55rem;box-shadow:0 0 0 2px #292444}
 .mail-farm-icon,.mail-site-icon{display:inline-block;flex:0 0 auto;background-repeat:no-repeat;background-color:transparent;vertical-align:middle}
-.mail-farm-icon{width:24px;height:24px;background-image:url("../images/farm/farm-ui-icon-sheet-01.png?v=0.17.0.1");background-size:800% 600%;background-position:var(--mail-farm-x,0%) var(--mail-farm-y,0%)}
-.mail-site-icon{width:24px;height:24px;background-image:url("../images/ui/stellar-ui-icon-sheet-02.png?v=0.17.0.1");background-size:600% 400%;background-position:var(--mail-site-x,0%) var(--mail-site-y,0%)}
+.mail-farm-icon{width:24px;height:24px;background-image:url("../images/farm/farm-ui-icon-sheet-01.png?v=0.17.1");background-size:800% 600%;background-position:var(--mail-farm-x,0%) var(--mail-farm-y,0%)}
+.mail-site-icon{width:24px;height:24px;background-image:url("../images/ui/stellar-ui-icon-sheet-02.png?v=0.17.1");background-size:600% 400%;background-position:var(--mail-site-x,0%) var(--mail-site-y,0%)}
 .stellar-mail-entry .mail-farm-icon{width:27px;height:27px}.stellar-mail-modal[hidden]{display:none!important}.stellar-mail-modal{position:fixed;inset:0;z-index:12000;display:grid;place-items:center;padding:18px}.stellar-mail-backdrop{position:absolute;inset:0;background:rgba(14,15,22,.68);backdrop-filter:blur(9px)}
 .stellar-mail-dialog{position:relative;width:min(980px,96vw);max-height:min(820px,91vh);display:flex;flex-direction:column;overflow:hidden;border:1px solid rgba(188,158,103,.28);border-radius:27px;background:linear-gradient(155deg,#fffdf2,#f5ead0 72%,#ece0bd);box-shadow:0 32px 90px rgba(22,18,13,.34);color:#554d3d}
 .stellar-mail-dialog>header{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:18px 20px 15px;border-bottom:1px solid rgba(114,91,55,.13);background:rgba(255,253,244,.66)}
@@ -19,8 +19,8 @@ body.stellar-mail-open{overflow:hidden}
 @media(max-width:760px){.stellar-account-tools{gap:5px}.stellar-mail-entry{width:32px;height:32px}.stellar-mail-entry .mail-farm-icon{width:24px;height:24px}.stellar-gm-entry{min-width:34px;height:29px;padding:0 7px;font-size:.6rem}.stellar-mail-modal{padding:8px;align-items:end}.stellar-mail-dialog{width:100%;max-height:91vh;border-radius:24px 24px 12px 12px}.stellar-mail-dialog>header{padding:14px}.stellar-mail-body{padding:10px;overflow:auto}.stellar-mail-toolbar{align-items:stretch;flex-direction:column}.stellar-mail-tabs{overflow-x:auto}.stellar-claim-all{justify-content:center}.stellar-mail-layout{display:block}.stellar-mail-list{max-height:255px}.stellar-mail-detail{margin-top:10px;overflow:visible}.stellar-mail-row{grid-template-columns:38px minmax(0,1fr) auto;padding:8px}.stellar-mail-row .is-list-icon{width:34px;height:34px}.stellar-mail-letter>header{align-items:flex-start}.stellar-mail-letter>footer{align-items:stretch;flex-direction:column}.stellar-mail-letter>footer button{justify-content:center}.stellar-gm-body{display:block;padding:10px}.stellar-gm-history{margin-top:10px;max-height:280px}.stellar-gm-rewards{grid-template-columns:repeat(2,minmax(0,1fr))}.stellar-gm-grid{grid-template-columns:1fr}}
 @media(max-width:430px){.stellar-gm-rewards{grid-template-columns:1fr}.stellar-mail-dialog>header span>b{font-size:1rem}.stellar-mail-row>em i{display:none}}
 
-/* ===== V0.17.0.1 GM ITEM CATALOG / ATTACHMENT BUILDER ===== */
-.mail-farm-item-icon{display:inline-block;flex:0 0 auto;width:24px;height:24px;background-image:url("../images/farm/farm-item-sheet-01.webp?v=0.17.0.1");background-size:400% 400%;background-position:var(--mail-item-x,0%) var(--mail-item-y,0%);background-repeat:no-repeat;background-color:transparent;vertical-align:middle}
+/* ===== V0.17.1 GM ITEM CATALOG / ATTACHMENT BUILDER ===== */
+.mail-farm-item-icon{display:inline-block;flex:0 0 auto;width:24px;height:24px;background-image:url("../images/farm/farm-item-sheet-01.webp?v=0.17.1");background-size:400% 400%;background-position:var(--mail-item-x,0%) var(--mail-item-y,0%);background-repeat:no-repeat;background-color:transparent;vertical-align:middle}
 .stellar-gm-item-builder{display:grid;gap:10px;padding:12px;border:1px solid rgba(232,201,143,.13);border-radius:14px;background:rgba(255,255,255,.025)}
 .stellar-gm-item-controls{display:grid;grid-template-columns:minmax(120px,.7fr) minmax(220px,1.45fr) 92px auto;gap:8px;align-items:end}
 .stellar-gm-item-controls label{min-width:0}.stellar-gm-item-controls .is-item-select{min-width:0}.stellar-gm-item-controls .is-qty input{text-align:center}
@@ -32,7 +32,7 @@ body.stellar-mail-open{overflow:hidden}
 @media(max-width:900px){.stellar-gm-item-controls{grid-template-columns:1fr 1fr 92px}.stellar-gm-add-item{grid-column:1/-1}}
 @media(max-width:560px){.stellar-gm-item-controls{grid-template-columns:1fr 92px}.stellar-gm-item-controls>label:first-child{grid-column:1/-1}.stellar-gm-item-controls .is-item-select{grid-column:1}.stellar-gm-add-item{grid-column:1/-1}.stellar-gm-uid-line{grid-template-columns:1fr}.stellar-gm-uid-line button{width:100%}}
 
-/* ===== V0.17.0.1 MAIL ACTIONS / EXPIRY LABELS ===== */
+/* ===== V0.17.1 MAIL ACTIONS / EXPIRY LABELS ===== */
 .stellar-mail-row span small{display:flex;align-items:center;flex-wrap:wrap;gap:5px}
 .stellar-mail-expiry-badge{display:inline-flex;align-items:center;min-height:18px;padding:2px 6px;border-radius:999px;border:1px solid rgba(190,74,64,.22);background:rgba(198,75,64,.11);color:#b54f47;font-size:.52rem;font-weight:850;line-height:1;white-space:nowrap}
 .stellar-mail-expiry-badge.is-permanent{background:rgba(157,75,72,.09);color:#a85b56;border-color:rgba(170,83,76,.18)}
@@ -55,7 +55,7 @@ body.stellar-mail-open{overflow:hidden}
   .stellar-mail-claimed{justify-content:center}
 }
 
-/* ===== V0.17.0.1 — bulk cleanup / GM preview polish ===== */
+/* ===== V0.17.1 — bulk cleanup / GM preview polish ===== */
 .stellar-mail-toolbar-actions{display:flex;align-items:center;justify-content:flex-end;gap:8px;flex-wrap:wrap}
 .stellar-clear-claimed{display:inline-flex;align-items:center;justify-content:center;gap:5px;padding:8px 12px;border:1px solid rgba(174,88,73,.2);border-radius:12px;background:rgba(179,75,66,.08);color:#a4534c;font-weight:800;cursor:pointer;transition:background .16s ease,transform .16s ease,opacity .16s ease}
 .stellar-clear-claimed:hover:not(:disabled){background:rgba(179,75,66,.14);transform:translateY(-1px)}
@@ -84,7 +84,7 @@ body.stellar-mail-open{overflow:hidden}
 }
 
 
-/* ===== V0.17.0.1 GUEST READ-ONLY MAILBOX ===== */
+/* ===== V0.17.1 GUEST READ-ONLY MAILBOX ===== */
 .stellar-mail-guest-notice{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:9px;margin-bottom:11px;padding:9px 11px;border:1px solid rgba(156,127,70,.16);border-radius:13px;background:rgba(245,235,202,.48);color:#786b54;font-size:.66rem;line-height:1.5}
 .stellar-mail-guest-notice .is-guest-lock-icon{width:24px;height:24px}
 .stellar-mail-guest-notice button,.stellar-bind-to-claim,.stellar-mail-bind{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:8px 11px;border:1px solid rgba(127,145,82,.25);border-radius:11px;background:#7d8e58;color:#fff9e7;font-weight:800;cursor:pointer;white-space:nowrap}
@@ -92,7 +92,7 @@ body.stellar-mail-open{overflow:hidden}
 .stellar-mail-actions .stellar-mail-bind{background:#7d8e58;color:#fff9e7}
 @media(max-width:760px){.stellar-mail-guest-notice{grid-template-columns:auto minmax(0,1fr);padding:8px 9px}.stellar-mail-guest-notice button{grid-column:1/-1;width:100%}.stellar-bind-to-claim{width:100%}}
 
-/* ===== V0.17.0.1 — SYSTEM MAIL V1 FINAL ===== */
+/* ===== V0.17.1 — SYSTEM MAIL V1 FINAL ===== */
 .stellar-mail-toast-host{position:fixed;right:22px;top:22px;z-index:14050;display:grid;gap:9px;width:min(360px,calc(100vw - 28px));pointer-events:none}
 .stellar-mail-toast{display:grid;grid-template-columns:28px minmax(0,1fr);align-items:start;gap:9px;padding:11px 13px;border:1px solid rgba(138,116,75,.18);border-radius:14px;background:rgba(255,250,237,.97);box-shadow:0 16px 42px rgba(30,24,17,.22);color:#625744;font-size:.72rem;line-height:1.55;opacity:0;transform:translateY(-8px) scale(.98);transition:.2s ease;backdrop-filter:blur(10px)}
 .stellar-mail-toast.is-show{opacity:1;transform:none}.stellar-mail-toast>span{display:grid;place-items:center;width:26px;height:26px;border-radius:50%;background:rgba(122,144,81,.14);color:#72854f;font-weight:950}.stellar-mail-toast.is-error{border-color:rgba(185,76,67,.2);background:rgba(255,246,238,.98);color:#7a5049}.stellar-mail-toast.is-error>span{background:rgba(185,76,67,.12);color:#b24f47}

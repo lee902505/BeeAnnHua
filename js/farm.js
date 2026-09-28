@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const FARM_BUILD = '0.17.0.1';
+  const FARM_BUILD = '0.17.1';
   const STORAGE_KEY = 'xingchen-farm-v1';
   const VERSION = 1;
   const PLOT_COUNT = 20;
@@ -165,6 +165,9 @@
     { id:'harvest1', title:'第一份收成', desc:'收成任意一格成熟作物。', type:'harvest', target:1, reward:{coins:20, exp:35}, rewardText:'金币 ×20 · EXP +35' },
     { id:'sell1', title:'第一次交易', desc:'出售任意农作物。', type:'sell', target:1, reward:{seeds:{corn:2}, exp:25}, rewardText:'玉米种子 ×2 · EXP +25' },
     { id:'friend1', title:'第一位农友', desc:'加入 1 位农场好友。', type:'friend', target:1, reward:{seeds:{corn:3}}, rewardText:'玉米种子 ×3' },
+    { id:'visitFriend1', title:'第一次串门', desc:'第一次拜访已经加入的真人或 NPC 农友。', type:'friendVisits', target:1, reward:{exp:10}, rewardText:'EXP +10' },
+    { id:'helpWater1', title:'第一份助力', desc:'第一次帮农友的作物完成好友助力浇水。', type:'helpWater', target:1, reward:{exp:15}, rewardText:'EXP +15' },
+    { id:'helpBug1', title:'守护好友农田', desc:'第一次帮真人好友清除虫害。', type:'helpBug', target:1, reward:{coins:15, exp:15}, rewardText:'金币 ×15 · EXP +15' },
     { id:'friend5', title:'热闹小农场', desc:'好友达到 5 人。', type:'friend', target:5, reward:{seeds:{strawberry:3}}, rewardText:'草莓种子 ×3' },
     { id:'friend10', title:'农场交友达人', desc:'好友达到 10 人。', type:'friend', target:10, reward:{seeds:{pumpkin:3}}, rewardText:'南瓜种子 ×3' }
   ];
@@ -177,7 +180,9 @@
     { id:'dailySteal1', title:'今天也偷一下', desc:'今天成功偷菜 1 次。', metric:'steal', target:1, reward:{coins:10}, rewardText:'金币 ×10' }
   ];
   const DAILY_BONUS = { id:'dailyBonus', title:'今日农场全勤', desc:'完成今天全部 5 项每日任务。', reward:{seeds:{mystery:1}, exp:30}, rewardText:'蔬果盲盒 ×1 · EXP +30' };
-
+  const DAILY_SOCIAL_EXP_CAP = 50;
+  const DAILY_SOCIAL_WATER_EXP = 5;
+  const DAILY_SOCIAL_VISIT_EXP = 2;
 
   const TITLES = [
     {id:'newbie', name:'新手', icon:'🌱', desc:'刚踏进星辰农场时就拥有的第一枚称号。'},
@@ -187,20 +192,34 @@
     {id:'harvest_master', name:'丰收达人', icon:'🌻', desc:'累计收成 100 格成熟作物。'},
     {id:'farm_master', name:'农场达人', icon:'farm-expert', desc:'累计收成 500 格成熟作物。'},
     {id:'legendary_farmer', name:'传奇农夫', icon:'⭐', desc:'累计收成 1000 格成熟作物。'},
+    {id:'harvest_grandmaster', name:'丰收宗师', icon:'🏆', desc:'累计收成 5000 格成熟作物。'},
     {id:'small_landlord', name:'小地主', icon:'🪙', desc:'农场曾经持有 1000 金币。'},
     {id:'ten_thousand', name:'万元户', icon:'💰', desc:'农场曾经持有 10000 金币。'},
     {id:'farm_tycoon', name:'农场富翁', icon:'👑', desc:'农场曾经持有 50000 金币。'},
     {id:'stellar_landlord', name:'星辰地主', icon:'✨', desc:'农场曾经持有 100000 金币。'},
+    {id:'farm_magnate', name:'星辰大亨', icon:'👑', desc:'农场曾经持有 1000000 金币。'},
     {id:'sowing_hand', name:'播种好手', icon:'🌱', desc:'累计播种 100 格农地。'},
+    {id:'sowing_master', name:'播种大师', icon:'🌿', desc:'累计播种 5000 格农地。'},
     {id:'blindbox_fan', name:'盲盒爱好者', icon:'🎁', desc:'累计种下 10 个蔬果盲盒。'},
     {id:'blindbox_master', name:'盲盒达人', icon:'🎀', desc:'累计种下 100 个蔬果盲盒。'},
+    {id:'blindbox_collector', name:'盲盒收藏家', icon:'🎁', desc:'累计种下 500 个蔬果盲盒。'},
     {id:'steal_rookie', name:'路过摘一颗', icon:'🥷', desc:'第一次成功从好友农场偷到作物。'},
     {id:'steal_shadow', name:'神出鬼没', icon:'🌙', desc:'累计成功偷菜 10 次。'},
     {id:'steal_master', name:'偷菜高手', icon:'🕶️', desc:'累计成功偷菜 50 次。'},
+    {id:'steal_legend', name:'夜行摘星客', icon:'🌙', desc:'累计成功偷菜 500 次。'},
     {id:'senior_farmer', name:'资深农夫', icon:'🌿', desc:'农场达到 Lv.10。'},
     {id:'stellar_host', name:'星辰农场主', icon:'🌟', desc:'农场达到 Lv.25。'},
+    {id:'stellar_estate_owner', name:'星辰庄园主', icon:'🏡', desc:'农场达到 Lv.50。'},
+    {id:'stellar_legend', name:'百级星辰庄主', icon:'🌟', desc:'农场达到 Lv.100。'},
     {id:'social_farmer', name:'农场社交家', icon:'🤝', desc:'拥有 20 位农场好友。'},
-    {id:'popular_host', name:'人气农场主', icon:'🎉', desc:'拥有 50 位农场好友。'}
+    {id:'popular_host', name:'人气农场主', icon:'🎉', desc:'拥有 50 位农场好友。'},
+    {id:'visiting_star', name:'串门达人', icon:'👣', desc:'累计完成 200 次每日首次农友拜访。'},
+    {id:'visiting_legend', name:'千家足迹', icon:'👣', desc:'累计完成 1000 次每日首次农友拜访。'},
+    {id:'water_helper', name:'甘霖好手', icon:'💧', desc:'累计帮农友助力浇水 100 格。'},
+    {id:'water_guardian', name:'甘霖使者', icon:'💧', desc:'累计帮农友助力浇水 500 格。'},
+    {id:'water_legend', name:'星雨守望者', icon:'💧', desc:'累计帮农友助力浇水 2000 格。'},
+    {id:'bug_guardian', name:'护田卫士', icon:'🪲', desc:'累计帮真人好友清除 100 格虫害。'},
+    {id:'bug_legend', name:'虫害克星', icon:'🪲', desc:'累计帮真人好友清除 500 格虫害。'}
   ];
 
   const ACHIEVEMENT_GROUPS = [
@@ -210,7 +229,7 @@
     {id:'blind', label:'盲盒之路', icon:'🎁'},
     {id:'steal', label:'偷菜之路', icon:'🥷'},
     {id:'growth', label:'成长之路', icon:'⭐'},
-    {id:'social', label:'好友之路', icon:'🤝'}
+    {id:'social', label:'农友互助', icon:'🤝'}
   ];
 
   const ACHIEVEMENTS = [
@@ -222,6 +241,8 @@
     {id:'wealth10000', group:'wealth', title:'万元农户', desc:'农场最高持有金币达到 10000。', metric:'maxCoins', target:10000, reward:{seeds:{mystery:5}, title:'ten_thousand'}, rewardText:'蔬果盲盒 ×5 · 称号【万元户】'},
     {id:'wealth50000', group:'wealth', title:'农场富豪', desc:'农场最高持有金币达到 50000。', metric:'maxCoins', target:50000, reward:{exp:300, title:'farm_tycoon'}, rewardText:'EXP +300 · 称号【农场富翁】'},
     {id:'wealth100000', group:'wealth', title:'星辰大地主', desc:'农场最高持有金币达到 100000。', metric:'maxCoins', target:100000, reward:{seeds:{mystery:10}, title:'stellar_landlord'}, rewardText:'蔬果盲盒 ×10 · 称号【星辰地主】'},
+    {id:'wealth500000', group:'wealth', title:'半百万家底', desc:'农场最高持有金币达到 500000。', metric:'maxCoins', target:500000, reward:{exp:800}, rewardText:'EXP +800'},
+    {id:'wealth1000000', group:'wealth', title:'百万星辰农场', desc:'农场最高持有金币达到 1000000。', metric:'maxCoins', target:1000000, reward:{seeds:{mystery:20}, title:'farm_magnate'}, rewardText:'蔬果盲盒 ×20 · 称号【星辰大亨】'},
 
     {id:'harvestA1', group:'harvest', title:'第一次丰收', desc:'累计收成 1 格成熟作物。', metric:'harvest', target:1, reward:{seeds:{carrot:2}, title:'novice_farmer'}, rewardText:'红萝卜种子 ×2 · 称号【新手农夫】'},
     {id:'harvestA5', group:'harvest', title:'渐入佳境', desc:'累计收成 5 格成熟作物。', metric:'harvest', target:5, reward:{exp:15}, rewardText:'EXP +15'},
@@ -231,30 +252,53 @@
     {id:'harvestA100', group:'harvest', title:'百次丰收', desc:'累计收成 100 格成熟作物。', metric:'harvest', target:100, reward:{exp:120, title:'harvest_master'}, rewardText:'EXP +120 · 称号【丰收达人】'},
     {id:'harvestA500', group:'harvest', title:'五百次收成', desc:'累计收成 500 格成熟作物。', metric:'harvest', target:500, reward:{seeds:{mystery:5}, title:'farm_master'}, rewardText:'蔬果盲盒 ×5 · 称号【农场达人】'},
     {id:'harvestA1000', group:'harvest', title:'千次丰收', desc:'累计收成 1000 格成熟作物。', metric:'harvest', target:1000, reward:{exp:500, title:'legendary_farmer'}, rewardText:'EXP +500 · 称号【传奇农夫】'},
+    {id:'harvestA2500', group:'harvest', title:'两千五百次丰收', desc:'累计收成 2500 格成熟作物。', metric:'harvest', target:2500, reward:{seeds:{mystery:12}, exp:600}, rewardText:'蔬果盲盒 ×12 · EXP +600'},
+    {id:'harvestA5000', group:'harvest', title:'五千次丰收', desc:'累计收成 5000 格成熟作物。', metric:'harvest', target:5000, reward:{seeds:{mystery:20}, exp:1000, title:'harvest_grandmaster'}, rewardText:'蔬果盲盒 ×20 · EXP +1000 · 称号【丰收宗师】'},
 
     {id:'plantA10', group:'plant', title:'十次播种', desc:'累计播种 10 格农地。', metric:'plant', target:10, reward:{seeds:{carrot:3}}, rewardText:'红萝卜种子 ×3'},
     {id:'plantA50', group:'plant', title:'田里总有新芽', desc:'累计播种 50 格农地。', metric:'plant', target:50, reward:{exp:50}, rewardText:'EXP +50'},
     {id:'plantA100', group:'plant', title:'百次播种', desc:'累计播种 100 格农地。', metric:'plant', target:100, reward:{seeds:{mystery:2}, title:'sowing_hand'}, rewardText:'蔬果盲盒 ×2 · 称号【播种好手】'},
     {id:'plantA500', group:'plant', title:'辛勤耕作', desc:'累计播种 500 格农地。', metric:'plant', target:500, reward:{exp:200}, rewardText:'EXP +200'},
     {id:'plantA1000', group:'plant', title:'千次播种', desc:'累计播种 1000 格农地。', metric:'plant', target:1000, reward:{seeds:{mystery:5}}, rewardText:'蔬果盲盒 ×5'},
+    {id:'plantA2500', group:'plant', title:'两千五百次播种', desc:'累计播种 2500 格农地。', metric:'plant', target:2500, reward:{exp:500, seeds:{mystery:8}}, rewardText:'EXP +500 · 蔬果盲盒 ×8'},
+    {id:'plantA5000', group:'plant', title:'五千次播种', desc:'累计播种 5000 格农地。', metric:'plant', target:5000, reward:{exp:900, seeds:{mystery:15}, title:'sowing_master'}, rewardText:'EXP +900 · 蔬果盲盒 ×15 · 称号【播种大师】'},
 
     {id:'blindA1', group:'blind', title:'第一次试手气', desc:'累计种下 1 个蔬果盲盒。', metric:'blindBoxPlant', target:1, reward:{exp:10}, rewardText:'EXP +10'},
     {id:'blindA10', group:'blind', title:'盲盒爱好者', desc:'累计种下 10 个蔬果盲盒。', metric:'blindBoxPlant', target:10, reward:{exp:50, title:'blindbox_fan'}, rewardText:'EXP +50 · 称号【盲盒爱好者】'},
     {id:'blindA50', group:'blind', title:'拆盒不停手', desc:'累计种下 50 个蔬果盲盒。', metric:'blindBoxPlant', target:50, reward:{seeds:{mystery:5}}, rewardText:'蔬果盲盒 ×5'},
     {id:'blindA100', group:'blind', title:'百盒收藏', desc:'累计种下 100 个蔬果盲盒。', metric:'blindBoxPlant', target:100, reward:{exp:250, title:'blindbox_master'}, rewardText:'EXP +250 · 称号【盲盒达人】'},
+    {id:'blindA250', group:'blind', title:'盲盒仓库', desc:'累计种下 250 个蔬果盲盒。', metric:'blindBoxPlant', target:250, reward:{exp:450, seeds:{mystery:8}}, rewardText:'EXP +450 · 蔬果盲盒 ×8'},
+    {id:'blindA500', group:'blind', title:'五百盒收藏', desc:'累计种下 500 个蔬果盲盒。', metric:'blindBoxPlant', target:500, reward:{exp:800, title:'blindbox_collector'}, rewardText:'EXP +800 · 称号【盲盒收藏家】'},
 
     {id:'stealA1', group:'steal', title:'路过摘一颗', desc:'累计成功偷菜 1 次。', metric:'steals', target:1, reward:{exp:10, title:'steal_rookie'}, rewardText:'EXP +10 · 称号【路过摘一颗】'},
     {id:'stealA10', group:'steal', title:'神出鬼没', desc:'累计成功偷菜 10 次。', metric:'steals', target:10, reward:{exp:50, title:'steal_shadow'}, rewardText:'EXP +50 · 称号【神出鬼没】'},
     {id:'stealA50', group:'steal', title:'偷菜高手', desc:'累计成功偷菜 50 次。', metric:'steals', target:50, reward:{seeds:{mystery:3}, title:'steal_master'}, rewardText:'蔬果盲盒 ×3 · 称号【偷菜高手】'},
     {id:'stealA100', group:'steal', title:'来无影去无踪', desc:'累计成功偷菜 100 次。', metric:'steals', target:100, reward:{exp:200}, rewardText:'EXP +200'},
+    {id:'stealA250', group:'steal', title:'夜色熟客', desc:'累计成功偷菜 250 次。', metric:'steals', target:250, reward:{exp:400, seeds:{mystery:6}}, rewardText:'EXP +400 · 蔬果盲盒 ×6'},
+    {id:'stealA500', group:'steal', title:'摘星无痕', desc:'累计成功偷菜 500 次。', metric:'steals', target:500, reward:{exp:700, title:'steal_legend'}, rewardText:'EXP +700 · 称号【夜行摘星客】'},
 
     {id:'level5', group:'growth', title:'农场渐渐成形', desc:'农场达到 Lv.5。', metric:'level', target:5, reward:{seeds:{mystery:1}}, rewardText:'蔬果盲盒 ×1'},
     {id:'level10', group:'growth', title:'十级农场', desc:'农场达到 Lv.10。', metric:'level', target:10, reward:{exp:80, title:'senior_farmer'}, rewardText:'EXP +80 · 称号【资深农夫】'},
     {id:'level20', group:'growth', title:'成熟农场', desc:'农场达到 Lv.20。', metric:'level', target:20, reward:{seeds:{mystery:5}}, rewardText:'蔬果盲盒 ×5'},
     {id:'level25', group:'growth', title:'完整星辰农场', desc:'农场达到 Lv.25，并解锁完整 20 格农地。', metric:'level', target:25, reward:{exp:300, title:'stellar_host'}, rewardText:'EXP +300 · 称号【星辰农场主】'},
+    {id:'level50', group:'growth', title:'五十级庄园', desc:'农场达到 Lv.50。', metric:'level', target:50, reward:{exp:700, seeds:{mystery:10}, title:'stellar_estate_owner'}, rewardText:'EXP +700 · 蔬果盲盒 ×10 · 称号【星辰庄园主】'},
+    {id:'level100', group:'growth', title:'百级长青农场', desc:'农场达到 Lv.100。', metric:'level', target:100, reward:{exp:1500, seeds:{mystery:20}, title:'stellar_legend'}, rewardText:'EXP +1500 · 蔬果盲盒 ×20 · 称号【百级星辰庄主】'},
 
     {id:'friend20', group:'social', title:'农场社交家', desc:'好友达到 20 人。', metric:'friend', target:20, reward:{seeds:{mystery:3}, title:'social_farmer'}, rewardText:'蔬果盲盒 ×3 · 称号【农场社交家】'},
-    {id:'friend50', group:'social', title:'人气农场', desc:'好友达到 50 人。', metric:'friend', target:50, reward:{exp:300, title:'popular_host'}, rewardText:'EXP +300 · 称号【人气农场主】'}
+    {id:'friend50', group:'social', title:'人气农场', desc:'好友达到 50 人。', metric:'friend', target:50, reward:{exp:300, title:'popular_host'}, rewardText:'EXP +300 · 称号【人气农场主】'},
+    {id:'visitA10', group:'social', title:'常去串门', desc:'累计完成 10 次每日首次农友拜访。', metric:'friendVisits', target:10, reward:{exp:40}, rewardText:'EXP +40'},
+    {id:'visitA50', group:'social', title:'熟门熟路', desc:'累计完成 50 次每日首次农友拜访。', metric:'friendVisits', target:50, reward:{exp:120, seeds:{mystery:2}}, rewardText:'EXP +120 · 蔬果盲盒 ×2'},
+    {id:'visitA200', group:'social', title:'串门达人', desc:'累计完成 200 次每日首次农友拜访。', metric:'friendVisits', target:200, reward:{exp:350, title:'visiting_star'}, rewardText:'EXP +350 · 称号【串门达人】'},
+    {id:'visitA1000', group:'social', title:'千次农友足迹', desc:'累计完成 1000 次每日首次农友拜访。', metric:'friendVisits', target:1000, reward:{exp:1000, seeds:{mystery:12}, title:'visiting_legend'}, rewardText:'EXP +1000 · 蔬果盲盒 ×12 · 称号【千家足迹】'},
+    {id:'waterA10', group:'social', title:'递上一壶水', desc:'累计帮农友助力浇水 10 格。', metric:'helpWater', target:10, reward:{exp:50}, rewardText:'EXP +50'},
+    {id:'waterA50', group:'social', title:'邻里甘霖', desc:'累计帮农友助力浇水 50 格。', metric:'helpWater', target:50, reward:{exp:120, seeds:{mystery:2}}, rewardText:'EXP +120 · 蔬果盲盒 ×2'},
+    {id:'waterA100', group:'social', title:'百格助力', desc:'累计帮农友助力浇水 100 格。', metric:'helpWater', target:100, reward:{exp:250, title:'water_helper'}, rewardText:'EXP +250 · 称号【甘霖好手】'},
+    {id:'waterA500', group:'social', title:'五百格甘霖', desc:'累计帮农友助力浇水 500 格。', metric:'helpWater', target:500, reward:{exp:600, seeds:{mystery:8}, title:'water_guardian'}, rewardText:'EXP +600 · 蔬果盲盒 ×8 · 称号【甘霖使者】'},
+    {id:'waterA2000', group:'social', title:'两千格守望', desc:'累计帮农友助力浇水 2000 格。', metric:'helpWater', target:2000, reward:{exp:1500, seeds:{mystery:20}, title:'water_legend'}, rewardText:'EXP +1500 · 蔬果盲盒 ×20 · 称号【星雨守望者】'},
+    {id:'bugA10', group:'social', title:'热心除虫', desc:'累计帮真人好友清除 10 格虫害。', metric:'helpBug', target:10, reward:{exp:60}, rewardText:'EXP +60'},
+    {id:'bugA50', group:'social', title:'护田邻里', desc:'累计帮真人好友清除 50 格虫害。', metric:'helpBug', target:50, reward:{exp:180, seeds:{mystery:3}}, rewardText:'EXP +180 · 蔬果盲盒 ×3'},
+    {id:'bugA100', group:'social', title:'百格护田', desc:'累计帮真人好友清除 100 格虫害。', metric:'helpBug', target:100, reward:{exp:320, title:'bug_guardian'}, rewardText:'EXP +320 · 称号【护田卫士】'},
+    {id:'bugA500', group:'social', title:'虫害克星', desc:'累计帮真人好友清除 500 格虫害。', metric:'helpBug', target:500, reward:{exp:900, seeds:{mystery:10}, title:'bug_legend'}, rewardText:'EXP +900 · 蔬果盲盒 ×10 · 称号【虫害克星】'}
   ];
 
   const hadLocalStateAtBoot = (() => { try { return localStorage.getItem(STORAGE_KEY) != null; } catch (_) { return false; } })();
@@ -1001,6 +1045,22 @@
     return true;
   }
 
+  function applyNpcPlayerVisitMutation(op, {silent=false} = {}) {
+    const npc = npcById(op?.npcId);
+    const day = typeof op?.day === 'string' ? op.day : farmDay;
+    if (!npc) return false;
+    ensureDailyState(day);
+    if (state.daily.visitedFriends.includes(npc.id)) return false;
+    state.daily.visitedFriends.push(npc.id);
+    state.daily.visitedFriends = [...new Set(state.daily.visitedFriends.map(String))].slice(-100);
+    state.stats.friendVisits = Math.max(0, Number(state.stats.friendVisits) || 0) + 1;
+    pushNpcFootprint(npc.id, 'visit', {at:Math.max(0, Number(op.at) || Date.now()), id:`npc-player-visit:${npc.id}:${day}`});
+    const awarded = grantDailySocialExp(DAILY_SOCIAL_VISIT_EXP, {silent:true});
+    op.socialExpAwarded = awarded;
+    if (!silent) renderTaskDot();
+    return true;
+  }
+
   function visitNpcFarm(npcId, {logVisit=true} = {}) {
     const npc = npcById(npcId);
     if (!npc) return;
@@ -1010,10 +1070,11 @@
     }
     const payload = buildNpcFarmPayload(npc.id);
     if (!payload) return;
-    const footprintChanged = logVisit ? pushNpcFootprint(npc.id, 'visit') : false;
-    const dailyChanged = logVisit ? bumpDaily('visit', 1, npc.id) : false;
-    if (footprintChanged || dailyChanged) saveState();
-    if (dailyChanged) renderTaskDot();
+    const socialOp = {type:'npc-player-visit', npcId:npc.id, day:farmDay, at:Date.now()};
+    const dailyChanged = logVisit ? applyNpcPlayerVisitMutation(socialOp) : false;
+    const socialAward = Math.max(0, Number(socialOp.socialExpAwarded) || 0);
+    if (dailyChanged && mutationUserId()) queuePendingOp(socialOp);
+    if (dailyChanged) saveState();
     openModal({
       icon:'farm-expert',
       eyebrow:'NPC FARM VISIT',
@@ -1021,6 +1082,9 @@
       subtitle:`${npc.trait} · NPC 会自己经营农场；成熟作物每个周期可限量偷取，也可能来帮你除虫。`,
       body:renderFriendFarmVisit(payload, {npc:true})
     });
+    if (socialAward > 0) {
+      toast('👣 今日拜访奖励', `EXP +${socialAward} · 农友互助 ${Math.min(DAILY_SOCIAL_EXP_CAP, Number(state.daily?.socialExp) || 0)}/${DAILY_SOCIAL_EXP_CAP}`, 'care');
+    }
   }
 
   function applyNpcStealMutation(op, {silent=false} = {}) {
@@ -1129,6 +1193,7 @@
     if (!state.npcSocial || typeof state.npcSocial !== 'object') state.npcSocial = {friends:[], activities:[], steals:[], waterHelps:[], footprints:[], lastHelpCheckAt:0, lastVisitCheckAt:0};
     if (!Array.isArray(state.npcSocial.waterHelps)) state.npcSocial.waterHelps = [];
     let changed = false;
+    let addedCount = 0;
     const now = Math.max(0, Number(op.at) || Date.now());
     const payload = buildNpcFarmPayload(npc.id);
 
@@ -1143,9 +1208,18 @@
       const key = npcWaterHelpKey(npc.id,plotId,cycleId);
       state.npcSocial.waterHelps = pruneNpcWaterHelps([{key,npcId:npc.id,plotId,cycleId,at:now}, ...state.npcSocial.waterHelps]);
       pushNpcFootprint(npc.id,'help_water',{plotId,cropId:crop.id,at:now,id:`npc-water:${key}`});
+      addedCount += 1;
       changed = true;
     }
-    if (changed && !silent) renderFriendDot();
+    if (addedCount > 0) {
+      state.stats.helpWater = Math.max(0, Number(state.stats.helpWater) || 0) + addedCount;
+      op.socialExpAwarded = grantDailySocialExp(addedCount * DAILY_SOCIAL_WATER_EXP, {silent:true});
+      op.appliedCount = addedCount;
+    }
+    if (changed && !silent) {
+      renderFriendDot();
+      renderTaskDot();
+    }
     return changed;
   }
 
@@ -1178,7 +1252,9 @@
     if (mutationUserId()) queuePendingOp(op);
     saveState();
     renderAll();
-    toast('💧 好友助力完成',`帮 ${npc.name} 的 ${targets.length} 格作物额外缩短 5% 收获时间。`,'care');
+    const socialAward = Math.max(0, Number(op.socialExpAwarded) || 0);
+    const socialText = socialAward > 0 ? ` · EXP +${socialAward}（今日互助 ${Math.min(DAILY_SOCIAL_EXP_CAP, Number(state.daily?.socialExp) || 0)}/${DAILY_SOCIAL_EXP_CAP}）` : ' · 今日互助 EXP 已达上限';
+    toast('💧 好友助力完成',`帮 ${npc.name} 的 ${Math.max(1,Number(op.appliedCount)||targets.length)} 格作物额外缩短 5% 收获时间${socialText}`,'care');
     await new Promise(resolve => setTimeout(resolve,180));
     visitNpcFarm(npc.id,{logVisit:false});
   }
@@ -1219,10 +1295,11 @@
   const TITLE_UI_ICON = Object.freeze({
     newbie:'newbie-farmer', novice_farmer:'newbie-farmer', farmer:'harvest-expert',
     skilled_farmer:'harvest-expert', harvest_master:'harvest-expert', farm_master:'farm-expert',
-    legendary_farmer:'exp', small_landlord:'coin', ten_thousand:'wealth', farm_tycoon:'farm-rich',
-    stellar_landlord:'exp', sowing_hand:'newbie-farmer', blindbox_fan:'reward-box',
-    blindbox_master:'mystery-master', steal_rookie:'steal', steal_shadow:'steal', steal_master:'steal',
-    senior_farmer:'farm-expert', stellar_host:'exp', social_farmer:'cooperate', popular_host:'cooperate'
+    legendary_farmer:'exp', harvest_grandmaster:'ranking', small_landlord:'coin', ten_thousand:'wealth', farm_tycoon:'farm-rich',
+    stellar_landlord:'exp', farm_magnate:'farm-rich', sowing_hand:'newbie-farmer', sowing_master:'harvest-expert', blindbox_fan:'reward-box',
+    blindbox_master:'mystery-master', blindbox_collector:'reward-box', steal_rookie:'steal', steal_shadow:'steal', steal_master:'steal', steal_legend:'steal',
+    senior_farmer:'farm-expert', stellar_host:'exp', stellar_estate_owner:'farm-expert', stellar_legend:'exp', social_farmer:'cooperate', popular_host:'cooperate',
+    visiting_star:'visit', visiting_legend:'visit', water_helper:'rainy', water_guardian:'rainy', water_legend:'rainy', bug_guardian:'warning', bug_legend:'warning'
   });
   const GROUP_UI_ICON = Object.freeze({wealth:'coin',harvest:'harvest-expert',plant:'newbie-farmer',blind:'mystery-master',steal:'steal',growth:'exp',social:'cooperate'});
   const EVENT_UI_ICON = Object.freeze({sunny:'sunny',harvest:'harvest-expert',rainy:'rainy',storm:'storm',merchant:'shop'});
@@ -1244,7 +1321,7 @@
     return `<span class="farm-ui-icon ${escapeHtml(className)}" data-ui-icon="${safeKey}"${aria}></span>`;
   }
   function trainIconMarkup(className='') {
-    return `<img class="farm-inline-train-icon ${escapeHtml(className)}" src="../images/farm/train-engine.png?v=0.17.0.1" alt="" aria-hidden="true">`;
+    return `<img class="farm-inline-train-icon ${escapeHtml(className)}" src="../images/farm/train-engine.png?v=0.17.1" alt="" aria-hidden="true">`;
   }
   function uiTextMarkup(value) {
     let text = escapeHtml(value ?? '');
@@ -1366,7 +1443,7 @@
   }
 
   function createDailyState(day = localFarmDay()) {
-    return {date:day, plant:0, harvest:0, sell:0, steal:0, visitedFriends:[], claimed:[], bonusClaimed:false};
+    return {date:day, plant:0, harvest:0, sell:0, steal:0, visitedFriends:[], socialExp:0, claimed:[], bonusClaimed:false};
   }
 
   function ensureDailyState(day = farmDay || localFarmDay(), {persist=false} = {}) {
@@ -1389,7 +1466,7 @@
       const id = String(uniqueFriendId);
       if (state.daily.visitedFriends.includes(id)) return false;
       state.daily.visitedFriends.push(id);
-      state.daily.visitedFriends = state.daily.visitedFriends.slice(-50);
+      state.daily.visitedFriends = state.daily.visitedFriends.slice(-100);
       return true;
     }
     if (!['plant','harvest','sell','steal'].includes(metric)) return false;
@@ -1426,7 +1503,7 @@
       decorations: { owned:{}, slots:Array(DECORATION_SLOT_COUNT).fill(null) },
       npcSocial: { friends:[], activities:[], steals:[], waterHelps:[], footprints:[], lastHelpCheckAt:0, lastVisitCheckAt:0 },
       train: null,
-      stats: { visit:1, plant:0, harvest:0, sell:0, friend:0, blindBoxPlant:0, steals:0, maxCoins:INITIAL_COINS },
+      stats: { visit:1, plant:0, harvest:0, sell:0, friend:0, blindBoxPlant:0, steals:0, friendVisits:0, helpWater:0, helpBug:0, maxCoins:INITIAL_COINS },
       claimedTasks: [],
       claimedAchievements: [],
       titles: { unlocked:['newbie'], equipped:'newbie' },
@@ -1540,7 +1617,7 @@
     merged.coins = Math.max(0, Number(merged.coins) || 0);
     merged.level = Math.max(1, Number(merged.level) || 1);
     merged.exp = Math.max(0, Number(merged.exp) || 0);
-    for (const key of ['visit','plant','harvest','sell','friend','blindBoxPlant','steals']) {
+    for (const key of ['visit','plant','harvest','sell','friend','blindBoxPlant','steals','friendVisits','helpWater','helpBug']) {
       merged.stats[key] = Math.max(0, Number(merged.stats[key]) || 0);
     }
     merged.stats.maxCoins = Math.max(merged.coins, Number(merged.stats.maxCoins) || 0, INITIAL_COINS);
@@ -1558,7 +1635,8 @@
       harvest: Math.max(0, Number(dailyRaw.harvest) || 0),
       sell: Math.max(0, Number(dailyRaw.sell) || 0),
       steal: Math.max(0, Number(dailyRaw.steal) || 0),
-      visitedFriends: Array.isArray(dailyRaw.visitedFriends) ? [...new Set(dailyRaw.visitedFriends.filter(Boolean).map(String))].slice(-50) : [],
+      visitedFriends: Array.isArray(dailyRaw.visitedFriends) ? [...new Set(dailyRaw.visitedFriends.filter(Boolean).map(String))].slice(-100) : [],
+      socialExp: Math.min(DAILY_SOCIAL_EXP_CAP, Math.max(0, Number(dailyRaw.socialExp) || 0)),
       claimed: Array.isArray(dailyRaw.claimed) ? [...new Set(dailyRaw.claimed.filter(id => DAILY_TASKS.some(task => task.id === id)))] : [],
       bonusClaimed: Boolean(dailyRaw.bonusClaimed)
     };
@@ -1738,6 +1816,11 @@
       if (targetState?.daily?.date && targetState.daily.date !== op.day) return true;
       return targetState?.daily?.date === op.day && Boolean(targetState.daily.bonusClaimed);
     }
+    if (op.type === 'npc-player-visit') {
+      if (targetState?.daily?.date && targetState.daily.date !== op.day) return true;
+      const visited = Array.isArray(targetState?.daily?.visitedFriends) ? targetState.daily.visitedFriends.map(String) : [];
+      return targetState?.daily?.date === op.day && visited.includes(String(op.npcId || ''));
+    }
     if (op.type === 'npc-steal') {
       const records = Array.isArray(targetState?.npcSocial?.steals) ? targetState.npcSocial.steals : [];
       return records.some(item => item?.key === op.recordKey);
@@ -1826,6 +1909,11 @@
 
       if (op.type === 'claim-daily-bonus') {
         if (op.day === farmDay && applyDailyBonusReward(op.day, {silent:true})) changed = true;
+        continue;
+      }
+
+      if (op.type === 'npc-player-visit') {
+        if (applyNpcPlayerVisitMutation(op, {silent:true})) changed = true;
         continue;
       }
 
@@ -2705,7 +2793,12 @@
     });
 
     try {
-      let {data, error} = await sb.rpc('get_friend_farm_v6', {p_friend:friendId, p_log_visit:Boolean(logVisit)});
+      let usedFriendFarmV7 = true;
+      let {data, error} = await sb.rpc('get_friend_farm_v7', {p_friend:friendId, p_log_visit:Boolean(logVisit)});
+      if (error && /get_friend_farm_v7|PGRST202|function .* does not exist/i.test(String(error?.message || error))) {
+        usedFriendFarmV7 = false;
+        ({data, error} = await sb.rpc('get_friend_farm_v6', {p_friend:friendId, p_log_visit:Boolean(logVisit)}));
+      }
       if (error && /get_friend_farm_v6|PGRST202|function .* does not exist/i.test(String(error?.message || error))) {
         ({data, error} = await sb.rpc('get_friend_farm_v5', {p_friend:friendId, p_log_visit:Boolean(logVisit)}));
       }
@@ -2721,7 +2814,31 @@
         openModal({icon:'farm-expert', eyebrow:'FARM VISIT', title:'暂时无法拜访', subtitle:message, body:'<div class="farm-visit-actions"><button type="button" class="farm-friend-action" data-open-panel="friends">返回好友列表</button></div>'});
         return;
       }
-      if (bumpDaily('visit', 1, friendId)) {
+      let socialAward = 0;
+      if (typeof payload.farm_day === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(payload.farm_day)) farmDay = payload.farm_day;
+      if (payload.helper_state && typeof payload.helper_state === 'object') {
+        state = normalizeState(payload.helper_state);
+        state.ownerUserId = user.id;
+        writeLocalState();
+        socialAward = Math.max(0, Number(payload.social_exp_awarded) || 0);
+        await pullCloudState({preferRemote:true});
+        renderTaskDot();
+      } else if (usedFriendFarmV7 && Object.prototype.hasOwnProperty.call(payload, 'new_daily_visit')) {
+        // V7 is authoritative across devices. A repeated visit may have been
+        // recorded by another device, in which case the server intentionally
+        // omits helper_state to avoid an unnecessary farm_saves write. Never
+        // award a second local +2 EXP in that case; refresh only if this tab's
+        // daily snapshot is stale.
+        const visited = Array.isArray(state.daily?.visitedFriends) ? state.daily.visitedFriends.map(String) : [];
+        const serverSocial = Math.min(DAILY_SOCIAL_EXP_CAP, Math.max(0, Number(payload.social_exp_today) || 0));
+        if (logVisit && (!visited.includes(String(friendId)) || Math.max(0, Number(state.daily?.socialExp) || 0) !== serverSocial)) {
+          await pullCloudState({preferRemote:true});
+          renderTaskDot();
+        }
+      } else if (!usedFriendFarmV7 && logVisit && bumpDaily('visit', 1, friendId)) {
+        // Compatibility path for sites that have not applied migration 025 yet.
+        state.stats.friendVisits = Math.max(0, Number(state.stats.friendVisits) || 0) + 1;
+        socialAward = grantDailySocialExp(DAILY_SOCIAL_VISIT_EXP, {silent:true});
         saveState();
         renderTaskDot();
       }
@@ -2731,9 +2848,12 @@
         subtitle:'看看好友最近种了什么；成熟可偷、虫害可除，成长中的普通作物还能助力浇水 -5%。',
         body:renderFriendFarmVisit(payload)
       });
+      if (socialAward > 0) {
+        toast('👣 今日拜访奖励', `EXP +${socialAward} · 农友互助 ${Math.min(DAILY_SOCIAL_EXP_CAP, Number(state.daily?.socialExp) || 0)}/${DAILY_SOCIAL_EXP_CAP}`, 'care');
+      }
     } catch (error) {
       const detail = multiplayerMissing(error)
-        ? '请先执行 20260928_023_farm_friend_interaction_v2.sql。'
+        ? '请先依序完成 023～025 农场多人互动 SQL。'
         : '好友农场暂时读取失败，请稍后再试。';
       openModal({icon:'farm-expert', eyebrow:'FARM VISIT', title:'拜访失败', subtitle:detail, body:'<div class="farm-visit-actions"><button type="button" class="farm-friend-action" data-open-panel="friends">返回好友列表</button></div>'});
     }
@@ -2825,7 +2945,7 @@
       // Defer the heavier all-friends overview until the list is actually reopened.
       await visitFriend(friendId,{logVisit:false});
     } catch (error) {
-      toast('🐛 帮忙除虫失败', multiplayerMissing(error) ? '请先执行 V0.13.30 的 015 SQL。' : '网络暂时不稳定，请稍后再试。');
+      toast('🐛 帮忙除虫失败', multiplayerMissing(error) ? '请先依序完成 023～025 农场多人互动 SQL。' : '网络暂时不稳定，请稍后再试。');
       if (btn) btn.disabled=false;
     }
   }
@@ -2859,7 +2979,7 @@
       // Defer the heavier all-friends overview until the list is actually reopened.
       await visitFriend(friendId,{logVisit:false});
     } catch (error) {
-      toast('🐛 一键除虫失败', multiplayerMissing(error) ? '请先执行 20260928_023_farm_friend_interaction_v2.sql。' : '网络暂时不稳定，请稍后再试。');
+      toast('🐛 一键除虫失败', multiplayerMissing(error) ? '请先依序完成 023～025 农场多人互动 SQL。' : '网络暂时不稳定，请稍后再试。');
       if (button) button.disabled=false;
     }
   }
@@ -2889,13 +3009,31 @@
         return;
       }
       const count = Math.max(1,Number(payload.count)||1);
-      toast('💧 好友助力完成',`帮好友 ${count} 格作物额外缩短 5% 收获时间。`,'care');
+      let socialAward = Math.max(0, Number(payload.social_exp_awarded) || 0);
+      if (typeof payload.farm_day === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(payload.farm_day)) farmDay = payload.farm_day;
+      if (payload.helper_state && typeof payload.helper_state === 'object') {
+        state = normalizeState(payload.helper_state);
+        state.ownerUserId = user.id;
+        writeLocalState();
+        await pullCloudState({preferRemote:true});
+        renderTaskDot();
+      } else {
+        // Compatibility fallback before migration 025: keep the UI usable and
+        // grant the social EXP locally until the server migration is applied.
+        state.stats.helpWater = Math.max(0, Number(state.stats.helpWater) || 0) + count;
+        socialAward = grantDailySocialExp(count * DAILY_SOCIAL_WATER_EXP, {silent:true});
+        saveState();
+      }
+      const socialText = socialAward > 0
+        ? ` · EXP +${socialAward}（今日互助 ${Math.min(DAILY_SOCIAL_EXP_CAP, Number(state.daily?.socialExp) || 0)}/${DAILY_SOCIAL_EXP_CAP}）`
+        : ` · 今日互助 EXP ${Math.min(DAILY_SOCIAL_EXP_CAP, Number(state.daily?.socialExp) || 0)}/${DAILY_SOCIAL_EXP_CAP}`;
+      toast('💧 好友助力完成',`帮好友 ${count} 格作物额外缩短 5% 收获时间${socialText}`,'care');
       friendsLoadedAt = 0;
       farmActivityLoadedAt = 0;
       // Defer the heavier all-friends overview until the list is actually reopened.
       await visitFriend(friendId,{logVisit:false});
     } catch (error) {
-      toast('💧 助力浇水失败', multiplayerMissing(error) ? '请先执行 20260928_023_farm_friend_interaction_v2.sql。' : '网络暂时不稳定，请稍后再试。');
+      toast('💧 助力浇水失败', multiplayerMissing(error) ? '请先执行 20260928_025_farm_friend_task_final.sql。' : '网络暂时不稳定，请稍后再试。');
       if (button) button.disabled=false;
     }
   }
@@ -2983,6 +3121,16 @@
     if (celebrations.length && !silent) {
       queueLevelUpCelebrations(celebrations);
     }
+  }
+
+  function grantDailySocialExp(requested, {silent=true} = {}) {
+    ensureDailyState(farmDay);
+    const current = Math.min(DAILY_SOCIAL_EXP_CAP, Math.max(0, Number(state.daily?.socialExp) || 0));
+    const award = Math.min(Math.max(0, Number(requested) || 0), Math.max(0, DAILY_SOCIAL_EXP_CAP - current));
+    if (award <= 0) return 0;
+    state.daily.socialExp = current + award;
+    addExp(award, {silent});
+    return award;
   }
 
   function formatNumber(n) {
@@ -4303,14 +4451,14 @@
         if (slot.status === 'cooldown') {
           return `<section class="farm-train-slot is-cooldown" data-train-slot="${slot.index}">
             <header class="farm-train-slot-head"><div><small>第 ${slot.index + 1} 月台</small><b>${uiIconMarkup('cooldown','is-heading-ui')} 列车返程中</b></div><span>约 <strong data-train-cooldown-until="${slot.availableAt}">${formatTrainWait(slot.availableAt - Date.now())}</strong> 后抵达</span></header>
-            <div class="farm-train-empty-station"><img src="../images/farm/train-station.png?v=0.17.0.1" alt="星辰车站"></div>
+            <div class="farm-train-empty-station"><img src="../images/farm/train-station.png?v=0.17.1" alt="星辰车站"></div>
             <p class="farm-train-slot-note">奖励已在上一班发车时立即入账。返程后这里会自动出现一班全新的订单。</p>
           </section>`;
         }
         if (slot.status === 'done') {
           return `<section class="farm-train-slot is-done" data-train-slot="${slot.index}">
             <header class="farm-train-slot-head"><div><small>第 ${slot.index + 1} 月台</small><b>${uiIconMarkup('success','is-heading-ui')} 今日加班班次已满</b></div><span>00:00 统一刷新</span></header>
-            <div class="farm-train-empty-station"><img src="../images/farm/train-station.png?v=0.17.0.1" alt="星辰车站"></div>
+            <div class="farm-train-empty-station"><img src="../images/farm/train-station.png?v=0.17.1" alt="星辰车站"></div>
           </section>`;
         }
         const train = slot.train;
@@ -4325,7 +4473,7 @@
           const owned = Math.max(0, Number(state.produce[car.cropId]) || 0);
           const remaining = Math.max(0, car.required - car.loaded);
           return `<button type="button" class="farm-train-car is-${car.style} ${done ? 'is-complete' : ''} ${!done && owned <= 0 ? 'is-empty-bag' : ''}" data-train-slot-index="${slot.index}" data-train-load-index="${index}" ${done ? 'disabled' : ''} aria-label="${done ? `${crop.name}车厢已装满` : `查看${crop.name}装箱需求，还差${remaining}个，背包${owned}个`}">
-            <img src="../images/farm/train-car-${car.style}.png?v=0.17.0.1" alt="" aria-hidden="true">
+            <img src="../images/farm/train-car-${car.style}.png?v=0.17.1" alt="" aria-hidden="true">
             <span class="farm-train-car-ui"><i>${done ? uiIconMarkup('success','is-train-check-ui') : produceIconMarkup(crop,'is-train-produce-ui')}</i><b>${escapeHtml(crop.name)}</b><strong>${car.loaded} / ${car.required}</strong><small>${done ? '装载完成' : `背包 ${owned}`}</small></span>
           </button>`;
         }).join('');
@@ -4336,10 +4484,10 @@
             <div class="farm-train-reward"><small>本班发车预计获得</small><b>${uiIconMarkup('coin','is-reward-ui')} ${formatNumber(reward.coins)} <i>${uiIconMarkup('exp','is-reward-ui')} +${formatNumber(reward.exp)}</i></b><em>发车后立即入账；基础货价为直接出售的 120% 再乘倍率。</em></div>
           </div>
           <div class="farm-train-yard">
-            <img class="farm-train-yard-station" src="../images/farm/train-station.png?v=0.17.0.1" alt="" aria-hidden="true">
+            <img class="farm-train-yard-station" src="../images/farm/train-station.png?v=0.17.1" alt="" aria-hidden="true">
             <div class="farm-train-consist ${complete ? 'is-ready' : ''}" data-train-slot-index="${slot.index}">
               ${cars}
-              <div class="farm-train-engine is-${train.tier}"><img src="../images/farm/train-engine.png?v=0.17.0.1" alt="" aria-hidden="true"><span class="farm-train-engine-rate">×${train.multiplier.toFixed(1)}</span><span class="farm-train-smoke" aria-hidden="true"></span></div>
+              <div class="farm-train-engine is-${train.tier}"><img src="../images/farm/train-engine.png?v=0.17.1" alt="" aria-hidden="true"><span class="farm-train-engine-rate">×${train.multiplier.toFixed(1)}</span><span class="farm-train-smoke" aria-hidden="true"></span></div>
             </div>
           </div>
           <div class="farm-train-progress"><span><b>${loadedCars}</b> / ${train.cars.length} 节车厢已完成</span><div><i style="width:${Math.round((loadedCars/train.cars.length)*100)}%"></i></div></div>
@@ -4439,6 +4587,13 @@
 
       if (activeTaskTab === 'daily') {
         const dayLabel = escapeHtml(state.daily?.date || farmDay);
+        const socialExp = Math.min(DAILY_SOCIAL_EXP_CAP, Math.max(0, Number(state.daily?.socialExp) || 0));
+        const socialPct = Math.min(100, Math.round((socialExp / DAILY_SOCIAL_EXP_CAP) * 100));
+        const socialCard = `<section class="farm-social-exp-card ${socialExp >= DAILY_SOCIAL_EXP_CAP ? 'is-complete' : ''}">
+          <div class="farm-social-exp-copy"><span>${uiIconMarkup('cooperate','is-section-ui')}</span><div><b>今日农友互助 EXP</b><small>助力浇水 +${DAILY_SOCIAL_WATER_EXP}/格 · 每日首次拜访不同农友 +${DAILY_SOCIAL_VISIT_EXP}/人 · 每日上限 ${DAILY_SOCIAL_EXP_CAP} EXP · 除虫随机奖励另计</small></div></div>
+          <strong>${socialExp} / ${DAILY_SOCIAL_EXP_CAP}</strong>
+          <div class="farm-social-exp-bar"><i style="width:${socialPct}%"></i></div>
+        </section>`;
         const dailyItems = DAILY_TASKS.map(task => {
           const progress = dailyProgress(task);
           const complete = isDailyComplete(task);
@@ -4461,7 +4616,7 @@
           : bonusReady
             ? `<button type="button" data-claim-daily-bonus>${uiIconMarkup('claim','is-button-ui')}领取全勤</button>`
             : `<span class="farm-task-progress-text">${DAILY_TASKS.filter(isDailyComplete).length} / ${DAILY_TASKS.length}</span>`;
-        body.innerHTML = `${tabs}<section class="farm-daily-head"><div><small>UTC+8 每日 00:00 重置</small><b>${dayLabel}</b></div><span>${uiIconMarkup('daily-task','is-section-ui')} 今日农务</span></section><div class="farm-task-list">${dailyItems}<article class="farm-task-item farm-daily-bonus ${bonusReady ? 'is-complete' : ''} ${state.daily.bonusClaimed ? 'is-claimed' : ''}"><div class="farm-task-copy"><b>${uiIconMarkup('reward-box','is-heading-ui')} ${DAILY_BONUS.title}</b><p>${DAILY_BONUS.desc}</p><small>奖励：${rewardTextMarkup(DAILY_BONUS.rewardText)}</small></div><div class="farm-task-side">${bonusAction}</div><div class="farm-task-bar"><i style="width:${Math.min(100, DAILY_TASKS.filter(isDailyComplete).length / DAILY_TASKS.length * 100)}%"></i></div></article></div>`;
+        body.innerHTML = `${tabs}<section class="farm-daily-head"><div><small>UTC+8 每日 00:00 重置</small><b>${dayLabel}</b></div><span>${uiIconMarkup('daily-task','is-section-ui')} 今日农务</span></section>${socialCard}<div class="farm-task-list">${dailyItems}<article class="farm-task-item farm-daily-bonus ${bonusReady ? 'is-complete' : ''} ${state.daily.bonusClaimed ? 'is-claimed' : ''}"><div class="farm-task-copy"><b>${uiIconMarkup('reward-box','is-heading-ui')} ${DAILY_BONUS.title}</b><p>${DAILY_BONUS.desc}</p><small>奖励：${rewardTextMarkup(DAILY_BONUS.rewardText)}</small></div><div class="farm-task-side">${bonusAction}</div><div class="farm-task-bar"><i style="width:${Math.min(100, DAILY_TASKS.filter(isDailyComplete).length / DAILY_TASKS.length * 100)}%"></i></div></article></div>`;
         return;
       }
 
@@ -4756,7 +4911,7 @@
     const modalIcon = $('farmModalIcon');
     if (modalIcon) {
       if (iconHtml) modalIcon.innerHTML = iconHtml;
-      else if (icon === 'train') modalIcon.innerHTML = '<img class="farm-modal-asset-icon" src="../images/farm/train-engine.png?v=0.17.0.1" alt="">';
+      else if (icon === 'train') modalIcon.innerHTML = '<img class="farm-modal-asset-icon" src="../images/farm/train-engine.png?v=0.17.1" alt="">';
       else {
         const mapped = UI_ICON_INDEX[icon] ? icon : (UI_EMOJI_ICON[icon] || (icon === '🌱' ? 'newbie-farmer' : ''));
         modalIcon.innerHTML = mapped ? uiIconMarkup(mapped,'is-modal-ui') : escapeHtml(icon || '');
@@ -5208,7 +5363,7 @@
     $('farmMerchantNpc')?.addEventListener('click', openMerchantShop);
     window.addEventListener('stellar:player-profile-saved', () => { renderOwner(); invalidateMultiplayer(); });
     window.addEventListener('stellar:profile-updated', () => { renderOwner(); invalidateMultiplayer(); });
-    // V0.17.0.1 — mailbox rewards are granted atomically on the server. Pull the
+    // V0.17.1 — mailbox rewards are granted atomically on the server. Pull the
     // authoritative farm save immediately so coins/EXP/seeds are visible without
     // waiting for the normal revision poll. Existing pending farm operations are
     // still rebased by pullCloudState's revision-conflict path.

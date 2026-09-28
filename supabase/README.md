@@ -34,3 +34,7 @@ Run `migrations/20260926_014_farm_activity_center.sql` after migration 013. It c
 Run `migrations/20260928_024_farm_stability_traffic.sql` after migration 023.
 It converts one-click friend watering / pest care into true batch writes, fixes care EXP leveling, hardens malformed JSON handling, marks all opened activity as seen, and adds deterministic pair locking for two-player farm mutations.
 
+## V0.17.1 friend / task final pass
+
+Run `migrations/20260928_025_farm_friend_task_final.sql` after migration 024.
+It adds the UTC+8 daily social EXP pool (50 max), +2 EXP first-visit rewards, +5 EXP per successful friend-watering plot, cumulative friend-care statistics, and `get_friend_farm_v7`. Pest-help random rewards stay outside the social EXP cap.
