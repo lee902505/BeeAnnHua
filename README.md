@@ -1,3 +1,20 @@
+# V0.18.0.4
+
+- Added the approved Default Female v1 farm-owner sprite and enabled automatic male/female rendering from the player profile gender.
+- Standardized both default avatar sheets to 1024×2048, 2×4, 8 frames, 512×512 per frame, with the same X=256 / feet Y=467 anchor system.
+- Character panel preview and outfit thumbnail now follow the same player gender as the farm owner.
+- No database migration required.
+
+## V0.18.0.4 — 男女农场主人基础造型
+
+- 新增 Default Female v1 青年女性农夫，风格、比例与男性星辰农夫统一。
+- 女性原始生成图已重新切格与标准化：整张 1024×2048、2×4、8 Frame、每格 512×512。
+- 男女角色统一脚底 Anchor：每格水平中心 X=256、脚底 Y=467，并统一约 417px 的角色视觉高度，避免切换性别时角色忽大忽小。
+- 玩家资料为「男」时显示 `default-male.png`；为「女」时自动显示 `default-female.png`。
+- 农场实景、角色管理预览、衣橱缩图都会跟随玩家性别，不另外增加角色性别开关。
+- 后续所有农场主人服装 Sprite Sheet 固定沿用相同尺寸与 Anchor 规范。
+- 本版纯前端素材与角色显示逻辑更新，不需要 Supabase migration。
+
 # V0.18.0.3
 
 - Removed the obsolete bottom “newbie gift moved to backpack” banner; gift inventory/state logic is unchanged.

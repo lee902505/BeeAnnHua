@@ -1,6 +1,6 @@
 (() => {
   const DEFAULTS = {
-    appVersion: '0.18.0.3',
+    appVersion: '0.18.0.4',
     protocolVersion: '1.0.0',
     enabled: false,
     baseUrl: '',
