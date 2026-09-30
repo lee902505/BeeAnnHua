@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const FARM_BUILD = '0.19.1';
+  const FARM_BUILD = '0.19.1.1';
   const STORAGE_KEY = 'xingchen-farm-v1';
   const VERSION = 1;
   const PLOT_COUNT = 20;
@@ -16,7 +16,7 @@
   const PENDING_OPS_KEY = 'xingchen-farm-v1-pending-ops';
 
 
-  // V0.19.1 — seasonal wardrobe release. Outfit ownership remains permanent,
+  // V0.19.1.1 — seasonal wardrobe release. Outfit ownership remains permanent,
   // while avatar.outfit only records the currently equipped look. #5002 Mid-Autumn,
   // #5003 Halloween and #5004 Christmas now ship with male/female Sprite Sheets.
   const FARM_ITEM_IDS = Object.freeze({
@@ -46,7 +46,7 @@
     Object.freeze({id:'christmas', itemId:FARM_ITEM_IDS.OUTFIT_CHRISTMAS, name:'圣诞造型', note:'圣诞红冬装／红色毛绒斗篷的节日限定造型。', icon:'🎄', released:true, male:true, female:true, maleAsset:'christmas-male.png', femaleAsset:'christmas-female.png', maleFrames:6, femaleFrames:8})
   ]);
 
-  // V0.19.1 — first follow-pet. Ownership is permanent under state.pets.owned;
+  // V0.19.1.1 — first follow-pet. Ownership is permanent under state.pets.owned;
   // state.pets.active stores only the pet currently following the farm owner.
   const PETS = Object.freeze([
     Object.freeze({id:'ya_ya', itemId:FARM_ITEM_IDS.PET_YA_YA, name:'牙牙', note:'圆滚滚的奶白牙齿娃娃精灵，喜欢安静地陪在农场主人身边。', released:true, asset:'ya-ya.png', iconAsset:'ya-ya-icon.png', frames:6})
@@ -93,11 +93,11 @@
   ]);
 
 
-  // V0.19.1 — fixed-slot decoration catalog now includes seasonal scenery.
+  // V0.19.1.1 — fixed-slot decoration catalog now includes seasonal scenery.
   // Existing farm decor keeps using the event atlas. Seasonal decor uses its own
   // 4×4 scene atlas plus Item IDs / item-icon cells for GM mail and backpack UI.
   const DECORATION_SLOT_COUNT = 8;
-  // V0.19.1: slot 5 overlaps the farm owner avatar, so keep the save-array
+  // V0.19.1.1: slot 5 overlaps the farm owner avatar, so keep the save-array
   // shape stable but retire that visual placement. Old saves are migrated below.
   const DISABLED_DECORATION_SLOT_INDEXES = new Set([4]);
   const DECORATIONS = Object.freeze([
@@ -117,14 +117,14 @@
     Object.freeze({id:'mid_osmanthus', itemId:FARM_ITEM_IDS.DECOR_MID_OSMANTHUS, name:'桂花盆栽', decorCell:3, itemIconCell:8, price:650, unlockLevel:1, scale:1.03, seasonal:'mid_autumn', shopVisible:true, note:'金桂盛开的古典盆景，中秋限定装饰。'}),
     Object.freeze({id:'mid_moon_lamp', itemId:FARM_ITEM_IDS.DECOR_MID_MOON_LAMP, name:'月亮景观灯', decorCell:4, itemIconCell:9, price:1200, unlockLevel:1, scale:1.08, seasonal:'mid_autumn', shopVisible:true, note:'柔和发光的满月景观灯，适合放在草地边赏月。'}),
 
-    Object.freeze({id:'halloween_pumpkin', itemId:FARM_ITEM_IDS.DECOR_HALLOWEEN_PUMPKIN, name:'万圣南瓜灯', decorCell:5, itemIconCell:10, price:900, unlockLevel:1, scale:1.00, seasonal:'halloween', shopVisible:false, note:'微笑发光的南瓜灯。素材已准备，活动开放前仅可由 GM 发放测试。'}),
-    Object.freeze({id:'halloween_ghost', itemId:FARM_ITEM_IDS.DECOR_HALLOWEEN_GHOST, name:'幽灵墓碑', decorCell:6, itemIconCell:11, price:1100, unlockLevel:1, scale:1.02, seasonal:'halloween', shopVisible:false, note:'调皮小幽灵躲在墓碑旁。活动开放前仅可由 GM 发放测试。'}),
-    Object.freeze({id:'halloween_candle', itemId:FARM_ITEM_IDS.DECOR_HALLOWEEN_CANDLE, name:'万圣烛台', decorCell:7, itemIconCell:12, price:1000, unlockLevel:1, scale:.94, seasonal:'halloween', shopVisible:false, note:'黑金烛台与紫色烛火。活动开放前仅可由 GM 发放测试。'}),
+    Object.freeze({id:'halloween_pumpkin', itemId:FARM_ITEM_IDS.DECOR_HALLOWEEN_PUMPKIN, name:'万圣南瓜灯', decorCell:5, itemIconCell:10, price:900, unlockLevel:1, scale:1.00, seasonal:'halloween', shopVisible:false, note:'微笑发光的南瓜灯。'}),
+    Object.freeze({id:'halloween_ghost', itemId:FARM_ITEM_IDS.DECOR_HALLOWEEN_GHOST, name:'幽灵墓碑', decorCell:6, itemIconCell:11, price:1100, unlockLevel:1, scale:1.02, seasonal:'halloween', shopVisible:false, note:'调皮小幽灵躲在墓碑旁。'}),
+    Object.freeze({id:'halloween_candle', itemId:FARM_ITEM_IDS.DECOR_HALLOWEEN_CANDLE, name:'万圣烛台', decorCell:7, itemIconCell:12, price:1000, unlockLevel:1, scale:.94, seasonal:'halloween', shopVisible:false, note:'黑金烛台与紫色烛火。'}),
 
-    Object.freeze({id:'christmas_tree', itemId:FARM_ITEM_IDS.DECOR_CHRISTMAS_TREE, name:'圣诞树', decorCell:9, itemIconCell:13, price:1200, unlockLevel:1, scale:1.08, seasonal:'christmas', shopVisible:false, note:'挂满灯饰的节日圣诞树。活动开放前仅可由 GM 发放测试。'}),
-    Object.freeze({id:'christmas_gifts', itemId:FARM_ITEM_IDS.DECOR_CHRISTMAS_GIFTS, name:'圣诞礼物堆', decorCell:10, itemIconCell:14, price:900, unlockLevel:1, scale:1.02, seasonal:'christmas', shopVisible:false, note:'红绿金色礼物盒堆。活动开放前仅可由 GM 发放测试。'}),
-    Object.freeze({id:'christmas_snowman', itemId:FARM_ITEM_IDS.DECOR_CHRISTMAS_SNOWMAN, name:'雪人', decorCell:11, itemIconCell:15, price:1000, unlockLevel:1, scale:1.04, seasonal:'christmas', shopVisible:false, note:'戴着围巾与冬帽的温暖雪人。活动开放前仅可由 GM 发放测试。'}),
-    Object.freeze({id:'christmas_lamp', itemId:FARM_ITEM_IDS.DECOR_CHRISTMAS_LAMP, name:'圣诞路灯', decorCell:12, itemIconCell:16, price:1050, unlockLevel:1, scale:.96, seasonal:'christmas', shopVisible:false, note:'冬青、蝴蝶结与金铃点缀的节日路灯。活动开放前仅可由 GM 发放测试。'})
+    Object.freeze({id:'christmas_tree', itemId:FARM_ITEM_IDS.DECOR_CHRISTMAS_TREE, name:'圣诞树', decorCell:9, itemIconCell:13, price:1200, unlockLevel:1, scale:1.08, seasonal:'christmas', shopVisible:false, note:'挂满灯饰的节日圣诞树。'}),
+    Object.freeze({id:'christmas_gifts', itemId:FARM_ITEM_IDS.DECOR_CHRISTMAS_GIFTS, name:'圣诞礼物堆', decorCell:10, itemIconCell:14, price:900, unlockLevel:1, scale:1.02, seasonal:'christmas', shopVisible:false, note:'红绿金色礼物盒堆。'}),
+    Object.freeze({id:'christmas_snowman', itemId:FARM_ITEM_IDS.DECOR_CHRISTMAS_SNOWMAN, name:'雪人', decorCell:11, itemIconCell:15, price:1000, unlockLevel:1, scale:1.04, seasonal:'christmas', shopVisible:false, note:'戴着围巾与冬帽的温暖雪人。'}),
+    Object.freeze({id:'christmas_lamp', itemId:FARM_ITEM_IDS.DECOR_CHRISTMAS_LAMP, name:'圣诞路灯', decorCell:12, itemIconCell:16, price:1050, unlockLevel:1, scale:.96, seasonal:'christmas', shopVisible:false, note:'冬青、蝴蝶结与金铃点缀的节日路灯。'})
   ]);
 
   // V0.14.2 — lightweight NPC farmers. NPC farms are lazily simulated from
@@ -1212,7 +1212,7 @@
       });
     }
 
-    // V0.19.1: NPC farms may wear seasonal outfits and intentionally use
+    // V0.19.1.1: NPC farms may wear seasonal outfits and intentionally use
     // matching seasonal scenery, including Halloween / Christmas assets that are
     // still hidden from the normal player shop. This remains deterministic and
     // local-only, so it adds no background Supabase traffic.
@@ -1650,7 +1650,7 @@
     return `<span class="farm-ui-icon ${escapeHtml(className)}" data-ui-icon="${safeKey}"${aria}></span>`;
   }
   function trainIconMarkup(className='') {
-    return `<img class="farm-inline-train-icon ${escapeHtml(className)}" src="../images/farm/train-engine.png?v=0.19.1" alt="" aria-hidden="true">`;
+    return `<img class="farm-inline-train-icon ${escapeHtml(className)}" src="../images/farm/train-engine.png?v=0.19.1.1" alt="" aria-hidden="true">`;
   }
   function uiTextMarkup(value) {
     let text = escapeHtml(value ?? '');
@@ -2768,9 +2768,9 @@
       console.error('[Stellar Farm] cloud save failed', error);
       const text = String(error?.message || error || '');
       if (relationMissing(error) || /save_farm_state_v3|PGRST202|function .* does not exist/i.test(text)) {
-        setCloudStatus('setup', '☁ 请执行 009 流量优化 SQL');
+        setCloudStatus('setup', '☁ 云端同步暂不可用');
       } else if (/permission denied|42501/i.test(text)) {
-        setCloudStatus('setup', '☁ 请更新至 V0.13.14 并执行 009 SQL');
+        setCloudStatus('setup', '☁ 云端同步需要更新');
       } else {
         setCloudStatus('error', '☁ 云端暂不可用');
       }
@@ -2864,7 +2864,7 @@
     } catch (error) {
       cloudReady = false;
       const text = String(error?.message || error || '');
-      if (/revision|save_farm_state_v3|PGRST202/i.test(text)) setCloudStatus('setup', '☁ 请执行 009 流量优化 SQL');
+      if (/revision|save_farm_state_v3|PGRST202/i.test(text)) setCloudStatus('setup', '☁ 云端同步暂不可用');
       else if (relationMissing(error)) setCloudStatus('setup', '☁ 云端待启用');
       else setCloudStatus('error', '☁ 使用本机存档');
       return {ok:false, error};
@@ -3016,7 +3016,7 @@
     } catch (error) {
       rankingRows = [];
       rankingError = multiplayerMissing(error)
-        ? '多人农场尚未启用：请先在 Supabase SQL Editor 执行 20260924_010_farm_achievements_titles.sql。'
+        ? '多人农场暂时不可用，请稍后再试。'
         : '排行榜暂时读取失败，请稍后再试。';
     } finally {
       rankingLoading = false;
@@ -3059,7 +3059,7 @@
       friendRows = [];
       renderFriendDot();
       friendsError = multiplayerMissing(error)
-        ? '好友系统尚未启用：请先在 Supabase SQL Editor 执行 20260924_010_farm_achievements_titles.sql。'
+        ? '好友系统暂时不可用，请稍后再试。'
         : '好友资料暂时读取失败，请稍后再试。';
     } finally {
       friendsLoading = false;
@@ -3099,7 +3099,7 @@
       farmActivityUnreadCount = 0;
       renderFriendDot();
       farmActivityError = multiplayerMissing(error)
-        ? '农场动态尚未启用：请先执行 20260926_014_farm_activity_center.sql。'
+        ? '农场动态暂时不可用，请稍后再试。'
         : '农场动态暂时读取失败，请稍后再试。';
     } finally {
       farmActivityLoading = false;
@@ -3152,7 +3152,7 @@
       invalidateMultiplayer();
       await Promise.all([loadRankings(true), loadFriends(true)]);
     } catch (error) {
-      toast('好友申请失败', multiplayerMissing(error) ? '请先执行多人农场 SQL。' : '请稍后再试。');
+      toast('好友申请失败', multiplayerMissing(error) ? '好友功能暂时不可用，请稍后再试。' : '请稍后再试。');
     }
   }
 
@@ -3169,7 +3169,7 @@
       invalidateMultiplayer();
       await Promise.all([loadFriends(true), loadRankings(true)]);
     } catch (error) {
-      toast('好友操作失败', multiplayerMissing(error) ? '请先执行多人农场 SQL。' : '请稍后再试。');
+      toast('好友操作失败', multiplayerMissing(error) ? '好友功能暂时不可用，请稍后再试。' : '请稍后再试。');
     }
   }
 
@@ -3184,7 +3184,7 @@
       invalidateMultiplayer();
       await Promise.all([loadFriends(true), loadRankings(true)]);
     } catch (error) {
-      toast('好友操作失败', multiplayerMissing(error) ? '请先执行多人农场 SQL。' : '请稍后再试。');
+      toast('好友操作失败', multiplayerMissing(error) ? '好友功能暂时不可用，请稍后再试。' : '请稍后再试。');
     }
   }
 
@@ -3572,7 +3572,7 @@
       }
     } catch (error) {
       const detail = multiplayerMissing(error)
-        ? '请先依序完成 023～025 农场多人互动 SQL。'
+        ? '好友互动暂时不可用，请稍后再试。'
         : '好友农场暂时读取失败，请稍后再试。';
       openModal({icon:'farm-expert', eyebrow:'FARM VISIT', title:'拜访失败', subtitle:detail, body:'<div class="farm-visit-actions"><button type="button" class="farm-friend-action" data-return-friend-list>返回好友列表</button></div>'});
     }
@@ -3629,7 +3629,7 @@
       await new Promise(resolve => setTimeout(resolve, 260));
       await visitFriend(friendId, {logVisit:false});
     } catch (error) {
-      toast('🥷 偷菜失败', multiplayerMissing(error) ? '请先执行 20260926_012_farm_daily_tasks.sql。' : '网络暂时不稳定，请稍后再试。');
+      toast('🥷 偷菜失败', multiplayerMissing(error) ? '偷菜功能暂时不可用，请稍后再试。' : '网络暂时不稳定，请稍后再试。');
       if (tile) {
         tile.disabled = false;
         tile.classList.remove('is-stealing');
@@ -3664,7 +3664,7 @@
       // Defer the heavier all-friends overview until the list is actually reopened.
       await visitFriend(friendId,{logVisit:false});
     } catch (error) {
-      toast('🐛 帮忙除虫失败', multiplayerMissing(error) ? '请先依序完成 023～025 农场多人互动 SQL。' : '网络暂时不稳定，请稍后再试。');
+      toast('🐛 帮忙除虫失败', multiplayerMissing(error) ? '好友互动暂时不可用，请稍后再试。' : '网络暂时不稳定，请稍后再试。');
       if (btn) btn.disabled=false;
     }
   }
@@ -3698,7 +3698,7 @@
       // Defer the heavier all-friends overview until the list is actually reopened.
       await visitFriend(friendId,{logVisit:false});
     } catch (error) {
-      toast('🐛 一键除虫失败', multiplayerMissing(error) ? '请先依序完成 023～025 农场多人互动 SQL。' : '网络暂时不稳定，请稍后再试。');
+      toast('🐛 一键除虫失败', multiplayerMissing(error) ? '好友互动暂时不可用，请稍后再试。' : '网络暂时不稳定，请稍后再试。');
       if (button) button.disabled=false;
     }
   }
@@ -3753,7 +3753,7 @@
       // Defer the heavier all-friends overview until the list is actually reopened.
       await visitFriend(friendId,{logVisit:false});
     } catch (error) {
-      toast('💧 助力浇水失败', multiplayerMissing(error) ? '请先执行 20260928_025_farm_friend_task_final.sql。' : '网络暂时不稳定，请稍后再试。');
+      toast('💧 助力浇水失败', multiplayerMissing(error) ? '好友助力暂时不可用，请稍后再试。' : '网络暂时不稳定，请稍后再试。');
       if (button) button.disabled=false;
     }
   }
@@ -5346,10 +5346,10 @@
           </div>
           <div class="farm-character-controls">
             <section class="farm-character-control-section">
-              <header><div><small>STELLAR PET</small><b>我的宠物</b></div><em>未拥有也可以预览；只有已拥有的宠物才能设为跟随。</em></header>
+              <header><div><small>STELLAR PET</small><b>我的宠物</b></div></header>
               <div class="farm-pet-list">${PETS.map(petCardMarkup).join('')}</div>
             </section>
-            <section class="farm-pet-hatch-note"><span>🥚</span><div><b>宠物蛋／孵化</b><small>先保留入口，后续版本再开放孵化与更多取得方式。</small></div></section>
+            <section class="farm-pet-hatch-note"><span>🥚</span><div><b>宠物蛋／孵化</b></div></section>
           </div>
         </section>`;
         return;
@@ -5375,14 +5375,14 @@
         if (slot.status === 'cooldown') {
           return `<section class="farm-train-slot is-cooldown" data-train-slot="${slot.index}">
             <header class="farm-train-slot-head"><div><small>第 ${slot.index + 1} 月台</small><b>${uiIconMarkup('cooldown','is-heading-ui')} 列车返程中</b></div><span>约 <strong data-train-cooldown-until="${slot.availableAt}">${formatTrainWait(slot.availableAt - Date.now())}</strong> 后抵达</span></header>
-            <div class="farm-train-empty-station"><img src="../images/farm/train-station.png?v=0.19.1" alt="星辰车站"></div>
+            <div class="farm-train-empty-station"><img src="../images/farm/train-station.png?v=0.19.1.1" alt="星辰车站"></div>
             <p class="farm-train-slot-note">奖励已在上一班发车时立即入账。返程后这里会自动出现一班全新的订单。</p>
           </section>`;
         }
         if (slot.status === 'done') {
           return `<section class="farm-train-slot is-done" data-train-slot="${slot.index}">
             <header class="farm-train-slot-head"><div><small>第 ${slot.index + 1} 月台</small><b>${uiIconMarkup('success','is-heading-ui')} 今日加班班次已满</b></div><span>00:00 统一刷新</span></header>
-            <div class="farm-train-empty-station"><img src="../images/farm/train-station.png?v=0.19.1" alt="星辰车站"></div>
+            <div class="farm-train-empty-station"><img src="../images/farm/train-station.png?v=0.19.1.1" alt="星辰车站"></div>
           </section>`;
         }
         const train = slot.train;
@@ -5397,7 +5397,7 @@
           const owned = Math.max(0, Number(state.produce[car.cropId]) || 0);
           const remaining = Math.max(0, car.required - car.loaded);
           return `<button type="button" class="farm-train-car is-${car.style} ${done ? 'is-complete' : ''} ${!done && owned <= 0 ? 'is-empty-bag' : ''}" data-train-slot-index="${slot.index}" data-train-load-index="${index}" ${done ? 'disabled' : ''} aria-label="${done ? `${crop.name}车厢已装满` : `查看${crop.name}装箱需求，还差${remaining}个，背包${owned}个`}">
-            <img src="../images/farm/train-car-${car.style}.png?v=0.19.1" alt="" aria-hidden="true">
+            <img src="../images/farm/train-car-${car.style}.png?v=0.19.1.1" alt="" aria-hidden="true">
             <span class="farm-train-car-ui"><i>${done ? uiIconMarkup('success','is-train-check-ui') : produceIconMarkup(crop,'is-train-produce-ui')}</i><b>${escapeHtml(crop.name)}</b><strong>${car.loaded} / ${car.required}</strong><small>${done ? '装载完成' : `背包 ${owned}`}</small></span>
           </button>`;
         }).join('');
@@ -5409,10 +5409,10 @@
             <div class="farm-train-reset"><small>火车重置券</small><b>${uiIconMarkup('refresh','is-inline-ui')} ×${Math.max(0,Math.floor(Number(state.supplies?.[TRAIN_RESET_TICKET_ID])||0))}</b></div>
           </div>
           <div class="farm-train-yard">
-            <img class="farm-train-yard-station" src="../images/farm/train-station.png?v=0.19.1" alt="" aria-hidden="true">
+            <img class="farm-train-yard-station" src="../images/farm/train-station.png?v=0.19.1.1" alt="" aria-hidden="true">
             <div class="farm-train-consist ${complete ? 'is-ready' : ''}" data-train-slot-index="${slot.index}">
               ${cars}
-              <div class="farm-train-engine is-${train.tier}"><img src="../images/farm/train-engine.png?v=0.19.1" alt="" aria-hidden="true"><span class="farm-train-engine-rate">×${train.multiplier.toFixed(1)}</span><span class="farm-train-smoke" aria-hidden="true"></span></div>
+              <div class="farm-train-engine is-${train.tier}"><img src="../images/farm/train-engine.png?v=0.19.1.1" alt="" aria-hidden="true"><span class="farm-train-engine-rate">×${train.multiplier.toFixed(1)}</span><span class="farm-train-smoke" aria-hidden="true"></span></div>
             </div>
           </div>
           <div class="farm-train-progress"><span><b>${loadedCars}</b> / ${train.cars.length} 节车厢已完成</span><div><i style="width:${Math.round((loadedCars/train.cars.length)*100)}%"></i></div></div>
@@ -5861,7 +5861,7 @@
     const modalIcon = $('farmModalIcon');
     if (modalIcon) {
       if (iconHtml) modalIcon.innerHTML = iconHtml;
-      else if (icon === 'train') modalIcon.innerHTML = '<img class="farm-modal-asset-icon" src="../images/farm/train-engine.png?v=0.19.1" alt="">';
+      else if (icon === 'train') modalIcon.innerHTML = '<img class="farm-modal-asset-icon" src="../images/farm/train-engine.png?v=0.19.1.1" alt="">';
       else {
         const mapped = UI_ICON_INDEX[icon] ? icon : (UI_EMOJI_ICON[icon] || (icon === '🌱' ? 'newbie-farmer' : ''));
         modalIcon.innerHTML = mapped ? uiIconMarkup(mapped,'is-modal-ui') : escapeHtml(icon || '');

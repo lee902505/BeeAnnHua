@@ -800,7 +800,7 @@
       restoreLastAstrologyInput();
       } catch(err) {
       console.error(err);
-      $('astroError').textContent = 'Astrology data could not be loaded. Please use Go Live / GitHub Pages.';
+      $('astroError').textContent = 'Astrology data could not be loaded. Please refresh and try again.';
       $('astroError').hidden = false;
     }
 

@@ -115,7 +115,7 @@
       try { values[key] = localStorage.getItem(key); } catch (_) { values[key] = null; }
     });
     writeJson(GUEST_BACKUP_KEY, {
-      version: '0.19.1',
+      version: '0.19.1.1',
       createdAt: new Date().toISOString(),
       fromUserId: fromUserId || '',
       counts: countLocal(),
@@ -159,13 +159,14 @@
     if (/invalid.*email/i.test(raw)) return '邮箱格式不正确。';
     if (/token.*expired|otp.*expired|expired/i.test(raw)) return '验证码已经过期，请重新发送登录邮件。';
     if (/token.*invalid|invalid.*token|otp.*invalid/i.test(raw)) return '验证码不正确，请检查后再试。';
-    if (/failed to fetch|network/i.test(raw)) return '无法连接 Supabase，请检查网络。';
+    if (/failed to fetch|network/i.test(raw)) return '无法连接云端账号服务，请检查网络后再试。';
+    if (/supabase|publishable|project url|sdk|config/i.test(raw)) return '云端账号服务暂时不可用，请稍后再试。';
     return raw;
   }
 
   function beginPending(email, fromUserId) {
     const pending = {
-      version: '0.19.1',
+      version: '0.19.1.1',
       mode: 'existing-login',
       email: normalizeEmail(email),
       fromUserId: fromUserId || '',
@@ -188,7 +189,7 @@
     if (!state.isAnonymous) return {ok:false, error:'当前已经是正式会员，无需重复登录。'};
 
     const sb = client();
-    if (!sb) return {ok:false, error:'Supabase client 尚未就绪。'};
+    if (!sb) return {ok:false, error:'云端账号服务正在准备，请稍后再试。'};
 
     const pending = beginPending(normalized, state.userId);
     try {
@@ -213,7 +214,7 @@
     const normalized = normalizeEmail(email || pending?.email);
     if (!validEmail(normalized)) return {ok:false, error:'请输入有效邮箱地址。'};
     const sb = client();
-    if (!sb) return {ok:false, error:'Supabase client 尚未就绪。'};
+    if (!sb) return {ok:false, error:'云端账号服务正在准备，请稍后再试。'};
     try {
       const {data, error} = await sb.auth.signInWithOtp({
         email: normalized,
@@ -255,7 +256,7 @@
     if (!/^\d{8}$/.test(code)) return {ok:false, error:'请输入邮件中的 8 位验证码。'};
 
     const sb = client();
-    if (!sb) return {ok:false, error:'Supabase client 尚未就绪。'};
+    if (!sb) return {ok:false, error:'云端账号服务正在准备，请稍后再试。'};
     try {
       const {data, error} = await sb.auth.verifyOtp({email:normalized, token:code, type:'email'});
       if (error) throw error;

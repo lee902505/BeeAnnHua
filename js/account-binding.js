@@ -53,10 +53,10 @@
     const raw = String(error?.message || error || '').trim();
     if (!raw) return '未知错误。';
     if (/manual.*link|identity.*link.*disabled|linking.*disabled/i.test(raw)) {
-      return 'Supabase 尚未开启 Allow manual linking。请先到 Authentication → Sign In / Providers 开启。';
+      return '邮箱绑定功能暂时不可用，请稍后再试。';
     }
     if (/already.*registered|already.*exists|email.*taken|user.*exists/i.test(raw)) {
-      return '这个邮箱已经属于另一个账号。当前版本不会自动覆盖；后续跨设备登录会使用已有账号登录流程。';
+      return '这个邮箱已经绑定其他账号，请使用原账号登录或更换邮箱。';
     }
     if (/rate limit|too many requests|email.*rate/i.test(raw)) {
       return '邮件发送过于频繁，请稍后再试。';
@@ -71,8 +71,9 @@
       return '验证码不正确，请检查后再试。';
     }
     if (/failed to fetch|network/i.test(raw)) {
-      return '无法连接 Supabase，请检查网络。';
+      return '无法连接云端账号服务，请检查网络后再试。';
     }
+    if (/supabase|publishable|project url|sdk|config/i.test(raw)) return '云端账号服务暂时不可用，请稍后再试。';
     return raw;
   }
 
@@ -88,7 +89,7 @@
     }
 
     const sb = client();
-    if (!sb) return {ok:false, error:'Supabase client 尚未就绪。'};
+    if (!sb) return {ok:false, error:'云端账号服务正在准备，请稍后再试。'};
 
     try {
       const result = await sb.auth.updateUser(
@@ -112,7 +113,7 @@
     if (!/^\d{8}$/.test(code)) return {ok:false, error:'请输入邮件中的 8 位验证码。'};
 
     const sb = client();
-    if (!sb) return {ok:false, error:'Supabase client 尚未就绪。'};
+    if (!sb) return {ok:false, error:'云端账号服务正在准备，请稍后再试。'};
 
     try {
       const {data, error} = await sb.auth.verifyOtp({
@@ -136,7 +137,7 @@
     if (!validEmail(normalized)) return {ok:false, error:'请先输入有效邮箱地址。'};
 
     const sb = client();
-    if (!sb) return {ok:false, error:'Supabase client 尚未就绪。'};
+    if (!sb) return {ok:false, error:'云端账号服务正在准备，请稍后再试。'};
 
     try {
       const {error} = await sb.auth.resend({

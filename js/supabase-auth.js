@@ -69,17 +69,18 @@
     const raw = String(error?.message || error || '').trim();
     if (!raw) return '';
     if (/anonymous.*disabled|anonymous sign-?ins? are disabled/i.test(raw)) {
-      return 'Supabase 尚未开启 Anonymous Sign-Ins。';
+      return '云端账号服务暂时不可用，请稍后再试。';
     }
     if (/invalid api key|api key.*invalid/i.test(raw)) {
-      return 'Supabase Publishable Key 无效。';
+      return '云端账号服务暂时不可用，请稍后再试。';
     }
     if (/manual.*link|identity.*link.*disabled|linking.*disabled/i.test(raw)) {
-      return 'Supabase 尚未开启 Allow manual linking。';
+      return '账号绑定服务暂时不可用，请稍后再试。';
     }
     if (/failed to fetch|network/i.test(raw)) {
-      return '无法连接 Supabase，请检查网络或 Project URL。';
+      return '无法连接云端账号服务，请检查网络后再试。';
     }
+    if (/supabase|publishable|project url|sdk|config|anonymous auth/i.test(raw)) return '云端账号服务暂时不可用，请稍后再试。';
     return raw;
   }
 
@@ -172,7 +173,7 @@
       const {data, error} = await instance.auth.signInAnonymously();
       if (error) throw error;
       const user = data?.user || data?.session?.user || null;
-      if (!user?.id) throw new Error('Anonymous Auth 未返回有效 user UUID。');
+      if (!user?.id) throw new Error('云端账号服务暂时无法建立身份，请稍后再试。');
       setState('ready', user, null);
       await syncProfile(false);
       return snapshot();
@@ -188,7 +189,7 @@
 
     const instance = client();
     if (!instance) {
-      return setState('error', null, new Error('Supabase client 尚未就绪。'));
+      return setState('error', null, new Error('云端账号服务正在准备，请稍后再试。'));
     }
 
     setState('restoring', currentUser, null);
@@ -212,7 +213,7 @@
 
   async function refreshUser() {
     const instance = client();
-    if (!instance) return setState('error', currentUser, new Error('Supabase client 尚未就绪。'));
+    if (!instance) return setState('error', currentUser, new Error('云端账号服务正在准备，请稍后再试。'));
     try {
       const {data, error} = await instance.auth.getUser();
       if (error) throw error;
@@ -254,7 +255,7 @@
 
   async function signOutToGuest() {
     const instance = client();
-    if (!instance) return {ok:false,error:'Supabase client 尚未就绪。'};
+    if (!instance) return {ok:false,error:'云端账号服务正在准备，请稍后再试。'};
     if (!currentUser?.id) {
       const state = await refresh();
       return {ok:Boolean(state?.signedIn && state?.isAnonymous), state, error:state?.error || ''};
@@ -314,7 +315,7 @@
 
       const instance = client();
       if (!instance) {
-        return setState('error', null, new Error('Supabase client 尚未就绪。'));
+        return setState('error', null, new Error('云端账号服务正在准备，请稍后再试。'));
       }
 
       bindAuthListener(instance);
