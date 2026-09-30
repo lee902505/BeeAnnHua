@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const FARM_BUILD = '0.19.0.4';
+  const FARM_BUILD = '0.19.1';
   const STORAGE_KEY = 'xingchen-farm-v1';
   const VERSION = 1;
   const PLOT_COUNT = 20;
@@ -16,7 +16,7 @@
   const PENDING_OPS_KEY = 'xingchen-farm-v1-pending-ops';
 
 
-  // V0.19.0.4 — seasonal wardrobe release. Outfit ownership remains permanent,
+  // V0.19.1 — seasonal wardrobe release. Outfit ownership remains permanent,
   // while avatar.outfit only records the currently equipped look. #5002 Mid-Autumn,
   // #5003 Halloween and #5004 Christmas now ship with male/female Sprite Sheets.
   const FARM_ITEM_IDS = Object.freeze({
@@ -25,6 +25,7 @@
     OUTFIT_MID_AUTUMN:5002,
     OUTFIT_HALLOWEEN:5003,
     OUTFIT_CHRISTMAS:5004,
+    PET_YA_YA:7001,
     DECOR_MID_LANTERN:6001,
     DECOR_MID_RABBIT:6002,
     DECOR_MID_OSMANTHUS:6003,
@@ -43,6 +44,12 @@
     Object.freeze({id:'mid_autumn', itemId:FARM_ITEM_IDS.OUTFIT_MID_AUTUMN, name:'中秋节造型', note:'月白与淡紫／冰蓝配色的中秋限定古风服装。', icon:'🌕', released:true, male:true, female:true, maleAsset:'mid-autumn-male.png', femaleAsset:'mid-autumn-female.png', maleFrames:8, femaleFrames:8}),
     Object.freeze({id:'halloween', itemId:FARM_ITEM_IDS.OUTFIT_HALLOWEEN, name:'万圣节造型', note:'黑红吸血鬼绅士／暗黑哥德礼服的万圣节限定造型。', icon:'🎃', released:true, male:true, female:true, maleAsset:'halloween-male.png', femaleAsset:'halloween-female.png', maleFrames:6, femaleFrames:8}),
     Object.freeze({id:'christmas', itemId:FARM_ITEM_IDS.OUTFIT_CHRISTMAS, name:'圣诞造型', note:'圣诞红冬装／红色毛绒斗篷的节日限定造型。', icon:'🎄', released:true, male:true, female:true, maleAsset:'christmas-male.png', femaleAsset:'christmas-female.png', maleFrames:6, femaleFrames:8})
+  ]);
+
+  // V0.19.1 — first follow-pet. Ownership is permanent under state.pets.owned;
+  // state.pets.active stores only the pet currently following the farm owner.
+  const PETS = Object.freeze([
+    Object.freeze({id:'ya_ya', itemId:FARM_ITEM_IDS.PET_YA_YA, name:'牙牙', note:'圆滚滚的奶白牙齿娃娃精灵，喜欢安静地陪在农场主人身边。', released:true, asset:'ya-ya.png', iconAsset:'ya-ya-icon.png', frames:6})
   ]);
 
   const CROPS = [
@@ -86,11 +93,11 @@
   ]);
 
 
-  // V0.19.0.4 — fixed-slot decoration catalog now includes seasonal scenery.
+  // V0.19.1 — fixed-slot decoration catalog now includes seasonal scenery.
   // Existing farm decor keeps using the event atlas. Seasonal decor uses its own
   // 4×4 scene atlas plus Item IDs / item-icon cells for GM mail and backpack UI.
   const DECORATION_SLOT_COUNT = 8;
-  // V0.19.0.4: slot 5 overlaps the farm owner avatar, so keep the save-array
+  // V0.19.1: slot 5 overlaps the farm owner avatar, so keep the save-array
   // shape stable but retire that visual placement. Old saves are migrated below.
   const DISABLED_DECORATION_SLOT_INDEXES = new Set([4]);
   const DECORATIONS = Object.freeze([
@@ -437,8 +444,9 @@
   let activeActivityDirection = 'received';
   let activeShopTab = 'seeds';
   let activeCharacterTab = 'avatar';
-  // Ephemeral wardrobe preview. Never saved or synced; the farm scene keeps the equipped outfit.
+  // Ephemeral wardrobe/pet previews. Never saved or synced; the farm scene keeps the equipped look/follower.
   let previewOutfitId = '';
+  let previewPetId = '';
   // V0.17.2.1 — friend farm patrol UX. Keep the list position and current
   // visit locally; no extra Supabase table/read is needed for navigation.
   let friendListScrollTop = 0;
@@ -536,6 +544,49 @@
           : `<button type="button" class="farm-outfit-apply is-locked" disabled>尚未开放</button>`;
     return `<article class="farm-outfit-card ${active ? 'is-active' : ''} ${previewing ? 'is-previewing' : ''} ${owned ? 'is-owned' : 'is-locked'} ${ready ? '' : 'is-coming-soon'}">${visual}<span class="farm-outfit-copy"><b>${escapeHtml(outfit.name)}</b><small>${escapeHtml(note)} · #${outfit.itemId}</small></span>${action}</article>`;
   }
+  function petById(id) { return PETS.find(item => item.id === id) || null; }
+  function petOwned(id) { return state.pets?.owned?.[id] === true; }
+  function activePet() {
+    const pet = petById(state.pets?.active || '');
+    return pet && pet.released && petOwned(pet.id) ? pet : null;
+  }
+  function petSpriteUrl(petId='ya_ya') {
+    const pet = petById(petId) || PETS[0];
+    return `../images/farm/pet/${pet.asset}?v=${FARM_BUILD}`;
+  }
+  function petSpriteMarkup(extraClass='', label='', petId='ya_ya') {
+    const pet = petById(petId) || PETS[0];
+    return `<span class="farm-pet-sprite ${extraClass}" data-pet-id="${escapeHtml(pet.id)}" data-pet-frames="${Number(pet.frames) || 6}" style="--pet-sprite-image:url('${petSpriteUrl(pet.id)}')" ${label ? `role="img" aria-label="${escapeHtml(label)}"` : 'aria-hidden="true"'}></span>`;
+  }
+  function previewablePet() {
+    const preview = previewPetId ? petById(previewPetId) : null;
+    if (preview && preview.released) return preview;
+    return activePet() || PETS.find(item => item.released) || null;
+  }
+  function petCardMarkup(pet) {
+    const active = state.pets?.active === pet.id && petOwned(pet.id);
+    const owned = petOwned(pet.id);
+    const ready = Boolean(pet.released);
+    const previewing = ready && previewPetId === pet.id && !active;
+    const visual = ready
+      ? `<span class="farm-pet-thumb">${petSpriteMarkup('is-pet-thumb','',pet.id)}</span>`
+      : '<span class="farm-pet-placeholder-art" aria-hidden="true">🥚</span>';
+    const note = ready ? (active ? '目前跟随 · 已拥有' : owned ? '永久收藏 · 已拥有' : (previewing ? '永久宠物 · 未拥有 · 预览中' : '永久宠物 · 未拥有')) : '尚未开放';
+    const previewingAnother = Boolean(previewPetId && previewPetId !== pet.id);
+    const action = active
+      ? (previewingAnother
+          ? `<button type="button" class="farm-pet-action is-current" data-preview-pet="${escapeHtml(pet.id)}">返回当前</button>`
+          : `<button type="button" class="farm-pet-action is-current" data-unfollow-pet="${escapeHtml(pet.id)}">取消跟随</button>`)
+      : ready && owned
+        ? `<button type="button" class="farm-pet-action" data-follow-pet="${escapeHtml(pet.id)}">跟随</button>`
+        : ready
+          ? (previewing
+              ? '<button type="button" class="farm-pet-action is-preview" disabled>👁 预览中</button>'
+              : `<button type="button" class="farm-pet-action is-preview" data-preview-pet="${escapeHtml(pet.id)}">预览</button>`)
+          : '<button type="button" class="farm-pet-action is-locked" disabled>尚未开放</button>';
+    return `<article class="farm-pet-card ${active ? 'is-active' : ''} ${previewing ? 'is-previewing' : ''} ${owned ? 'is-owned' : 'is-locked'}">${visual}<span class="farm-pet-copy"><b>${escapeHtml(pet.name)}</b><small>${escapeHtml(note)} · #${pet.itemId}</small></span>${action}</article>`;
+  }
+
   function cropById(id) { return id === MYSTERY_CROP.id ? MYSTERY_CROP : CROPS.find(c => c.id === id); }
   const fertilizerById = (id) => FERTILIZERS.find(item => item.id === id) || null;
 
@@ -1161,7 +1212,7 @@
       });
     }
 
-    // V0.19.0.4: NPC farms may wear seasonal outfits and intentionally use
+    // V0.19.1: NPC farms may wear seasonal outfits and intentionally use
     // matching seasonal scenery, including Halloween / Christmas assets that are
     // still hidden from the normal player shop. This remains deterministic and
     // local-only, so it adds no background Supabase traffic.
@@ -1196,6 +1247,7 @@
       coins:npc.coins,
       title_id:npc.titleId,
       avatar:{outfit:avatarOutfitById(npc.outfit || 'default').id},
+      pet:{active:null},
       plots,
       decorations:{slots}
     };
@@ -1598,7 +1650,7 @@
     return `<span class="farm-ui-icon ${escapeHtml(className)}" data-ui-icon="${safeKey}"${aria}></span>`;
   }
   function trainIconMarkup(className='') {
-    return `<img class="farm-inline-train-icon ${escapeHtml(className)}" src="../images/farm/train-engine.png?v=0.19.0.4" alt="" aria-hidden="true">`;
+    return `<img class="farm-inline-train-icon ${escapeHtml(className)}" src="../images/farm/train-engine.png?v=0.19.1" alt="" aria-hidden="true">`;
   }
   function uiTextMarkup(value) {
     let text = escapeHtml(value ?? '');
@@ -1877,6 +1929,7 @@
       decorations: { owned:{}, slots:Array(DECORATION_SLOT_COUNT).fill(null) },
       wardrobe: { outfits:{ default:true } },
       avatar: { gender:'male', outfit:'default' },
+      pets: { owned:{}, active:null },
       npcSocial: { friends:[], activities:[], steals:[], waterHelps:[], footprints:[], lastHelpCheckAt:0, lastVisitCheckAt:0 },
       train: null,
       stats: { visit:1, plant:0, harvest:0, sell:0, friend:0, blindBoxPlant:0, steals:0, friendVisits:0, helpWater:0, helpBug:0, maxCoins:INITIAL_COINS },
@@ -1959,6 +2012,16 @@
     const normalizedOutfit = (avatarOutfitEntry.id === 'default' || ownedOutfits[avatarOutfitEntry.id] === true) && avatarOutfitEntry.released && outfitSupportsGender(avatarOutfitEntry,avatarGender)
       ? avatarOutfitEntry.id : 'default';
     merged.avatar = {gender:avatarGender, outfit:normalizedOutfit};
+
+    const petsRaw = raw?.pets && typeof raw.pets === 'object' ? raw.pets : {};
+    const petOwnedRaw = petsRaw.owned && typeof petsRaw.owned === 'object' && !Array.isArray(petsRaw.owned) ? petsRaw.owned : {};
+    const ownedPets = {};
+    Object.entries(petOwnedRaw).forEach(([id,value]) => {
+      if (/^[a-z0-9][a-z0-9_-]{0,63}$/i.test(id) && value === true) ownedPets[id] = true;
+    });
+    const requestedPet = petById(petsRaw.active);
+    const normalizedPet = requestedPet && requestedPet.released && ownedPets[requestedPet.id] === true ? requestedPet.id : null;
+    merged.pets = {owned:ownedPets, active:normalizedPet};
 
     const validNpcIds = new Set(NPC_FARMERS.map(item => item.id));
     const npcRaw = raw?.npcSocial && typeof raw.npcSocial === 'object' ? raw.npcSocial : {};
@@ -3404,6 +3467,10 @@
     const friendOutfit = avatarOutfitById(payload?.avatar?.outfit || 'default');
     const friendGender = payload?.sex === 'female' ? 'female' : 'male';
     const friendAvatar = `<div class="farm-visit-owner-avatar" title="${escapeHtml(`${rawName} · ${friendOutfit.name}`)}">${avatarSpriteMarkupFor(friendGender, friendOutfit.id, 'is-visit-avatar', `${rawName} · ${friendOutfit.name}`)}</div>`;
+    const friendPetEntry = petById(payload?.pet?.active || '');
+    const friendPet = friendPetEntry && friendPetEntry.released
+      ? `<div class="farm-visit-owner-pet" title="${escapeHtml(`${rawName}的宠物 · ${friendPetEntry.name}`)}">${petSpriteMarkup('is-visit-pet', `${rawName}的宠物 ${friendPetEntry.name}`, friendPetEntry.id)}</div>`
+      : '';
     const bugAllButton = npc
       ? `<button type="button" class="farm-visit-care-button" disabled>${eventSpriteMarkup(6,'is-care-toolbar-icon')} 一键帮忙除虫 <b>0</b></button>`
       : `<button type="button" class="farm-visit-care-button" data-help-bug-all="${escapeHtml(friendId)}" ${pestCount ? '' : 'disabled'}>${eventSpriteMarkup(6,'is-care-toolbar-icon')} 一键帮忙除虫 <b>${pestCount}</b></button>`;
@@ -3422,6 +3489,7 @@
       <div class="farm-visit-scene">
         ${renderFriendDecorations(payload)}
         ${friendAvatar}
+        ${friendPet}
         <div class="farm-visit-field">${tiles.join('')}</div>
       </div>
       ${patrolNavMarkup(friendId,npc)}`;
@@ -3975,6 +4043,7 @@
   function renderAll() {
     renderOwner();
     renderFarmAvatar();
+    renderFarmPet();
     renderStats();
     renderField();
     renderDecorations();
@@ -4052,6 +4121,22 @@
     host.setAttribute('aria-label', `${label}，点击打开角色管理`);
     const labelEl = $('farmOwnerAvatarLabel');
     if (labelEl) labelEl.textContent = profile?.name || '农场主人';
+  }
+
+  function renderFarmPet() {
+    const host = $('farmOwnerPet');
+    if (!host) return;
+    const pet = activePet();
+    if (!pet) {
+      host.hidden = true;
+      host.innerHTML = '';
+      host.removeAttribute('data-pet-id');
+      return;
+    }
+    host.hidden = false;
+    host.dataset.petId = pet.id;
+    host.innerHTML = petSpriteMarkup('is-scene-pet', pet.name, pet.id);
+    host.setAttribute('aria-label', `${pet.name}，点击打开宠物管理`);
   }
 
   function renderStats() {
@@ -5194,7 +5279,7 @@
 
   function openPanel(panel, options = {}) {
     activePanel = panel;
-    if (panel === 'character') previewOutfitId = '';
+    if (panel === 'character') { previewOutfitId = ''; previewPetId = ''; }
     const meta = {
       shop:{icon:'shop', eyebrow:'FARM SHOP', title:'农场商店', subtitle:'购买种子、农资与装饰品，让农场越来越有自己的样子。'},
       bag:{icon:'bag', eyebrow:'INVENTORY', title:'我的背包', subtitle:'管理种子、肥料、装饰与收成蔬果；也可以从这里进入农场布置模式。'},
@@ -5248,15 +5333,23 @@
       const isPreviewing = outfit.id !== equippedOutfit.id;
       const tabs = `<div class="farm-character-tabs">
         <button type="button" data-character-tab="avatar" class="${activeCharacterTab === 'avatar' ? 'is-active' : ''}"><span class="stellar-ui-icon" data-site-icon="account" aria-hidden="true"></span> 人物</button>
-        <button type="button" data-character-tab="pet" class="${activeCharacterTab === 'pet' ? 'is-active' : ''}">🐾 宠物 <small>预留</small></button>
+        <button type="button" data-character-tab="pet" class="${activeCharacterTab === 'pet' ? 'is-active' : ''}">🐾 宠物</button>
       </div>`;
       if (activeCharacterTab === 'pet') {
-        body.innerHTML = tabs + `<section class="farm-pet-placeholder">
-          <div class="farm-pet-placeholder-hero"><span>🥚</span><div><small>STELLAR PET</small><b>宠物系统预留区</b><p>未来可在这里管理跟随宠物、宠物收藏与宠物蛋孵化。</p></div></div>
-          <div class="farm-pet-placeholder-grid">
-            <article><span>🐾</span><b>目前跟随</b><small>尚未拥有宠物</small></article>
-            <article><span>✨</span><b>宠物收藏</b><small>后续版本开放</small></article>
-            <article><span>🥚</span><b>孵化区</b><small>宠物蛋功能预留</small></article>
+        const pet = previewablePet();
+        const equippedPet = activePet();
+        const isPetPreview = Boolean(pet && (!equippedPet || pet.id !== equippedPet.id));
+        body.innerHTML = tabs + `<section class="farm-character-layout farm-pet-layout">
+          <div class="farm-character-preview-card farm-pet-preview-card ${isPetPreview ? 'is-preview-mode' : ''}">
+            <div class="farm-character-preview-stage farm-pet-preview-stage">${pet ? petSpriteMarkup('is-pet-preview', pet.name, pet.id) : '<span class="farm-pet-empty-hero">🐾</span>'}</div>
+            <div class="farm-character-preview-copy"><small>${isPetPreview ? '宠物预览' : (equippedPet ? '目前跟随' : '宠物收藏')}</small><b>${pet ? escapeHtml(pet.name) : '尚未选择宠物'}</b><span>${pet ? `${escapeHtml(pet.note)}${isPetPreview && !petOwned(pet.id) ? ' · 仅预览，尚未拥有' : ''}` : '取得宠物后可以让它陪你一起经营农场。'}</span></div>
+          </div>
+          <div class="farm-character-controls">
+            <section class="farm-character-control-section">
+              <header><div><small>STELLAR PET</small><b>我的宠物</b></div><em>未拥有也可以预览；只有已拥有的宠物才能设为跟随。</em></header>
+              <div class="farm-pet-list">${PETS.map(petCardMarkup).join('')}</div>
+            </section>
+            <section class="farm-pet-hatch-note"><span>🥚</span><div><b>宠物蛋／孵化</b><small>先保留入口，后续版本再开放孵化与更多取得方式。</small></div></section>
           </div>
         </section>`;
         return;
@@ -5282,14 +5375,14 @@
         if (slot.status === 'cooldown') {
           return `<section class="farm-train-slot is-cooldown" data-train-slot="${slot.index}">
             <header class="farm-train-slot-head"><div><small>第 ${slot.index + 1} 月台</small><b>${uiIconMarkup('cooldown','is-heading-ui')} 列车返程中</b></div><span>约 <strong data-train-cooldown-until="${slot.availableAt}">${formatTrainWait(slot.availableAt - Date.now())}</strong> 后抵达</span></header>
-            <div class="farm-train-empty-station"><img src="../images/farm/train-station.png?v=0.19.0.4" alt="星辰车站"></div>
+            <div class="farm-train-empty-station"><img src="../images/farm/train-station.png?v=0.19.1" alt="星辰车站"></div>
             <p class="farm-train-slot-note">奖励已在上一班发车时立即入账。返程后这里会自动出现一班全新的订单。</p>
           </section>`;
         }
         if (slot.status === 'done') {
           return `<section class="farm-train-slot is-done" data-train-slot="${slot.index}">
             <header class="farm-train-slot-head"><div><small>第 ${slot.index + 1} 月台</small><b>${uiIconMarkup('success','is-heading-ui')} 今日加班班次已满</b></div><span>00:00 统一刷新</span></header>
-            <div class="farm-train-empty-station"><img src="../images/farm/train-station.png?v=0.19.0.4" alt="星辰车站"></div>
+            <div class="farm-train-empty-station"><img src="../images/farm/train-station.png?v=0.19.1" alt="星辰车站"></div>
           </section>`;
         }
         const train = slot.train;
@@ -5304,7 +5397,7 @@
           const owned = Math.max(0, Number(state.produce[car.cropId]) || 0);
           const remaining = Math.max(0, car.required - car.loaded);
           return `<button type="button" class="farm-train-car is-${car.style} ${done ? 'is-complete' : ''} ${!done && owned <= 0 ? 'is-empty-bag' : ''}" data-train-slot-index="${slot.index}" data-train-load-index="${index}" ${done ? 'disabled' : ''} aria-label="${done ? `${crop.name}车厢已装满` : `查看${crop.name}装箱需求，还差${remaining}个，背包${owned}个`}">
-            <img src="../images/farm/train-car-${car.style}.png?v=0.19.0.4" alt="" aria-hidden="true">
+            <img src="../images/farm/train-car-${car.style}.png?v=0.19.1" alt="" aria-hidden="true">
             <span class="farm-train-car-ui"><i>${done ? uiIconMarkup('success','is-train-check-ui') : produceIconMarkup(crop,'is-train-produce-ui')}</i><b>${escapeHtml(crop.name)}</b><strong>${car.loaded} / ${car.required}</strong><small>${done ? '装载完成' : `背包 ${owned}`}</small></span>
           </button>`;
         }).join('');
@@ -5316,10 +5409,10 @@
             <div class="farm-train-reset"><small>火车重置券</small><b>${uiIconMarkup('refresh','is-inline-ui')} ×${Math.max(0,Math.floor(Number(state.supplies?.[TRAIN_RESET_TICKET_ID])||0))}</b></div>
           </div>
           <div class="farm-train-yard">
-            <img class="farm-train-yard-station" src="../images/farm/train-station.png?v=0.19.0.4" alt="" aria-hidden="true">
+            <img class="farm-train-yard-station" src="../images/farm/train-station.png?v=0.19.1" alt="" aria-hidden="true">
             <div class="farm-train-consist ${complete ? 'is-ready' : ''}" data-train-slot-index="${slot.index}">
               ${cars}
-              <div class="farm-train-engine is-${train.tier}"><img src="../images/farm/train-engine.png?v=0.19.0.4" alt="" aria-hidden="true"><span class="farm-train-engine-rate">×${train.multiplier.toFixed(1)}</span><span class="farm-train-smoke" aria-hidden="true"></span></div>
+              <div class="farm-train-engine is-${train.tier}"><img src="../images/farm/train-engine.png?v=0.19.1" alt="" aria-hidden="true"><span class="farm-train-engine-rate">×${train.multiplier.toFixed(1)}</span><span class="farm-train-smoke" aria-hidden="true"></span></div>
             </div>
           </div>
           <div class="farm-train-progress"><span><b>${loadedCars}</b> / ${train.cars.length} 节车厢已完成</span><div><i style="width:${Math.round((loadedCars/train.cars.length)*100)}%"></i></div></div>
@@ -5768,7 +5861,7 @@
     const modalIcon = $('farmModalIcon');
     if (modalIcon) {
       if (iconHtml) modalIcon.innerHTML = iconHtml;
-      else if (icon === 'train') modalIcon.innerHTML = '<img class="farm-modal-asset-icon" src="../images/farm/train-engine.png?v=0.19.0.4" alt="">';
+      else if (icon === 'train') modalIcon.innerHTML = '<img class="farm-modal-asset-icon" src="../images/farm/train-engine.png?v=0.19.1" alt="">';
       else {
         const mapped = UI_ICON_INDEX[icon] ? icon : (UI_EMOJI_ICON[icon] || (icon === '🌱' ? 'newbie-farmer' : ''));
         modalIcon.innerHTML = mapped ? uiIconMarkup(mapped,'is-modal-ui') : escapeHtml(icon || '');
@@ -5788,6 +5881,7 @@
     document.body.classList.remove('farm-modal-open');
     activePanel = null;
     previewOutfitId = '';
+    previewPetId = '';
     $('farmModal')?.classList.remove('is-train-modal');
   }
 
@@ -5940,6 +6034,46 @@
       return;
     }
 
+
+    const petEntry = event.target.closest('[data-open-pet-tab]');
+    if (petEntry) {
+      activeCharacterTab = 'pet';
+      openPanel('character');
+      return;
+    }
+
+    const petPreview = event.target.closest('[data-preview-pet]');
+    if (petPreview) {
+      const pet = petById(petPreview.dataset.previewPet);
+      if (!pet?.released) return;
+      previewPetId = state.pets?.active === pet.id ? '' : (previewPetId === pet.id ? '' : pet.id);
+      renderActivePanel();
+      return;
+    }
+
+    const petFollow = event.target.closest('[data-follow-pet]');
+    if (petFollow) {
+      const pet = petById(petFollow.dataset.followPet);
+      if (!pet?.released || !petOwned(pet.id)) return;
+      state.pets.active = pet.id;
+      previewPetId = '';
+      saveState();
+      renderFarmPet();
+      renderActivePanel();
+      return;
+    }
+
+    const petUnfollow = event.target.closest('[data-unfollow-pet]');
+    if (petUnfollow) {
+      const pet = petById(petUnfollow.dataset.unfollowPet);
+      if (!pet || state.pets?.active !== pet.id) return;
+      state.pets.active = null;
+      previewPetId = '';
+      saveState();
+      renderFarmPet();
+      renderActivePanel();
+      return;
+    }
 
     const outfitPreview = event.target.closest('[data-preview-outfit]');
     if (outfitPreview) {
@@ -6299,6 +6433,7 @@
       }
       renderOwner();
       renderFarmAvatar();
+      renderFarmPet();
       if (activePanel === 'character') renderActivePanel();
       invalidateMultiplayer();
     };
