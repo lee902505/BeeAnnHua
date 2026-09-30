@@ -1,4 +1,4 @@
-# V0.19.0.3
+# V0.19.0.4
 
 ## 每日熟练度 Icon／男性季节时装 6 Frame 稳定动画
 
@@ -678,3 +678,9 @@ Anonymous Supabase guest users can now open Stellar Mail, read active mail and v
 - 追加 CSS 容错选择器，避免外层状态与 Sprite 状态不同步。
 - 不需要 Supabase migration。
 
+
+
+## V0.19.0.4
+- Fixed the static farm-owner scene avatar not receiving `data-avatar-frames`.
+- Six-frame 2x3 seasonal male sprites now use the correct `200% 300%` slicing in the farm scene, preventing the body/head vertical split and apparent jumping.
+- No SQL changes.

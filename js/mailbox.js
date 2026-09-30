@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const BUILD = '0.19.0.3';
+  const BUILD = '0.19.0.4';
   const MAX_MAIL = 60;
   const POLL_MS = 90 * 1000;
   let mailRows = [];
