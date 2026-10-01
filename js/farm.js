@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const FARM_BUILD = '0.19.1.1';
+  const FARM_BUILD = '0.19.2';
   const STORAGE_KEY = 'xingchen-farm-v1';
   const VERSION = 1;
   const PLOT_COUNT = 20;
@@ -16,7 +16,7 @@
   const PENDING_OPS_KEY = 'xingchen-farm-v1-pending-ops';
 
 
-  // V0.19.1.1 — seasonal wardrobe release. Outfit ownership remains permanent,
+  // V0.19.2 — seasonal wardrobe release. Outfit ownership remains permanent,
   // while avatar.outfit only records the currently equipped look. #5002 Mid-Autumn,
   // #5003 Halloween and #5004 Christmas now ship with male/female Sprite Sheets.
   const FARM_ITEM_IDS = Object.freeze({
@@ -26,6 +26,9 @@
     OUTFIT_HALLOWEEN:5003,
     OUTFIT_CHRISTMAS:5004,
     PET_YA_YA:7001,
+    PET_SHIBA:7002,
+    PET_ORANGE_CAT:7003,
+    PET_MOON_RABBIT:7004,
     DECOR_MID_LANTERN:6001,
     DECOR_MID_RABBIT:6002,
     DECOR_MID_OSMANTHUS:6003,
@@ -46,10 +49,13 @@
     Object.freeze({id:'christmas', itemId:FARM_ITEM_IDS.OUTFIT_CHRISTMAS, name:'圣诞造型', note:'圣诞红冬装／红色毛绒斗篷的节日限定造型。', icon:'🎄', released:true, male:true, female:true, maleAsset:'christmas-male.png', femaleAsset:'christmas-female.png', maleFrames:6, femaleFrames:8})
   ]);
 
-  // V0.19.1.1 — first follow-pet. Ownership is permanent under state.pets.owned;
-  // state.pets.active stores only the pet currently following the farm owner.
+  // V0.19.2 — direct-unlock pet collection. Ownership is permanent under
+  // state.pets.owned; state.pets.active stores only the currently following pet.
   const PETS = Object.freeze([
-    Object.freeze({id:'ya_ya', itemId:FARM_ITEM_IDS.PET_YA_YA, name:'牙牙', note:'圆滚滚的奶白牙齿娃娃精灵，喜欢安静地陪在农场主人身边。', released:true, asset:'ya-ya.png', iconAsset:'ya-ya-icon.png', frames:6})
+    Object.freeze({id:'ya_ya', itemId:FARM_ITEM_IDS.PET_YA_YA, name:'牙牙', note:'圆滚滚的奶白牙齿娃娃精灵，喜欢安静地陪在农场主人身边。', released:true, asset:'ya-ya.png', iconAsset:'ya-ya-icon.png', frames:6}),
+    Object.freeze({id:'shiba', itemId:FARM_ITEM_IDS.PET_SHIBA, name:'小柴犬', note:'活泼亲人的小柴犬，戴着绿色农场领巾，总喜欢跟着主人巡田。', released:true, asset:'shiba.png', iconAsset:'shiba-icon.png', frames:6}),
+    Object.freeze({id:'orange_cat', itemId:FARM_ITEM_IDS.PET_ORANGE_CAT, name:'橘猫', note:'暖橘色的小猫咪，脖子上的小铃铛会陪着它一起在农场散步。', released:true, asset:'orange-cat.png', iconAsset:'orange-cat-icon.png', frames:6}),
+    Object.freeze({id:'moon_rabbit', itemId:FARM_ITEM_IDS.PET_MOON_RABBIT, name:'月桂兔', note:'带着桂花与弯月饰品的中秋小白兔，安静又温柔。', released:true, asset:'moon-rabbit.png', iconAsset:'moon-rabbit-icon.png', frames:6})
   ]);
 
   const CROPS = [
@@ -93,11 +99,11 @@
   ]);
 
 
-  // V0.19.1.1 — fixed-slot decoration catalog now includes seasonal scenery.
+  // V0.19.2 — fixed-slot decoration catalog now includes seasonal scenery.
   // Existing farm decor keeps using the event atlas. Seasonal decor uses its own
   // 4×4 scene atlas plus Item IDs / item-icon cells for GM mail and backpack UI.
   const DECORATION_SLOT_COUNT = 8;
-  // V0.19.1.1: slot 5 overlaps the farm owner avatar, so keep the save-array
+  // V0.19.2: slot 5 overlaps the farm owner avatar, so keep the save-array
   // shape stable but retire that visual placement. Old saves are migrated below.
   const DISABLED_DECORATION_SLOT_INDEXES = new Set([4]);
   const DECORATIONS = Object.freeze([
@@ -542,7 +548,7 @@
               ? `<button type="button" class="farm-outfit-apply is-preview" disabled>👁 预览中</button>`
               : `<button type="button" class="farm-outfit-apply is-preview" data-preview-outfit="${escapeHtml(outfit.id)}">预览</button>`)
           : `<button type="button" class="farm-outfit-apply is-locked" disabled>尚未开放</button>`;
-    return `<article class="farm-outfit-card ${active ? 'is-active' : ''} ${previewing ? 'is-previewing' : ''} ${owned ? 'is-owned' : 'is-locked'} ${ready ? '' : 'is-coming-soon'}">${visual}<span class="farm-outfit-copy"><b>${escapeHtml(outfit.name)}</b><small>${escapeHtml(note)} · #${outfit.itemId}</small></span>${action}</article>`;
+    return `<article class="farm-outfit-card ${active ? 'is-active' : ''} ${previewing ? 'is-previewing' : ''} ${owned ? 'is-owned' : 'is-locked'} ${ready ? '' : 'is-coming-soon'}">${visual}<span class="farm-outfit-copy"><b>${escapeHtml(outfit.name)}</b><small>${escapeHtml(note)}</small></span>${action}</article>`;
   }
   function petById(id) { return PETS.find(item => item.id === id) || null; }
   function petOwned(id) { return state.pets?.owned?.[id] === true; }
@@ -584,7 +590,7 @@
               ? '<button type="button" class="farm-pet-action is-preview" disabled>👁 预览中</button>'
               : `<button type="button" class="farm-pet-action is-preview" data-preview-pet="${escapeHtml(pet.id)}">预览</button>`)
           : '<button type="button" class="farm-pet-action is-locked" disabled>尚未开放</button>';
-    return `<article class="farm-pet-card ${active ? 'is-active' : ''} ${previewing ? 'is-previewing' : ''} ${owned ? 'is-owned' : 'is-locked'}">${visual}<span class="farm-pet-copy"><b>${escapeHtml(pet.name)}</b><small>${escapeHtml(note)} · #${pet.itemId}</small></span>${action}</article>`;
+    return `<article class="farm-pet-card ${active ? 'is-active' : ''} ${previewing ? 'is-previewing' : ''} ${owned ? 'is-owned' : 'is-locked'}">${visual}<span class="farm-pet-copy"><b>${escapeHtml(pet.name)}</b><small>${escapeHtml(note)}</small></span>${action}</article>`;
   }
 
   function cropById(id) { return id === MYSTERY_CROP.id ? MYSTERY_CROP : CROPS.find(c => c.id === id); }
@@ -1212,7 +1218,7 @@
       });
     }
 
-    // V0.19.1.1: NPC farms may wear seasonal outfits and intentionally use
+    // V0.19.2: NPC farms may wear seasonal outfits and intentionally use
     // matching seasonal scenery, including Halloween / Christmas assets that are
     // still hidden from the normal player shop. This remains deterministic and
     // local-only, so it adds no background Supabase traffic.
@@ -1650,7 +1656,7 @@
     return `<span class="farm-ui-icon ${escapeHtml(className)}" data-ui-icon="${safeKey}"${aria}></span>`;
   }
   function trainIconMarkup(className='') {
-    return `<img class="farm-inline-train-icon ${escapeHtml(className)}" src="../images/farm/train-engine.png?v=0.19.1.1" alt="" aria-hidden="true">`;
+    return `<img class="farm-inline-train-icon ${escapeHtml(className)}" src="../images/farm/train-engine.png?v=0.19.2" alt="" aria-hidden="true">`;
   }
   function uiTextMarkup(value) {
     let text = escapeHtml(value ?? '');
@@ -5286,7 +5292,7 @@
       tasks:{icon:'task', eyebrow:'FARM QUEST', title:'任务与成就', subtitle:'完成每日农务、新手任务与长期成就，领取奖励并解锁专属称号。'},
       ranking:{icon:'ranking', eyebrow:'RANKING', title:'农场排行榜', subtitle:'查看真实云端玩家的等级榜与金币榜，也可以直接发送好友申请。'},
       friends:{icon:'friends', eyebrow:'FRIENDS', title:'农场好友', subtitle:'真人好友与 NPC 农友都在这里；NPC 不参加排行榜、不会偷你的菜，但你可以限量偷 NPC 的成熟作物。'},
-      character:{iconHtml:'<span class="stellar-ui-icon is-character-modal-site-icon" data-site-icon="account" aria-hidden="true"></span>', eyebrow:'MY CHARACTER', title:'我的角色', subtitle:'管理农场主人造型，也可以查看宠物收藏与孵化空间。'},
+      character:{iconHtml:'<span class="stellar-ui-icon is-character-modal-site-icon" data-site-icon="account" aria-hidden="true"></span>', eyebrow:'MY CHARACTER', title:'我的角色', subtitle:'管理农场主人造型，也可以查看宠物收藏与跟随状态。'},
       train:{icon:'train', eyebrow:'STELLAR STATION', title:'星辰车站', subtitle:'每天 00:00 两个月台同时刷新，可自由挑选倍率；发车奖励立即入账，4～6 小时后还可能有加班列车返程。'}
     }[panel];
     if (!meta) return;
@@ -5349,7 +5355,6 @@
               <header><div><small>STELLAR PET</small><b>我的宠物</b></div></header>
               <div class="farm-pet-list">${PETS.map(petCardMarkup).join('')}</div>
             </section>
-            <section class="farm-pet-hatch-note"><span>🥚</span><div><b>宠物蛋／孵化</b></div></section>
           </div>
         </section>`;
         return;
@@ -5375,14 +5380,14 @@
         if (slot.status === 'cooldown') {
           return `<section class="farm-train-slot is-cooldown" data-train-slot="${slot.index}">
             <header class="farm-train-slot-head"><div><small>第 ${slot.index + 1} 月台</small><b>${uiIconMarkup('cooldown','is-heading-ui')} 列车返程中</b></div><span>约 <strong data-train-cooldown-until="${slot.availableAt}">${formatTrainWait(slot.availableAt - Date.now())}</strong> 后抵达</span></header>
-            <div class="farm-train-empty-station"><img src="../images/farm/train-station.png?v=0.19.1.1" alt="星辰车站"></div>
+            <div class="farm-train-empty-station"><img src="../images/farm/train-station.png?v=0.19.2" alt="星辰车站"></div>
             <p class="farm-train-slot-note">奖励已在上一班发车时立即入账。返程后这里会自动出现一班全新的订单。</p>
           </section>`;
         }
         if (slot.status === 'done') {
           return `<section class="farm-train-slot is-done" data-train-slot="${slot.index}">
             <header class="farm-train-slot-head"><div><small>第 ${slot.index + 1} 月台</small><b>${uiIconMarkup('success','is-heading-ui')} 今日加班班次已满</b></div><span>00:00 统一刷新</span></header>
-            <div class="farm-train-empty-station"><img src="../images/farm/train-station.png?v=0.19.1.1" alt="星辰车站"></div>
+            <div class="farm-train-empty-station"><img src="../images/farm/train-station.png?v=0.19.2" alt="星辰车站"></div>
           </section>`;
         }
         const train = slot.train;
@@ -5397,7 +5402,7 @@
           const owned = Math.max(0, Number(state.produce[car.cropId]) || 0);
           const remaining = Math.max(0, car.required - car.loaded);
           return `<button type="button" class="farm-train-car is-${car.style} ${done ? 'is-complete' : ''} ${!done && owned <= 0 ? 'is-empty-bag' : ''}" data-train-slot-index="${slot.index}" data-train-load-index="${index}" ${done ? 'disabled' : ''} aria-label="${done ? `${crop.name}车厢已装满` : `查看${crop.name}装箱需求，还差${remaining}个，背包${owned}个`}">
-            <img src="../images/farm/train-car-${car.style}.png?v=0.19.1.1" alt="" aria-hidden="true">
+            <img src="../images/farm/train-car-${car.style}.png?v=0.19.2" alt="" aria-hidden="true">
             <span class="farm-train-car-ui"><i>${done ? uiIconMarkup('success','is-train-check-ui') : produceIconMarkup(crop,'is-train-produce-ui')}</i><b>${escapeHtml(crop.name)}</b><strong>${car.loaded} / ${car.required}</strong><small>${done ? '装载完成' : `背包 ${owned}`}</small></span>
           </button>`;
         }).join('');
@@ -5409,10 +5414,10 @@
             <div class="farm-train-reset"><small>火车重置券</small><b>${uiIconMarkup('refresh','is-inline-ui')} ×${Math.max(0,Math.floor(Number(state.supplies?.[TRAIN_RESET_TICKET_ID])||0))}</b></div>
           </div>
           <div class="farm-train-yard">
-            <img class="farm-train-yard-station" src="../images/farm/train-station.png?v=0.19.1.1" alt="" aria-hidden="true">
+            <img class="farm-train-yard-station" src="../images/farm/train-station.png?v=0.19.2" alt="" aria-hidden="true">
             <div class="farm-train-consist ${complete ? 'is-ready' : ''}" data-train-slot-index="${slot.index}">
               ${cars}
-              <div class="farm-train-engine is-${train.tier}"><img src="../images/farm/train-engine.png?v=0.19.1.1" alt="" aria-hidden="true"><span class="farm-train-engine-rate">×${train.multiplier.toFixed(1)}</span><span class="farm-train-smoke" aria-hidden="true"></span></div>
+              <div class="farm-train-engine is-${train.tier}"><img src="../images/farm/train-engine.png?v=0.19.2" alt="" aria-hidden="true"><span class="farm-train-engine-rate">×${train.multiplier.toFixed(1)}</span><span class="farm-train-smoke" aria-hidden="true"></span></div>
             </div>
           </div>
           <div class="farm-train-progress"><span><b>${loadedCars}</b> / ${train.cars.length} 节车厢已完成</span><div><i style="width:${Math.round((loadedCars/train.cars.length)*100)}%"></i></div></div>
@@ -5494,7 +5499,7 @@
         </section>
         <section class="farm-bag-section farm-station-item-section">
           <header><b>${uiIconMarkup('refresh','is-heading-ui')} 车站道具</b><span>${Math.max(0,Math.floor(Number(state.supplies?.[TRAIN_RESET_TICKET_ID])||0))} 张</span></header>
-          <div class="farm-bag-list"><div class="farm-bag-row farm-supply-row"><span class="farm-ticket-icon">${catalogSpriteMarkup(1,'is-bag-ticket','火车重置券')}</span><div><b>火车重置券 <small>#${TRAIN_RESET_TICKET_ITEM_ID}</small></b><small>在星辰车站刷新一班尚未发车的订单：倍率、作物种类与需求数量都会重新抽取，已装货物会退回背包。</small></div><em>×${Math.max(0,Math.floor(Number(state.supplies?.[TRAIN_RESET_TICKET_ID])||0))}</em></div></div>
+          <div class="farm-bag-list"><div class="farm-bag-row farm-supply-row"><span class="farm-ticket-icon">${catalogSpriteMarkup(1,'is-bag-ticket','火车重置券')}</span><div><b>火车重置券</b><small>在星辰车站刷新一班尚未发车的订单：倍率、作物种类与需求数量都会重新抽取，已装货物会退回背包。</small></div><em>×${Math.max(0,Math.floor(Number(state.supplies?.[TRAIN_RESET_TICKET_ID])||0))}</em></div></div>
         </section>
         <section class="farm-bag-section farm-decor-bag-section">
           <header><b>${uiIconMarkup('farm-expert','is-heading-ui')} 装饰</b><span>${decorOwnedTotal} 件</span></header>
@@ -5861,7 +5866,7 @@
     const modalIcon = $('farmModalIcon');
     if (modalIcon) {
       if (iconHtml) modalIcon.innerHTML = iconHtml;
-      else if (icon === 'train') modalIcon.innerHTML = '<img class="farm-modal-asset-icon" src="../images/farm/train-engine.png?v=0.19.1.1" alt="">';
+      else if (icon === 'train') modalIcon.innerHTML = '<img class="farm-modal-asset-icon" src="../images/farm/train-engine.png?v=0.19.2" alt="">';
       else {
         const mapped = UI_ICON_INDEX[icon] ? icon : (UI_EMOJI_ICON[icon] || (icon === '🌱' ? 'newbie-farmer' : ''));
         modalIcon.innerHTML = mapped ? uiIconMarkup(mapped,'is-modal-ui') : escapeHtml(icon || '');

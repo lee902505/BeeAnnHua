@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const BUILD = '0.19.1.1';
+  const BUILD = '0.19.2';
   const MAX_MAIL = 60;
   const POLL_MS = 90 * 1000;
   let mailRows = [];
@@ -120,8 +120,9 @@
     return `<span class="mail-farm-catalog-icon ${className}" style="--mail-catalog-x:${(col/3)*100}%;--mail-catalog-y:${(row/3)*100}%" aria-hidden="true"></span>`;
   }
   function farmPetIcon(key='ya_ya',className='') {
-    const safeClass=key==='ya_ya'?'is-ya-ya':'is-ya-ya';
-    return `<span class="mail-farm-pet-icon ${safeClass} ${className}" aria-hidden="true"></span>`;
+    const files={ya_ya:'ya-ya-icon.png',shiba:'shiba-icon.png',orange_cat:'orange-cat-icon.png',moon_rabbit:'moon-rabbit-icon.png'};
+    const file=files[key] || files.ya_ya;
+    return `<span class="mail-farm-pet-icon ${className}" style="--mail-pet-image:url('../images/farm/pet/${file}?v=0.19.2')" aria-hidden="true"></span>`;
   }
   function catalogIcon(item,className='') {
     if (!item) return farmIcon('reward-box',className);

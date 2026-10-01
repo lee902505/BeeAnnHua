@@ -115,7 +115,7 @@
       try { values[key] = localStorage.getItem(key); } catch (_) { values[key] = null; }
     });
     writeJson(GUEST_BACKUP_KEY, {
-      version: '0.19.1.1',
+      version: '0.19.2',
       createdAt: new Date().toISOString(),
       fromUserId: fromUserId || '',
       counts: countLocal(),
@@ -166,7 +166,7 @@
 
   function beginPending(email, fromUserId) {
     const pending = {
-      version: '0.19.1.1',
+      version: '0.19.2',
       mode: 'existing-login',
       email: normalizeEmail(email),
       fromUserId: fromUserId || '',
